@@ -10,5 +10,5 @@ it('renders without crashing', () => {
     </Provider>
   )
   render(<Root />)
-  expect(screen.getByText(/React You Do You/)).toBeInTheDocument()
+  expect(screen.getByText(/Patient Journey/)).toBeInTheDocument()
 })
