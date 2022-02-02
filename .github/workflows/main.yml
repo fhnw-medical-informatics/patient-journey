@@ -9,8 +9,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./patient-journey-client
+    defaults:
+      run:
+        working-directory: ./patient-journey-client
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v2.3.1
@@ -19,11 +20,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-          cache: 'yarn'
-        working-directory: ${{env.working-directory}}
 
       - name: Install & Test ✅
         run: |
           yarn install
           yarn run test:ci
-        working-directory: ${{env.working-directory}}
