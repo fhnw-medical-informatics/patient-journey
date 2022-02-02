@@ -3,6 +3,8 @@ name: CI/CD
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
@@ -19,5 +21,6 @@ jobs:
 
       - name: Install & Test ✅
         run: |
+          cd patient-journey-client
           yarn install
           yarn run test:ci
