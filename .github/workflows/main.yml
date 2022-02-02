@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    evn:
+    env:
       working-directory: ./patient-journey-client
     steps:
       - name: Checkout 🛎️
