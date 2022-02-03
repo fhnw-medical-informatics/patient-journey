@@ -5,17 +5,17 @@
   "homepage": "/patient-journey",
   "scripts": {
     "build": "tsc && vite build",
-    "lint": "eslint './src/**/*.{ts,tsx}'",
+    "build-storybook": "build-storybook",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint --max-warnings 0 './src/**/*.{ts,tsx}'",
     "lint:fix": "eslint './src/**/*.{ts,tsx}' --fix",
+    "prepare": "cd .. && husky install patient-journey-client/.husky",
     "prepreview": "yarn build",
     "preview": "vite preview",
     "start": "vite",
-    "test": "vitest",
-    "test:ci": "CI=true vitest run",
-    "coverage": "vitest run --coverage",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "prepare": "cd .. && husky install patient-journey-client/.husky"
+    "test": "vitest",
+    "test:ci": "CI=true vitest run"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
