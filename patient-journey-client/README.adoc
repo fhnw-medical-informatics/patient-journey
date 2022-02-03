@@ -1,6 +1,6 @@
 = patient-journey-client
 
-image:https://github.com/fhnw-medical-informatics/patient-journey/patient-journey-client/actions/workflows/main.yml/badge.svg[]
+image:https://github.com/fhnw-medical-informatics/patient-journey/actions/workflows/main.yml/badge.svg[]
 
 Web application, based on React, TypeScript & MUI 5.
 
