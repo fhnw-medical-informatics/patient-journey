@@ -52,15 +52,17 @@ const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSl
 
 export const DATA_FILE_URL = 'data/mock-patients.csv'
 
-export const loadData = () => async (dispatch: AppDispatch) => {
-  dispatch(loadingDataInProgress())
-  try {
-    const response = await fetch(DATA_FILE_URL)
-    const csv = await response.text()
-    const data = await dataForge.fromCSV(csv)
-    dispatch(loadingDataComplete(data.toRows()))
-  } catch (e) {
-    console.error(e)
-    dispatch(loadingDataFailed('Error fetching data'))
+export const loadData =
+  (url: string = DATA_FILE_URL) =>
+  async (dispatch: AppDispatch) => {
+    dispatch(loadingDataInProgress())
+    try {
+      const response = await fetch(url)
+      const csv = await response.text()
+      const data = await dataForge.fromCSV(csv)
+      dispatch(loadingDataComplete(data.toRows()))
+    } catch (e) {
+      console.error(e)
+      dispatch(loadingDataFailed('Error fetching data'))
+    }
   }
-}
