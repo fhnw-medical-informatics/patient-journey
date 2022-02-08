@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '../store'
+import * as dataForge from 'data-forge'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -49,12 +50,15 @@ const dataSlice = createSlice({
 export const dataReducer = dataSlice.reducer
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 
+export const DATA_FILE_URL = 'data/mock-patients.csv'
+
 export const loadData = () => async (dispatch: AppDispatch) => {
   dispatch(loadingDataInProgress())
   try {
-    // TODO: Load data from CSV
-    await new Promise((r) => setTimeout(r, 2000))
-    dispatch(loadingDataComplete([{}, {}, {}]))
+    const response = await fetch(DATA_FILE_URL)
+    const csv = await response.text()
+    const data = await dataForge.fromCSV(csv)
+    dispatch(loadingDataComplete(data.toRows()))
   } catch (e) {
     console.error(e)
     dispatch(loadingDataFailed('Error fetching data'))
