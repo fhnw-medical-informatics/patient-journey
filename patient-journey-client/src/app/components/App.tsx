@@ -2,11 +2,11 @@ import React from 'react'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import { ThemeSwitch } from '../../theme'
-import { ChatErrors, ChatHistory, ChatInput } from '../../chat'
 import { Typography } from '@mui/material'
 import { makeStyles } from '../../utils'
+import { Data } from '../../data'
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
   toolbar: {
     display: 'grid',
     gridTemplateColumns: 'auto auto',
@@ -16,13 +16,10 @@ const useStyles = makeStyles()({
     display: 'grid',
     height: '100vh',
     width: '100vw',
-    gridTemplateRows: 'auto 1fr',
-    gridRowGap: 8,
-    paddingTop: 100,
-    paddingLeft: '20vw',
-    paddingRight: '20vw',
+    padding: theme.spacing(1),
+    paddingTop: 70,
   },
-})
+}))
 
 export const App = () => {
   const { classes } = useStyles()
@@ -35,10 +32,8 @@ export const App = () => {
         </Toolbar>
       </AppBar>
       <div className={classes.main}>
-        <ChatInput />
-        <ChatHistory />
+        <Data />
       </div>
-      <ChatErrors />
     </>
   )
 }
