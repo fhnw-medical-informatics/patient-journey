@@ -17,14 +17,23 @@ export type DataStateLoadingFailed = Readonly<{
 
 export type DataStateLoadingComplete = Readonly<{
   type: 'loading-complete'
-  patients: PatientModel
+  patientData: PatientData
 }>
 
-interface PatientModel {
-  readonly columns: ReadonlyArray<string>
+interface PatientData {
+  readonly fields: ReadonlyArray<string>
   readonly rows: ReadonlyArray<Patient>
 }
-interface Patient {}
+
+enum PatientIdBrand {}
+
+export type PatientId = PatientIdBrand & string
+export const PatientIdNone = 'n/a' as PatientId
+
+export interface Patient {
+  readonly id: PatientId
+  readonly values: ReadonlyArray<string>
+}
 
 export type DataState =
   | DataStateLoadingPending
@@ -43,9 +52,9 @@ const dataSlice = createSlice({
       type: 'loading-failed',
       errorMessage: action.payload,
     }),
-    loadingDataComplete: (_state: DataState, action: PayloadAction<PatientModel>): DataState => ({
+    loadingDataComplete: (_state: DataState, action: PayloadAction<PatientData>): DataState => ({
       type: 'loading-complete',
-      patients: action.payload,
+      patientData: action.payload,
     }),
   },
 })
@@ -62,10 +71,16 @@ export const loadData =
     try {
       const response = await fetch(url)
       const csv = await response.text()
-      const result = csvParser.parse<Patient>(csv, { header: true, skipEmptyLines: true })
-      const data: PatientModel = {
-        columns: result.meta.fields ?? [],
-        rows: result.data,
+      // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
+      const result = csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
+      const data: PatientData = {
+        fields: result.data[0],
+        rows: result.data.slice(1).map((row: string[]) => {
+          return {
+            id: row[0] as PatientId,
+            values: row,
+          }
+        }),
       }
       dispatch(loadingDataComplete(data))
     } catch (e) {
