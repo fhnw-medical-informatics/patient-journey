@@ -12,7 +12,7 @@ describe('dataSlice', () => {
       switch (url) {
         case `${successUrl}`:
           return Promise.resolve({
-            text: () => Promise.resolve('Col_1,Col_2\nCell_11,Cell_12\nCell_21,Cell_22'),
+            text: () => Promise.resolve('Col_1,Col_2\nCell_11,Cell_12\n\nCell_21,Cell_22'),
           })
         case `${errorUrl}`:
           throw new Error('Boom!')
@@ -30,7 +30,7 @@ describe('dataSlice', () => {
     expect(data.type).toEqual('loading-complete')
 
     const patients = (data as DataStateLoadingComplete).patients
-    expect(patients.length).toEqual(2)
+    expect(patients.rows.length).toEqual(2)
   })
 
   it('loadData loading-failed', async () => {

@@ -26,5 +26,5 @@ DataLoadingFailed.args = {
 
 export const DataLoadingComplete = Template.bind({})
 DataLoadingComplete.args = {
-  data: { type: 'loading-complete', patients: [] },
+  data: { type: 'loading-complete', patients: { columns: [''], rows: [''] } },
 }

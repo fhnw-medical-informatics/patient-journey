@@ -28,8 +28,9 @@ export const Data = ({ data }: Props) => {
         return <LoadingProgress />
       case 'loading-failed':
         return <LoadingError errorMessage={data.errorMessage} />
-      case 'loading-complete':
-        return <Typography>{`${data.patients.length} patient(s) loaded`}</Typography>
+      case 'loading-complete': {
+        return <Typography>{`${data.patients.rows.length} patient(s) loaded`}</Typography>
+      }
     }
   }
 

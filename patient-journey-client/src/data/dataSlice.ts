@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '../store'
-import * as dataForge from 'data-forge'
+import * as csvParser from 'papaparse'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -20,7 +20,10 @@ export type DataStateLoadingComplete = Readonly<{
   patients: PatientModel
 }>
 
-type PatientModel = ReadonlyArray<Patient>
+interface PatientModel {
+  readonly columns: ReadonlyArray<string>
+  readonly rows: ReadonlyArray<Patient>
+}
 interface Patient {}
 
 export type DataState =
@@ -59,8 +62,12 @@ export const loadData =
     try {
       const response = await fetch(url)
       const csv = await response.text()
-      const data = await dataForge.fromCSV(csv)
-      dispatch(loadingDataComplete(data.toRows()))
+      const result = csvParser.parse<Patient>(csv, { header: true, skipEmptyLines: true })
+      const data: PatientModel = {
+        columns: result.meta.fields ?? [],
+        rows: result.data,
+      }
+      dispatch(loadingDataComplete(data))
     } catch (e) {
       console.error(e)
       dispatch(loadingDataFailed('Error fetching data'))
