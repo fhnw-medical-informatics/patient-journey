@@ -4,20 +4,15 @@ import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { makeStyles } from '../../../utils'
 import { Patient, PatientId, PatientIdNone } from '../../dataSlice'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
+import { ColumnSortingState } from './TableHeaderCell'
+import { TableHeader } from './TableHeader'
 
-// Ideally, we'd like the table header & footer to stick to the end and the table body
-// to automagically fill all available space. Unfortunately, it is not possible to place
-// an AutoSizer component around the table body (due to DOM validation issues).
-// We thus auto-size the complete table and calculate the body size manually...
-
-const ROW_HEIGHT = 33 // MUI default for 'dense' tables
-
-// TODO: Add header & footer
-
-const HEADER_HEIGHT = 0 // 159 // table column header height (only shown in full screen mode)
+const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
+const HEADER_HEIGHT = 48 // MUI header height with our custom padding
+// TODO: Add footer
 const FOOTER_HEIGHT = 0 // 52
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
   maxed: {
     display: 'grid',
     width: '100%',
@@ -35,11 +30,12 @@ const useStyles = makeStyles()({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    padding: theme.spacing(0.5),
   },
-})
+}))
 
 interface Props {
-  readonly fields: ReadonlyArray<string>
+  readonly columns: ReadonlyArray<string>
   readonly patients: ReadonlyArray<Patient>
   readonly selectedPatientId: PatientId
   readonly onSelectPatient: (id: PatientId) => void
@@ -47,9 +43,9 @@ interface Props {
 
 export const PatientDataTable = (props: Props) => {
   const { classes } = useStyles()
-  const { fields, patients, selectedPatientId, onSelectPatient } = props
+  const { columns, patients, selectedPatientId, onSelectPatient } = props
 
-  const [sortingState] = useState<ColumnSortingState>({ type: 'neutral' })
+  const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
 
   useEffect(() => setPage(0), [patients.length])
@@ -60,7 +56,7 @@ export const PatientDataTable = (props: Props) => {
     <div className={classes.maxed}>
       <AutoSizer>
         {({ width, height }: Size) => {
-          const columnWidth = width / fields.length
+          const columnWidth = width / columns.length
           const bodyHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT
           const rowsPerPage = Math.floor(bodyHeight / ROW_HEIGHT)
           const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, patients.length - page * rowsPerPage)
@@ -68,7 +64,13 @@ export const PatientDataTable = (props: Props) => {
 
           return (
             <div style={{ width, height }}>
-              <Table size="small" className={classes.table}>
+              <Table size="small" className={classes.table} padding={'none'}>
+                <TableHeader
+                  columns={columns}
+                  columnWidth={columnWidth}
+                  sortingState={sortingState}
+                  setSortingState={setSortingState}
+                />
                 <TableBody component={'tbody'}>
                   {stableSort(patients, sortingState)
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -79,7 +81,7 @@ export const PatientDataTable = (props: Props) => {
                         selected={selectedPatientId === row.id}
                         onClick={onRowClick(row.id)}
                       >
-                        {fields.map((_, index) => {
+                        {columns.map((_, index) => {
                           const value = row.values[index] ?? ''
                           return (
                             <TableCell
@@ -122,15 +124,6 @@ const VerticalSpacer = ({ isAllRowsEmpty, height }: VerticalSpacerProps) => (
 
 // Sorting logic inspired by https://codesandbox.io/s/f71wj?file=/demo.js
 // In addition to 'asc' | 'desc', we support a 3rd 'neutral' state (import order)
-
-export type ColumnSortingState =
-  | Readonly<{
-      type: 'neutral'
-    }>
-  | Readonly<{
-      type: 'asc' | 'desc'
-      columnIndex: number
-    }>
 
 function stableSort(rows: ReadonlyArray<Patient>, sortingState: ColumnSortingState) {
   if (sortingState.type === 'neutral') {

@@ -32,7 +32,7 @@ export const Data = ({ data }: Props) => {
       case 'loading-complete': {
         return (
           <PatientDataTable
-            fields={data.patientData.fields}
+            columns={data.patientData.fields}
             patients={data.patientData.rows}
             selectedPatientId={PatientIdNone}
             onSelectPatient={() => {}}
