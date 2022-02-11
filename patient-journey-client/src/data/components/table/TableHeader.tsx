@@ -14,6 +14,7 @@ export const TableHeader = (props: Props) => {
       <TableRow>
         {columns.map((column, columnIndex) => (
           <TableHeaderCell
+            key={columnIndex}
             label={column}
             columnIndex={columnIndex}
             {...props}

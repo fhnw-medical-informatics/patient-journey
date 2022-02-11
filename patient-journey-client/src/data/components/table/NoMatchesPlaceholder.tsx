@@ -3,6 +3,6 @@ import React from 'react'
 
 export const NoMatchesPlaceholder = () => (
   <Box fontStyle="italic" textAlign={'center'}>
-    {'No matching patients'}
+    {'No data (or no filter matches)'}
   </Box>
 )

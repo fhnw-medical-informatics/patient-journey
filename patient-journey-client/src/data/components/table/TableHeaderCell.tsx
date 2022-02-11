@@ -15,6 +15,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
   sortLabel: {
     display: 'grid',
     gridTemplateColumns: '1fr auto',
+    whiteSpace: 'nowrap',
   },
   divider: {
     height: '100%',

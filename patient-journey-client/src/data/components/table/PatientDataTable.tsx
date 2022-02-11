@@ -6,11 +6,10 @@ import { Patient, PatientId, PatientIdNone } from '../../dataSlice'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { ColumnSortingState } from './TableHeaderCell'
 import { TableHeader } from './TableHeader'
+import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
-// TODO: Add footer
-const FOOTER_HEIGHT = 0 // 52
 
 const useStyles = makeStyles()((theme) => ({
   maxed: {
@@ -101,6 +100,12 @@ export const PatientDataTable = (props: Props) => {
                   />
                 </TableBody>
               </Table>
+              <TableFooter
+                rowsPerPage={rowsPerPage}
+                count={patients.length}
+                page={page}
+                onPageChange={(e, newPage) => setPage(newPage)}
+              />
             </div>
           )
         }}
@@ -116,9 +121,7 @@ interface VerticalSpacerProps {
 
 const VerticalSpacer = ({ isAllRowsEmpty, height }: VerticalSpacerProps) => (
   <TableRow>
-    <TableCell colSpan={6} style={{ textAlign: 'center', height }}>
-      {isAllRowsEmpty ? <NoMatchesPlaceholder /> : ''}
-    </TableCell>
+    <TableCell style={{ textAlign: 'center', height }}>{isAllRowsEmpty ? <NoMatchesPlaceholder /> : ''}</TableCell>
   </TableRow>
 )
 
