@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '../store'
 import * as csvParser from 'papaparse'
 import { ParseResult } from 'papaparse'
@@ -21,15 +21,24 @@ export type DataStateLoadingComplete = Readonly<{
   patientData: PatientData
 }>
 
-interface PatientData {
+export interface PatientData {
   readonly fields: ReadonlyArray<string>
-  readonly rows: ReadonlyArray<Patient>
+  readonly allPatients: ReadonlyArray<Patient>
+  readonly selectedPatients: ReadonlyArray<PatientId>
+  readonly hoveredPatient: PatientId
 }
 
 enum PatientIdBrand {}
 
 export type PatientId = PatientIdBrand & string
 export const PatientIdNone = 'n/a' as PatientId
+
+export const EMPTY_PATIENT_DATA: PatientData = {
+  fields: [],
+  allPatients: [],
+  selectedPatients: [],
+  hoveredPatient: PatientIdNone,
+}
 
 export interface Patient {
   readonly id: PatientId
@@ -41,6 +50,10 @@ export type DataState =
   | DataStateLoadingInProgress
   | DataStateLoadingFailed
   | DataStateLoadingComplete
+
+interface SelectedPatient {
+  readonly id: PatientId
+}
 
 const dataSlice = createSlice({
   name: 'data',
@@ -57,10 +70,30 @@ const dataSlice = createSlice({
       type: 'loading-complete',
       patientData: action.payload,
     }),
+    togglePatientSelection: (state: Draft<DataState>, action: PayloadAction<SelectedPatient>) => {
+      mutatePatientData(state, (pd) => {
+        const id = action.payload.id
+        const selection = new Set(pd.selectedPatients)
+        if (selection.has(id)) {
+          selection.delete(id)
+          pd.selectedPatients = Array.from(selection)
+        } else {
+          pd.selectedPatients = pd.selectedPatients.concat(id)
+        }
+      })
+    },
   },
 })
 
+const mutatePatientData = (state: Draft<DataState>, applyMutation: (pd: Draft<PatientData>) => void) => {
+  if (state.type === 'loading-complete') {
+    applyMutation(state.patientData)
+  }
+}
+
 export const dataReducer = dataSlice.reducer
+export const { togglePatientSelection } = dataSlice.actions
+
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 
 export const DATA_FILE_URL = 'data/mock-patients.csv'
@@ -84,14 +117,12 @@ export const loadData =
 
 const createData = (result: ParseResult<string[]>): PatientData => {
   if (result.data.length === 0) {
-    return {
-      fields: [],
-      rows: [],
-    }
+    return EMPTY_PATIENT_DATA
   } else {
     return {
+      ...EMPTY_PATIENT_DATA,
       fields: result.data[0],
-      rows: result.data.slice(1).map((row: string[]) => {
+      allPatients: result.data.slice(1).map((row: string[]) => {
         return {
           id: row[0] as PatientId,
           values: row,

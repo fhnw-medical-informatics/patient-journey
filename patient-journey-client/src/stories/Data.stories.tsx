@@ -1,7 +1,7 @@
 import React from 'react'
 import { Meta, Story } from '@storybook/react'
 import { Data, Props } from '../data/components/Data'
-import { PatientId } from '../data/dataSlice'
+import { EMPTY_PATIENT_DATA, PatientId } from '../data/dataSlice'
 
 export default {
   title: 'Data',
@@ -34,8 +34,9 @@ DataLoadingComplete.args = {
   data: {
     type: 'loading-complete',
     patientData: {
+      ...EMPTY_PATIENT_DATA,
       fields: ['Id', 'First Name', 'Last Name'],
-      rows: [
+      allPatients: [
         { id: '0' as PatientId, values: ['Ada', 'Lovelace'] },
         { id: '1' as PatientId, values: ['Michelle', 'Obama '] },
       ],

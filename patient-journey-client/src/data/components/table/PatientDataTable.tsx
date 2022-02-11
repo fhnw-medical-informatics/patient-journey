@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { makeStyles } from '../../../utils'
-import { Patient, PatientId, PatientIdNone } from '../../dataSlice'
+import { Patient, PatientId } from '../../dataSlice'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { ColumnSortingState } from './TableHeaderCell'
 import { TableHeader } from './TableHeader'
@@ -36,20 +36,20 @@ const useStyles = makeStyles()((theme) => ({
 interface Props {
   readonly columns: ReadonlyArray<string>
   readonly patients: ReadonlyArray<Patient>
-  readonly selectedPatientId: PatientId
-  readonly onSelectPatient: (id: PatientId) => void
+  readonly selectedPatients: ReadonlySet<PatientId>
+  readonly onTogglePatientSelection: (id: PatientId) => void
 }
 
 export const PatientDataTable = (props: Props) => {
   const { classes } = useStyles()
-  const { columns, patients, selectedPatientId, onSelectPatient } = props
+  const { columns, patients, selectedPatients, onTogglePatientSelection } = props
 
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
 
   useEffect(() => setPage(0), [patients.length])
 
-  const onRowClick = (id: PatientId) => () => onSelectPatient(selectedPatientId === id ? PatientIdNone : id)
+  const onRowClick = (id: PatientId) => () => onTogglePatientSelection(id)
 
   return (
     <div className={classes.maxed}>
@@ -77,7 +77,7 @@ export const PatientDataTable = (props: Props) => {
                       <TableRow
                         key={row.id}
                         hover={true}
-                        selected={selectedPatientId === row.id}
+                        selected={selectedPatients.has(row.id)}
                         onClick={onRowClick(row.id)}
                       >
                         {columns.map((_, index) => {
