@@ -1,5 +1,5 @@
 import { PatientDataTable as PatientDataTableComponent } from '../../components/table/PatientDataTable'
-import { PatientData, PatientId, PatientIdNone, setSelectedPatient } from '../../dataSlice'
+import { PatientData, PatientId, PatientIdNone, setHoveredPatient, setSelectedPatient } from '../../dataSlice'
 import React, { useCallback } from 'react'
 import { useAppDispatch } from '../../../store'
 
@@ -12,9 +12,16 @@ export const PatientDataTable = ({ data }: Props) => {
 
   const onPatientClick = useCallback(
     (id: PatientId) => {
-      dispatch(setSelectedPatient({ id: data.selectedPatient === id ? PatientIdNone : id }))
+      dispatch(setSelectedPatient(data.selectedPatient === id ? PatientIdNone : id))
     },
     [data.selectedPatient, dispatch]
+  )
+
+  const onPatientHover = useCallback(
+    (id: PatientId) => {
+      dispatch(setHoveredPatient(id))
+    },
+    [dispatch]
   )
 
   return (
@@ -23,6 +30,7 @@ export const PatientDataTable = ({ data }: Props) => {
       patients={data.allPatients}
       selectedPatient={data.selectedPatient}
       onPatientClick={onPatientClick}
+      onPatientHover={onPatientHover}
     />
   )
 }

@@ -51,10 +51,6 @@ export type DataState =
   | DataStateLoadingFailed
   | DataStateLoadingComplete
 
-interface SelectedPatient {
-  readonly id: PatientId
-}
-
 const dataSlice = createSlice({
   name: 'data',
   initialState: { type: 'loading-pending' } as DataState,
@@ -70,8 +66,11 @@ const dataSlice = createSlice({
       type: 'loading-complete',
       patientData: action.payload,
     }),
-    setSelectedPatient: (state: Draft<DataState>, action: PayloadAction<SelectedPatient>) => {
-      mutatePatientData(state, (pd) => (pd.selectedPatient = action.payload.id))
+    setSelectedPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutatePatientData(state, (pd) => (pd.selectedPatient = action.payload as PatientId))
+    },
+    setHoveredPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutatePatientData(state, (pd) => (pd.hoveredPatient = action.payload as PatientId))
     },
   },
 })
@@ -83,7 +82,7 @@ const mutatePatientData = (state: Draft<DataState>, applyMutation: (pd: Draft<Pa
 }
 
 export const dataReducer = dataSlice.reducer
-export const { setSelectedPatient } = dataSlice.actions
+export const { setSelectedPatient, setHoveredPatient } = dataSlice.actions
 
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 

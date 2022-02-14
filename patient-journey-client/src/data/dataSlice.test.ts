@@ -4,6 +4,7 @@ import {
   loadData,
   PatientId,
   PatientIdNone,
+  setHoveredPatient,
   setSelectedPatient,
 } from './dataSlice'
 import { createStore } from '../store'
@@ -75,9 +76,20 @@ describe('dataSlice', () => {
     await loadData(successUrl)(store.dispatch)
     const getSelected = () => (store.getState().data as DataStateLoadingComplete).patientData.selectedPatient
     expect(getSelected()).toEqual(PatientIdNone)
-    store.dispatch(setSelectedPatient({ id: ID_1 }))
+    store.dispatch(setSelectedPatient(ID_1))
     expect(getSelected()).toEqual(ID_1)
-    store.dispatch(setSelectedPatient({ id: PatientIdNone }))
+    store.dispatch(setSelectedPatient(PatientIdNone))
     expect(getSelected()).toEqual(PatientIdNone)
+  })
+
+  it(`handles ${setHoveredPatient.type} action`, async () => {
+    const store = createStore()
+    await loadData(successUrl)(store.dispatch)
+    const getHovered = () => (store.getState().data as DataStateLoadingComplete).patientData.hoveredPatient
+    expect(getHovered()).toEqual(PatientIdNone)
+    store.dispatch(setHoveredPatient(ID_1))
+    expect(getHovered()).toEqual(ID_1)
+    store.dispatch(setHoveredPatient(PatientIdNone))
+    expect(getHovered()).toEqual(PatientIdNone)
   })
 })
