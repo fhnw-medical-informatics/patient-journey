@@ -24,13 +24,5 @@ export const PatientDataTable = ({ data }: Props) => {
     [dispatch]
   )
 
-  return (
-    <PatientDataTableComponent
-      columns={data.fields}
-      patients={data.allPatients}
-      selectedPatient={data.selectedPatient}
-      onPatientClick={onPatientClick}
-      onPatientHover={onPatientHover}
-    />
-  )
+  return <PatientDataTableComponent data={data} onPatientClick={onPatientClick} onPatientHover={onPatientHover} />
 }

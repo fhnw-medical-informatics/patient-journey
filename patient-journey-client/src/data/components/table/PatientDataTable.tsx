@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { makeStyles } from '../../../utils'
-import { Patient, PatientId, PatientIdNone } from '../../dataSlice'
+import { Patient, PatientData, PatientId, PatientIdNone } from '../../dataSlice'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { ColumnSortingState } from './TableHeaderCell'
 import { TableHeader } from './TableHeader'
@@ -34,17 +34,15 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface Props {
-  readonly columns: ReadonlyArray<string>
-  readonly patients: ReadonlyArray<Patient>
-  readonly selectedPatient: PatientId
+  readonly data: PatientData
   readonly onPatientClick: (id: PatientId) => void
   readonly onPatientHover: (id: PatientId) => void
 }
 
-export const PatientDataTable = (props: Props) => {
+export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
   const { classes } = useStyles()
-  const { columns, patients, selectedPatient, onPatientClick, onPatientHover } = props
-
+  const patients = data.allPatients
+  const columns = useMemo(() => data.fields.map((f) => f.name), [data.fields])
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
 
@@ -76,7 +74,7 @@ export const PatientDataTable = (props: Props) => {
                       <TableRow
                         key={row.id}
                         hover={true}
-                        selected={selectedPatient === row.id}
+                        selected={data.selectedPatient === row.id}
                         onClick={() => onPatientClick(row.id)}
                         onMouseEnter={() => onPatientHover(row.id)}
                         onMouseLeave={() => onPatientHover(PatientIdNone)}

@@ -21,8 +21,14 @@ export type DataStateLoadingComplete = Readonly<{
   patientData: PatientData
 }>
 
+export type DataState =
+  | DataStateLoadingPending
+  | DataStateLoadingInProgress
+  | DataStateLoadingFailed
+  | DataStateLoadingComplete
+
 export interface PatientData {
-  readonly fields: ReadonlyArray<string>
+  readonly fields: ReadonlyArray<PatientDataField>
   readonly allPatients: ReadonlyArray<Patient>
   readonly selectedPatient: PatientId
   readonly hoveredPatient: PatientId
@@ -45,11 +51,12 @@ export interface Patient {
   readonly values: ReadonlyArray<string>
 }
 
-export type DataState =
-  | DataStateLoadingPending
-  | DataStateLoadingInProgress
-  | DataStateLoadingFailed
-  | DataStateLoadingComplete
+interface PatientDataField {
+  readonly name: string
+  readonly type: PatientDataFieldType
+}
+
+type PatientDataFieldType = 'id' | 'string' | 'number' | 'date'
 
 const dataSlice = createSlice({
   name: 'data',
@@ -106,13 +113,19 @@ export const loadData =
   }
 
 const createData = (result: ParseResult<string[]>): PatientData => {
-  if (result.data.length === 0) {
+  if (result.data.length < 2) {
     return EMPTY_PATIENT_DATA
   } else {
+    const fieldNames = result.data[0]
+    const fieldTypes = result.data[1]
+    const fields = fieldNames.map<PatientDataField>((name, i) => ({
+      name,
+      type: fieldTypes[i] as PatientDataFieldType,
+    }))
     return {
       ...EMPTY_PATIENT_DATA,
-      fields: result.data[0],
-      allPatients: result.data.slice(1).map((row: string[]) => {
+      fields,
+      allPatients: result.data.slice(2).map((row: string[]) => {
         return {
           id: row[0] as PatientId,
           values: row,
