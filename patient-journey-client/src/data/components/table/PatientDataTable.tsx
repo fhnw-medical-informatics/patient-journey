@@ -36,20 +36,18 @@ const useStyles = makeStyles()((theme) => ({
 interface Props {
   readonly columns: ReadonlyArray<string>
   readonly patients: ReadonlyArray<Patient>
-  readonly selectedPatients: ReadonlySet<PatientId>
-  readonly onTogglePatientSelection: (id: PatientId) => void
+  readonly selectedPatient: PatientId
+  readonly onPatientClick: (id: PatientId) => void
 }
 
 export const PatientDataTable = (props: Props) => {
   const { classes } = useStyles()
-  const { columns, patients, selectedPatients, onTogglePatientSelection } = props
+  const { columns, patients, selectedPatient, onPatientClick } = props
 
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
 
   useEffect(() => setPage(0), [patients.length])
-
-  const onRowClick = (id: PatientId) => () => onTogglePatientSelection(id)
 
   return (
     <div className={classes.maxed}>
@@ -77,8 +75,8 @@ export const PatientDataTable = (props: Props) => {
                       <TableRow
                         key={row.id}
                         hover={true}
-                        selected={selectedPatients.has(row.id)}
-                        onClick={onRowClick(row.id)}
+                        selected={selectedPatient === row.id}
+                        onClick={() => onPatientClick(row.id)}
                       >
                         {columns.map((_, index) => {
                           const value = row.values[index] ?? ''

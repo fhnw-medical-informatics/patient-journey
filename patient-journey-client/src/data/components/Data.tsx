@@ -20,24 +20,23 @@ export interface Props {
 
 export const Data = ({ data }: Props) => {
   const { classes } = useStyles()
-
-  const View = () => {
-    switch (data.type) {
-      case 'loading-pending':
-        return <Typography>No Data</Typography>
-      case 'loading-in-progress':
-        return <LoadingProgress />
-      case 'loading-failed':
-        return <LoadingError errorMessage={data.errorMessage} />
-      case 'loading-complete': {
-        return <PatientDataTable data={data.patientData} />
-      }
-    }
-  }
-
   return (
     <Paper className={classes.root}>
-      <View />
+      <DataView data={data} />
     </Paper>
   )
+}
+
+const DataView = ({ data }: Props) => {
+  switch (data.type) {
+    case 'loading-pending':
+      return <Typography>No Data</Typography>
+    case 'loading-in-progress':
+      return <LoadingProgress />
+    case 'loading-failed':
+      return <LoadingError errorMessage={data.errorMessage} />
+    case 'loading-complete': {
+      return <PatientDataTable data={data.patientData} />
+    }
+  }
 }

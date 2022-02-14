@@ -1,6 +1,6 @@
 import { PatientDataTable as PatientDataTableComponent } from '../../components/table/PatientDataTable'
-import { PatientData, PatientId, togglePatientSelection } from '../../dataSlice'
-import { useCallback } from 'react'
+import { PatientData, PatientId, PatientIdNone, setSelectedPatient } from '../../dataSlice'
+import React, { useCallback } from 'react'
 import { useAppDispatch } from '../../../store'
 
 interface Props {
@@ -9,18 +9,20 @@ interface Props {
 
 export const PatientDataTable = ({ data }: Props) => {
   const dispatch = useAppDispatch()
-  const onTogglePatientSelection = useCallback(
+
+  const onPatientClick = useCallback(
     (id: PatientId) => {
-      dispatch(togglePatientSelection({ id }))
+      dispatch(setSelectedPatient({ id: data.selectedPatient === id ? PatientIdNone : id }))
     },
-    [dispatch]
+    [data.selectedPatient, dispatch]
   )
+
   return (
     <PatientDataTableComponent
       columns={data.fields}
       patients={data.allPatients}
-      selectedPatients={new Set(data.selectedPatients)}
-      onTogglePatientSelection={onTogglePatientSelection}
+      selectedPatient={data.selectedPatient}
+      onPatientClick={onPatientClick}
     />
   )
 }

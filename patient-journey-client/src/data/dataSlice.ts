@@ -24,7 +24,7 @@ export type DataStateLoadingComplete = Readonly<{
 export interface PatientData {
   readonly fields: ReadonlyArray<string>
   readonly allPatients: ReadonlyArray<Patient>
-  readonly selectedPatients: ReadonlyArray<PatientId>
+  readonly selectedPatient: PatientId
   readonly hoveredPatient: PatientId
 }
 
@@ -36,7 +36,7 @@ export const PatientIdNone = 'n/a' as PatientId
 export const EMPTY_PATIENT_DATA: PatientData = {
   fields: [],
   allPatients: [],
-  selectedPatients: [],
+  selectedPatient: PatientIdNone,
   hoveredPatient: PatientIdNone,
 }
 
@@ -70,17 +70,8 @@ const dataSlice = createSlice({
       type: 'loading-complete',
       patientData: action.payload,
     }),
-    togglePatientSelection: (state: Draft<DataState>, action: PayloadAction<SelectedPatient>) => {
-      mutatePatientData(state, (pd) => {
-        const id = action.payload.id
-        const selection = new Set(pd.selectedPatients)
-        if (selection.has(id)) {
-          selection.delete(id)
-          pd.selectedPatients = Array.from(selection)
-        } else {
-          pd.selectedPatients = pd.selectedPatients.concat(id)
-        }
-      })
+    setSelectedPatient: (state: Draft<DataState>, action: PayloadAction<SelectedPatient>) => {
+      mutatePatientData(state, (pd) => (pd.selectedPatient = action.payload.id))
     },
   },
 })
@@ -92,7 +83,7 @@ const mutatePatientData = (state: Draft<DataState>, applyMutation: (pd: Draft<Pa
 }
 
 export const dataReducer = dataSlice.reducer
-export const { togglePatientSelection } = dataSlice.actions
+export const { setSelectedPatient } = dataSlice.actions
 
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 
