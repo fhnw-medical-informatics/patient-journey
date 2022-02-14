@@ -48,8 +48,8 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string) =>
 const LIGHT_SELECTION_COLOR = yellow[200]
 const DARK_SELECTION_COLOR = deepPurple[400]
 
-const lightTheme = createCustomTheme('light', LIGHT_SELECTION_COLOR)
-const darkTheme = createCustomTheme('dark', DARK_SELECTION_COLOR)
+export const lightTheme = createCustomTheme('light', LIGHT_SELECTION_COLOR)
+export const darkTheme = createCustomTheme('dark', DARK_SELECTION_COLOR)
 
 export const useCustomTheme = () =>
   useAppSelector<Theme>((s) => {

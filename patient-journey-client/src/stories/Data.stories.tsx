@@ -37,8 +37,8 @@ DataLoadingComplete.args = {
       ...EMPTY_PATIENT_DATA,
       fields: ['Id', 'First Name', 'Last Name'],
       allPatients: [
-        { id: '0' as PatientId, values: ['Ada', 'Lovelace'] },
-        { id: '1' as PatientId, values: ['Michelle', 'Obama '] },
+        { id: '0' as PatientId, values: ['0', 'Ada', 'Lovelace'] },
+        { id: '1' as PatientId, values: ['1', 'Michelle', 'Obama '] },
       ],
     },
   },
