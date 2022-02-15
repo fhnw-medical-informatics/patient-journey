@@ -116,7 +116,8 @@ const createData = (result: ParseResult<string[]>): PatientData => {
     return EMPTY_PATIENT_DATA
   } else {
     const fieldNames = result.data[0]
-    const fieldTypes = result.data[1]
+    const fieldTypes = result.data[1].map((v) => v.toLowerCase())
+    const idColumnIndex = fieldTypes.indexOf('id')
     const fields = fieldNames.map<PatientDataField>((name, i) => ({
       name,
       type: fieldTypes[i] as PatientDataFieldType,
@@ -126,7 +127,7 @@ const createData = (result: ParseResult<string[]>): PatientData => {
       fields,
       allPatients: result.data.slice(2).map((row: string[]) => {
         return {
-          id: row[0] as PatientId,
+          id: row[idColumnIndex] as PatientId,
           values: row,
         }
       }),

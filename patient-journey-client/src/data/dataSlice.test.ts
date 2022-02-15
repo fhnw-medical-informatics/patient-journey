@@ -10,7 +10,7 @@ import {
 import { createStore } from '../store'
 
 const ID_1 = 'Id_1' as PatientId
-const MOCK_CSV = 'Id,Col_1,Col_2\nid,string,string\nId_1,Cell_11,Cell_12\n\nId_2,Cell_21,Cell_22'
+const MOCK_CSV = 'Col_1,Id,Col_2\nstring,iD,string\nCell_11,Id_1,Cell_12\n\nCell_21,Id_2,Cell_22'
 
 describe('dataSlice', () => {
   const successUrl = 'success-url'
@@ -47,8 +47,8 @@ describe('dataSlice', () => {
     const patientData = (data as DataStateLoadingComplete).patientData
     expect(patientData.allPatients.length).toEqual(2)
     expect(patientData.fields).toEqual([
-      { name: 'Id', type: 'id' },
       { name: 'Col_1', type: 'string' },
+      { name: 'Id', type: 'id' },
       { name: 'Col_2', type: 'string' },
     ])
     expect(patientData.allPatients[0].id).toEqual('Id_1')
