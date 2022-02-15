@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import { ThemeSwitch } from '../../theme'
-import { Typography } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 import { makeStyles } from '../../utils'
 import { Data } from '../../data'
+import SplitPane from 'react-split-pane'
+
+const DEFAULT_SPLIT_PANE_SIZE = '75%'
 
 const useStyles = makeStyles()((theme) => ({
   toolbar: {
@@ -16,13 +19,33 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     height: '100vh',
     width: '100vw',
-    padding: theme.spacing(1),
+  },
+  top: {
     paddingTop: 70,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    display: 'grid',
+    width: '100%',
+    height: '100%',
+  },
+  resizer: {
+    minWidth: 5,
+    minHeight: 5,
+    boxSizing: 'border-box',
+    background: theme.palette.divider,
+    opacity: 0.5,
+    zIndex: 1,
+    backgroundClip: 'padding-box',
+    cursor: 'ns-resize',
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
 }))
 
 export const App = () => {
   const { classes } = useStyles()
+  const theme = useTheme()
+  const [splitPaneSize, setSplitPaneSize] = useState<'default' | number>('default')
   return (
     <>
       <AppBar>
@@ -32,7 +55,23 @@ export const App = () => {
         </Toolbar>
       </AppBar>
       <div className={classes.main}>
-        <Data />
+        <SplitPane
+          split={'horizontal'}
+          resizerClassName={classes.resizer}
+          size={splitPaneSize === 'default' ? DEFAULT_SPLIT_PANE_SIZE : splitPaneSize}
+          onChange={setSplitPaneSize}
+          pane2Style={{
+            display: 'grid',
+            width: '100%',
+            height: '100%',
+            backgroundColor: theme.palette.background.paper,
+          }}
+        >
+          <div className={classes.top}>
+            <Data />
+          </div>
+          <div>{/** TODO: Timeline */}</div>
+        </SplitPane>
       </div>
     </>
   )
