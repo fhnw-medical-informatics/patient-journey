@@ -2,6 +2,7 @@ import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '../store'
 import * as csvParser from 'papaparse'
 import { ParseResult } from 'papaparse'
+import { DATA_FILE_URL } from './dataConfig'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -92,8 +93,6 @@ export const dataReducer = dataSlice.reducer
 export const { setSelectedPatient, setHoveredPatient } = dataSlice.actions
 
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
-
-export const DATA_FILE_URL = 'data/mock-patients.csv'
 
 export const loadData =
   (url: string = DATA_FILE_URL) =>
