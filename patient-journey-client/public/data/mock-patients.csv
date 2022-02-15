@@ -1,4 +1,5 @@
 "Index","First Name","Last Name","Date Of Birth","Height","Weight","Shirt Size","Hair Color"
+id,string,string,date,number,number,string,string
 0001,Raphael,Blumenthal,07.12.1929,179,95,M,Blonde
 0002,Dany,Bär,03.06.1985,181,93,M,Black
 0003,Candice,Schaich,26.02.1991,171,74,M,Black

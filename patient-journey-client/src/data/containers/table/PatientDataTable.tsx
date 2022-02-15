@@ -8,14 +8,6 @@ interface Props {
 }
 
 export const PatientDataTable = ({ data }: Props) => {
-  const { selectedPatient, onPatientClick, onPatientHover } = usePatientInteraction()
-  return (
-    <PatientDataTableComponent
-      columns={data.fields}
-      patients={data.allPatients}
-      selectedPatient={selectedPatient}
-      onPatientClick={onPatientClick}
-      onPatientHover={onPatientHover}
-    />
-  )
+  const { onPatientClick, onPatientHover } = usePatientInteraction()
+  return <PatientDataTableComponent data={data} onPatientClick={onPatientClick} onPatientHover={onPatientHover} />
 }
