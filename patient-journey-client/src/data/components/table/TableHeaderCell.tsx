@@ -72,6 +72,7 @@ export const TableHeaderCell = ({
         <TableSortLabel
           className={classes.sortLabel}
           active={sortingState.type !== 'neutral' && sortingState.column.index === column.index}
+          title={sortingTooltip(sortingState)}
           direction={
             sortingState.type === 'neutral' || sortingState.column.index !== column.index ? 'desc' : sortingState.type
           }
@@ -82,4 +83,15 @@ export const TableHeaderCell = ({
       </div>
     </TableCell>
   )
+}
+
+function sortingTooltip(s: ColumnSortingState) {
+  switch (s.type) {
+    case 'asc':
+      return 'Ascending Order'
+    case 'desc':
+      return 'Descending Order'
+    case 'neutral':
+      return 'Click To Sort'
+  }
 }
