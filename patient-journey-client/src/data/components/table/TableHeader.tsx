@@ -1,9 +1,10 @@
 import React from 'react'
 import { TableHead, TableRow } from '@mui/material'
 import { Sorting, TableHeaderCell } from './TableHeaderCell'
+import { PatientDataColumn } from '../../dataSlice'
 
 interface Props extends Sorting {
-  readonly columns: ReadonlyArray<string>
+  readonly columns: ReadonlyArray<PatientDataColumn>
   readonly columnWidth: number
 }
 
@@ -12,13 +13,12 @@ export const TableHeader = (props: Props) => {
   return (
     <TableHead>
       <TableRow>
-        {columns.map((column, columnIndex) => (
+        {columns.map((column) => (
           <TableHeaderCell
-            key={columnIndex}
-            label={column}
-            columnIndex={columnIndex}
+            key={column.index}
+            column={column}
             {...props}
-            suppressDivider={columnIndex === columns.length - 1}
+            suppressDivider={column.index === columns.length - 1}
           />
         ))}
       </TableRow>

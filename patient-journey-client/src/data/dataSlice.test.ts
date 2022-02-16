@@ -46,7 +46,7 @@ describe('dataSlice', () => {
 
     const patientData = (data as DataStateLoadingComplete).patientData
     expect(patientData.allPatients.length).toEqual(2)
-    expect(patientData.fields).toEqual([
+    expect(patientData.columns).toEqual([
       { name: 'Col_1', type: 'string' },
       { name: 'Id', type: 'id' },
       { name: 'Col_2', type: 'string' },
@@ -63,7 +63,7 @@ describe('dataSlice', () => {
     expect(data.type).toEqual('loading-complete')
     const patientData = (data as DataStateLoadingComplete).patientData
     expect(patientData.allPatients).toEqual([])
-    expect(patientData.fields).toEqual([])
+    expect(patientData.columns).toEqual([])
   })
 
   it('loadData loading-failed', async () => {

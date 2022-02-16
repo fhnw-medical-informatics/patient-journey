@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { makeStyles } from '../../../utils'
-import { Patient, PatientData, PatientId, PatientIdNone } from '../../dataSlice'
+import { PatientData, PatientId, PatientIdNone } from '../../dataSlice'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
-import { ColumnSortingState } from './TableHeaderCell'
 import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
+import { ColumnSortingState, stableSort } from '../../sorting'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -42,7 +42,7 @@ interface Props {
 export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
   const { classes } = useStyles()
   const patients = data.allPatients
-  const columns = useMemo(() => data.fields.map((f) => f.name), [data.fields])
+  const columns = data.columns
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
 
@@ -79,11 +79,11 @@ export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props
                         onMouseEnter={() => onPatientHover(row.id)}
                         onMouseLeave={() => onPatientHover(PatientIdNone)}
                       >
-                        {columns.map((_, index) => {
-                          const value = row.values[index] ?? ''
+                        {columns.map((column) => {
+                          const value = row.values[column.index] ?? ''
                           return (
                             <TableCell
-                              key={`${row.id}/${index}`}
+                              key={`${row.id}/${column.index}`}
                               className={classes.tableCell}
                               style={{ maxWidth: columnWidth }}
                             >
@@ -123,29 +123,3 @@ const VerticalSpacer = ({ isAllRowsEmpty, height }: VerticalSpacerProps) => (
     <TableCell style={{ textAlign: 'center', height }}>{isAllRowsEmpty ? <NoMatchesPlaceholder /> : ''}</TableCell>
   </TableRow>
 )
-
-// Sorting logic inspired by https://codesandbox.io/s/f71wj?file=/demo.js
-// In addition to 'asc' | 'desc', we support a 3rd 'neutral' state (import order)
-
-function stableSort(rows: ReadonlyArray<Patient>, sortingState: ColumnSortingState) {
-  if (sortingState.type === 'neutral') {
-    return rows
-  } else {
-    const stabilizedThis = rows.map<[Patient, number]>((rowData, index) => [rowData, index])
-    stabilizedThis.sort((a, b) => {
-      const comparator = getComparator(sortingState.type, sortingState.columnIndex)
-      const order = comparator(a[0], b[0])
-      if (order !== 0) return order
-      return a[1] - b[1]
-    })
-    return stabilizedThis.map((e) => e[0])
-  }
-}
-
-function getComparator(order: 'asc' | 'desc', orderByColumnIndex: number) {
-  return (a: Patient, b: Patient) => (order === 'desc' ? 1 : -1) * compare(a, b, orderByColumnIndex)
-}
-
-function compare(a: Patient, b: Patient, orderByColumnIndex: number) {
-  return b.values[orderByColumnIndex].localeCompare(a.values[orderByColumnIndex])
-}

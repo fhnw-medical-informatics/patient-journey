@@ -1,6 +1,8 @@
 import { Divider, TableCell, TableSortLabel, Theme } from '@mui/material'
 import React from 'react'
 import { makeStyles } from '../../../utils'
+import { ColumnSortingState } from '../../sorting'
+import { PatientDataColumn } from '../../dataSlice'
 
 const useStyles = makeStyles()((theme: Theme) => ({
   cell: {
@@ -26,37 +28,32 @@ const useStyles = makeStyles()((theme: Theme) => ({
   },
 }))
 
-export type ColumnSortingState =
-  | Readonly<{
-      type: 'neutral'
-    }>
-  | Readonly<{
-      type: 'asc' | 'desc'
-      columnIndex: number
-    }>
-
 export interface Sorting {
   readonly sortingState: ColumnSortingState
   readonly setSortingState: (sortingState: ColumnSortingState) => void
 }
 
 export interface Props extends Sorting {
-  readonly label: string
-  readonly columnIndex: number
+  readonly column: PatientDataColumn
   readonly columnWidth: number
   readonly suppressDivider?: boolean
 }
 
-export const TableHeaderCell = (props: Props) => {
+export const TableHeaderCell = ({
+  column,
+  columnWidth,
+  sortingState,
+  setSortingState,
+  suppressDivider = false,
+}: Props) => {
   const { classes } = useStyles()
-  const { columnWidth, label, columnIndex, sortingState, setSortingState, suppressDivider = false } = props
 
   const changeSortingState = () => {
-    if (sortingState.type === 'neutral' || sortingState.columnIndex !== columnIndex) {
-      setSortingState({ type: 'asc', columnIndex })
+    if (sortingState.type === 'neutral' || sortingState.column.index !== column.index) {
+      setSortingState({ type: 'asc', column })
     } else {
       if (sortingState.type === 'asc') {
-        setSortingState({ type: 'desc', columnIndex })
+        setSortingState({ type: 'desc', column })
       } else {
         setSortingState({ type: 'neutral' })
       }
@@ -74,12 +71,12 @@ export const TableHeaderCell = (props: Props) => {
       <div className={classes.contents}>
         <TableSortLabel
           className={classes.sortLabel}
-          active={sortingState.type !== 'neutral' && sortingState.columnIndex === columnIndex}
+          active={sortingState.type !== 'neutral' && sortingState.column.index === column.index}
           direction={
-            sortingState.type === 'neutral' || sortingState.columnIndex !== columnIndex ? 'desc' : sortingState.type
+            sortingState.type === 'neutral' || sortingState.column.index !== column.index ? 'desc' : sortingState.type
           }
         >
-          {label}
+          {column.name}
         </TableSortLabel>
         {suppressDivider || <Divider className={classes.divider} orientation="vertical" />}
       </div>

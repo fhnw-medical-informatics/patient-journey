@@ -29,7 +29,7 @@ export type DataState =
   | DataStateLoadingComplete
 
 export interface PatientData {
-  readonly fields: ReadonlyArray<PatientDataField>
+  readonly columns: ReadonlyArray<PatientDataColumn>
   readonly allPatients: ReadonlyArray<Patient>
   readonly selectedPatient: PatientId
   readonly hoveredPatient: PatientId
@@ -41,7 +41,7 @@ export type PatientId = PatientIdBrand & string
 export const PatientIdNone = 'n/a' as PatientId
 
 export const EMPTY_PATIENT_DATA: PatientData = {
-  fields: [],
+  columns: [],
   allPatients: [],
   selectedPatient: PatientIdNone,
   hoveredPatient: PatientIdNone,
@@ -52,12 +52,13 @@ export interface Patient {
   readonly values: ReadonlyArray<string>
 }
 
-interface PatientDataField {
+export interface PatientDataColumn {
   readonly name: string
   readonly type: PatientDataFieldType
+  readonly index: number
 }
 
-type PatientDataFieldType = 'id' | 'string' | 'number' | 'date'
+type PatientDataFieldType = 'id' | 'string' | 'number' | 'date' | 'timestamp'
 
 const dataSlice = createSlice({
   name: 'data',
@@ -115,16 +116,17 @@ const createData = (result: ParseResult<string[]>): PatientData => {
   if (result.data.length < 2) {
     return EMPTY_PATIENT_DATA
   } else {
-    const fieldNames = result.data[0]
-    const fieldTypes = result.data[1].map((v) => v.toLowerCase())
-    const idColumnIndex = fieldTypes.indexOf('id')
-    const fields = fieldNames.map<PatientDataField>((name, i) => ({
+    const columnNames = result.data[0]
+    const columnTypes = result.data[1].map((v) => v.toLowerCase())
+    const idColumnIndex = columnTypes.indexOf('id')
+    const columns = columnNames.map<PatientDataColumn>((name, index) => ({
       name,
-      type: fieldTypes[i] as PatientDataFieldType,
+      type: columnTypes[index] as PatientDataFieldType,
+      index,
     }))
     return {
       ...EMPTY_PATIENT_DATA,
-      fields,
+      columns,
       allPatients: result.data.slice(2).map((row: string[]) => {
         return {
           id: row[idColumnIndex] as PatientId,

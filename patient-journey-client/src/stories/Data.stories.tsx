@@ -35,10 +35,10 @@ DataLoadingComplete.args = {
     type: 'loading-complete',
     patientData: {
       ...EMPTY_PATIENT_DATA,
-      fields: [
-        { name: 'Id', type: 'id' },
-        { name: 'First Name', type: 'string' },
-        { name: 'Last Name', type: 'string' },
+      columns: [
+        { index: 0, name: 'Id', type: 'id' },
+        { index: 1, name: 'First Name', type: 'string' },
+        { index: 2, name: 'Last Name', type: 'string' },
       ],
       allPatients: [
         { id: '0' as PatientId, values: ['0', 'Ada', 'Lovelace'] },
