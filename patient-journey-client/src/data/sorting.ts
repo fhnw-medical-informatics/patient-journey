@@ -28,9 +28,24 @@ export const stableSort = (rows: ReadonlyArray<Patient>, sortingState: ColumnSor
 }
 
 function getComparator(order: 'asc' | 'desc', column: PatientDataColumn) {
-  return (a: Patient, b: Patient) => (order === 'desc' ? 1 : -1) * comparePatients(a, b, column)
+  return (p1: Patient, p2: Patient) => (order === 'desc' ? -1 : 1) * comparePatients(p1, p2, column)
 }
 
-function comparePatients(a: Patient, b: Patient, column: PatientDataColumn) {
-  return b.values[column.index].localeCompare(a.values[column.index])
+function comparePatients(p1: Patient, p2: Patient, column: PatientDataColumn) {
+  const v1 = p1.values[column.index]
+  const v2 = p2.values[column.index]
+  switch (column.type) {
+    case 'number':
+      return compareNumberValues(+v1, +v2)
+    default:
+      return compareStringValues(v1, v2)
+  }
+}
+
+export function compareStringValues(v1: string, v2: string): number {
+  return v1.localeCompare(v2)
+}
+
+export function compareNumberValues(v1: number, v2: number): number {
+  return v1 - v2
 }

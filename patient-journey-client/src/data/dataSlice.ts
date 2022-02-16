@@ -102,15 +102,19 @@ export const loadData =
     try {
       const response = await fetch(url)
       const csv = await response.text()
-      // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
-      const result = csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
-      const data = createData(result)
+      const data = parseData(csv)
       dispatch(loadingDataComplete(data))
     } catch (e) {
       console.error(e)
       dispatch(loadingDataFailed('Error fetching data'))
     }
   }
+
+export const parseData = (csv: string) => {
+  // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
+  const result = csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
+  return createData(result)
+}
 
 const createData = (result: ParseResult<string[]>): PatientData => {
   if (result.data.length < 2) {
