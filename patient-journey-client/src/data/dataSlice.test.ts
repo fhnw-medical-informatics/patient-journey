@@ -47,9 +47,9 @@ describe('dataSlice', () => {
     const patientData = (data as DataStateLoadingComplete).patientData
     expect(patientData.allPatients.length).toEqual(2)
     expect(patientData.columns).toEqual([
-      { name: 'Col_1', type: 'string' },
-      { name: 'Id', type: 'id' },
-      { name: 'Col_2', type: 'string' },
+      { index: 0, name: 'Col_1', type: 'string' },
+      { index: 1, name: 'Id', type: 'id' },
+      { index: 2, name: 'Col_2', type: 'string' },
     ])
     expect(patientData.allPatients[0].id).toEqual('Id_1')
     expect(patientData.allPatients[1].id).toEqual('Id_2')
