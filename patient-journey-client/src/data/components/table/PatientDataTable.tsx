@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { makeStyles } from '../../../utils'
@@ -45,6 +45,7 @@ export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props
   const columns = data.columns
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
+  const sortedRows = useMemo(() => stableSort(patients, sortingState), [patients, sortingState])
 
   useEffect(() => setPage(0), [patients.length])
 
@@ -68,31 +69,29 @@ export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props
                   setSortingState={setSortingState}
                 />
                 <TableBody component={'tbody'}>
-                  {stableSort(patients, sortingState)
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => (
-                      <TableRow
-                        key={row.id}
-                        hover={true}
-                        selected={data.selectedPatient === row.id}
-                        onClick={() => onPatientClick(row.id)}
-                        onMouseEnter={() => onPatientHover(row.id)}
-                        onMouseLeave={() => onPatientHover(PatientIdNone)}
-                      >
-                        {columns.map((column) => {
-                          const value = row.values[column.index] ?? ''
-                          return (
-                            <TableCell
-                              key={`${row.id}/${column.index}`}
-                              className={classes.tableCell}
-                              style={{ maxWidth: columnWidth }}
-                            >
-                              {value === '' ? <br /> : value}
-                            </TableCell>
-                          )
-                        })}
-                      </TableRow>
-                    ))}
+                  {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                    <TableRow
+                      key={row.id}
+                      hover={true}
+                      selected={data.selectedPatient === row.id}
+                      onClick={() => onPatientClick(row.id)}
+                      onMouseEnter={() => onPatientHover(row.id)}
+                      onMouseLeave={() => onPatientHover(PatientIdNone)}
+                    >
+                      {columns.map((column) => {
+                        const value = row.values[column.index] ?? ''
+                        return (
+                          <TableCell
+                            key={`${row.id}/${column.index}`}
+                            className={classes.tableCell}
+                            style={{ maxWidth: columnWidth }}
+                          >
+                            {value === '' ? <br /> : value}
+                          </TableCell>
+                        )
+                      })}
+                    </TableRow>
+                  ))}
                   <VerticalSpacer
                     isAllRowsEmpty={isAllRowsEmpty}
                     height={isAllRowsEmpty ? bodyHeight : bodyHeight - (rowsPerPage - emptyRowCount) * ROW_HEIGHT}

@@ -3,6 +3,7 @@ import { AppDispatch } from '../store'
 import * as csvParser from 'papaparse'
 import { ParseResult } from 'papaparse'
 import { DATA_FILE_URL } from './dataConfig'
+import { PatientDataColumnType } from './columnTypes'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -54,11 +55,9 @@ export interface Patient {
 
 export interface PatientDataColumn {
   readonly name: string
-  readonly type: PatientDataFieldType
+  readonly type: PatientDataColumnType
   readonly index: number
 }
-
-type PatientDataFieldType = 'id' | 'string' | 'number' | 'date' | 'timestamp'
 
 const dataSlice = createSlice({
   name: 'data',
@@ -125,7 +124,7 @@ const createData = (result: ParseResult<string[]>): PatientData => {
     const idColumnIndex = columnTypes.indexOf('id')
     const columns = columnNames.map<PatientDataColumn>((name, index) => ({
       name,
-      type: columnTypes[index] as PatientDataFieldType,
+      type: columnTypes[index] as PatientDataColumnType,
       index,
     }))
     return {

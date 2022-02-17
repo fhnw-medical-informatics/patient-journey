@@ -1,6 +1,7 @@
 // In addition to 'asc' | 'desc', we support a 3rd 'neutral' state (import order)
 
 import { Patient, PatientDataColumn } from './dataSlice'
+import { stringToMillis, stringToNumber } from './columnTypes'
 
 export type ColumnSortingState =
   | Readonly<{
@@ -38,32 +39,50 @@ function comparePatients(p1: Patient, p2: Patient, column: PatientDataColumn) {
   switch (column.type) {
     case 'number':
       return compareNumberValues(v1, v2)
+    case 'date':
+      return compareDateValues(v1, v2)
     default:
       return compareStringValues(v1, v2)
   }
 }
 
-export function compareStringValues(v1: string, v2: string): number {
+const emptyStringsToEnd = (v1: string, v2: string, safeComparator: (v1: string, v2: string) => number) => {
   if (v1.trim().length === 0) {
     if (v2.trim().length === 0) {
       return 0
     } else {
       return 1 // empty strings to the end
     }
+  } else {
+    return safeComparator(v1, v2)
   }
-  return v1.localeCompare(v2)
 }
 
-export function compareNumberValues(v1String: string, v2String: string): number {
-  // treat empty as NaN (rather than 0)
-  const v1: number = v1String.trim().length === 0 ? NaN : +v1String
-  const v2: number = v2String.trim().length === 0 ? NaN : +v2String
-  if (isNaN(v1)) {
-    if (isNaN(v2)) {
+export function compareStringValues(v1: string, v2: string) {
+  return emptyStringsToEnd(v1, v2, (v1, v2) => v1.localeCompare(v2))
+}
+
+export function compareNumberValues(v1: string, v2: string) {
+  const n1 = stringToNumber(v1)
+  const n2 = stringToNumber(v2)
+  return compareNanSafe(n1, n2)
+}
+
+function compareNanSafe(n1: number, n2: number) {
+  if (isNaN(n1)) {
+    if (isNaN(n2)) {
       return 0
     } else {
       return 1 // NaN values to the end
     }
   }
-  return isNaN(v2) ? -1 : Math.sign(v1 - v2)
+  return isNaN(n2) ? -1 : Math.sign(n1 - n2)
+}
+
+export function compareDateValues(v1: string, v2: string) {
+  return emptyStringsToEnd(v1, v2, (v1, v2) => {
+    const m1 = stringToMillis(v1)
+    const m2 = stringToMillis(v2)
+    return compareNanSafe(m1, m2)
+  })
 }
