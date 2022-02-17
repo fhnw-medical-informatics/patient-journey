@@ -28,24 +28,42 @@ export const stableSort = (rows: ReadonlyArray<Patient>, sortingState: ColumnSor
 }
 
 function getComparator(order: 'asc' | 'desc', column: PatientDataColumn) {
-  return (p1: Patient, p2: Patient) => (order === 'desc' ? -1 : 1) * comparePatients(p1, p2, column)
+  return (p1: Patient, p2: Patient) => (order === 'asc' ? 1 : -1) * comparePatients(p1, p2, column)
 }
 
 function comparePatients(p1: Patient, p2: Patient, column: PatientDataColumn) {
   const v1 = p1.values[column.index]
   const v2 = p2.values[column.index]
+
   switch (column.type) {
     case 'number':
-      return compareNumberValues(+v1, +v2)
+      return compareNumberValues(v1, v2)
     default:
       return compareStringValues(v1, v2)
   }
 }
 
 export function compareStringValues(v1: string, v2: string): number {
+  if (v1.trim().length === 0) {
+    if (v2.trim().length === 0) {
+      return 0
+    } else {
+      return 1 // empty strings to the end
+    }
+  }
   return v1.localeCompare(v2)
 }
 
-export function compareNumberValues(v1: number, v2: number): number {
-  return v1 - v2
+export function compareNumberValues(v1String: string, v2String: string): number {
+  // treat empty as NaN (rather than 0)
+  const v1: number = v1String.trim().length === 0 ? NaN : +v1String
+  const v2: number = v2String.trim().length === 0 ? NaN : +v2String
+  if (isNaN(v1)) {
+    if (isNaN(v2)) {
+      return 0
+    } else {
+      return 1 // NaN values to the end
+    }
+  }
+  return isNaN(v2) ? -1 : Math.sign(v1 - v2)
 }
