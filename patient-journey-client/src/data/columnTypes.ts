@@ -1,6 +1,6 @@
 import { parse } from 'date-fns'
 
-export type PatientDataColumnType = 'id' | 'string' | 'number' | 'date' | 'timestamp'
+export type PatientDataColumnType = 'id' | 'string' | 'boolean' | 'number' | 'date' | 'timestamp'
 
 const isEmpty = (s: string) => s.trim().length === 0
 

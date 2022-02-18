@@ -39,6 +39,8 @@ function comparePatients(p1: Patient, p2: Patient, column: PatientDataColumn) {
   switch (column.type) {
     case 'number':
       return compareNumberValues(v1, v2)
+    case 'boolean':
+      return compareBooleanValues(v1, v2)
     case 'date':
       return compareDateValues(v1, v2)
     default:
@@ -60,6 +62,18 @@ const emptyStringsToEnd = (v1: string, v2: string, safeComparator: (v1: string, 
 
 export function compareStringValues(v1: string, v2: string) {
   return emptyStringsToEnd(v1, v2, (v1, v2) => v1.localeCompare(v2))
+}
+
+export function compareBooleanValues(v1: string, v2: string) {
+  return emptyStringsToEnd(v1, v2, (v1, _) => {
+    let parsedBoolean = false
+    try {
+      parsedBoolean = JSON.parse(v1)
+    } catch (e) {
+      // ignorance is bliss
+    }
+    return parsedBoolean ? -1 : 1
+  })
 }
 
 export function compareNumberValues(v1: string, v2: string) {
