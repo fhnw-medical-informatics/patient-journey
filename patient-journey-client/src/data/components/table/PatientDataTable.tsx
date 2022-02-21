@@ -7,6 +7,7 @@ import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
 import { ColumnSortingState, stableSort } from '../../sorting'
+import { TableValue } from './TableValue'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -80,15 +81,7 @@ export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props
                     >
                       {columns.map((column) => {
                         const value = row.values[column.index] ?? ''
-                        return (
-                          <TableCell
-                            key={`${row.id}/${column.index}`}
-                            className={classes.tableCell}
-                            style={{ maxWidth: columnWidth }}
-                          >
-                            {value === '' ? <br /> : value}
-                          </TableCell>
-                        )
+                        return <TableValue column={column} value={value} width={columnWidth} />
                       })}
                     </TableRow>
                   ))}
