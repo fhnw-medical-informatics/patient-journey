@@ -38,6 +38,7 @@ function comparePatients(p1: Patient, p2: Patient, column: PatientDataColumn) {
 
   switch (column.type) {
     case 'number':
+    case 'timestamp':
       return compareNumberValues(v1, v2)
     case 'boolean':
       return compareBooleanValues(v1, v2)

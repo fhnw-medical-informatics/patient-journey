@@ -8,13 +8,13 @@ import {
 import { parseData } from './dataSlice'
 
 const TEST_DATA =
-  'Id,StringColumn,NumberColumn,DateColumn,BooleanColumn\n' + //
-  'id,string,number,date,boolean\n' +
-  'a,100,100,01.01.2022,false\n' +
-  'b,1e1,1e1,01.01.2022,true\n' +
-  'c,NaN,NaN,02.01.2021,false\n' +
-  'd,,,,\n' +
-  'e,-,-,-,-'
+  'Id,StringColumn,NumberColumn,DateColumn,BooleanColumn,TimestampColumn\n' + //
+  'id,string,number,date,boolean,timestamp\n' +
+  'a,100,100,01.01.2022,false,3\n' +
+  'b,1e1,1e1,01.01.2022,true,1\n' +
+  'c,NaN,NaN,02.01.2021,false,2\n' +
+  'd,,,,,\n' +
+  'e,-,-,-,-,-'
 
 describe('sorting', () => {
   it('compareStringValues', () => {
@@ -40,9 +40,11 @@ describe('sorting', () => {
     const numberColumn = data.columns[2]
     const dateColumn = data.columns[3]
     const booleanColumn = data.columns[4]
+    const timestampColumn = data.columns[5]
     expect(stableSort(data.allPatients, { type: 'asc', column: stringColumn })[0].id).toEqual('a')
     expect(stableSort(data.allPatients, { type: 'asc', column: numberColumn })[0].id).toEqual('b')
     expect(stableSort(data.allPatients, { type: 'asc', column: dateColumn })[0].id).toEqual('c')
     expect(stableSort(data.allPatients, { type: 'asc', column: booleanColumn })[0].id).toEqual('b')
+    expect(stableSort(data.allPatients, { type: 'asc', column: timestampColumn })[0].id).toEqual('b')
   })
 })
