@@ -1,6 +1,8 @@
 import { format as dateFnFormat, parse, toDate } from 'date-fns'
 
-export type PatientDataColumnType = 'id' | 'string' | 'boolean' | 'number' | 'date' | 'timestamp'
+type GenericColumnType = 'string' | 'boolean' | 'number' | 'date' | 'timestamp'
+export type PatientDataColumnType = 'pid' | GenericColumnType
+export type EventDataColumnType = 'eid' | 'pid' | GenericColumnType
 
 const isEmpty = (s: string) => s.trim().length === 0
 

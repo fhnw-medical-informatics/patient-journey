@@ -36,7 +36,7 @@ DataLoadingComplete.args = {
     patientData: {
       ...EMPTY_PATIENT_DATA,
       columns: [
-        { index: 0, name: 'Id', type: 'id' },
+        { index: 0, name: 'Id', type: 'pid' },
         { index: 1, name: 'First Name', type: 'string' },
         { index: 2, name: 'Last Name', type: 'string' },
       ],
@@ -45,5 +45,6 @@ DataLoadingComplete.args = {
         { id: '1' as PatientId, values: ['1', 'Michelle', 'Obama '] },
       ],
     },
+    eventData: {},
   },
 }

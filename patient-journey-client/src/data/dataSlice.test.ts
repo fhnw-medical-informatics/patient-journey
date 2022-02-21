@@ -10,10 +10,12 @@ import {
 import { createStore } from '../store'
 
 const ID_1 = 'Id_1' as PatientId
-const MOCK_CSV = 'Col_1,Id,Col_2\nstring,iD,string\nCell_11,Id_1,Cell_12\n\nCell_21,Id_2,Cell_22'
+const MOCK_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,Id_1,Cell_12\n\nCell_21,Id_2,Cell_22'
+const MOCK_EVENT_CSV = 'EID,PID,Timestamp\neid,pid,timestamp\n'
 
 describe('dataSlice', () => {
-  const successUrl = 'success-url'
+  const successPatientDataUrl = 'success-patient-data-url'
+  const successEventDataUrl = 'success-event-data-url'
   const successUrlEmpty = 'success-url-empty'
   const errorUrl = 'error-url'
   const globalAny = global as any
@@ -21,9 +23,13 @@ describe('dataSlice', () => {
   beforeEach(() => {
     globalAny.fetch = (url: string) => {
       switch (url) {
-        case `${successUrl}`:
+        case `${successPatientDataUrl}`:
           return Promise.resolve({
-            text: () => Promise.resolve(MOCK_CSV),
+            text: () => Promise.resolve(MOCK_PATIENT_CSV),
+          })
+        case `${successEventDataUrl}`:
+          return Promise.resolve({
+            text: () => Promise.resolve(MOCK_EVENT_CSV),
           })
         case `${successUrlEmpty}`:
           return Promise.resolve({
@@ -39,7 +45,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete', async () => {
     const store = createStore()
-    await loadData(successUrl)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
 
     const data = store.getState().data
     expect(data.type).toEqual('loading-complete')
@@ -48,7 +54,7 @@ describe('dataSlice', () => {
     expect(patientData.allPatients.length).toEqual(2)
     expect(patientData.columns).toEqual([
       { index: 0, name: 'Col_1', type: 'string' },
-      { index: 1, name: 'Id', type: 'id' },
+      { index: 1, name: 'Id', type: 'pid' },
       { index: 2, name: 'Col_2', type: 'string' },
     ])
     expect(patientData.allPatients[0].id).toEqual('Id_1')
@@ -57,7 +63,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete empty data', async () => {
     const store = createStore()
-    await loadData(successUrlEmpty)(store.dispatch)
+    await loadData(successUrlEmpty, successUrlEmpty)(store.dispatch)
 
     const data = store.getState().data
     expect(data.type).toEqual('loading-complete')
@@ -77,7 +83,7 @@ describe('dataSlice', () => {
 
   it(`handles ${setSelectedPatient.type} action`, async () => {
     const store = createStore()
-    await loadData(successUrl)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getSelected = () => (store.getState().data as DataStateLoadingComplete).patientData.selectedPatient
     expect(getSelected()).toEqual(PatientIdNone)
     store.dispatch(setSelectedPatient(ID_1))
@@ -88,7 +94,7 @@ describe('dataSlice', () => {
 
   it(`handles ${setHoveredPatient.type} action`, async () => {
     const store = createStore()
-    await loadData(successUrl)(store.dispatch)
+    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
     const getHovered = () => (store.getState().data as DataStateLoadingComplete).patientData.hoveredPatient
     expect(getHovered()).toEqual(PatientIdNone)
     store.dispatch(setHoveredPatient(ID_1))

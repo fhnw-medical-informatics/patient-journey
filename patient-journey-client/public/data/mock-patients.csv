@@ -1,5 +1,5 @@
-Index,First Name,Last Name,Date Of Birth,Height,Shirt Size,Hair Color,Special,Timestamp
-id,string,string,date,number,string,string,boolean,timestamp
+Patient ID,First Name,Last Name,Date Of Birth,Height,Shirt Size,Hair Color,Special,Timestamp
+pid,string,string,date,number,string,string,boolean,timestamp
 0001,Raphael,Blumenthal,07.12.1929,179,M,Blonde,true,1096022698067
 0002,Dany,Bär,03.06.1985,181,M,Black,false,1501139339354
 0003,Candice,Schaich,26.02.1991,171,M,Black,true,1149164220071

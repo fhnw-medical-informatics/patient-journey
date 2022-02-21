@@ -2,7 +2,7 @@ import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '../store'
 import * as csvParser from 'papaparse'
 import { ParseResult } from 'papaparse'
-import { DATA_FILE_URL } from './dataConfig'
+import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './dataConfig'
 import { PatientDataColumnType } from './columnTypes'
 
 type DataStateLoadingPending = Readonly<{
@@ -20,8 +20,13 @@ export type DataStateLoadingFailed = Readonly<{
 
 export type DataStateLoadingComplete = Readonly<{
   type: 'loading-complete'
-  patientData: PatientData
-}>
+}> &
+  LoadedData
+
+interface LoadedData {
+  readonly patientData: PatientData
+  readonly eventData: EventData
+}
 
 export type DataState =
   | DataStateLoadingPending
@@ -59,6 +64,8 @@ export interface PatientDataColumn {
   readonly index: number
 }
 
+interface EventData {}
+
 const dataSlice = createSlice({
   name: 'data',
   initialState: { type: 'loading-pending' } as DataState,
@@ -70,9 +77,9 @@ const dataSlice = createSlice({
       type: 'loading-failed',
       errorMessage: action.payload,
     }),
-    loadingDataComplete: (_state: DataState, action: PayloadAction<PatientData>): DataState => ({
+    loadingDataComplete: (_state: DataState, action: PayloadAction<LoadedData>): DataState => ({
       type: 'loading-complete',
-      patientData: action.payload,
+      ...action.payload,
     }),
     setSelectedPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutatePatientData(state, (pd) => (pd.selectedPatient = action.payload as PatientId))
@@ -95,14 +102,13 @@ export const { setSelectedPatient, setHoveredPatient } = dataSlice.actions
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 
 export const loadData =
-  (url: string = DATA_FILE_URL) =>
+  (patientDataUrl: string = PATIENT_DATA_FILE_URL, eventDataUrl: string = EVENT_DATA_FILE_URL) =>
   async (dispatch: AppDispatch) => {
     dispatch(loadingDataInProgress())
     try {
-      const response = await fetch(url)
-      const csv = await response.text()
-      const data = parseData(csv)
-      dispatch(loadingDataComplete(data))
+      const patientData = await loadPatientData(patientDataUrl)
+      const eventData = await loadEventData(eventDataUrl)
+      dispatch(loadingDataComplete({ patientData, eventData }))
     } catch (e) {
       console.error(e)
       dispatch(loadingDataFailed('Error fetching data'))
@@ -111,17 +117,23 @@ export const loadData =
 
 export const parseData = (csv: string) => {
   // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
-  const result = csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
-  return createData(result)
+  return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
 }
 
-const createData = (result: ParseResult<string[]>): PatientData => {
-  if (result.data.length < 2) {
+async function loadPatientData(url: string) {
+  const response = await fetch(url)
+  const csv = await response.text()
+  return createPatientData(parseData(csv))
+}
+
+export const createPatientData = (result: ParseResult<string[]>): PatientData => {
+  const HEADER_ROW_COUNT = 2
+  if (result.data.length < HEADER_ROW_COUNT) {
     return EMPTY_PATIENT_DATA
   } else {
     const columnNames = result.data[0]
     const columnTypes = result.data[1].map((v) => v.toLowerCase())
-    const idColumnIndex = columnTypes.indexOf('id')
+    const idColumnIndex = columnTypes.indexOf('pid')
     const columns = columnNames.map<PatientDataColumn>((name, index) => ({
       name,
       type: columnTypes[index] as PatientDataColumnType,
@@ -130,7 +142,7 @@ const createData = (result: ParseResult<string[]>): PatientData => {
     return {
       ...EMPTY_PATIENT_DATA,
       columns,
-      allPatients: result.data.slice(2).map((row: string[]) => {
+      allPatients: result.data.slice(HEADER_ROW_COUNT).map((row: string[]) => {
         return {
           id: row[idColumnIndex] as PatientId,
           values: row,
@@ -138,4 +150,14 @@ const createData = (result: ParseResult<string[]>): PatientData => {
       }),
     }
   }
+}
+
+async function loadEventData(url: string) {
+  const response = await fetch(url)
+  const csv = await response.text()
+  return createEventData(parseData(csv))
+}
+
+const createEventData = (result: ParseResult<string[]>): EventData => {
+  return {}
 }
