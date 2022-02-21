@@ -1,7 +1,7 @@
 // In addition to 'asc' | 'desc', we support a 3rd 'neutral' state (import order)
 
 import { Patient, PatientDataColumn } from './dataSlice'
-import { stringToMillis, stringToNumber } from './columnTypes'
+import { stringToBoolean, stringToMillis, stringToNumber } from './columnTypes'
 
 export type ColumnSortingState =
   | Readonly<{
@@ -67,13 +67,7 @@ export function compareStringValues(v1: string, v2: string) {
 
 export function compareBooleanValues(v1: string, v2: string) {
   return emptyStringsToEnd(v1, v2, (v1, _) => {
-    let parsedBoolean = false
-    try {
-      parsedBoolean = JSON.parse(v1)
-    } catch (e) {
-      // ignorance is bliss
-    }
-    return parsedBoolean ? -1 : 1
+    return stringToBoolean(v1) ? -1 : 1
   })
 }
 

@@ -1,12 +1,12 @@
 Index,First Name,Last Name,Date Of Birth,Height,Shirt Size,Hair Color,Special,Timestamp
 id,string,string,date,number,string,string,boolean,timestamp
-0001,Raphael,Blumenthal,07.12.1929,179,M,Blonde,false,1096022698067
+0001,Raphael,Blumenthal,07.12.1929,179,M,Blonde,true,1096022698067
 0002,Dany,Bär,03.06.1985,181,M,Black,false,1501139339354
-0003,Candice,Schaich,26.02.1991,171,M,Black,false,1149164220071
+0003,Candice,Schaich,26.02.1991,171,M,Black,true,1149164220071
 0004,Janosch,Schick,11.07.1935,165,S,Red,false,835709687216
-0005,Alessio,Weber,30.07.1965,178,M,Grey,false,836481979597
+0005,Alessio,Weber,30.07.1965,178,M,Grey,true,836481979597
 0006,Kreshnik,Süss,22.02.1971,189,L,Blonde,false,537958504040
-0007,Edon,Fisler,06.10.1957,175,M,Black,false,1300745638377
+0007,Edon,Fisler,06.10.1957,175,M,Black,true,1300745638377
 0008,Vera,Gambacciani,04.12.1952,169,M,Grey,false,428517335169
 0009,Clelia,Jordi,04.08.1927,180,M,Blonde,false,1025649008472
 0010,Arbnora,Züst-Gericke,02.09.1955,174,M,Brown,false,545805183413

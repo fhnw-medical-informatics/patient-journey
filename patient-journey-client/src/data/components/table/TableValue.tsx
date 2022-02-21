@@ -2,7 +2,8 @@ import React, { useMemo } from 'react'
 import { TableCell } from '@mui/material'
 import { PatientDataColumn } from '../../dataSlice'
 import { makeStyles } from '../../../utils'
-import { formatMillis } from '../../columnTypes'
+import { formatMillis, stringToBoolean } from '../../columnTypes'
+import { Check } from '@mui/icons-material'
 
 const useStyles = makeStyles()((theme) => ({
   tableCell: {
@@ -10,6 +11,9 @@ const useStyles = makeStyles()((theme) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     padding: theme.spacing(0.5),
+  },
+  checkIcon: {
+    fontSize: 'small',
   },
 }))
 
@@ -27,12 +31,14 @@ export const TableValue = ({ column, value, width }: Props) => {
       return <br />
     }
     switch (column.type) {
+      case 'boolean':
+        return stringToBoolean(value) ? <Check className={classes.checkIcon} /> : <br />
       case 'timestamp':
         return formatMillis(+value)
       default:
         return value
     }
-  }, [value, column.type])
+  }, [value, column.type, classes.checkIcon])
 
   return (
     <TableCell key={column.index} className={classes.tableCell} style={{ maxWidth: width }}>

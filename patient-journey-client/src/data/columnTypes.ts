@@ -9,6 +9,14 @@ export const stringToNumber = (s: string) => {
   return isEmpty(s) ? NaN : +s
 }
 
+export const stringToBoolean = (s: string) => {
+  try {
+    return JSON.parse(s)
+  } catch (e) {
+    return false
+  }
+}
+
 const DATE_FORMAT = 'dd.MM.yyyy'
 const DATE_TIMESTAMP_FORMAT = 'dd.MM.yyyy HH:mm'
 
