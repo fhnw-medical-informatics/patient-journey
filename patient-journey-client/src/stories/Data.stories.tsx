@@ -41,10 +41,13 @@ DataLoadingComplete.args = {
         { index: 2, name: 'Last Name', type: 'string' },
       ],
       allPatients: [
-        { id: '0' as PatientId, values: ['0', 'Ada', 'Lovelace'] },
-        { id: '1' as PatientId, values: ['1', 'Michelle', 'Obama '] },
+        { pid: '0' as PatientId, values: ['0', 'Ada', 'Lovelace'] },
+        { pid: '1' as PatientId, values: ['1', 'Michelle', 'Obama '] },
       ],
     },
-    eventData: {},
+    eventData: {
+      columns: [],
+      allEvents: [],
+    },
   },
 }

@@ -72,11 +72,11 @@ export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props
                 <TableBody component={'tbody'}>
                   {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                     <TableRow
-                      key={row.id}
+                      key={row.pid}
                       hover={true}
-                      selected={data.selectedPatient === row.id}
-                      onClick={() => onPatientClick(row.id)}
-                      onMouseEnter={() => onPatientHover(row.id)}
+                      selected={data.selectedPatient === row.pid}
+                      onClick={() => onPatientClick(row.pid)}
+                      onMouseEnter={() => onPatientHover(row.pid)}
                       onMouseLeave={() => onPatientHover(PatientIdNone)}
                     >
                       {columns.map((column) => {

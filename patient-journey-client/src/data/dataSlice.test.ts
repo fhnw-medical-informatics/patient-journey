@@ -11,7 +11,7 @@ import { createStore } from '../store'
 
 const ID_1 = 'Id_1' as PatientId
 const MOCK_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,Id_1,Cell_12\n\nCell_21,Id_2,Cell_22'
-const MOCK_EVENT_CSV = 'EID,PID,Timestamp\neid,pid,timestamp\n'
+const MOCK_EVENT_CSV = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp\nEID_1,PID_1,1\nEID_2,PID_2,2'
 
 describe('dataSlice', () => {
   const successPatientDataUrl = 'success-patient-data-url'
@@ -50,6 +50,7 @@ describe('dataSlice', () => {
     const data = store.getState().data
     expect(data.type).toEqual('loading-complete')
 
+    // patients
     const patientData = (data as DataStateLoadingComplete).patientData
     expect(patientData.allPatients.length).toEqual(2)
     expect(patientData.columns).toEqual([
@@ -57,8 +58,21 @@ describe('dataSlice', () => {
       { index: 1, name: 'Id', type: 'pid' },
       { index: 2, name: 'Col_2', type: 'string' },
     ])
-    expect(patientData.allPatients[0].id).toEqual('Id_1')
-    expect(patientData.allPatients[1].id).toEqual('Id_2')
+    expect(patientData.allPatients[0].pid).toEqual('Id_1')
+    expect(patientData.allPatients[1].pid).toEqual('Id_2')
+
+    // events
+    const eventData = (data as DataStateLoadingComplete).eventData
+    expect(eventData.allEvents.length).toEqual(2)
+    expect(eventData.columns).toEqual([
+      { index: 0, name: 'Event ID', type: 'eid' },
+      { index: 1, name: 'Patient ID', type: 'pid' },
+      { index: 2, name: 'Timestamp', type: 'timestamp' },
+    ])
+    expect(eventData.allEvents[0].eid).toEqual('EID_1')
+    expect(eventData.allEvents[0].pid).toEqual('PID_1')
+    expect(eventData.allEvents[1].eid).toEqual('EID_2')
+    expect(eventData.allEvents[1].pid).toEqual('PID_2')
   })
 
   it('loadData loading-complete empty data', async () => {
@@ -70,6 +84,9 @@ describe('dataSlice', () => {
     const patientData = (data as DataStateLoadingComplete).patientData
     expect(patientData.allPatients).toEqual([])
     expect(patientData.columns).toEqual([])
+    const eventData = (data as DataStateLoadingComplete).eventData
+    expect(eventData.allEvents).toEqual([])
+    expect(eventData.columns).toEqual([])
   })
 
   it('loadData loading-failed', async () => {
