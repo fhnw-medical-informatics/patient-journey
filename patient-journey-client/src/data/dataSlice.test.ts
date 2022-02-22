@@ -2,12 +2,11 @@ import {
   DataStateLoadingComplete,
   DataStateLoadingFailed,
   loadData,
-  PatientId,
-  PatientIdNone,
   setHoveredPatient,
   setSelectedPatient,
 } from './dataSlice'
 import { createStore } from '../store'
+import { PatientId, PatientIdNone } from './patients'
 
 const ID_1 = 'Id_1' as PatientId
 const MOCK_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,Id_1,Cell_12\n\nCell_21,Id_2,Cell_22'

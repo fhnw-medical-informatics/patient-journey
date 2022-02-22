@@ -2,7 +2,7 @@ import { TablePagination, Typography } from '@mui/material'
 import React from 'react'
 import { makeStyles } from '../../../utils'
 import { useHoveredPatient, useSelectedPatient } from '../../hooks'
-import { PatientId, PatientIdNone } from '../../dataSlice'
+import { PatientId, PatientIdNone } from '../../patients'
 
 export const FOOTER_HEIGHT = 40
 

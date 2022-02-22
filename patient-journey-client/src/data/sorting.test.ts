@@ -5,7 +5,8 @@ import {
   compareStringValues,
   stableSort,
 } from './sorting'
-import { createPatientData, parseData } from './dataSlice'
+import { createPatientData } from './patients'
+import { parseFromString } from './dataSlice'
 
 const TEST_DATA =
   'Id,StringColumn,NumberColumn,DateColumn,BooleanColumn,TimestampColumn\n' + //
@@ -35,7 +36,7 @@ describe('sorting', () => {
     expect(compareBooleanValues('', 'true')).toBeGreaterThan(0)
   })
   it('stableSort', () => {
-    const data = createPatientData(parseData(TEST_DATA))
+    const data = createPatientData(parseFromString(TEST_DATA))
     const stringColumn = data.columns[1]
     const numberColumn = data.columns[2]
     const dateColumn = data.columns[3]

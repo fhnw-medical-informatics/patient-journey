@@ -1,7 +1,7 @@
 import React from 'react'
 import { Meta, Story } from '@storybook/react'
 import { Data, Props } from '../data/components/Data'
-import { EMPTY_PATIENT_DATA, PatientId } from '../data/dataSlice'
+import { EMPTY_PATIENT_DATA, PatientId } from '../data/patients'
 
 export default {
   title: 'Data',

@@ -1,5 +1,5 @@
 import { PatientDataTable as PatientDataTableComponent } from '../../components/table/PatientDataTable'
-import { PatientData } from '../../dataSlice'
+import { PatientData } from '../../patients'
 import React from 'react'
 import { usePatientInteraction } from '../../hooks'
 

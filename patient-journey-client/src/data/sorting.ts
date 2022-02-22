@@ -1,7 +1,7 @@
 // In addition to 'asc' | 'desc', we support a 3rd 'neutral' state (import order)
 
-import { Patient, PatientDataColumn } from './dataSlice'
-import { stringToBoolean, stringToMillis, stringToNumber } from './columnTypes'
+import { stringToBoolean, stringToMillis, stringToNumber } from './columns'
+import { Patient, PatientDataColumn } from './patients'
 
 export type ColumnSortingState =
   | Readonly<{

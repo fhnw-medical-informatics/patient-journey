@@ -1,5 +1,5 @@
 import { RootState } from '../store'
-import { EMPTY_PATIENT_DATA, PatientData, PatientId } from './dataSlice'
+import { EMPTY_PATIENT_DATA, PatientData, PatientId } from './patients'
 
 export const selectPatientData = (s: RootState): PatientData => {
   if (s.data.type === 'loading-complete') {

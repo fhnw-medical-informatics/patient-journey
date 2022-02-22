@@ -1,9 +1,9 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '../store'
 import * as csvParser from 'papaparse'
-import { ParseResult } from 'papaparse'
 import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './dataConfig'
-import { EVENT_ID_COLUMN_TYPE, EventDataColumnType, PATIENT_ID_COLUMN_TYPE, PatientDataColumnType } from './columnTypes'
+import { createPatientData, PatientData, PatientId } from './patients'
+import { createEventData, EventData } from './events'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -33,60 +33,6 @@ export type DataState =
   | DataStateLoadingInProgress
   | DataStateLoadingFailed
   | DataStateLoadingComplete
-
-export interface PatientData {
-  readonly columns: ReadonlyArray<PatientDataColumn>
-  readonly allPatients: ReadonlyArray<Patient>
-  readonly selectedPatient: PatientId
-  readonly hoveredPatient: PatientId
-}
-
-enum PatientIdBrand {}
-
-export type PatientId = PatientIdBrand & string
-export const PatientIdNone = 'n/a' as PatientId
-
-export const EMPTY_PATIENT_DATA: PatientData = {
-  columns: [],
-  allPatients: [],
-  selectedPatient: PatientIdNone,
-  hoveredPatient: PatientIdNone,
-}
-
-export interface Patient {
-  readonly pid: PatientId
-  readonly values: ReadonlyArray<string>
-}
-
-export interface DataColumn<T> {
-  readonly name: string
-  readonly type: T
-  readonly index: number
-}
-
-export type PatientDataColumn = DataColumn<PatientDataColumnType>
-export type EventDataColumn = DataColumn<EventDataColumnType>
-
-interface EventData {
-  readonly columns: ReadonlyArray<EventDataColumn>
-  readonly allEvents: ReadonlyArray<PatientJourneyEvent>
-}
-
-interface PatientJourneyEvent {
-  readonly eid: EventId
-  readonly pid: PatientId
-  readonly values: ReadonlyArray<string>
-}
-
-enum EventIdBrand {}
-
-export type EventId = EventIdBrand & string
-export const EventIdNone = 'n/a' as EventId
-
-export const EMPTY_EVENT_DATA: EventData = {
-  columns: [],
-  allEvents: [],
-}
 
 const dataSlice = createSlice({
   name: 'data',
@@ -128,8 +74,8 @@ export const loadData =
   async (dispatch: AppDispatch) => {
     dispatch(loadingDataInProgress())
     try {
-      const patientData = await loadPatientData(patientDataUrl)
-      const eventData = await loadEventData(eventDataUrl)
+      const patientData = createPatientData(await parseFromUrl(patientDataUrl))
+      const eventData = createEventData(await parseFromUrl(eventDataUrl))
       dispatch(loadingDataComplete({ patientData, eventData }))
     } catch (e) {
       console.error(e)
@@ -137,73 +83,13 @@ export const loadData =
     }
   }
 
-export const parseData = (csv: string) => {
+export async function parseFromUrl(url: string) {
+  const response = await fetch(url)
+  const csv = await response.text()
+  return parseFromString(csv)
+}
+
+export const parseFromString = (csv: string) => {
   // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
   return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
-}
-
-async function loadPatientData(url: string) {
-  const response = await fetch(url)
-  const csv = await response.text()
-  return createPatientData(parseData(csv))
-}
-
-export const createPatientData = (result: ParseResult<string[]>): PatientData => {
-  const HEADER_ROW_COUNT = 2
-  if (result.data.length < HEADER_ROW_COUNT) {
-    return EMPTY_PATIENT_DATA
-  } else {
-    const columnNames = result.data[0]
-    const columnTypes = result.data[1].map((v) => v.toLowerCase())
-    const idColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
-    const columns = columnNames.map<PatientDataColumn>((name, index) => ({
-      name,
-      type: columnTypes[index] as PatientDataColumnType,
-      index,
-    }))
-    return {
-      ...EMPTY_PATIENT_DATA,
-      columns,
-      allPatients: result.data.slice(HEADER_ROW_COUNT).map((row: string[]) => {
-        return {
-          pid: row[idColumnIndex] as PatientId,
-          values: row,
-        }
-      }),
-    }
-  }
-}
-
-async function loadEventData(url: string) {
-  const response = await fetch(url)
-  const csv = await response.text()
-  return createEventData(parseData(csv))
-}
-
-const createEventData = (result: ParseResult<string[]>): EventData => {
-  const HEADER_ROW_COUNT = 2
-  if (result.data.length < HEADER_ROW_COUNT) {
-    return EMPTY_EVENT_DATA
-  } else {
-    const columnNames = result.data[0]
-    const columnTypes = result.data[1].map((v) => v.toLowerCase())
-    const eventIdColumnIndex = columnTypes.indexOf(EVENT_ID_COLUMN_TYPE)
-    const patientIdColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
-    const columns = columnNames.map<EventDataColumn>((name, index) => ({
-      name,
-      type: columnTypes[index] as EventDataColumnType,
-      index,
-    }))
-    return {
-      ...EMPTY_EVENT_DATA,
-      columns,
-      allEvents: result.data.slice(HEADER_ROW_COUNT).map((row: string[]) => {
-        return {
-          eid: row[eventIdColumnIndex] as EventId,
-          pid: row[patientIdColumnIndex] as PatientId,
-          values: row,
-        }
-      }),
-    }
-  }
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { TableHead, TableRow } from '@mui/material'
 import { Sorting, TableHeaderCell } from './TableHeaderCell'
-import { PatientDataColumn } from '../../dataSlice'
+import { PatientDataColumn } from '../../patients'
 
 interface Props extends Sorting {
   readonly columns: ReadonlyArray<PatientDataColumn>

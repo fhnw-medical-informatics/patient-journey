@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react'
 import { TableCell } from '@mui/material'
-import { PatientDataColumn } from '../../dataSlice'
+import { PatientDataColumn } from '../../patients'
 import { makeStyles } from '../../../utils'
-import { formatMillis, stringToBoolean } from '../../columnTypes'
+import { formatMillis, stringToBoolean } from '../../columns'
 import { Check } from '@mui/icons-material'
 
 const useStyles = makeStyles()((theme) => ({
