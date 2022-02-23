@@ -5,6 +5,7 @@ import { ThemeSwitch } from '../../theme'
 import { Typography, useTheme } from '@mui/material'
 import { makeStyles } from '../../utils'
 import { Data } from '../../data'
+import { Timeline } from '../../timeline'
 import SplitPane from 'react-split-pane'
 
 const DEFAULT_SPLIT_PANE_SIZE = '75%'
@@ -70,7 +71,9 @@ export const App = () => {
           <div className={classes.top}>
             <Data />
           </div>
-          <div>{/** TODO: Timeline */}</div>
+          <div>
+            <Timeline />
+          </div>
         </SplitPane>
       </div>
     </>

@@ -1,16 +1,9 @@
 import { Timeline as TimelineComponent } from '../components/Timeline'
+import { useAppSelector } from '../../store'
 
 const dateFormat = (ms: number) => new Date(ms).toLocaleString()
 
 export const Timeline = () => {
-  return (
-    <TimelineComponent
-      dateFormat={dateFormat}
-      laneDisplayMode={'expanded'}
-      /* suppressMarkAnimation={false}
-      isTrimming={false}
-      enableClustering={false}
-      useCustomRange={false} */
-    />
-  )
+  const data = useAppSelector((s) => s.data)
+  return <TimelineComponent dateFormat={dateFormat} laneDisplayMode={'expanded'} data={data} />
 }
