@@ -1,7 +1,6 @@
 import React from 'react'
 import { PatientData } from '../../data/dataSlice'
 import { Timeline as SVGTimeline, LaneDisplayMode } from 'react-svg-timeline'
-import datasetJSON from './dataset.json'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 
 interface TimelineProps {
@@ -13,21 +12,41 @@ interface TimelineProps {
 export const TimelineView = ({ data, dateFormat, laneDisplayMode }: TimelineProps) => {
   const patients = data.allPatients
   const columns = data.columns
+  let rawEvents: (
+    | {
+        eventId: string
+        startTimeMillis: number
+        laneId: string
+        endTimeMillis?: undefined
+      }
+    | {
+        eventId: string
+        startTimeMillis: number
+        endTimeMillis: number
+        laneId: string
+      }
+  )[] = []
 
-  const events2 = patients.map((patient) => {
+  patients.forEach((patient) => {
     console.log(patient)
-    return columns.map((column) => {
+    columns.forEach((column) => {
       if (column.name === 'Timestamp') {
-        return { eventId: patient.id, startTimeMillis: patient.values[column.index] }
-      } else {
-        return null
+        const startTimeMillis = Number(patient.values[column.index])
+        rawEvents.push({ eventId: patient.id, laneId: 'timestamp', startTimeMillis: startTimeMillis })
       }
     })
   })
 
-  console.log(events2)
+  console.log(rawEvents)
 
-  const { lanes, events } = datasetJSON
+  //const { lanes, events } = datasetJSON
+
+  const lanes = [
+    {
+      laneId: 'timestamp',
+      label: 'Timestamp',
+    },
+  ]
 
   return (
     <AutoSizer>
@@ -36,7 +55,7 @@ export const TimelineView = ({ data, dateFormat, laneDisplayMode }: TimelineProp
           <SVGTimeline
             width={width}
             height={height}
-            events={events}
+            events={rawEvents}
             lanes={lanes}
             dateFormat={dateFormat}
             laneDisplayMode={laneDisplayMode}
