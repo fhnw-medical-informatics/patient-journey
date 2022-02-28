@@ -1,5 +1,5 @@
 import React from 'react'
-import { PatientData } from '../../data/dataSlice'
+import { PatientData } from '../../data/patients'
 import { Timeline as SVGTimeline, LaneDisplayMode } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 
@@ -32,7 +32,7 @@ export const TimelineView = ({ data, dateFormat, laneDisplayMode }: TimelineProp
     columns.forEach((column) => {
       if (column.name === 'Timestamp') {
         const startTimeMillis = Number(patient.values[column.index])
-        rawEvents.push({ eventId: patient.id, laneId: 'timestamp', startTimeMillis: startTimeMillis })
+        rawEvents.push({ eventId: patient.pid, laneId: 'timestamp', startTimeMillis: startTimeMillis })
       }
     })
   })
