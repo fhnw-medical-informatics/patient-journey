@@ -23,6 +23,18 @@ const useStyles = makeStyles()((theme) => ({
     height: '100%',
     width: '100%',
   },
+  toolbar: {
+    flex: 1,
+  },
+  timelineContainer: {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(0.5),
+  },
+  timeline: {
+    display: 'grid',
+    height: '100%',
+    width: '100%',
+  },
   paper: {
     padding: 15,
     marginRight: 5,
@@ -124,4 +136,4 @@ export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster, onSetTim
       </Grid>
     </div>
   )
-}
+} */
