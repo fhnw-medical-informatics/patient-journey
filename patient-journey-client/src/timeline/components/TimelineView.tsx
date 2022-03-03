@@ -65,6 +65,7 @@ export const TimelineView = ({ data, dateFormat, laneDisplayMode, timelineState 
             lanes={lanes}
             dateFormat={dateFormat}
             laneDisplayMode={laneDisplayMode}
+            enableEventClustering={timelineState.cluster}
           />
         )
       }}

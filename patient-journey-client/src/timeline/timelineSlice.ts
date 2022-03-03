@@ -27,17 +27,21 @@ export type TimelineShirtSize = 'S' | 'M' | 'L'
 export type TimelineState = {
   type: TimelineType
   shirtSize: TimelineShirtSize
+  cluster: boolean
 }
 
 const timelineSlice = createSlice({
   name: 'timeline',
-  initialState: { type: 'timestamp' } as TimelineState,
+  initialState: { type: 'timestamp', cluster: false } as TimelineState,
   reducers: {
     setTimelineType: (state: Draft<TimelineState>, action) => {
       state.type = action.payload
+    },
+    setTimelineCluster: (state: Draft<TimelineState>) => {
+      state.cluster = !state.cluster
     },
   },
 })
 
 export const timelineReducer = timelineSlice.reducer
-export const { setTimelineType } = timelineSlice.actions
+export const { setTimelineType, setTimelineCluster } = timelineSlice.actions
