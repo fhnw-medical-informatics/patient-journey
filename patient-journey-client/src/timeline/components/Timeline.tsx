@@ -7,6 +7,7 @@ import { ControlPanel } from './ControlPanel'
 import { LoadingProgress } from '../../data/components/LoadingProgress'
 import { LoadingError } from '../../data/components/LoadingError'
 import { TimelineView } from './TimelineView'
+import { TimelineType, TimelineState } from '../timelineSlice'
 
 const useStyles = makeStyles()({
   root: {
@@ -19,9 +20,11 @@ interface TimelineProps {
   readonly data: DataState
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
+  onSetTimelineType: (type: TimelineType) => void
+  readonly timelineState: TimelineState
 }
 
-export const Timeline = ({ data, dateFormat, laneDisplayMode }: TimelineProps) => {
+export const Timeline = ({ data, dateFormat, laneDisplayMode, onSetTimelineType, timelineState }: TimelineProps) => {
   const { classes } = useStyles()
 
   switch (data.type) {
@@ -34,8 +37,13 @@ export const Timeline = ({ data, dateFormat, laneDisplayMode }: TimelineProps) =
     case 'loading-complete': {
       return (
         <Paper className={classes.root}>
-          <ControlPanel />
-          <TimelineView data={data.patientData} dateFormat={dateFormat} laneDisplayMode={laneDisplayMode} />
+          <ControlPanel onSetTimelineType={onSetTimelineType} />
+          <TimelineView
+            data={data.patientData}
+            dateFormat={dateFormat}
+            laneDisplayMode={laneDisplayMode}
+            timelineState={timelineState}
+          />
         </Paper>
       )
     }
