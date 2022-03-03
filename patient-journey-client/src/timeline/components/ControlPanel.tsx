@@ -4,6 +4,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import { InputLabel, MenuItem, Select, SelectChangeEvent, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
 import { Box } from '@mui/system'
+import { TimelineType } from '../timelineSlice'
+import { useAppSelector } from '../../store'
 
 const useStyles = makeStyles({
   controlPanel: {
@@ -25,12 +27,17 @@ const useStyles = makeStyles({
   },
 })
 
-export const ControlPanel = () => {
+interface ControlPanelProps {
+  onSetTimelineType: (type: TimelineType) => void
+}
+
+export const ControlPanel = ({ onSetTimelineType }: ControlPanelProps) => {
   const classes = useStyles()
+
   return (
     <div className={classes.controlPanel}>
       <Box className={classes.paper}>
-        <ConfigOptions />
+        <ConfigOptions onSetTimelineType={onSetTimelineType} />
       </Box>
       <Box className={classes.paper} alignItems="right">
         <Tooltip title={<KeyboardShortcuts />} placement="top">
@@ -73,11 +80,19 @@ const KeyboardShortcuts = () => {
   )
 }
 
-const ConfigOptions = () => {
-  const [lineView, setLineView] = React.useState('date of birth')
+const ConfigOptions = ({ onSetTimelineType }: ControlPanelProps) => {
+  const timelineState = useAppSelector((state) => state.timeline)
 
   const onChangeView = (event: SelectChangeEvent) => {
-    setLineView(event.target.value as string)
+    console.log(event)
+    if (event.target.value === 'timestamp') {
+      onSetTimelineType('timestamp')
+    }
+    if (event.target.value === 'date of birth') {
+      onSetTimelineType('date of birth')
+      console.log(event.target.value)
+      console.log(timelineState)
+    }
   }
 
   return (
@@ -86,12 +101,12 @@ const ConfigOptions = () => {
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
-        value={lineView}
+        value={timelineState.type}
         label="View"
         onChange={onChangeView}
         size="small"
       >
-        <MenuItem value={'date of birth'}>Birth Dates</MenuItem>
+        <MenuItem value={'date of birth'}>Date Of Birth</MenuItem>
         <MenuItem value={'timestamp'}>Timestamp</MenuItem>
       </Select>
     </FormControl>

@@ -1,34 +1,44 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, Draft } from '@reduxjs/toolkit'
 
-export interface TimelineEvents {
-  readonly eventId: string
-  readonly startTimeMillis: number
-  readonly laneId: string
-  readonly endTimeMillis?: number
+export type Events = (
+  | {
+      eventId: string
+      startTimeMillis: number
+      laneId: string
+      endTimeMillis?: undefined
+    }
+  | {
+      eventId: string
+      startTimeMillis: number
+      endTimeMillis: number
+      laneId: string
+    }
+)[]
+
+export type Lanes = {
+  laneId: string
+  label: string
+}[]
+
+export type TimelineType = 'timestamp' | 'date of birth'
+
+export type TimelineShirtSize = 'S' | 'M' | 'L'
+
+export type TimelineState = {
+  type: TimelineType
+  shirtSize: TimelineShirtSize
 }
 
-type TimelineViewDateOfBirth = Readonly<{
-  type: 'date of birth'
-}>
-
-type TimelineViewTimestamp = Readonly<{
-  type: 'timestamp'
-}>
-
-export type TimelineView = TimelineViewDateOfBirth | TimelineViewTimestamp
-
 const timelineSlice = createSlice({
-  name: 'data',
-  initialState: { type: 'date of birth' } as TimelineView,
+  name: 'timeline',
+  initialState: { type: 'timestamp' } as TimelineState,
   reducers: {
-    ViewDateOfBirth: (): TimelineView => ({
-      type: 'date of birth',
-    }),
-    ViewTimestamp: (): TimelineView => ({
-      type: 'timestamp',
-    }),
+    setTimelineType: (state: Draft<TimelineState>, action) => {
+      state.type = action.payload
+      console.log('hello')
+    },
   },
 })
 
 export const timelineReducer = timelineSlice.reducer
-export const { ViewDateOfBirth, ViewTimestamp } = timelineSlice.actions
+export const { setTimelineType } = timelineSlice.actions
