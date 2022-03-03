@@ -136,4 +136,4 @@ export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster, onSetTim
       </Grid>
     </div>
   )
-} */
+}
