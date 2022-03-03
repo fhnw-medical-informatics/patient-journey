@@ -21,10 +21,18 @@ interface TimelineProps {
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   onSetTimelineType: (type: TimelineType) => void
+  onSetTimelineCluster: () => void
   readonly timelineState: TimelineState
 }
 
-export const Timeline = ({ data, dateFormat, laneDisplayMode, onSetTimelineType, timelineState }: TimelineProps) => {
+export const Timeline = ({
+  data,
+  dateFormat,
+  laneDisplayMode,
+  onSetTimelineType,
+  onSetTimelineCluster,
+  timelineState,
+}: TimelineProps) => {
   const { classes } = useStyles()
 
   switch (data.type) {
@@ -37,7 +45,7 @@ export const Timeline = ({ data, dateFormat, laneDisplayMode, onSetTimelineType,
     case 'loading-complete': {
       return (
         <Paper className={classes.root}>
-          <ControlPanel onSetTimelineType={onSetTimelineType} />
+          <ControlPanel onSetTimelineType={onSetTimelineType} onSetTimelineCluster={onSetTimelineCluster} />
           <TimelineView
             data={data.patientData}
             dateFormat={dateFormat}

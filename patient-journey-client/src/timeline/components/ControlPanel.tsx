@@ -1,5 +1,5 @@
 import { FormControl, Typography } from '@material-ui/core'
-import React, { useState } from 'react'
+import React from 'react'
 import { makeStyles } from '../../utils'
 import { FormControlLabel, Grid, MenuItem, Select, SelectChangeEvent, Switch, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
@@ -34,29 +34,45 @@ const useStyles = makeStyles()((theme) => ({
 
 interface ControlPanelProps {
   onSetTimelineType: (type: TimelineType) => void
+  onSetTimelineCluster: () => void
 }
 
-export const ControlPanel = ({ onSetTimelineType }: ControlPanelProps) => {
+export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster }: ControlPanelProps) => {
   const { classes } = useStyles()
-  const [enableClustering, setEnableClustering] = useState(true)
+
+  const timelineState = useAppSelector((state) => state.timeline)
+
+  const onChangeType = (event: SelectChangeEvent) => {
+    if (event.target.value === 'timestamp') {
+      onSetTimelineType('timestamp')
+    }
+    if (event.target.value === 'date of birth') {
+      onSetTimelineType('date of birth')
+    }
+  }
 
   return (
     <div className={classes.root}>
       <Grid container alignItems="center">
         <Grid item>
           <Box className={classes.paper}>
-            <ConfigType onSetTimelineType={onSetTimelineType} />
+            <FormControl>
+              <Select
+                id="demo-simple-select"
+                value={timelineState.type}
+                label="Age"
+                onChange={onChangeType}
+                size="small"
+              >
+                <MenuItem value={'date of birth'}>Date Of Birth</MenuItem>
+                <MenuItem value={'timestamp'}>Timestamp</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
         </Grid>
         <Grid item>
           <FormControlLabel
-            control={
-              <Switch
-                checked={enableClustering}
-                onChange={() => setEnableClustering((current) => !current)}
-                color="primary"
-              />
-            }
+            control={<Switch checked={timelineState.cluster} onChange={() => onSetTimelineCluster()} color="primary" />}
             label="Cluster Tickets"
           />
         </Grid>
@@ -103,53 +119,3 @@ export const ControlPanel = ({ onSetTimelineType }: ControlPanelProps) => {
     </div>
   )
 }
-
-const ConfigType = ({ onSetTimelineType }: ControlPanelProps) => {
-  const timelineState = useAppSelector((state) => state.timeline)
-
-  const onChangeView = (event: SelectChangeEvent) => {
-    if (event.target.value === 'timestamp') {
-      onSetTimelineType('timestamp')
-    }
-    if (event.target.value === 'date of birth') {
-      onSetTimelineType('date of birth')
-    }
-  }
-
-  return (
-    <FormControl>
-      <Select id="demo-simple-select" value={timelineState.type} label="Age" onChange={onChangeView} size="small">
-        <MenuItem value={'date of birth'}>Date Of Birth</MenuItem>
-        <MenuItem value={'timestamp'}>Timestamp</MenuItem>
-      </Select>
-    </FormControl>
-  )
-}
-
-/* const ConfigCluster = ({ onSetTimelineType }: ControlPanelProps) => {
-  const timelineState = useAppSelector((state) => state.timeline)
-
-  const onChangeView = (event: SelectChangeEvent) => {
-    if (event.target.value === 'timestamp') {
-      onSetTimelineType('timestamp')
-    }
-    if (event.target.value === 'date of birth') {
-      onSetTimelineType('date of birth')
-    }
-  }
-
-  return (
-    <FormControl>
-      <Select
-        id="demo-simple-select"
-        value={timelineState.type}
-        label="Age"
-        onChange={onChangeView}
-        size="small"
-      >
-        <MenuItem value={'date of birth'}>Date Of Birth</MenuItem>
-        <MenuItem value={'timestamp'}>Timestamp</MenuItem>
-      </Select>
-    </FormControl>
-  )
-} */
