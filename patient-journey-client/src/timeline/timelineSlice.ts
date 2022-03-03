@@ -35,7 +35,6 @@ const timelineSlice = createSlice({
   reducers: {
     setTimelineType: (state: Draft<TimelineState>, action) => {
       state.type = action.payload
-      console.log('hello')
     },
   },
 })
