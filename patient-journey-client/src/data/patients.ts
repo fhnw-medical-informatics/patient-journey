@@ -17,6 +17,7 @@ export type PatientId = PatientIdBrand & string
 export const PatientIdNone = 'n/a' as PatientId
 
 export interface PatientData {
+  readonly type: 'patients'
   readonly columns: ReadonlyArray<PatientDataColumn>
   readonly allPatients: ReadonlyArray<Patient>
   readonly selectedPatient: PatientId
@@ -24,6 +25,7 @@ export interface PatientData {
 }
 
 export const EMPTY_PATIENT_DATA: PatientData = {
+  type: 'patients',
   columns: [],
   allPatients: [],
   selectedPatient: PatientIdNone,

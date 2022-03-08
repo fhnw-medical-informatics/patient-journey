@@ -23,11 +23,11 @@ export const stringToBoolean = (s: string) => {
   }
 }
 
-const DATE_FORMAT = 'dd.MM.yyyy'
+const DATE_PARSE_FORMAT = 'dd.MM.yyyy'
 const DATE_TIMESTAMP_FORMAT = 'dd.MM.yyyy HH:mm'
 
 // new Date('2020-01-01') does not work reliably in all browsers
-const parseDate = (date: string) => parse(date, DATE_FORMAT, new Date())
+export const parseDate = (date: string) => parse(date, DATE_PARSE_FORMAT, new Date())
 
 export const stringToMillis = (s: string): number => parseDate(s).valueOf()
 
