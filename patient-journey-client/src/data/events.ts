@@ -19,11 +19,13 @@ export interface PatientJourneyEvent {
 }
 
 export interface EventData {
+  readonly type: 'events'
   readonly columns: ReadonlyArray<EventDataColumn>
   readonly allEvents: ReadonlyArray<PatientJourneyEvent>
 }
 
 export const EMPTY_EVENT_DATA: EventData = {
+  type: 'events',
   columns: [],
   allEvents: [],
 }

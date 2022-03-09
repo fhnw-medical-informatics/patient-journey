@@ -4,6 +4,7 @@ import * as csvParser from 'papaparse'
 import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './dataConfig'
 import { createPatientData, PatientData, PatientId } from './patients'
 import { createEventData, EventData } from './events'
+import { GenericFilter } from './filtering'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -21,11 +22,16 @@ export type DataStateLoadingFailed = Readonly<{
 export type DataStateLoadingComplete = Readonly<{
   type: 'loading-complete'
 }> &
-  LoadedData
+  LoadedData &
+  Filters
 
 interface LoadedData {
   readonly patientData: PatientData
   readonly eventData: EventData
+}
+
+interface Filters {
+  readonly filters: ReadonlyArray<GenericFilter>
 }
 
 export type DataState =
@@ -47,6 +53,7 @@ const dataSlice = createSlice({
     }),
     loadingDataComplete: (_state: DataState, action: PayloadAction<LoadedData>): DataState => ({
       type: 'loading-complete',
+      filters: [],
       ...action.payload,
     }),
     setSelectedPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
@@ -54,6 +61,30 @@ const dataSlice = createSlice({
     },
     setHoveredPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutatePatientData(state, (pd) => (pd.hoveredPatient = action.payload as PatientId))
+    },
+    // TODO: Tests
+    addDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
+      mutateFilterData(state, (fd) => {
+        const existingFilterIndex = fd.findIndex((filter) => filter.column.name === action.payload.column.name)
+
+        if (existingFilterIndex !== -1) {
+          fd[existingFilterIndex] = action.payload
+        } else {
+          fd.push(action.payload)
+        }
+      })
+    },
+    // TODO: Tests
+    removeDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
+      mutateFilterData(state, (fd) => {
+        fd = fd.filter((filter) => filter.column.name !== action.payload.column.name)
+      })
+    },
+    // TODO: Tests
+    resetDataFilter: (state: Draft<DataState>) => {
+      mutateFilterData(state, (fd) => {
+        fd = []
+      })
     },
   },
 })
@@ -64,8 +95,18 @@ const mutatePatientData = (state: Draft<DataState>, applyMutation: (pd: Draft<Pa
   }
 }
 
+const mutateFilterData = (
+  state: Draft<DataState>,
+  applyMutation: (fd: Draft<ReadonlyArray<GenericFilter>>) => void
+) => {
+  if (state.type === 'loading-complete') {
+    applyMutation(state.filters)
+  }
+}
+
 export const dataReducer = dataSlice.reducer
-export const { setSelectedPatient, setHoveredPatient } = dataSlice.actions
+export const { setSelectedPatient, setHoveredPatient, addDataFilter, removeDataFilter, resetDataFilter } =
+  dataSlice.actions
 
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 
