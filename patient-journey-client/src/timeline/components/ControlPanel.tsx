@@ -73,7 +73,7 @@ export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster }: Contro
         <Grid item>
           <FormControlLabel
             control={<Switch checked={timelineState.cluster} onChange={() => onSetTimelineCluster()} color="primary" />}
-            label="Cluster Tickets"
+            label="Cluster Patients"
           />
         </Grid>
         <Grid item>
