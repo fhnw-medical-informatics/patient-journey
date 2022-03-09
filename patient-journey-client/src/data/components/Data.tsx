@@ -36,7 +36,7 @@ const DataView = ({ data }: Props) => {
     case 'loading-failed':
       return <LoadingError errorMessage={data.errorMessage} />
     case 'loading-complete': {
-      return <PatientDataTable data={data.patientData} />
+      return <PatientDataTable />
     }
   }
 }

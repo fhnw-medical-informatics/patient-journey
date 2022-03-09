@@ -2,7 +2,7 @@ import { parseMillis, parseDate } from './columns'
 import { EventData, EventDataColumn, PatientJourneyEvent } from './events'
 import { Patient, PatientData, PatientDataColumn } from './patients'
 
-interface Filter<T extends FilterColumn['type']> {
+export interface Filter<T extends FilterColumn['type']> {
   column: FilterColumn
   type: T
   value: FilterValue[T]
@@ -13,7 +13,7 @@ export type GenericFilter = Filter<FilterColumn['type']>
 export const NO_FILTER = 'no-filter'
 export type NoFilter = typeof NO_FILTER
 
-type FilterColumn = EventDataColumn | PatientDataColumn
+export type FilterColumn = EventDataColumn | PatientDataColumn
 
 type FilterValue = {
   string: TextFilterValue

@@ -81,7 +81,7 @@ const dataSlice = createSlice({
       })
     },
     // TODO: Tests
-    resetDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
+    resetDataFilter: (state: Draft<DataState>) => {
       mutateFilterData(state, (fd) => {
         fd = []
       })

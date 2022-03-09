@@ -1,11 +1,13 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
   selectEventData,
+  selectEventDataColumns,
   selectFilteredEventData,
   selectFilteredPatientData,
   selectFilters,
   selectHoveredPatient,
   selectPatientData,
+  selectPatientDataColumns,
   selectSelectedPatient,
 } from './selectors'
 import { setHoveredPatient, setSelectedPatient } from './dataSlice'
@@ -14,6 +16,9 @@ import { PatientId, PatientIdNone } from './patients'
 
 export const usePatientData = () => useAppSelector(selectPatientData)
 export const useEventData = () => useAppSelector(selectEventData)
+
+export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
+export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
 
 export const useSelectedPatient = (): PatientId => useAppSelector(selectSelectedPatient)
 export const useHoveredPatient = () => useAppSelector(selectHoveredPatient)

@@ -1,13 +1,13 @@
-import { PatientDataTable as PatientDataTableComponent } from '../../components/table/PatientDataTable'
-import { PatientData } from '../../patients'
 import React from 'react'
-import { usePatientInteraction } from '../../hooks'
 
-interface Props {
-  readonly data: PatientData
-}
+import { PatientDataTable as PatientDataTableComponent } from '../../components/table/PatientDataTable'
+import { useFilteredPatientData, usePatientInteraction } from '../../hooks'
 
-export const PatientDataTable = ({ data }: Props) => {
+export const PatientDataTable = () => {
+  const patientData = useFilteredPatientData()
   const { onPatientClick, onPatientHover } = usePatientInteraction()
-  return <PatientDataTableComponent data={data} onPatientClick={onPatientClick} onPatientHover={onPatientHover} />
+
+  return (
+    <PatientDataTableComponent data={patientData} onPatientClick={onPatientClick} onPatientHover={onPatientHover} />
+  )
 }
