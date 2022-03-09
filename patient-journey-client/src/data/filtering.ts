@@ -25,17 +25,19 @@ type FilterValue = {
   timestamp: TimestampFilterValue
 }
 
-export type Millis = number
-export const MillisNone = -1 as Millis
-
 interface TextFilterValue {
   text: string
 }
+
+export const NumberNone = NaN
 
 interface NumberFilterValue {
   from: number
   to: number
 }
+
+export type Millis = number
+export const MillisNone = -1 as Millis
 
 interface TimestampFilterValue {
   millisFrom: Millis
@@ -78,17 +80,24 @@ export const filterReducer = <T extends EventData | PatientData>(data: T, filter
         }),
       }
     case 'number':
-      return {
-        ...data,
-        [dataSelector]: dataToFilter.filter((row) => {
-          const fieldValue = getFieldValue(row, filter)
+      const openFrom = isNaN((filter as Filter<'number'>).value.from)
+      const openTo = isNaN((filter as Filter<'number'>).value.to)
 
-          return (
-            fieldValue.isValid &&
-            +fieldValue.value <= (filter as Filter<'number'>).value.from &&
-            +fieldValue.value >= (filter as Filter<'number'>).value.to
-          )
-        }),
+      if (openFrom && openTo) {
+        return data
+      } else {
+        return {
+          ...data,
+          [dataSelector]: dataToFilter.filter((row) => {
+            const fieldValue = getFieldValue(row, filter)
+
+            return (
+              fieldValue.isValid &&
+              (openFrom || +fieldValue.value >= (filter as Filter<'number'>).value.from) &&
+              (openTo || +fieldValue.value <= (filter as Filter<'number'>).value.to)
+            )
+          }),
+        }
       }
     case 'boolean':
       return {

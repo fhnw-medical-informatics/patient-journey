@@ -2,7 +2,8 @@ import React from 'react'
 
 import { makeStyles } from '../../../utils'
 
-import { Filter, FilterColumn, GenericFilter } from '../../filtering'
+import { Filter, FilterColumn, GenericFilter, NumberNone } from '../../filtering'
+import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
 
 const useStyles = makeStyles()((theme) => ({
@@ -32,6 +33,8 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter }: Da
       | undefined
   }
 
+  console.log(activeFilters)
+
   return (
     <div>
       <h3>Filters</h3>
@@ -39,11 +42,27 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter }: Da
         switch (availableColumn.type) {
           case 'string':
             return (
-              <div className={classes.filter}>
+              <div key={availableColumn.name} className={classes.filter}>
                 <TextDataFilter
                   column={availableColumn}
                   type={availableColumn.type}
                   value={findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? { text: '' }}
+                  onChange={onAddFilter}
+                />
+              </div>
+            )
+          case 'number':
+            return (
+              <div key={availableColumn.name} className={classes.filter}>
+                <NumberDataFilter
+                  column={availableColumn}
+                  type={availableColumn.type}
+                  value={
+                    findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? {
+                      from: NumberNone,
+                      to: NumberNone,
+                    }
+                  }
                   onChange={onAddFilter}
                 />
               </div>
