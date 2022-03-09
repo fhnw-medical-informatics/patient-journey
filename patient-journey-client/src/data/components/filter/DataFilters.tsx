@@ -2,7 +2,8 @@ import React from 'react'
 
 import { makeStyles } from '../../../utils'
 
-import { Filter, FilterColumn, GenericFilter, NumberNone } from '../../filtering'
+import { Filter, FilterColumn, GenericFilter, MillisNone, NumberNone } from '../../filtering'
+import { DateDataFilter } from './DateDataFilter'
 import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
 
@@ -33,8 +34,6 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter }: Da
       | undefined
   }
 
-  console.log(activeFilters)
-
   return (
     <div>
       <h3>Filters</h3>
@@ -61,6 +60,23 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter }: Da
                     findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? {
                       from: NumberNone,
                       to: NumberNone,
+                    }
+                  }
+                  onChange={onAddFilter}
+                />
+              </div>
+            )
+          case 'date':
+          case 'timestamp':
+            return (
+              <div key={availableColumn.name} className={classes.filter}>
+                <DateDataFilter
+                  column={availableColumn}
+                  type={availableColumn.type}
+                  value={
+                    findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? {
+                      millisFrom: MillisNone,
+                      millisTo: MillisNone,
                     }
                   }
                   onChange={onAddFilter}
