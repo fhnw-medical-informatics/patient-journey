@@ -3,7 +3,7 @@ import React from 'react'
 import { FormGroup, FormLabel, TextField } from '@mui/material'
 import { createFilter, Filter, Millis, MillisNone } from '../../filtering'
 import { makeStyles } from '../../../utils'
-import { format, parseDate } from '../../columns'
+import { format, parseHTMLDateInput } from '../../columns'
 
 const CONTROL_TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm'
 const CONTROL_DATE_FORMAT = 'yyyy-MM-dd'
@@ -49,16 +49,7 @@ export const DateDataFilter = ({ column, type, value, onChange }: DateDataFilter
             : ''
         }
         onChange={(event) => {
-          console.log(event.target.value)
-          handleChange(
-            event.target.value
-              ? parseDate(
-                  event.target.value,
-                  type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT
-                ).valueOf()
-              : MillisNone,
-            null
-          )
+          handleChange(event.target.value ? parseHTMLDateInput(event.target.value).valueOf() : MillisNone, null)
         }}
         // Issue with shrink state: https://mui.com/components/text-fields/#shrink
         InputLabelProps={{ shrink: true }}
@@ -74,15 +65,7 @@ export const DateDataFilter = ({ column, type, value, onChange }: DateDataFilter
             : ''
         }
         onChange={(event) => {
-          handleChange(
-            null,
-            event.target.value
-              ? parseDate(
-                  event.target.value,
-                  type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT
-                ).valueOf()
-              : MillisNone
-          )
+          handleChange(null, event.target.value ? parseHTMLDateInput(event.target.value).valueOf() : MillisNone)
         }}
         // Issue with shrink state https://mui.com/components/text-fields/#shrink
         InputLabelProps={{ shrink: true }}

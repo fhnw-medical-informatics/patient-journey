@@ -1,4 +1,4 @@
-import { format as dateFnFormat, parse, toDate } from 'date-fns'
+import { format as dateFnFormat, parse, toDate, parseISO, formatISO } from 'date-fns'
 
 export interface DataColumn<T> {
   readonly name: string
@@ -30,9 +30,13 @@ const DATE_TIMESTAMP_FORMAT = 'dd.MM.yyyy HH:mm'
 export const parseDate = (date: string, sourceFormat?: string) =>
   parse(date, sourceFormat ?? DATE_PARSE_FORMAT, new Date())
 
+export const parseHTMLDateInput = (isoDateString: string) => parseISO(isoDateString)
+
 export const stringToMillis = (s: string): number => parseDate(s).valueOf()
 
 export const parseMillis = (ms: number) => toDate(ms)
 
 export const format = (date: Date | number, formatString: string) => dateFnFormat(date, formatString)
 export const formatMillis = (ms: number) => (isFinite(ms) ? format(parseMillis(ms), DATE_TIMESTAMP_FORMAT) : '')
+
+export const formatHTMLDateInput = (ms: number) => (isFinite(ms) ? formatISO(parseMillis(ms)) : '')
