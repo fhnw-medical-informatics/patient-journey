@@ -1,12 +1,27 @@
 import { useAppDispatch, useAppSelector } from '../store'
-import { selectHoveredPatient, selectPatientData, selectSelectedPatient } from './selectors'
+import {
+  selectEventData,
+  selectFilteredEventData,
+  selectFilteredPatientData,
+  selectFilters,
+  selectHoveredPatient,
+  selectPatientData,
+  selectSelectedPatient,
+} from './selectors'
 import { setHoveredPatient, setSelectedPatient } from './dataSlice'
 import { useCallback } from 'react'
 import { PatientId, PatientIdNone } from './patients'
 
 export const usePatientData = () => useAppSelector(selectPatientData)
+export const useEventData = () => useAppSelector(selectEventData)
+
 export const useSelectedPatient = (): PatientId => useAppSelector(selectSelectedPatient)
 export const useHoveredPatient = () => useAppSelector(selectHoveredPatient)
+
+export const useFilters = () => useAppSelector(selectFilters)
+
+export const useFilteredPatientData = () => useAppSelector(selectFilteredPatientData)
+export const useFilteredEventData = () => useAppSelector(selectFilteredEventData)
 
 export interface PatientInteraction {
   readonly selectedPatient: PatientId

@@ -50,5 +50,6 @@ DataLoadingComplete.args = {
       columns: [],
       allEvents: [],
     },
+    filters: [],
   },
 }

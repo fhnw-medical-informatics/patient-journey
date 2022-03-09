@@ -2,11 +2,13 @@ import { parseMillis, parseDate } from './columns'
 import { EventData, EventDataColumn, PatientJourneyEvent } from './events'
 import { Patient, PatientData, PatientDataColumn } from './patients'
 
-export interface Filter<T extends FilterColumn['type']> {
+interface Filter<T extends FilterColumn['type']> {
   column: FilterColumn
   type: T
   value: FilterValue[T]
 }
+
+export type GenericFilter = Filter<FilterColumn['type']>
 
 export const NO_FILTER = 'no-filter'
 export type NoFilter = typeof NO_FILTER
@@ -57,10 +59,7 @@ export const createFilter = <T extends FilterColumn['type']>(
 }
 
 // TODO: Write tests
-export const filterReducer = <T extends EventData | PatientData, P extends FilterColumn['type']>(
-  data: T,
-  filter: Filter<P>
-): T => {
+export const filterReducer = <T extends EventData | PatientData>(data: T, filter: GenericFilter): T => {
   const dataSelector = data.type === 'events' ? 'allEvents' : 'allPatients'
   const dataToFilter: EventData['allEvents'] | PatientData['allPatients'] =
     data.type === 'events' ? data.allEvents : data.allPatients
