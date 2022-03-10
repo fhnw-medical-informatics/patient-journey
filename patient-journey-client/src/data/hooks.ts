@@ -1,5 +1,6 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
+  selectDataView,
   selectEventData,
   selectEventDataColumns,
   selectFilteredEventData,
@@ -22,6 +23,8 @@ export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
 
 export const useSelectedPatient = (): PatientId => useAppSelector(selectSelectedPatient)
 export const useHoveredPatient = () => useAppSelector(selectHoveredPatient)
+
+export const useActiveDataView = () => useAppSelector(selectDataView)
 
 export const useFilters = () => useAppSelector(selectFilters)
 

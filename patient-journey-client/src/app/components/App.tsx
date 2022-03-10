@@ -4,7 +4,7 @@ import Toolbar from '@mui/material/Toolbar'
 import { ThemeSwitch } from '../../theme'
 import { Typography, useTheme } from '@mui/material'
 import { makeStyles } from '../../utils'
-import { Data } from '../../data'
+import { Data, DataViewSelector } from '../../data'
 import SplitPane from 'react-split-pane'
 import { DataFilters } from '../../data/containers/filter/DataFilters'
 
@@ -14,7 +14,7 @@ const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '75%'
 const useStyles = makeStyles()((theme) => ({
   toolbar: {
     display: 'grid',
-    gridTemplateColumns: 'auto auto',
+    gridTemplateColumns: 'min-content auto auto',
     justifyItems: 'end',
   },
   main: {
@@ -62,6 +62,7 @@ export const App = () => {
     <>
       <AppBar>
         <Toolbar className={classes.toolbar}>
+          <DataViewSelector />
           <Typography>{`Patient Journey – v${import.meta.env.VITE_APP_VERSION}`}</Typography>
           <ThemeSwitch />
         </Toolbar>

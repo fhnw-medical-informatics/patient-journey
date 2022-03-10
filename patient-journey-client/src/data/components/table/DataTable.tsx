@@ -8,6 +8,7 @@ import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
 import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
+import { EventData, PatientJourneyEvent } from '../../events'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -35,20 +36,20 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface Props {
-  readonly data: PatientData
+  readonly data: PatientData | EventData
   readonly onPatientClick: (id: PatientId) => void
   readonly onPatientHover: (id: PatientId) => void
 }
 
-export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
+export const DataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
   const { classes } = useStyles()
-  const patients = data.allPatients
+  const tableData = data.type === 'patients' ? data.allPatients : data.allEvents
   const columns = data.columns
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
-  const sortedRows = useMemo(() => stableSort(patients, sortingState), [patients, sortingState])
+  const sortedRows = useMemo(() => stableSort(tableData, sortingState), [tableData, sortingState])
 
-  useEffect(() => setPage(0), [patients.length])
+  useEffect(() => setPage(0), [tableData.length])
 
   return (
     <div className={classes.maxed}>
@@ -57,7 +58,7 @@ export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props
           const columnWidth = width / columns.length
           const bodyHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT
           const rowsPerPage = Math.floor(bodyHeight / ROW_HEIGHT)
-          const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, patients.length - page * rowsPerPage)
+          const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, tableData.length - page * rowsPerPage)
           const isAllRowsEmpty = emptyRowCount === rowsPerPage
 
           return (
@@ -72,9 +73,9 @@ export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props
                 <TableBody component={'tbody'}>
                   {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                     <TableRow
-                      key={row.pid}
+                      key={data.type === 'patients' ? row.pid : (row as PatientJourneyEvent).eid}
                       hover={true}
-                      selected={data.selectedPatient === row.pid}
+                      //selected={data.selectedPatient === row.pid}
                       onClick={() => onPatientClick(row.pid)}
                       onMouseEnter={() => onPatientHover(row.pid)}
                       onMouseLeave={() => onPatientHover(PatientIdNone)}
@@ -93,7 +94,7 @@ export const PatientDataTable = ({ data, onPatientClick, onPatientHover }: Props
               </Table>
               <TableFooter
                 rowsPerPage={rowsPerPage}
-                count={patients.length}
+                count={tableData.length}
                 page={page}
                 onPageChange={(e, newPage) => setPage(newPage)}
               />

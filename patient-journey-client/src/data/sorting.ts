@@ -1,6 +1,7 @@
 // In addition to 'asc' | 'desc', we support a 3rd 'neutral' state (import order)
 
 import { stringToBoolean, stringToMillis, stringToNumber } from './columns'
+import { EventDataColumn, PatientJourneyEvent } from './events'
 import { Patient, PatientDataColumn } from './patients'
 
 export type ColumnSortingState =
@@ -9,15 +10,18 @@ export type ColumnSortingState =
     }>
   | Readonly<{
       type: 'asc' | 'desc'
-      column: PatientDataColumn
+      column: PatientDataColumn | EventDataColumn
     }>
 
 // Sorting logic inspired by https://codesandbox.io/s/f71wj?file=/demo.js
-export const stableSort = (rows: ReadonlyArray<Patient>, sortingState: ColumnSortingState) => {
+export const stableSort = <T extends Patient | PatientJourneyEvent>(
+  rows: ReadonlyArray<T>,
+  sortingState: ColumnSortingState
+) => {
   if (sortingState.type === 'neutral') {
     return rows
   } else {
-    const stabilizedThis = rows.map<[Patient, number]>((rowData, index) => [rowData, index])
+    const stabilizedThis = rows.map<[T, number]>((rowData, index) => [rowData, index])
     stabilizedThis.sort((a, b) => {
       const comparator = getComparator(sortingState.type, sortingState.column)
       const order = comparator(a[0], b[0])
@@ -28,11 +32,16 @@ export const stableSort = (rows: ReadonlyArray<Patient>, sortingState: ColumnSor
   }
 }
 
-function getComparator(order: 'asc' | 'desc', column: PatientDataColumn) {
-  return (p1: Patient, p2: Patient) => (order === 'asc' ? 1 : -1) * comparePatients(p1, p2, column)
+function getComparator(order: 'asc' | 'desc', column: PatientDataColumn | EventDataColumn) {
+  return (p1: Patient | PatientJourneyEvent, p2: Patient | PatientJourneyEvent) =>
+    (order === 'asc' ? 1 : -1) * comparePatients(p1, p2, column)
 }
 
-function comparePatients(p1: Patient, p2: Patient, column: PatientDataColumn) {
+function comparePatients(
+  p1: Patient | PatientJourneyEvent,
+  p2: Patient | PatientJourneyEvent,
+  column: PatientDataColumn | EventDataColumn
+) {
   const v1 = p1.values[column.index]
   const v2 = p2.values[column.index]
 

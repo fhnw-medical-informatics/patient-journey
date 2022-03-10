@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { useAppDispatch } from '../../../store'
-import { useFilters, usePatientDataColumns } from '../../hooks'
+import { useActiveDataView, useEventDataColumns, useFilters, usePatientDataColumns } from '../../hooks'
 
 import { DataFilters as DataFiltersComponent } from '../../components/filter/DataFilters'
 import { GenericFilter } from '../../filtering'
@@ -10,8 +10,10 @@ import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlic
 export const DataFilters = () => {
   const filters = useFilters()
   const patientDataColumns = usePatientDataColumns()
-  // TODO: Integrate event data columns
-  // const eventDataColumns = useEventDataColumns()
+  const eventDataColumns = useEventDataColumns()
+
+  const activeDataView = useActiveDataView()
+
   const dispatch = useAppDispatch()
 
   const handleAddFilter = (filter: GenericFilter) => {
@@ -29,7 +31,7 @@ export const DataFilters = () => {
   return (
     <DataFiltersComponent
       activeFilters={filters}
-      availableColumns={patientDataColumns}
+      availableColumns={activeDataView === 'patients' ? patientDataColumns : eventDataColumns}
       onAddFilter={handleAddFilter}
       onRemoveFilter={handleRemoveFilter}
       onResetFilters={handleResetFilters}
