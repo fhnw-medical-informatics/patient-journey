@@ -21,6 +21,14 @@ export const selectEventData = (s: RootState): EventData => {
   }
 }
 
+export const selectActiveData = (s: RootState): PatientData | EventData => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.view === 'patients' ? s.data.patientData : s.data.eventData
+  } else {
+    return EMPTY_PATIENT_DATA
+  }
+}
+
 export const selectPatientDataColumns = (s: RootState): ReadonlyArray<PatientDataColumn> => {
   if (s.data.type === 'loading-complete') {
     return s.data.patientData.columns
@@ -37,6 +45,14 @@ export const selectEventDataColumns = (s: RootState): ReadonlyArray<EventDataCol
   }
 }
 
+export const selectActiveDataColumns = (s: RootState): ReadonlyArray<PatientDataColumn | EventDataColumn> => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.view === 'patients' ? s.data.patientData.columns : s.data.eventData.columns
+  } else {
+    return EMPTY_PATIENT_DATA.columns
+  }
+}
+
 export const selectSelectedPatient = (s: RootState): PatientId => selectPatientData(s).selectedPatient
 export const selectHoveredPatient = (s: RootState): PatientId => selectPatientData(s).hoveredPatient
 
@@ -48,7 +64,25 @@ export const selectDataView = (s: RootState): ActiveDataViewType => {
   }
 }
 
-export const selectFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
+export const selectPatientFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
+  if (s.data.type === 'loading-complete') {
+    const columns = s.data.patientData.columns
+    return s.data.filters.filter((filter) => columns.findIndex((column) => column.name === filter.column.name) !== -1)
+  } else {
+    return []
+  }
+}
+
+export const selectEventFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
+  if (s.data.type === 'loading-complete') {
+    const columns = s.data.eventData.columns
+    return s.data.filters.filter((filter) => columns.findIndex((column) => column.name === filter.column.name) !== -1)
+  } else {
+    return []
+  }
+}
+
+export const selectActiveDataFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
   if (s.data.type === 'loading-complete') {
     const columns = s.data.view === 'patients' ? s.data.patientData.columns : s.data.eventData.columns
     return s.data.filters.filter((filter) => columns.findIndex((column) => column.name === filter.column.name) !== -1)
@@ -57,10 +91,16 @@ export const selectFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
   }
 }
 
-export const selectFilteredPatientData = createSelector(selectPatientData, selectFilters, (patientData, filters) =>
-  filters.reduce(filterReducer, patientData)
+export const selectFilteredPatientData = createSelector(
+  selectPatientData,
+  selectPatientFilters,
+  (patientData, filters) => filters.reduce(filterReducer, patientData)
 )
 
-export const selectFilteredEventData = createSelector(selectEventData, selectFilters, (eventData, filters) =>
+export const selectFilteredEventData = createSelector(selectEventData, selectEventFilters, (eventData, filters) =>
   filters.reduce(filterReducer, eventData)
+)
+
+export const selectFilteredActiveData = createSelector(selectActiveData, selectActiveDataFilters, (data, filters) =>
+  filters.reduce(filterReducer, data)
 )

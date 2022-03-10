@@ -1,18 +1,15 @@
 import React from 'react'
 
 import { useAppDispatch } from '../../../store'
-import { useActiveDataView, useEventDataColumns, useFilters, usePatientDataColumns } from '../../hooks'
+import { useActiveDataFilters, useActiveDataColumns } from '../../hooks'
 
 import { DataFilters as DataFiltersComponent } from '../../components/filter/DataFilters'
 import { GenericFilter } from '../../filtering'
 import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlice'
 
 export const DataFilters = () => {
-  const filters = useFilters()
-  const patientDataColumns = usePatientDataColumns()
-  const eventDataColumns = useEventDataColumns()
-
-  const activeDataView = useActiveDataView()
+  const filters = useActiveDataFilters()
+  const activeColums = useActiveDataColumns()
 
   const dispatch = useAppDispatch()
 
@@ -31,7 +28,7 @@ export const DataFilters = () => {
   return (
     <DataFiltersComponent
       activeFilters={filters}
-      availableColumns={activeDataView === 'patients' ? patientDataColumns : eventDataColumns}
+      availableColumns={activeColums}
       onAddFilter={handleAddFilter}
       onRemoveFilter={handleRemoveFilter}
       onResetFilters={handleResetFilters}

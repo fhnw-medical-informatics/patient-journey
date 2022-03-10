@@ -5,11 +5,14 @@ import {
   selectEventDataColumns,
   selectFilteredEventData,
   selectFilteredPatientData,
-  selectFilters,
+  selectActiveDataFilters,
   selectHoveredPatient,
   selectPatientData,
   selectPatientDataColumns,
   selectSelectedPatient,
+  selectFilteredActiveData,
+  selectActiveDataColumns,
+  selectActiveData,
 } from './selectors'
 import { setHoveredPatient, setSelectedPatient } from './dataSlice'
 import { useCallback } from 'react'
@@ -17,19 +20,23 @@ import { PatientId, PatientIdNone } from './patients'
 
 export const usePatientData = () => useAppSelector(selectPatientData)
 export const useEventData = () => useAppSelector(selectEventData)
+export const useActiveData = () => useAppSelector(selectActiveData)
 
 export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
 export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
+export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
 
 export const useSelectedPatient = (): PatientId => useAppSelector(selectSelectedPatient)
 export const useHoveredPatient = () => useAppSelector(selectHoveredPatient)
 
 export const useActiveDataView = () => useAppSelector(selectDataView)
 
-export const useFilters = () => useAppSelector(selectFilters)
+export const useActiveDataFilters = () => useAppSelector(selectActiveDataFilters)
 
 export const useFilteredPatientData = () => useAppSelector(selectFilteredPatientData)
 export const useFilteredEventData = () => useAppSelector(selectFilteredEventData)
+
+export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
 
 export interface PatientInteraction {
   readonly selectedPatient: PatientId
