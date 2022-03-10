@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { FormGroup, FormLabel, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { FormGroup, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { ActiveDataViewType } from '../dataSlice'
 
 export interface DataViewSelectorProps {
