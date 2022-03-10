@@ -2,7 +2,8 @@ import React from 'react'
 
 import { makeStyles } from '../../../utils'
 
-import { Filter, FilterColumn, GenericFilter, MillisNone, NumberNone } from '../../filtering'
+import { TrilianNone, Filter, FilterColumn, GenericFilter, MillisNone, NumberNone } from '../../filtering'
+import { BooleanDataFilter } from './BooleanDataFilter'
 import { DateDataFilter } from './DateDataFilter'
 import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
@@ -60,6 +61,21 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter }: Da
                     findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? {
                       from: NumberNone,
                       to: NumberNone,
+                    }
+                  }
+                  onChange={onAddFilter}
+                />
+              </div>
+            )
+          case 'boolean':
+            return (
+              <div key={availableColumn.name} className={classes.filter}>
+                <BooleanDataFilter
+                  column={availableColumn}
+                  type={availableColumn.type}
+                  value={
+                    findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? {
+                      isTrue: TrilianNone,
                     }
                   }
                   onChange={onAddFilter}

@@ -44,8 +44,11 @@ interface TimestampFilterValue {
   millisTo: Millis
 }
 
+export type Trilian = boolean | 'None'
+export const TrilianNone = 'None' as Trilian
+
 interface BooleanFilterValue {
-  isTrue: boolean
+  isTrue: Trilian
 }
 
 export const createFilter = <T extends FilterColumn['type']>(
@@ -100,12 +103,17 @@ export const filterReducer = <T extends EventData | PatientData>(data: T, filter
         }
       }
     case 'boolean':
+      const openBool = (filter as Filter<'boolean'>).value.isTrue === TrilianNone
+
       return {
         ...data,
         [dataSelector]: dataToFilter.filter((row) => {
           const fieldValue = getFieldValue(row, filter)
 
-          return fieldValue.isValid && !!fieldValue.value === (filter as Filter<'boolean'>).value.isTrue
+          return (
+            openBool ||
+            (fieldValue.isValid && (fieldValue.value === 'true') === (filter as Filter<'boolean'>).value.isTrue)
+          )
         }),
       }
     case 'date':
@@ -168,7 +176,7 @@ const missingFieldValue: MissingFieldValue = {
 }
 
 const safe = <T>(value?: T): FieldValue<T> =>
-  value
+  value !== undefined
     ? {
         isValid: true,
         value,
@@ -178,7 +186,7 @@ const safe = <T>(value?: T): FieldValue<T> =>
 function getFieldValue<T extends FilterColumn['type']>(
   entity: Patient | PatientJourneyEvent,
   filter: Filter<T>
-): FieldValue<T> {
+): FieldValue<string> {
   const getSafe = () => {
     return safe(entity.values[filter.column.index])
   }
