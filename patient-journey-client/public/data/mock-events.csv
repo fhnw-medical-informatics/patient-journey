@@ -1,4 +1,4 @@
-"Event ID", "Patient ID", "Timestamp", "Description"
+Event ID,Patient ID,Timestamp,Description
 eid,pid,timestamp,string
 1,1,1645453113884,first
 2,1,1645453113885,second
