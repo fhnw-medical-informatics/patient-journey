@@ -1,7 +1,7 @@
 import { Timeline as TimelineComponent } from '../components/Timeline'
 import { useAppSelector } from '../../store'
 import { useAppDispatch } from '../../store'
-import { setTimelineCluster, setTimelineType, TimelineType } from '../timelineSlice'
+import { setTimelineCluster, setTimelineGrouping, setTimelineType, TimelineType } from '../timelineSlice'
 
 const dateFormat = (ms: number) => new Date(ms).toLocaleString()
 
@@ -10,6 +10,7 @@ export const Timeline = () => {
   const dispatch = useAppDispatch()
   const onSetTimelineType = (type: TimelineType) => dispatch(setTimelineType(type))
   const onSetTimelineCluster = () => dispatch(setTimelineCluster())
+  const onSetTimelineGrouping = () => dispatch(setTimelineGrouping())
   const timelineState = useAppSelector((state) => state.timeline)
 
   return (
@@ -19,6 +20,7 @@ export const Timeline = () => {
       data={data}
       onSetTimelineType={onSetTimelineType}
       onSetTimelineCluster={onSetTimelineCluster}
+      onSetTimelineGrouping={onSetTimelineGrouping}
       timelineState={timelineState}
     />
   )

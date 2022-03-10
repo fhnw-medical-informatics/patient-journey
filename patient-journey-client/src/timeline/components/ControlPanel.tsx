@@ -10,9 +10,6 @@ import { useAppSelector } from '../../store'
 const useStyles = makeStyles()((theme) => ({
   root: {
     width: '100%',
-    display: 'grid',
-    gridTemplateColumns: '50% 50%',
-    alignItems: 'center',
   },
   toolbar: {
     flex: 1,
@@ -35,9 +32,10 @@ const useStyles = makeStyles()((theme) => ({
 interface ControlPanelProps {
   onSetTimelineType: (type: TimelineType) => void
   onSetTimelineCluster: () => void
+  onSetTimelineGrouping: () => void
 }
 
-export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster }: ControlPanelProps) => {
+export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster, onSetTimelineGrouping }: ControlPanelProps) => {
   const { classes } = useStyles()
 
   const timelineState = useAppSelector((state) => state.timeline)
@@ -72,8 +70,16 @@ export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster }: Contro
         </Grid>
         <Grid item>
           <FormControlLabel
+            control={
+              <Switch checked={timelineState.grouping} onChange={() => onSetTimelineGrouping()} color="primary" />
+            }
+            label="Grouping"
+          />
+        </Grid>
+        <Grid item>
+          <FormControlLabel
             control={<Switch checked={timelineState.cluster} onChange={() => onSetTimelineCluster()} color="primary" />}
-            label="Cluster Patients"
+            label="Cluster Events"
           />
         </Grid>
         <Grid item>

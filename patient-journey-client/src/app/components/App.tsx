@@ -10,7 +10,7 @@ import SplitPane from 'react-split-pane'
 import { DataFilters } from '../../data/containers/filter/DataFilters'
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '15%'
-const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '75%'
+const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '60%'
 
 const useStyles = makeStyles()((theme) => ({
   toolbar: {
