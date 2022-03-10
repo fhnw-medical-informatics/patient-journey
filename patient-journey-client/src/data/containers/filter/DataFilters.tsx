@@ -10,7 +10,8 @@ import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlic
 export const DataFilters = () => {
   const filters = useFilters()
   const patientDataColumns = usePatientDataColumns()
-  //const eventDataColumns = useEventDataColumns()
+  // TODO: Integrate event data columns
+  // const eventDataColumns = useEventDataColumns()
   const dispatch = useAppDispatch()
 
   const handleAddFilter = (filter: GenericFilter) => {
