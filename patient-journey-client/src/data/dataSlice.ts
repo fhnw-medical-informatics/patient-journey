@@ -81,11 +81,10 @@ const dataSlice = createSlice({
       })
     },
     // TODO: Tests
-    resetDataFilter: (state: Draft<DataState>) => {
-      mutateFilterData(state, (fd) => {
-        fd = []
-      })
-    },
+    resetDataFilter: (state: Draft<DataState>) => ({
+      ...state,
+      filters: [],
+    }),
   },
 })
 
