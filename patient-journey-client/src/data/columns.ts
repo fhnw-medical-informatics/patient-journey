@@ -41,3 +41,7 @@ export const format = (date: Date | number, formatString: string = DATE_TIMESTAM
 export const formatMillis = (ms: number) => (isFinite(ms) ? format(parseMillis(ms), DATE_TIMESTAMP_FORMAT) : '')
 
 export const formatHTMLDateInput = (ms: number) => (isFinite(ms) ? formatISO(parseMillis(ms)) : '')
+
+export const isValidDate = (date: any): boolean => {
+  return !isNaN(date) && date instanceof Date
+}
