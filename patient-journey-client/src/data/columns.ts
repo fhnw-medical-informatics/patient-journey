@@ -36,7 +36,8 @@ export const stringToMillis = (s: string): number => parseDate(s).valueOf()
 
 export const parseMillis = (ms: number) => toDate(ms)
 
-export const format = (date: Date | number, formatString: string) => dateFnFormat(date, formatString)
+export const format = (date: Date | number, formatString: string = DATE_TIMESTAMP_FORMAT) =>
+  dateFnFormat(date, formatString)
 export const formatMillis = (ms: number) => (isFinite(ms) ? format(parseMillis(ms), DATE_TIMESTAMP_FORMAT) : '')
 
 export const formatHTMLDateInput = (ms: number) => (isFinite(ms) ? formatISO(parseMillis(ms)) : '')
