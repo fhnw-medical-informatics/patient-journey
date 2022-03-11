@@ -21,7 +21,6 @@ export const BooleanDataFilter = ({ column, type, value, onChange }: BooleanData
   const { classes } = useStyles()
 
   const handleChange = (event: React.MouseEvent<HTMLElement, MouseEvent>, newValue: any) => {
-    console.log(newValue)
     onChange(createFilter(column, type, { isTrue: newValue }))
   }
 
