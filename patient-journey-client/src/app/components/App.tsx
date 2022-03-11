@@ -29,6 +29,8 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     width: '100%',
     height: '100%',
+    overflowY: 'auto',
+    overflowX: 'hidden',
   },
   top: {
     paddingTop: 70,
