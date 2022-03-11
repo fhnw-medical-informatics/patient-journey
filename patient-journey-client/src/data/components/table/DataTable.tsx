@@ -83,7 +83,7 @@ export const DataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
                     >
                       {columns.map((column) => {
                         const value = row.values[column.index] ?? ''
-                        return <TableValue column={column} value={value} width={columnWidth} />
+                        return <TableValue key={column.index} column={column} value={value} width={columnWidth} />
                       })}
                     </TableRow>
                   ))}
