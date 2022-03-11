@@ -48,7 +48,6 @@ const useStyles = makeStyles()((theme) => ({
     opacity: 0.5,
     zIndex: 1,
     backgroundClip: 'padding-box',
-    cursor: 'ns-resize',
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
@@ -75,11 +74,8 @@ export const App = () => {
           resizerClassName={classes.resizer}
           size={splitPaneHorizontalSize === 'default' ? DEFAULT_SPLIT_PANE_VERTICAL_SIZE : splitPaneVerticalSize}
           onChange={setSplitPaneVerticalSize}
-          pane2Style={{
-            display: 'grid',
-            width: '100%',
-            height: '100%',
-            backgroundColor: theme.palette.background.paper,
+          resizerStyle={{
+            cursor: 'ew-resize',
           }}
         >
           <div className={classes.left}>
@@ -90,6 +86,9 @@ export const App = () => {
             resizerClassName={classes.resizer}
             size={splitPaneHorizontalSize === 'default' ? DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE : splitPaneHorizontalSize}
             onChange={setSplitPaneHorizontalSize}
+            resizerStyle={{
+              cursor: 'ns-resize',
+            }}
             pane2Style={{
               display: 'grid',
               width: '100%',
