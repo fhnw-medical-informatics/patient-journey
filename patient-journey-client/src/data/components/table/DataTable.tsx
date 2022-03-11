@@ -47,6 +47,7 @@ export const DataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
   const columns = data.columns
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
+  // TODO: sortedData should be a selector
   const sortedRows = useMemo(() => stableSort(tableData, sortingState), [tableData, sortingState])
 
   useEffect(() => setPage(0), [tableData.length])

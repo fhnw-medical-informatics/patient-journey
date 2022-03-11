@@ -10,6 +10,7 @@ import { DateDataFilter } from './DateDataFilter'
 import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
 import { Button, Grid } from '@mui/material'
+import { DataDiagrams } from '../../containers/diagram/DataDiagrams'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -109,6 +110,7 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter, onRe
           case 'timestamp':
             return (
               <div key={availableColumn.name} className={classes.filter}>
+                <DataDiagrams column={availableColumn} />
                 <DateDataFilter
                   column={availableColumn}
                   type={availableColumn.type}
