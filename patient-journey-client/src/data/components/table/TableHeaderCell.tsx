@@ -3,6 +3,7 @@ import React from 'react'
 import { makeStyles } from '../../../utils'
 import { ColumnSortingState } from '../../sorting'
 import { PatientDataColumn } from '../../patients'
+import { EventDataColumn } from '../../events'
 
 const useStyles = makeStyles()((theme: Theme) => ({
   cell: {
@@ -34,7 +35,7 @@ export interface Sorting {
 }
 
 export interface Props extends Sorting {
-  readonly column: PatientDataColumn
+  readonly column: PatientDataColumn | EventDataColumn
   readonly columnWidth: number
   readonly suppressDivider?: boolean
 }

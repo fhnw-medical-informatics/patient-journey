@@ -23,11 +23,18 @@ export type DataStateLoadingComplete = Readonly<{
   type: 'loading-complete'
 }> &
   LoadedData &
+  ActiveDataView &
   Filters
 
 interface LoadedData {
   readonly patientData: PatientData
   readonly eventData: EventData
+}
+
+export type ActiveDataViewType = PatientData['type'] | EventData['type']
+
+interface ActiveDataView {
+  readonly view: ActiveDataViewType
 }
 
 interface Filters {
@@ -54,6 +61,7 @@ const dataSlice = createSlice({
     loadingDataComplete: (_state: DataState, action: PayloadAction<LoadedData>): DataState => ({
       type: 'loading-complete',
       filters: [],
+      view: 'patients',
       ...action.payload,
     }),
     setSelectedPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
@@ -85,12 +93,24 @@ const dataSlice = createSlice({
       ...state,
       filters: [],
     }),
+    // TODO: Tests
+    setDataView: (state: Draft<DataState>, action: PayloadAction<ActiveDataViewType>) => {
+      mutateDataViewData(state, (vd) => {
+        vd.view = action.payload
+      })
+    },
   },
 })
 
 const mutatePatientData = (state: Draft<DataState>, applyMutation: (pd: Draft<PatientData>) => void) => {
   if (state.type === 'loading-complete') {
     applyMutation(state.patientData)
+  }
+}
+
+const mutateDataViewData = (state: Draft<DataState>, applyMutation: (pd: Draft<ActiveDataView>) => void) => {
+  if (state.type === 'loading-complete') {
+    applyMutation(state)
   }
 }
 
@@ -104,7 +124,7 @@ const mutateFilterData = (
 }
 
 export const dataReducer = dataSlice.reducer
-export const { setSelectedPatient, setHoveredPatient, addDataFilter, removeDataFilter, resetDataFilter } =
+export const { setSelectedPatient, setHoveredPatient, addDataFilter, removeDataFilter, resetDataFilter, setDataView } =
   dataSlice.actions
 
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
