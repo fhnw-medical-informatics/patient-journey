@@ -4,8 +4,7 @@ import { makeStyles } from '../../utils'
 import { FormControlLabel, Grid, MenuItem, Select, SelectChangeEvent, Switch, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
 import { Box } from '@mui/system'
-import { TimelineType } from '../timelineSlice'
-import { useAppSelector } from '../../store'
+import { TimelineColumn, TimelineState } from '../timelineSlice'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -30,24 +29,27 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface ControlPanelProps {
-  onSetTimelineType: (type: TimelineType) => void
+  onSetTimelineColumn: (column: number) => void
   onSetTimelineCluster: () => void
   onSetTimelineGrouping: () => void
+  timelineState: TimelineState
+  availableColumns: ReadonlyArray<TimelineColumn>
 }
 
-export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster, onSetTimelineGrouping }: ControlPanelProps) => {
+export const ControlPanel = ({
+  onSetTimelineColumn,
+  onSetTimelineCluster,
+  onSetTimelineGrouping,
+  timelineState,
+  availableColumns,
+}: ControlPanelProps) => {
   const { classes } = useStyles()
 
-  const timelineState = useAppSelector((state) => state.timeline)
-
-  const onChangeType = (event: SelectChangeEvent) => {
-    if (event.target.value === 'timestamp') {
-      onSetTimelineType('timestamp')
-    }
-    if (event.target.value === 'date of birth') {
-      onSetTimelineType('date of birth')
-    }
+  const onChangeColumn = (event: SelectChangeEvent) => {
+    onSetTimelineColumn(Number(event.target.value))
   }
+
+  console.log(availableColumns.find((column) => (column.type === 'timestamp' ? column.name : undefined)))
 
   return (
     <div className={classes.root}>
@@ -57,13 +59,17 @@ export const ControlPanel = ({ onSetTimelineType, onSetTimelineCluster, onSetTim
             <FormControl>
               <Select
                 id="demo-simple-select"
-                value={timelineState.type}
+                value="TODO" //TODO: Add default column: {availableColumns.find(column => column.type === 'timestamp' ? column.index : undefined)}
                 label="Age"
-                onChange={onChangeType}
+                onChange={onChangeColumn}
                 size="small"
               >
-                <MenuItem value={'date of birth'}>Date Of Birth</MenuItem>
-                <MenuItem value={'timestamp'}>Timestamp</MenuItem>
+                {availableColumns.map((column) => {
+                  if (column.type === 'timestamp' || column.type === 'date') {
+                    return <MenuItem value={column.index}>{column.name}</MenuItem>
+                  }
+                  return null
+                })}
               </Select>
             </FormControl>
           </Box>

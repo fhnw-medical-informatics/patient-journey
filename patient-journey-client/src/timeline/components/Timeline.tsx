@@ -7,7 +7,7 @@ import { ControlPanel } from './ControlPanel'
 import { LoadingProgress } from '../../data/components/LoadingProgress'
 import { LoadingError } from '../../data/components/LoadingError'
 import { TimelineView } from './TimelineView'
-import { TimelineType, TimelineState } from '../timelineSlice'
+import { TimelineState, TimelineColumn } from '../timelineSlice'
 
 const useStyles = makeStyles()({
   root: {
@@ -20,20 +20,22 @@ interface TimelineProps {
   readonly data: DataState
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
-  onSetTimelineType: (type: TimelineType) => void
+  onSetTimelineColumn: (column: number) => void
   onSetTimelineCluster: () => void
   onSetTimelineGrouping: () => void
   readonly timelineState: TimelineState
+  availableColumns: ReadonlyArray<TimelineColumn>
 }
 
 export const Timeline = ({
   data,
   dateFormat,
   laneDisplayMode,
-  onSetTimelineType,
+  onSetTimelineColumn,
   onSetTimelineCluster,
   onSetTimelineGrouping,
   timelineState,
+  availableColumns,
 }: TimelineProps) => {
   const { classes } = useStyles()
 
@@ -48,9 +50,11 @@ export const Timeline = ({
       return (
         <Paper className={classes.root}>
           <ControlPanel
-            onSetTimelineType={onSetTimelineType}
+            onSetTimelineColumn={onSetTimelineColumn}
             onSetTimelineCluster={onSetTimelineCluster}
             onSetTimelineGrouping={onSetTimelineGrouping}
+            timelineState={timelineState}
+            availableColumns={availableColumns}
           />
           <TimelineView
             data={data.patientData}

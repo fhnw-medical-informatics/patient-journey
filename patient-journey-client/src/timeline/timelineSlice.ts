@@ -1,4 +1,6 @@
 import { createSlice, Draft } from '@reduxjs/toolkit'
+import { EventDataColumn } from '../data/events'
+import { PatientDataColumn } from '../data/patients'
 
 export type Events = (
   | {
@@ -22,10 +24,13 @@ export type Lanes = {
 
 export type TimelineType = 'timestamp' | 'date of birth'
 
+export type TimelineColumn = EventDataColumn | PatientDataColumn
+
 export type TimelineShirtSize = 'S' | 'M' | 'L'
 
 export type TimelineState = {
   type: TimelineType
+  column: number
   shirtSize: TimelineShirtSize
   cluster: boolean
   grouping: boolean
@@ -37,6 +42,9 @@ const timelineSlice = createSlice({
   reducers: {
     setTimelineType: (state: Draft<TimelineState>, action) => {
       state.type = action.payload
+    },
+    setTimelineColumn: (state: Draft<TimelineState>, action) => {
+      state.column = action.payload
     },
     setTimelineCluster: (state: Draft<TimelineState>) => {
       state.cluster = !state.cluster
