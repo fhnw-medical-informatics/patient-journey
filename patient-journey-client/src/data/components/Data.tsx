@@ -3,7 +3,7 @@ import { Paper, Typography } from '@mui/material'
 import { LoadingError } from './LoadingError'
 import { LoadingProgress } from './LoadingProgress'
 import { makeStyles } from '../../utils'
-import { PatientDataTable } from '../containers/table/PatientDataTable'
+import { DataTable } from '../containers/table/DataTable'
 
 const useStyles = makeStyles()({
   root: {
@@ -36,7 +36,7 @@ const DataView = ({ data }: Props) => {
     case 'loading-failed':
       return <LoadingError errorMessage={data.errorMessage} />
     case 'loading-complete': {
-      return <PatientDataTable />
+      return <DataTable />
     }
   }
 }

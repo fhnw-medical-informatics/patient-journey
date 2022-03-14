@@ -10,6 +10,7 @@ import { DateDataFilter } from './DateDataFilter'
 import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
 import { Button, Grid } from '@mui/material'
+import { DataDiagrams } from '../../containers/diagram/DataDiagrams'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -20,7 +21,7 @@ const useStyles = makeStyles()((theme) => ({
     lineHeight: 1,
   },
   filter: {
-    padding: theme.spacing(1),
+    padding: `${theme.spacing(2)} ${theme.spacing(1)}`,
   },
 }))
 
@@ -77,6 +78,7 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter, onRe
           case 'number':
             return (
               <div key={availableColumn.name} className={classes.filter}>
+                <DataDiagrams column={availableColumn} />
                 <NumberDataFilter
                   column={availableColumn}
                   type={availableColumn.type}
@@ -109,6 +111,7 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter, onRe
           case 'timestamp':
             return (
               <div key={availableColumn.name} className={classes.filter}>
+                <DataDiagrams column={availableColumn} />
                 <DateDataFilter
                   column={availableColumn}
                   type={availableColumn.type}

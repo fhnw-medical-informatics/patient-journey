@@ -51,5 +51,6 @@ DataLoadingComplete.args = {
       allEvents: [],
     },
     filters: [],
+    view: 'patients',
   },
 }
