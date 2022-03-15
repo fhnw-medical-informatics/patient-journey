@@ -5,6 +5,7 @@ import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { Events, Lanes, TimelineColumn, TimelineState } from '../timelineSlice'
 import { useFilteredPatientData } from '../../data/hooks'
 import { EventData } from '../../data/events'
+import { stringToMillis } from '../../data/columns'
 
 interface TimelineProps {
   readonly data: PatientData | EventData
@@ -21,55 +22,53 @@ export const TimelineView = ({ data, dateFormat, laneDisplayMode, timelineState,
 
   const [rawEvents, setRawEvents] = useState<Events>([])
   const [lanes, setLanes] = useState<Lanes>([])
-  //const [groupedRawEvents, setGroupedRawEvents] = useState<Events>([])
-  //const [groupedLanes, setGroupedLanes] = useState<Lanes>([])
+  const [groupedRawEvents, setGroupedRawEvents] = useState<Events>([])
+  const [groupedLanes, setGroupedLanes] = useState<Lanes>([])
 
   useEffect(() => {
     let lanes: Lanes = []
     let rawEvents: Events = []
-    //let groupedLanes: Lanes = []
-    //let groupedRawEvents: Events = []
+    let groupedLanes: Lanes = []
+    let groupedRawEvents: Events = []
 
-    let activeColumn: TimelineColumn | undefined = availableColumns.find((column) =>
-      column.type === 'timestamp' ? column : undefined
-    )
+    let activeColumn: TimelineColumn | undefined = timelineState.column
+      ? availableColumns[timelineState.column.index]
+      : undefined
 
-    timelineData.forEach((lane) => {
-      lanes.push({
-        laneId: lane.pid,
-        label: lane.values[1] + ' ' + lane.values[2],
+    if (timelineState.column !== undefined) {
+      groupedLanes.push({
+        laneId: activeColumn ? String(activeColumn.index) : '',
+        label: activeColumn ? activeColumn.name : '',
       })
-      rawEvents.push({
-        eventId: lane.pid,
-        laneId: lane.pid,
-        startTimeMillis: Number(lane.values[activeColumn ? activeColumn.index : 0]),
-      })
-    })
 
-    /* patients.forEach((patient) => {
-      lanes.push({
-        laneId: patient.pid,
-        label: patient.values[1] + ' ' + patient.values[2],
-      })
-      columns.forEach((column) => {
-        const startTimeMillis = Number(patient.values[column.index])
-        groupedRawEvents.push({
-          eventId: patient.pid,
-          laneId: availableColumns[timelineState.column].name,
-          startTimeMillis: startTimeMillis,
+      timelineData.forEach((lane) => {
+        lanes.push({
+          laneId: lane.pid,
+          label: lane.values[1] + ' ' + lane.values[2],
         })
         rawEvents.push({
-          eventId: patient.pid,
-          laneId: timelineState.grouping ? availableColumns[timelineState.column].name : patient.pid,
-          startTimeMillis: startTimeMillis,
+          eventId: lane.pid,
+          laneId: lane.pid,
+          startTimeMillis:
+            activeColumn?.type === 'date'
+              ? stringToMillis(lane.values[activeColumn ? activeColumn.index : 0])
+              : Number(lane.values[activeColumn ? activeColumn.index : 0]),
+        })
+        groupedRawEvents.push({
+          eventId: lane.pid,
+          laneId: activeColumn ? String(activeColumn.index) : '',
+          startTimeMillis:
+            activeColumn?.type === 'date'
+              ? stringToMillis(lane.values[activeColumn ? activeColumn.index : 0])
+              : Number(lane.values[activeColumn ? activeColumn.index : 0]),
         })
       })
-    }) */
+    }
 
     setRawEvents(rawEvents)
     setLanes(lanes)
-    //setGroupedRawEvents(groupedRawEvents)
-    //setGroupedLanes(groupedLanes)
+    setGroupedRawEvents(groupedRawEvents)
+    setGroupedLanes(groupedLanes)
   }, [timelineState.column, timelineState.grouping, patients, availableColumns, timelineData])
 
   if (!rawEvents || rawEvents.length === 0) {
@@ -83,8 +82,8 @@ export const TimelineView = ({ data, dateFormat, laneDisplayMode, timelineState,
           <SVGTimeline
             width={width}
             height={height}
-            events={rawEvents}
-            lanes={lanes}
+            events={timelineState.grouping ? groupedRawEvents : rawEvents}
+            lanes={timelineState.grouping ? groupedLanes : lanes}
             dateFormat={dateFormat}
             laneDisplayMode={laneDisplayMode}
             enableEventClustering={timelineState.cluster}

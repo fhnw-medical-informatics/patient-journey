@@ -9,7 +9,7 @@ const dateFormat = (ms: number) => new Date(ms).toLocaleString()
 export const Timeline = () => {
   const activeData = useFilteredActiveData()
   const dispatch = useAppDispatch()
-  const onSetTimelineColumns = (column: TimelineColumn) => dispatch(setTimelineColumn(column))
+  const onSetTimelineColumn = (column: TimelineColumn) => dispatch(setTimelineColumn(column))
   const onSetTimelineCluster = () => dispatch(setTimelineCluster())
   const onSetTimelineGrouping = () => dispatch(setTimelineGrouping())
   const timelineState = useAppSelector((state) => state.timeline)
@@ -20,7 +20,7 @@ export const Timeline = () => {
       dateFormat={dateFormat}
       laneDisplayMode={'expanded'}
       data={activeData}
-      onSetTimelineColumn={onSetTimelineColumns}
+      onSetTimelineColumn={onSetTimelineColumn}
       onSetTimelineCluster={onSetTimelineCluster}
       onSetTimelineGrouping={onSetTimelineGrouping}
       timelineState={timelineState}

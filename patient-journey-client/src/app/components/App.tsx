@@ -41,6 +41,14 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     height: '100%',
   },
+  bottom: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    display: 'grid',
+    width: '100%',
+    height: '100%',
+  },
   resizer: {
     minWidth: 5,
     minHeight: 5,
@@ -100,7 +108,7 @@ export const App = () => {
             <div className={classes.top}>
               <Data />
             </div>
-            <div>
+            <div className={classes.bottom}>
               <Timeline />
             </div>
           </SplitPane>

@@ -6,6 +6,7 @@ import { TimelineView } from './TimelineView'
 import { TimelineState, TimelineColumn } from '../timelineSlice'
 import { PatientData } from '../../data/patients'
 import { EventData } from '../../data/events'
+import { ControlPanel } from './ControlPanel'
 
 const useStyles = makeStyles()({
   root: {
@@ -39,13 +40,13 @@ export const Timeline = ({
 
   return (
     <Paper className={classes.root}>
-      {/* <ControlPanel
-            onSetTimelineColumn={onSetTimelineColumn}
-            onSetTimelineCluster={onSetTimelineCluster}
-            onSetTimelineGrouping={onSetTimelineGrouping}
-            timelineState={timelineState}
-            availableColumns={availableColumns}
-          /> */}
+      <ControlPanel
+        onSetTimelineColumn={onSetTimelineColumn}
+        onSetTimelineCluster={onSetTimelineCluster}
+        onSetTimelineGrouping={onSetTimelineGrouping}
+        timelineState={timelineState}
+        availableColumns={availableColumns}
+      />
       <TimelineView
         data={data}
         dateFormat={dateFormat}

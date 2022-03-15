@@ -1,7 +1,7 @@
 import { FormControl, Typography } from '@material-ui/core'
 import React from 'react'
 import { makeStyles } from '../../utils'
-import { FormControlLabel, Grid, MenuItem, Select, Switch, Tooltip } from '@mui/material'
+import { FormControlLabel, Grid, MenuItem, Select, SelectChangeEvent, Switch, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
 import { Box } from '@mui/system'
 import { TimelineColumn, TimelineState } from '../timelineSlice'
@@ -45,11 +45,17 @@ export const ControlPanel = ({
 }: ControlPanelProps) => {
   const { classes } = useStyles()
 
-  /* const onChangeColumn = (event: SelectChangeEvent) => {
-    onSetTimelineColumn()
-  } */
+  const onChangeColumn = (event: SelectChangeEvent) => {
+    onSetTimelineColumn(availableColumns[Number(event.target.value)])
+  }
 
-  availableColumns.find((column) => (column.type === 'timestamp' ? column.index : undefined))
+  let activeColumn: TimelineColumn | undefined = availableColumns.find((column) =>
+    column.type === 'timestamp' /*  || column.type === 'date'  */ ? column : undefined
+  )
+
+  if (typeof activeColumn !== 'undefined' && timelineState.column === undefined) {
+    onSetTimelineColumn(activeColumn)
+  }
 
   return (
     <div className={classes.root}>
@@ -59,14 +65,18 @@ export const ControlPanel = ({
             <FormControl>
               <Select
                 id="demo-simple-select"
-                value="TODO" //TODO: Add default column: {availableColumns.find(column => column.type === 'timestamp' ? column.index : undefined)}
+                value={timelineState.column ? String(timelineState.column.index) : ''} //TODO: Add default column: {availableColumns.find(column => column.type === 'timestamp' ? column.index : undefined)}
                 label="Age"
-                //onChange={onSetTimelineColumn()}
+                onChange={onChangeColumn}
                 size="small"
               >
                 {availableColumns.map((column) => {
                   if (column.type === 'timestamp' || column.type === 'date') {
-                    return <MenuItem value={column.index}>{column.name}</MenuItem>
+                    return (
+                      <MenuItem key={column.index} value={column.index}>
+                        {column.name}
+                      </MenuItem>
+                    )
                   }
                   return null
                 })}
@@ -79,13 +89,13 @@ export const ControlPanel = ({
             control={
               <Switch checked={timelineState.grouping} onChange={() => onSetTimelineGrouping()} color="primary" />
             }
-            label="Grouping"
+            label="Group"
           />
         </Grid>
         <Grid item>
           <FormControlLabel
             control={<Switch checked={timelineState.cluster} onChange={() => onSetTimelineCluster()} color="primary" />}
-            label="Cluster Events"
+            label="Cluster"
           />
         </Grid>
         <Grid item>
