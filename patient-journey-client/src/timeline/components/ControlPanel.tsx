@@ -1,7 +1,7 @@
 import { FormControl, Typography } from '@material-ui/core'
 import React from 'react'
 import { makeStyles } from '../../utils'
-import { FormControlLabel, Grid, MenuItem, Select, SelectChangeEvent, Switch, Tooltip } from '@mui/material'
+import { FormControlLabel, Grid, MenuItem, Select, Switch, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
 import { Box } from '@mui/system'
 import { TimelineColumn, TimelineState } from '../timelineSlice'
@@ -29,7 +29,7 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface ControlPanelProps {
-  onSetTimelineColumn: (column: number) => void
+  onSetTimelineColumn: (column: TimelineColumn) => void
   onSetTimelineCluster: () => void
   onSetTimelineGrouping: () => void
   timelineState: TimelineState
@@ -45,11 +45,11 @@ export const ControlPanel = ({
 }: ControlPanelProps) => {
   const { classes } = useStyles()
 
-  const onChangeColumn = (event: SelectChangeEvent) => {
-    onSetTimelineColumn(Number(event.target.value))
-  }
+  /* const onChangeColumn = (event: SelectChangeEvent) => {
+    onSetTimelineColumn()
+  } */
 
-  console.log(availableColumns.find((column) => (column.type === 'timestamp' ? column.name : undefined)))
+  availableColumns.find((column) => (column.type === 'timestamp' ? column.index : undefined))
 
   return (
     <div className={classes.root}>
@@ -61,7 +61,7 @@ export const ControlPanel = ({
                 id="demo-simple-select"
                 value="TODO" //TODO: Add default column: {availableColumns.find(column => column.type === 'timestamp' ? column.index : undefined)}
                 label="Age"
-                onChange={onChangeColumn}
+                //onChange={onSetTimelineColumn()}
                 size="small"
               >
                 {availableColumns.map((column) => {

@@ -1,15 +1,15 @@
 import { Timeline as TimelineComponent } from '../components/Timeline'
 import { useAppSelector } from '../../store'
 import { useAppDispatch } from '../../store'
-import { setTimelineCluster, setTimelineGrouping, setTimelineType } from '../timelineSlice'
-import { useActiveDataColumns } from '../../data/hooks'
+import { setTimelineCluster, setTimelineGrouping, setTimelineColumn, TimelineColumn } from '../timelineSlice'
+import { useActiveDataColumns, useFilteredActiveData } from '../../data/hooks'
 
 const dateFormat = (ms: number) => new Date(ms).toLocaleString()
 
 export const Timeline = () => {
-  const data = useAppSelector((s) => s.data)
+  const activeData = useFilteredActiveData()
   const dispatch = useAppDispatch()
-  const onSetTimelineColumns = (column: number) => dispatch(setTimelineType(column))
+  const onSetTimelineColumns = (column: TimelineColumn) => dispatch(setTimelineColumn(column))
   const onSetTimelineCluster = () => dispatch(setTimelineCluster())
   const onSetTimelineGrouping = () => dispatch(setTimelineGrouping())
   const timelineState = useAppSelector((state) => state.timeline)
@@ -19,7 +19,7 @@ export const Timeline = () => {
     <TimelineComponent
       dateFormat={dateFormat}
       laneDisplayMode={'expanded'}
-      data={data}
+      data={activeData}
       onSetTimelineColumn={onSetTimelineColumns}
       onSetTimelineCluster={onSetTimelineCluster}
       onSetTimelineGrouping={onSetTimelineGrouping}

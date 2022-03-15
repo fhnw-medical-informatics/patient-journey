@@ -1,13 +1,11 @@
 import React from 'react'
-import { DataState } from '../../data/dataSlice'
 import { makeStyles } from '../../utils'
 import { LaneDisplayMode } from 'react-svg-timeline'
-import { Paper, Typography } from '@mui/material'
-import { ControlPanel } from './ControlPanel'
-import { LoadingProgress } from '../../data/components/LoadingProgress'
-import { LoadingError } from '../../data/components/LoadingError'
+import { Paper } from '@mui/material'
 import { TimelineView } from './TimelineView'
 import { TimelineState, TimelineColumn } from '../timelineSlice'
+import { PatientData } from '../../data/patients'
+import { EventData } from '../../data/events'
 
 const useStyles = makeStyles()({
   root: {
@@ -17,10 +15,10 @@ const useStyles = makeStyles()({
 })
 
 interface TimelineProps {
-  readonly data: DataState
+  readonly data: PatientData | EventData
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
-  onSetTimelineColumn: (column: number) => void
+  onSetTimelineColumn: (column: TimelineColumn) => void
   onSetTimelineCluster: () => void
   onSetTimelineGrouping: () => void
   readonly timelineState: TimelineState
@@ -39,31 +37,22 @@ export const Timeline = ({
 }: TimelineProps) => {
   const { classes } = useStyles()
 
-  switch (data.type) {
-    case 'loading-pending':
-      return <Typography>No Data</Typography>
-    case 'loading-in-progress':
-      return <LoadingProgress />
-    case 'loading-failed':
-      return <LoadingError errorMessage={data.errorMessage} />
-    case 'loading-complete': {
-      return (
-        <Paper className={classes.root}>
-          <ControlPanel
+  return (
+    <Paper className={classes.root}>
+      {/* <ControlPanel
             onSetTimelineColumn={onSetTimelineColumn}
             onSetTimelineCluster={onSetTimelineCluster}
             onSetTimelineGrouping={onSetTimelineGrouping}
             timelineState={timelineState}
             availableColumns={availableColumns}
-          />
-          <TimelineView
-            data={data.patientData}
-            dateFormat={dateFormat}
-            laneDisplayMode={laneDisplayMode}
-            timelineState={timelineState}
-          />
-        </Paper>
-      )
-    }
-  }
+          /> */}
+      <TimelineView
+        data={data}
+        dateFormat={dateFormat}
+        laneDisplayMode={laneDisplayMode}
+        timelineState={timelineState}
+        availableColumns={availableColumns}
+      />
+    </Paper>
+  )
 }

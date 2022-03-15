@@ -22,27 +22,18 @@ export type Lanes = {
   label: string
 }[]
 
-export type TimelineType = 'timestamp' | 'date of birth'
-
 export type TimelineColumn = EventDataColumn | PatientDataColumn
 
-export type TimelineShirtSize = 'S' | 'M' | 'L'
-
 export type TimelineState = {
-  type: TimelineType
-  column: number
-  shirtSize: TimelineShirtSize
+  column: TimelineColumn
   cluster: boolean
   grouping: boolean
 }
 
 const timelineSlice = createSlice({
   name: 'timeline',
-  initialState: { type: 'timestamp', cluster: false, grouping: false } as TimelineState,
+  initialState: { cluster: false, grouping: false } as TimelineState,
   reducers: {
-    setTimelineType: (state: Draft<TimelineState>, action) => {
-      state.type = action.payload
-    },
     setTimelineColumn: (state: Draft<TimelineState>, action) => {
       state.column = action.payload
     },
@@ -56,4 +47,4 @@ const timelineSlice = createSlice({
 })
 
 export const timelineReducer = timelineSlice.reducer
-export const { setTimelineType, setTimelineCluster, setTimelineGrouping } = timelineSlice.actions
+export const { setTimelineColumn, setTimelineCluster, setTimelineGrouping } = timelineSlice.actions
