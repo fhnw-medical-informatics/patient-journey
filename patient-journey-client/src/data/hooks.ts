@@ -1,42 +1,27 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
   selectDataView,
-  selectEventData,
-  selectEventDataColumns,
-  selectFilteredEventData,
-  selectFilteredPatientData,
-  selectActiveDataFilters,
   selectHoveredPatient,
-  selectPatientData,
-  selectPatientDataColumns,
   selectSelectedPatient,
   selectFilteredActiveData,
   selectActiveDataColumns,
   selectActiveData,
+  selectAllFilters,
 } from './selectors'
 import { setHoveredPatient, setSelectedPatient } from './dataSlice'
 import { useCallback } from 'react'
 import { PatientId, PatientIdNone } from './patients'
 
-export const usePatientData = () => useAppSelector(selectPatientData)
-export const useEventData = () => useAppSelector(selectEventData)
-export const useActiveData = () => useAppSelector(selectActiveData)
+export const useActiveDataView = () => useAppSelector(selectDataView)
 
-export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
-export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
+export const useActiveData = () => useAppSelector(selectActiveData)
+export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
+
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
+export const useAllFilters = () => useAppSelector(selectAllFilters)
 
 export const useSelectedPatient = (): PatientId => useAppSelector(selectSelectedPatient)
 export const useHoveredPatient = () => useAppSelector(selectHoveredPatient)
-
-export const useActiveDataView = () => useAppSelector(selectDataView)
-
-export const useActiveDataFilters = () => useAppSelector(selectActiveDataFilters)
-
-export const useFilteredPatientData = () => useAppSelector(selectFilteredPatientData)
-export const useFilteredEventData = () => useAppSelector(selectFilteredEventData)
-
-export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
 
 export interface PatientInteraction {
   readonly selectedPatient: PatientId

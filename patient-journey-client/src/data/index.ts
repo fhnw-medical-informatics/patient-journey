@@ -7,6 +7,15 @@ export {
   resetDataFilter,
   setDataView,
 } from './dataSlice'
-export { usePatientData, useSelectedPatient, useHoveredPatient, usePatientInteraction } from './hooks'
+export {
+  useActiveDataView,
+  useActiveData,
+  useActiveDataColumns,
+  useAllFilters,
+  useFilteredActiveData,
+  useSelectedPatient,
+  useHoveredPatient,
+  usePatientInteraction,
+} from './hooks'
 export { Data } from './containers/Data'
 export { DataViewSelector } from './containers/DataViewSelector'
