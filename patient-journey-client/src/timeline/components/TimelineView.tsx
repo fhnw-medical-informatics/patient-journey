@@ -3,7 +3,6 @@ import { PatientData } from '../../data/patients'
 import { Timeline as SVGTimeline, LaneDisplayMode } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { Events, Lanes, TimelineColumn, TimelineState } from '../timelineSlice'
-import { useFilteredPatientData } from '../../data/hooks'
 import { EventData } from '../../data/events'
 import { stringToMillis } from '../../data/columns'
 
@@ -16,8 +15,6 @@ interface TimelineProps {
 }
 
 export const TimelineView = ({ data, dateFormat, laneDisplayMode, timelineState, availableColumns }: TimelineProps) => {
-  const patients = useFilteredPatientData().allPatients
-
   const timelineData = data.type === 'patients' ? data.allPatients : data.allEvents
 
   const [rawEvents, setRawEvents] = useState<Events>([])
@@ -35,7 +32,7 @@ export const TimelineView = ({ data, dateFormat, laneDisplayMode, timelineState,
       ? availableColumns[timelineState.column.index]
       : undefined
 
-    if (timelineState.column !== undefined) {
+    if (timelineState.column) {
       groupedLanes.push({
         laneId: activeColumn ? String(activeColumn.index) : '',
         label: activeColumn ? activeColumn.name : '',
@@ -69,7 +66,7 @@ export const TimelineView = ({ data, dateFormat, laneDisplayMode, timelineState,
     setLanes(lanes)
     setGroupedRawEvents(groupedRawEvents)
     setGroupedLanes(groupedLanes)
-  }, [timelineState.column, timelineState.grouping, patients, availableColumns, timelineData])
+  }, [timelineState.column, timelineState.grouping, availableColumns, timelineData])
 
   if (!rawEvents || rawEvents.length === 0) {
     return null

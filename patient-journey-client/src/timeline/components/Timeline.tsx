@@ -38,6 +38,8 @@ export const Timeline = ({
 }: TimelineProps) => {
   const { classes } = useStyles()
 
+  const timelineData = data.type === 'patients' ? data.allPatients : data.allEvents
+
   return (
     <Paper className={classes.root}>
       <ControlPanel
@@ -46,6 +48,7 @@ export const Timeline = ({
         onSetTimelineGrouping={onSetTimelineGrouping}
         timelineState={timelineState}
         availableColumns={availableColumns}
+        numberOfEvents={timelineData.length}
       />
       <TimelineView
         data={data}

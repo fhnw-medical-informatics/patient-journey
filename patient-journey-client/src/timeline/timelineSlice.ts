@@ -32,7 +32,7 @@ export type TimelineState = {
 
 const timelineSlice = createSlice({
   name: 'timeline',
-  initialState: { cluster: false, grouping: false } as TimelineState,
+  initialState: { cluster: true, grouping: true } as TimelineState,
   reducers: {
     setTimelineColumn: (state: Draft<TimelineState>, action) => {
       state.column = action.payload

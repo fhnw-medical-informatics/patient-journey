@@ -34,6 +34,7 @@ interface ControlPanelProps {
   onSetTimelineGrouping: () => void
   timelineState: TimelineState
   availableColumns: ReadonlyArray<TimelineColumn>
+  numberOfEvents: Number
 }
 
 export const ControlPanel = ({
@@ -42,6 +43,7 @@ export const ControlPanel = ({
   onSetTimelineGrouping,
   timelineState,
   availableColumns,
+  numberOfEvents,
 }: ControlPanelProps) => {
   const { classes } = useStyles()
 
@@ -50,7 +52,7 @@ export const ControlPanel = ({
   }
 
   let activeColumn: TimelineColumn | undefined = availableColumns.find((column) =>
-    column.type === 'timestamp' /*  || column.type === 'date'  */ ? column : undefined
+    column.type === 'timestamp' || column.type === 'date' ? column : undefined
   )
 
   if (typeof activeColumn !== 'undefined' && timelineState.column === undefined) {
@@ -65,7 +67,7 @@ export const ControlPanel = ({
             <FormControl>
               <Select
                 id="demo-simple-select"
-                value={timelineState.column ? String(timelineState.column.index) : ''} //TODO: Add default column: {availableColumns.find(column => column.type === 'timestamp' ? column.index : undefined)}
+                value={timelineState.column ? String(timelineState.column.index) : ''}
                 label="Age"
                 onChange={onChangeColumn}
                 size="small"
@@ -90,6 +92,7 @@ export const ControlPanel = ({
               <Switch checked={timelineState.grouping} onChange={() => onSetTimelineGrouping()} color="primary" />
             }
             label="Group"
+            disabled={numberOfEvents > 10}
           />
         </Grid>
         <Grid item>
