@@ -59,6 +59,10 @@ export const ControlPanel = ({
     onSetTimelineColumn(activeColumn)
   }
 
+  if (timelineState.grouping === false && numberOfEvents > 10) {
+    onSetTimelineGrouping()
+  }
+
   return (
     <div className={classes.root}>
       <Grid container alignItems="center">
