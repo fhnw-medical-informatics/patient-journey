@@ -101,6 +101,45 @@ export const selectFilteredEventData = createSelector(selectEventData, selectEve
   filters.reduce(filterReducer, eventData)
 )
 
-export const selectFilteredActiveData = createSelector(selectActiveData, selectActiveDataFilters, (data, filters) =>
-  filters.reduce(filterReducer, data)
+// Using Set's is more performant for cross-filter computation
+const selectFilteredPatientsPIDs = createSelector(
+  selectFilteredPatientData,
+  (filteredPatientData) => new Set(filteredPatientData.allPatients.map((patient) => patient.pid))
+)
+
+// Using Set's is more performant for cross-filter computation
+const selectFilteredEventsPIDs = createSelector(
+  selectFilteredEventData,
+  (filteredEventData) => new Set(filteredEventData.allEvents.map((event) => event.pid))
+)
+
+// Only select patients, that are references in the currently filtered events
+const selectCrossFilteredPatientData = createSelector(
+  selectFilteredPatientData,
+  selectFilteredEventsPIDs,
+  (filteredPatientData, filteredEventPIDSet) =>
+    ({
+      ...filteredPatientData,
+      allPatients: filteredPatientData.allPatients.filter((patient) => filteredEventPIDSet.has(patient.pid)),
+    } as PatientData)
+)
+
+// Only select events which referenced patients appear int the currently filtered patients
+const selectCrossFilteredEventData = createSelector(
+  selectFilteredEventData,
+  selectFilteredPatientsPIDs,
+  (filteredEventData, filteredPatientPIDSet) =>
+    ({
+      ...filteredEventData,
+      allEvents: filteredEventData.allEvents.filter((event) => filteredPatientPIDSet.has(event.pid)),
+    } as EventData)
+)
+
+export const selectFilteredActiveData = createSelector(
+  selectCrossFilteredPatientData,
+  selectCrossFilteredEventData,
+  selectDataView,
+  (crossFilteredPatientData, crossFilteredEventData, view) =>
+    // Filters applied to patients, to influence events as well (and vice versa)
+    view === 'patients' ? crossFilteredPatientData : crossFilteredEventData
 )
