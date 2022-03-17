@@ -1,10 +1,12 @@
 import { FormControl, Typography } from '@material-ui/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '../../utils'
 import { FormControlLabel, Grid, MenuItem, Select, SelectChangeEvent, Switch, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
 import { Box } from '@mui/system'
-import { TimelineColumn, TimelineState } from '../timelineSlice'
+import { TimelineColumn, TimelineColumnNone, TimelineState } from '../timelineSlice'
+import { PatientDataColumn } from '../../data/patients'
+import { EventDataColumn } from '../../data/events'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -33,7 +35,7 @@ interface ControlPanelProps {
   onSetTimelineCluster: () => void
   onSetTimelineGrouping: () => void
   timelineState: TimelineState
-  availableColumns: ReadonlyArray<TimelineColumn>
+  availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   numberOfEvents: Number
 }
 
@@ -47,20 +49,40 @@ export const ControlPanel = ({
 }: ControlPanelProps) => {
   const { classes } = useStyles()
 
+  useEffect(() => {
+    const setInitialActiveColumn = () => {
+      const firstTimeColumn = availableColumns.find((column) => column.type === 'timestamp' || column.type === 'date')
+
+      if (firstTimeColumn) {
+        onSetTimelineColumn(firstTimeColumn)
+      }
+    }
+
+    if (timelineState.column === TimelineColumnNone) {
+      // Set initial column if no column is selected
+      setInitialActiveColumn()
+    } else {
+      // Set initial column if selected column is not available anymore
+      const currentColumn = timelineState.column
+      const doesContain =
+        availableColumns.findIndex(
+          (column) => column.name === currentColumn.name && column.index === currentColumn.index
+        ) !== -1
+
+      if (!doesContain) {
+        setInitialActiveColumn()
+      }
+    }
+  }, [timelineState.column, onSetTimelineColumn, availableColumns])
+
+  useEffect(() => {
+    if (timelineState.grouping === false && numberOfEvents > 10) {
+      onSetTimelineGrouping()
+    }
+  }, [timelineState.grouping, onSetTimelineGrouping, numberOfEvents])
+
   const onChangeColumn = (event: SelectChangeEvent) => {
-    onSetTimelineColumn(availableColumns[Number(event.target.value)])
-  }
-
-  let activeColumn: TimelineColumn | undefined = availableColumns.find((column) =>
-    column.type === 'timestamp' || column.type === 'date' ? column : undefined
-  )
-
-  if (typeof activeColumn !== 'undefined' && timelineState.column === undefined) {
-    onSetTimelineColumn(activeColumn)
-  }
-
-  if (timelineState.grouping === false && numberOfEvents > 10) {
-    onSetTimelineGrouping()
+    onSetTimelineColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
 
   return (
@@ -71,37 +93,31 @@ export const ControlPanel = ({
             <FormControl>
               <Select
                 id="demo-simple-select"
-                value={timelineState.column ? String(timelineState.column.index) : ''}
-                label="Age"
+                value={timelineState.column !== TimelineColumnNone ? timelineState.column.name : ''}
                 onChange={onChangeColumn}
                 size="small"
               >
-                {availableColumns.map((column) => {
-                  if (column.type === 'timestamp' || column.type === 'date') {
-                    return (
-                      <MenuItem key={column.index} value={column.index}>
-                        {column.name}
-                      </MenuItem>
-                    )
-                  }
-                  return null
-                })}
+                {availableColumns
+                  .filter((column) => column.type === 'timestamp' || column.type === 'date')
+                  .map((column) => (
+                    <MenuItem key={column.name} value={column.name}>
+                      {column.name}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </Box>
         </Grid>
         <Grid item>
           <FormControlLabel
-            control={
-              <Switch checked={timelineState.grouping} onChange={() => onSetTimelineGrouping()} color="primary" />
-            }
+            control={<Switch checked={timelineState.grouping} onChange={onSetTimelineGrouping} color="primary" />}
             label="Group"
             disabled={numberOfEvents > 10}
           />
         </Grid>
         <Grid item>
           <FormControlLabel
-            control={<Switch checked={timelineState.cluster} onChange={() => onSetTimelineCluster()} color="primary" />}
+            control={<Switch checked={timelineState.cluster} onChange={onSetTimelineCluster} color="primary" />}
             label="Cluster"
           />
         </Grid>

@@ -1,12 +1,12 @@
 import React from 'react'
 import { makeStyles } from '../../utils'
-import { LaneDisplayMode } from 'react-svg-timeline'
+import { LaneDisplayMode, TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { Paper } from '@mui/material'
 import { TimelineView } from './TimelineView'
 import { TimelineState, TimelineColumn } from '../timelineSlice'
-import { PatientData } from '../../data/patients'
-import { EventData } from '../../data/events'
+import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
+import { EventDataColumn } from '../../data/events'
 
 const useStyles = makeStyles()({
   root: {
@@ -16,18 +16,20 @@ const useStyles = makeStyles()({
 })
 
 interface TimelineProps {
-  readonly data: PatientData | EventData
+  events: ReadonlyArray<TimelineEvent<PatientId, PatientId>>
+  lanes: ReadonlyArray<TimelineLane<PatientId>>
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   onSetTimelineColumn: (column: TimelineColumn) => void
   onSetTimelineCluster: () => void
   onSetTimelineGrouping: () => void
-  readonly timelineState: TimelineState
-  availableColumns: ReadonlyArray<TimelineColumn>
+  timelineState: TimelineState
+  availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
 }
 
 export const Timeline = ({
-  data,
+  events,
+  lanes,
   dateFormat,
   laneDisplayMode,
   onSetTimelineColumn,
@@ -38,8 +40,6 @@ export const Timeline = ({
 }: TimelineProps) => {
   const { classes } = useStyles()
 
-  const timelineData = data.type === 'patients' ? data.allPatients : data.allEvents
-
   return (
     <Paper className={classes.root}>
       <ControlPanel
@@ -48,14 +48,14 @@ export const Timeline = ({
         onSetTimelineGrouping={onSetTimelineGrouping}
         timelineState={timelineState}
         availableColumns={availableColumns}
-        numberOfEvents={timelineData.length}
+        numberOfEvents={events.length}
       />
       <TimelineView
-        data={data}
+        events={events}
+        lanes={lanes}
         dateFormat={dateFormat}
         laneDisplayMode={laneDisplayMode}
-        timelineState={timelineState}
-        availableColumns={availableColumns}
+        enableClustering={timelineState.cluster}
       />
     </Paper>
   )

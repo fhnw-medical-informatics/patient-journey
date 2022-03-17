@@ -1,28 +1,11 @@
-import { createSlice, Draft } from '@reduxjs/toolkit'
+import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { EventDataColumn } from '../data/events'
 import { PatientDataColumn } from '../data/patients'
 
-export type Events = (
-  | {
-      eventId: string
-      startTimeMillis: number
-      laneId: string
-      endTimeMillis?: undefined
-    }
-  | {
-      eventId: string
-      startTimeMillis: number
-      endTimeMillis: number
-      laneId: string
-    }
-)[]
+export type TimelineColumn = EventDataColumn | PatientDataColumn | NoTimelineColumn
 
-export type Lanes = {
-  laneId: string
-  label: string
-}[]
-
-export type TimelineColumn = EventDataColumn | PatientDataColumn
+export const TimelineColumnNone = 'None'
+type NoTimelineColumn = typeof TimelineColumnNone
 
 export type TimelineState = {
   column: TimelineColumn
@@ -32,9 +15,9 @@ export type TimelineState = {
 
 const timelineSlice = createSlice({
   name: 'timeline',
-  initialState: { cluster: true, grouping: true } as TimelineState,
+  initialState: { cluster: true, grouping: true, column: TimelineColumnNone } as TimelineState,
   reducers: {
-    setTimelineColumn: (state: Draft<TimelineState>, action) => {
+    setTimelineColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
       state.column = action.payload
     },
     setTimelineCluster: (state: Draft<TimelineState>) => {
