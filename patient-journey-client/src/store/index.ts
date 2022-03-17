@@ -2,10 +2,12 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
 import { themeReducer } from '../theme'
 import { dataReducer } from '../data'
+import { timelineReducer } from '../timeline'
 
 export const reducer = combineReducers({
   theme: themeReducer,
   data: dataReducer,
+  timeline: timelineReducer,
 })
 
 export type RootState = ReturnType<typeof reducer>
