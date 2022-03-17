@@ -1,7 +1,14 @@
 import React from 'react'
 import { PatientId } from '../../data/patients'
-import { Timeline as SVGTimeline, LaneDisplayMode, TimelineEvent, TimelineLane } from 'react-svg-timeline'
+import {
+  Timeline as SVGTimeline,
+  LaneDisplayMode,
+  TimelineEvent,
+  TimelineLane,
+  createTimelineTheme,
+} from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
+import { useCustomTheme } from '../../theme'
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, PatientId>>
@@ -12,6 +19,14 @@ interface TimelineProps {
 }
 
 export const TimelineView = ({ events, lanes, dateFormat, laneDisplayMode, enableClustering }: TimelineProps) => {
+  const theme = useCustomTheme()
+
+  const timelineTheme = createTimelineTheme(theme as any, {
+    xAxis: {
+      labelColor: theme.palette.text.primary,
+    },
+  })
+
   if (events.length === 0) {
     return null
   }
@@ -29,6 +44,7 @@ export const TimelineView = ({ events, lanes, dateFormat, laneDisplayMode, enabl
               dateFormat={dateFormat}
               laneDisplayMode={laneDisplayMode}
               enableEventClustering={enableClustering}
+              theme={timelineTheme}
             />
           )
         }}
