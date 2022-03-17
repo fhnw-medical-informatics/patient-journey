@@ -11,7 +11,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   input: {
     maxWidth: '100px',
-    paddingBottom: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
 }))
 
@@ -34,26 +34,28 @@ export const NumberDataFilter = ({ column, type, value, onChange }: NumberDataFi
   return (
     <FormGroup>
       <FormLabel className={classes.label}>{column.name}</FormLabel>
-      <TextField
-        className={classes.input}
-        label={'From'}
-        variant="outlined"
-        type={'number'}
-        value={!isNaN(value.from) ? value.from : 'NaN'}
-        onChange={(event) => {
-          handleChange(event.target.value ? +event.target.value : NaN, null)
-        }}
-      />
-      <TextField
-        className={classes.input}
-        label={'To'}
-        variant="outlined"
-        type={'number'}
-        value={!isNaN(value.to) ? value.to : 'NaN'}
-        onChange={(event) => {
-          handleChange(null, event.target.value ? +event.target.value : NaN)
-        }}
-      />
+      <div className={classes.input}>
+        <TextField
+          label={'From'}
+          variant="outlined"
+          type={'number'}
+          value={!isNaN(value.from) ? value.from : 'NaN'}
+          onChange={(event) => {
+            handleChange(event.target.value ? +event.target.value : NaN, null)
+          }}
+        />
+      </div>
+      <div className={classes.input}>
+        <TextField
+          label={'To'}
+          variant="outlined"
+          type={'number'}
+          value={!isNaN(value.to) ? value.to : 'NaN'}
+          onChange={(event) => {
+            handleChange(null, event.target.value ? +event.target.value : NaN)
+          }}
+        />
+      </div>
     </FormGroup>
   )
 }

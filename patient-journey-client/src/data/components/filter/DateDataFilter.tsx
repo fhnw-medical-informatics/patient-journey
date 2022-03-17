@@ -48,38 +48,41 @@ export const DateDataFilter = ({ column, type, value, onChange }: DateDataFilter
   return (
     <FormGroup>
       <FormLabel className={classes.label}>{column.name}</FormLabel>
-      <TextField
-        className={classes.input}
-        label={'From'}
-        variant="outlined"
-        type={type === 'timestamp' ? 'datetime-local' : 'date'}
-        value={
-          value.millisFrom !== MillisNone
-            ? format(value.millisFrom, type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT)
-            : ''
-        }
-        onChange={(event) => {
-          handleChange(parseDateTextField(event.target.value), null)
-        }}
-        // Issue with shrink state: https://mui.com/components/text-fields/#shrink
-        InputLabelProps={{ shrink: true }}
-      />
-      <TextField
-        className={classes.input}
-        label={'To'}
-        variant="outlined"
-        type={type === 'timestamp' ? 'datetime-local' : 'date'}
-        value={
-          value.millisTo !== MillisNone
-            ? format(value.millisTo, type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT)
-            : ''
-        }
-        onChange={(event) => {
-          handleChange(null, parseDateTextField(event.target.value))
-        }}
-        // Issue with shrink state https://mui.com/components/text-fields/#shrink
-        InputLabelProps={{ shrink: true }}
-      />
+      <div className={classes.input}>
+        <TextField
+          label={'From'}
+          variant="outlined"
+          type={type === 'timestamp' ? 'datetime-local' : 'date'}
+          value={
+            value.millisFrom !== MillisNone
+              ? format(value.millisFrom, type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT)
+              : ''
+          }
+          onChange={(event) => {
+            handleChange(parseDateTextField(event.target.value), null)
+          }}
+          // Issue with shrink state: https://mui.com/components/text-fields/#shrink
+          InputLabelProps={{ shrink: true }}
+        />
+      </div>
+      <div className={classes.input}>
+        <TextField
+          className={classes.input}
+          label={'To'}
+          variant="outlined"
+          type={type === 'timestamp' ? 'datetime-local' : 'date'}
+          value={
+            value.millisTo !== MillisNone
+              ? format(value.millisTo, type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT)
+              : ''
+          }
+          onChange={(event) => {
+            handleChange(null, parseDateTextField(event.target.value))
+          }}
+          // Issue with shrink state https://mui.com/components/text-fields/#shrink
+          InputLabelProps={{ shrink: true }}
+        />
+      </div>
     </FormGroup>
   )
 }
