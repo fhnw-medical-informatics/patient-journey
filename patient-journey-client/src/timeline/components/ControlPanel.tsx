@@ -41,9 +41,7 @@ export const ControlPanel = ({
     const setInitialActiveColumn = () => {
       const firstTimeColumn = availableColumns.find((column) => column.type === 'timestamp' || column.type === 'date')
 
-      if (firstTimeColumn) {
-        onSetTimelineColumn(firstTimeColumn)
-      }
+      onSetTimelineColumn(firstTimeColumn ?? TimelineColumnNone)
     }
 
     if (timelineState.column === TimelineColumnNone) {
