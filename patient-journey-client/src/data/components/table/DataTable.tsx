@@ -72,9 +72,13 @@ export const DataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
                   setSortingState={setSortingState}
                 />
                 <TableBody component={'tbody'}>
-                  {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
                     <TableRow
-                      key={data.type === 'patients' ? `pid:${row.pid}` : `eid:${(row as PatientJourneyEvent).eid}`}
+                      key={
+                        data.type === 'patients'
+                          ? `pid:${row.pid}-${idx}`
+                          : `eid:${(row as PatientJourneyEvent).eid}-${idx}`
+                      }
                       hover={true}
                       //selected={data.selectedPatient === row.pid}
                       onClick={() => onPatientClick(row.pid)}
