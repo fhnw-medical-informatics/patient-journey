@@ -56,12 +56,8 @@ export const NumberDataDiagram = ({ allActiveData, filteredActiveData, column }:
         throw new Error('Unsupported Format')
     }
   }
-  const allNumbers = (allActiveData.type === 'patients' ? allActiveData.allPatients : allActiveData.allEvents).flatMap(
-    extractValueUndefinedSafe
-  )
-  const filteredNumbers = (
-    filteredActiveData.type === 'patients' ? filteredActiveData.allPatients : filteredActiveData.allEvents
-  ).flatMap(extractValueUndefinedSafe)
+  const allNumbers = allActiveData.flatMap(extractValueUndefinedSafe)
+  const filteredNumbers = filteredActiveData.flatMap(extractValueUndefinedSafe)
 
   // TODO: Support coloring
   // const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())

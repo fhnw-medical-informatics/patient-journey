@@ -58,12 +58,8 @@ export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: D
         throw new Error('Unsupported Format')
     }
   }
-  const allDates = (allActiveData.type === 'patients' ? allActiveData.allPatients : allActiveData.allEvents).flatMap(
-    extractValueUndefinedSafe
-  )
-  const filteredDates = (
-    filteredActiveData.type === 'patients' ? filteredActiveData.allPatients : filteredActiveData.allEvents
-  ).flatMap(extractValueUndefinedSafe)
+  const allDates = allActiveData.flatMap(extractValueUndefinedSafe)
+  const filteredDates = filteredActiveData.flatMap(extractValueUndefinedSafe)
 
   // TODO: Support coloring
   // const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())

@@ -8,7 +8,7 @@ import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
 import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
-import { EventData, PatientJourneyEvent } from '../../events'
+import { EventData } from '../../events'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -36,15 +36,15 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface Props {
-  readonly data: PatientData | EventData
+  readonly data: PatientData['allPatients'] | EventData['allEvents']
+  readonly columns: PatientData['columns'] | EventData['columns']
   readonly onPatientClick: (id: PatientId) => void
   readonly onPatientHover: (id: PatientId) => void
 }
 
-export const DataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
+export const DataTable = ({ data, columns, onPatientClick, onPatientHover }: Props) => {
   const { classes } = useStyles()
-  const tableData = data.type === 'patients' ? data.allPatients : data.allEvents
-  const columns = data.columns
+  const tableData = data
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
   // TODO: sortedData should be a selector
@@ -74,11 +74,7 @@ export const DataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
                 <TableBody component={'tbody'}>
                   {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
                     <TableRow
-                      key={
-                        data.type === 'patients'
-                          ? `pid:${row.pid}-${idx}`
-                          : `eid:${(row as PatientJourneyEvent).eid}-${idx}`
-                      }
+                      key={`pid:${row.pid}-${idx}`}
                       hover={true}
                       //selected={data.selectedPatient === row.pid}
                       onClick={() => onPatientClick(row.pid)}
