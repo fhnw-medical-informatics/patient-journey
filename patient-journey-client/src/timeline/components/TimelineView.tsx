@@ -17,20 +17,22 @@ export const TimelineView = ({ events, lanes, dateFormat, laneDisplayMode, enabl
   }
 
   return (
-    <AutoSizer>
-      {({ width, height }: Size) => {
-        return (
-          <SVGTimeline
-            width={width}
-            height={height}
-            events={events}
-            lanes={lanes}
-            dateFormat={dateFormat}
-            laneDisplayMode={laneDisplayMode}
-            enableEventClustering={enableClustering}
-          />
-        )
-      }}
-    </AutoSizer>
+    <div>
+      <AutoSizer>
+        {({ width, height }: Size) => {
+          return (
+            <SVGTimeline
+              width={width}
+              height={height}
+              events={events}
+              lanes={lanes}
+              dateFormat={dateFormat}
+              laneDisplayMode={laneDisplayMode}
+              enableEventClustering={enableClustering}
+            />
+          )
+        }}
+      </AutoSizer>
+    </div>
   )
 }

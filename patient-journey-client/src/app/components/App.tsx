@@ -13,6 +13,15 @@ const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '15%'
 const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '60%'
 
 const useStyles = makeStyles()((theme) => ({
+  app: {
+    height: `100vh`,
+    width: '100vw',
+    display: 'grid',
+    gridTemplateRows: `64px 1fr`,
+  },
+  appBar: {
+    position: 'relative', // override MUI fixed
+  },
   toolbar: {
     display: 'grid',
     gridTemplateColumns: 'min-content auto auto',
@@ -20,13 +29,12 @@ const useStyles = makeStyles()((theme) => ({
   },
   main: {
     display: 'grid',
-    height: '100vh',
-    width: '100vw',
+    height: '100%',
+    width: '100%',
+    position: 'relative',
   },
   left: {
-    paddingTop: 70,
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
+    padding: theme.spacing(1),
     display: 'grid',
     width: '100%',
     height: '100%',
@@ -34,17 +42,13 @@ const useStyles = makeStyles()((theme) => ({
     overflowX: 'hidden',
   },
   top: {
-    paddingTop: 70,
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
+    padding: theme.spacing(1),
     display: 'grid',
     width: '100%',
     height: '100%',
   },
   bottom: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
+    padding: theme.spacing(1),
     display: 'grid',
     width: '100%',
     height: '100%',
@@ -57,8 +61,6 @@ const useStyles = makeStyles()((theme) => ({
     opacity: 0.5,
     zIndex: 1,
     backgroundClip: 'padding-box',
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
   },
 }))
 
@@ -69,8 +71,8 @@ export const App = () => {
   const [splitPaneVerticalSize, setSplitPaneVerticalSize] = useState<'default' | number>('default')
 
   return (
-    <>
-      <AppBar>
+    <div className={classes.app}>
+      <AppBar className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
           <DataViewSelector />
           <Typography>{`Patient Journey – v${import.meta.env.VITE_APP_VERSION}`}</Typography>
@@ -114,6 +116,6 @@ export const App = () => {
           </SplitPane>
         </SplitPane>
       </div>
-    </>
+    </div>
   )
 }

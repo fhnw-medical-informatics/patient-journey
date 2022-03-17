@@ -1,9 +1,10 @@
-import { FormControl, Typography } from '@material-ui/core'
 import React, { useEffect } from 'react'
+import { FormControl, Typography } from '@material-ui/core'
+
 import { makeStyles } from '../../utils'
+
 import { FormControlLabel, Grid, MenuItem, Select, SelectChangeEvent, Switch, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
-import { Box } from '@mui/system'
 import { TimelineColumn, TimelineColumnNone, TimelineState } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
@@ -13,20 +14,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
   },
   toolbar: {
-    flex: 1,
-  },
-  timelineContainer: {
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(0.5),
-  },
-  timeline: {
-    display: 'grid',
-    height: '100%',
-    width: '100%',
-  },
-  paper: {
-    padding: 15,
-    marginRight: 5,
+    padding: theme.spacing(2),
   },
 }))
 
@@ -87,78 +75,82 @@ export const ControlPanel = ({
 
   return (
     <div className={classes.root}>
-      <Grid container alignItems="center">
-        <Grid item>
-          <Box className={classes.paper}>
-            <FormControl>
-              <Select
-                id="demo-simple-select"
-                value={timelineState.column !== TimelineColumnNone ? timelineState.column.name : ''}
-                onChange={onChangeColumn}
-                size="small"
+      <Grid container alignItems={'flex-end'} justifyContent={'space-between'} className={classes.toolbar}>
+        <Grid item xs="auto">
+          <Grid container spacing={2}>
+            <Grid item>
+              <FormControl>
+                <Select
+                  id="demo-simple-select"
+                  value={timelineState.column !== TimelineColumnNone ? timelineState.column.name : ''}
+                  onChange={onChangeColumn}
+                  size="small"
+                >
+                  {availableColumns
+                    .filter((column) => column.type === 'timestamp' || column.type === 'date')
+                    .map((column) => (
+                      <MenuItem key={column.name} value={column.name}>
+                        {column.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                control={<Switch checked={timelineState.grouping} onChange={onSetTimelineGrouping} color="primary" />}
+                label="Group"
+                disabled={numberOfEvents > 10}
+              />
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                control={<Switch checked={timelineState.cluster} onChange={onSetTimelineCluster} color="primary" />}
+                label="Cluster"
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs="auto">
+          <Grid container spacing={2}>
+            <Grid item>
+              <Tooltip
+                title={
+                  <div>
+                    <Typography color="inherit">Timline keyboard shortcuts</Typography>
+                    <table>
+                      <tbody>
+                        <tr>
+                          <td>Zoom In:</td>
+                          <td>Click</td>
+                        </tr>
+                        <tr>
+                          <td>Zoom Out:</td>
+                          <td>Alt + Click</td>
+                        </tr>
+                        <tr>
+                          <td>Zoom Custom:</td>
+                          <td>Shift + Click + Drag</td>
+                        </tr>
+                        <tr>
+                          <td>Pan:</td>
+                          <td>Click + Drag</td>
+                        </tr>
+                        <tr>
+                          <td>Reset:</td>
+                          <td>Esc</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                }
+                placement="left"
+                arrow
               >
-                {availableColumns
-                  .filter((column) => column.type === 'timestamp' || column.type === 'date')
-                  .map((column) => (
-                    <MenuItem key={column.name} value={column.name}>
-                      {column.name}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-          </Box>
-        </Grid>
-        <Grid item>
-          <FormControlLabel
-            control={<Switch checked={timelineState.grouping} onChange={onSetTimelineGrouping} color="primary" />}
-            label="Group"
-            disabled={numberOfEvents > 10}
-          />
-        </Grid>
-        <Grid item>
-          <FormControlLabel
-            control={<Switch checked={timelineState.cluster} onChange={onSetTimelineCluster} color="primary" />}
-            label="Cluster"
-          />
-        </Grid>
-        <Grid item>
-          <Box className={classes.paper} alignItems="right">
-            <Tooltip
-              title={
-                <div>
-                  <Typography color="inherit">Timline keyboard shortcuts</Typography>
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>Zoom In:</td>
-                        <td>Click</td>
-                      </tr>
-                      <tr>
-                        <td>Zoom Out:</td>
-                        <td>Alt + Click</td>
-                      </tr>
-                      <tr>
-                        <td>Zoom Custom:</td>
-                        <td>Shift + Click + Drag</td>
-                      </tr>
-                      <tr>
-                        <td>Pan:</td>
-                        <td>Click + Drag</td>
-                      </tr>
-                      <tr>
-                        <td>Reset:</td>
-                        <td>Esc</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              }
-              placement="top"
-              arrow
-            >
-              <HelpIcon />
-            </Tooltip>
-          </Box>
+                <HelpIcon />
+              </Tooltip>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </div>

@@ -8,12 +8,15 @@ import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
   root: {
+    display: 'grid',
     width: '100%',
     height: '100%',
+    gridTemplateRows: 'auto 1fr',
+    paddingBottom: theme.spacing(2),
   },
-})
+}))
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, PatientId>>
