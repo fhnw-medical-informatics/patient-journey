@@ -1,31 +1,56 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { RootState } from '../store'
 import { ActiveDataViewType } from './dataSlice'
-import { EMPTY_EVENT_DATA, EventData, EventDataColumn } from './events'
+import { EntityId } from './entities'
+import { EMPTY_EVENT_DATA, EventData, EventDataColumn, PatientJourneyEvent } from './events'
 import { filterReducer, GenericFilter } from './filtering'
-import { EMPTY_PATIENT_DATA, PatientData, PatientDataColumn, PatientId } from './patients'
+import { EMPTY_PATIENT_DATA, Patient, PatientData, PatientDataColumn } from './patients'
 
-const selectPatientData = (s: RootState): PatientData => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.patientData
-  } else {
-    return EMPTY_PATIENT_DATA
-  }
-}
-
-const selectEventData = (s: RootState): EventData => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.eventData
-  } else {
-    return EMPTY_EVENT_DATA
-  }
-}
-
-export const selectActiveData = (s: RootState): PatientData | EventData => {
+const selectActiveEntityData = (s: RootState): PatientData | EventData => {
   if (s.data.type === 'loading-complete') {
     return s.data.view === 'patients' ? s.data.patientData : s.data.eventData
   } else {
     return EMPTY_PATIENT_DATA
+  }
+}
+
+const selectPatientDataRows = (s: RootState): PatientData['allEntities'] => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.patientData.allEntities
+  } else {
+    return EMPTY_PATIENT_DATA.allEntities
+  }
+}
+
+const selectEventDataRows = (s: RootState): EventData['allEntities'] => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.eventData.allEntities
+  } else {
+    return EMPTY_EVENT_DATA.allEntities
+  }
+}
+
+export const selectActiveData = (s: RootState): PatientData['allEntities'] | EventData['allEntities'] => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.view === 'patients' ? s.data.patientData.allEntities : s.data.eventData.allEntities
+  } else {
+    return EMPTY_PATIENT_DATA.allEntities
+  }
+}
+
+const selectPatientDataColumns = (s: RootState): ReadonlyArray<PatientDataColumn> => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.patientData.columns
+  } else {
+    return EMPTY_PATIENT_DATA.columns
+  }
+}
+
+const selectEventDataColumns = (s: RootState): ReadonlyArray<EventDataColumn> => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.eventData.columns
+  } else {
+    return EMPTY_EVENT_DATA.columns
   }
 }
 
@@ -37,32 +62,20 @@ export const selectActiveDataColumns = (s: RootState): ReadonlyArray<PatientData
   }
 }
 
-export const selectSelectedPatient = (s: RootState): PatientId => selectPatientData(s).selectedPatient
-export const selectHoveredPatient = (s: RootState): PatientId => selectPatientData(s).hoveredPatient
+export const selectSelectedActiveEntity = createSelector(
+  selectActiveEntityData,
+  (activeEntityData) => activeEntityData.selectedEntity as EntityId
+)
+export const selectHoveredActiveEntity = createSelector(
+  selectActiveEntityData,
+  (activeEntityData) => activeEntityData.hoveredEntity as EntityId
+)
 
 export const selectDataView = (s: RootState): ActiveDataViewType => {
   if (s.data.type === 'loading-complete') {
     return s.data.view
   } else {
     return 'patients'
-  }
-}
-
-const selectPatientFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
-  if (s.data.type === 'loading-complete') {
-    const columns = s.data.patientData.columns
-    return s.data.filters.filter((filter) => columns.findIndex((column) => column.name === filter.column.name) !== -1)
-  } else {
-    return []
-  }
-}
-
-const selectEventFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
-  if (s.data.type === 'loading-complete') {
-    const columns = s.data.eventData.columns
-    return s.data.filters.filter((filter) => columns.findIndex((column) => column.name === filter.column.name) !== -1)
-  } else {
-    return []
   }
 }
 
@@ -74,24 +87,36 @@ export const selectAllFilters = (s: RootState): ReadonlyArray<GenericFilter> => 
   }
 }
 
-const selectFilteredPatientData = createSelector(selectPatientData, selectPatientFilters, (patientData, filters) =>
-  filters.reduce(filterReducer, patientData)
+const selectPatientFilters = createSelector(selectPatientDataColumns, selectAllFilters, (patientDataColumns, filters) =>
+  filters.filter((filter) => patientDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
 )
 
-const selectFilteredEventData = createSelector(selectEventData, selectEventFilters, (eventData, filters) =>
-  filters.reduce(filterReducer, eventData)
+const selectEventFilters = createSelector(selectEventDataColumns, selectAllFilters, (eventDataColumns, filters) =>
+  filters.filter((filter) => eventDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
+)
+
+const selectFilteredPatientData = createSelector(
+  selectPatientDataRows,
+  selectPatientFilters,
+  (patientDataRows, filters) => filters.reduce(filterReducer, patientDataRows) as ReadonlyArray<Patient>
+)
+
+const selectFilteredEventData = createSelector(
+  selectEventDataRows,
+  selectEventFilters,
+  (eventDataRows, filters) => filters.reduce<any>(filterReducer, eventDataRows) as ReadonlyArray<PatientJourneyEvent>
 )
 
 // Using Set's is more performant for cross-filter computation
 const selectFilteredPatientsPIDs = createSelector(
   selectFilteredPatientData,
-  (filteredPatientData) => new Set(filteredPatientData.allPatients.map((patient) => patient.pid))
+  (filteredPatientData) => new Set(filteredPatientData.map((patient) => patient.pid))
 )
 
 // Using Set's is more performant for cross-filter computation
 const selectFilteredEventsPIDs = createSelector(
   selectFilteredEventData,
-  (filteredEventData) => new Set(filteredEventData.allEvents.map((event) => event.pid))
+  (filteredEventData) => new Set(filteredEventData.map((event) => event.pid))
 )
 
 // Only select patients, that are references in the currently filtered events
@@ -99,10 +124,7 @@ const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
   selectFilteredEventsPIDs,
   (filteredPatientData, filteredEventPIDSet) =>
-    ({
-      ...filteredPatientData,
-      allPatients: filteredPatientData.allPatients.filter((patient) => filteredEventPIDSet.has(patient.pid)),
-    } as PatientData)
+    filteredPatientData.filter((patient) => filteredEventPIDSet.has(patient.pid))
 )
 
 // Only select events which referenced patients appear int the currently filtered patients
@@ -110,10 +132,7 @@ const selectCrossFilteredEventData = createSelector(
   selectFilteredEventData,
   selectFilteredPatientsPIDs,
   (filteredEventData, filteredPatientPIDSet) =>
-    ({
-      ...filteredEventData,
-      allEvents: filteredEventData.allEvents.filter((event) => filteredPatientPIDSet.has(event.pid)),
-    } as EventData)
+    filteredEventData.filter((event) => filteredPatientPIDSet.has(event.pid))
 )
 
 export const selectFilteredActiveData = createSelector(

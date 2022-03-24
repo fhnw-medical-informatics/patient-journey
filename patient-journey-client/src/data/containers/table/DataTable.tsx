@@ -1,12 +1,22 @@
 import React from 'react'
 
 import { DataTable as DataTableComponent } from '../../components/table/DataTable'
-import { useFilteredActiveData, usePatientInteraction } from '../../hooks'
+import { useActiveDataColumns, useFilteredActiveData, useEntityInteraction } from '../../hooks'
 
 export const DataTable = () => {
   const activeData = useFilteredActiveData()
+  const activeColumns = useActiveDataColumns()
 
-  const { onPatientClick, onPatientHover } = usePatientInteraction()
+  const { onEntityClick, onEntityHover, selectedEntity, hoveredEntity } = useEntityInteraction()
 
-  return <DataTableComponent data={activeData} onPatientClick={onPatientClick} onPatientHover={onPatientHover} />
+  return (
+    <DataTableComponent
+      data={activeData}
+      columns={activeColumns}
+      selectedEntity={selectedEntity}
+      hoveredEntity={hoveredEntity}
+      onEntityClick={onEntityClick}
+      onEntityHover={onEntityHover}
+    />
+  )
 }

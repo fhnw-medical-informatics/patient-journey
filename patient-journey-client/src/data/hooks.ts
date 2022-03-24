@@ -1,16 +1,16 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
   selectDataView,
-  selectHoveredPatient,
-  selectSelectedPatient,
+  selectSelectedActiveEntity,
+  selectHoveredActiveEntity,
   selectFilteredActiveData,
   selectActiveDataColumns,
   selectActiveData,
   selectAllFilters,
 } from './selectors'
-import { setHoveredPatient, setSelectedPatient } from './dataSlice'
+import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { useCallback } from 'react'
-import { PatientId, PatientIdNone } from './patients'
+import { EntityId, EntityIdNone } from './entities'
 
 export const useActiveDataView = () => useAppSelector(selectDataView)
 
@@ -20,40 +20,40 @@ export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveDa
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
 export const useAllFilters = () => useAppSelector(selectAllFilters)
 
-export const useSelectedPatient = (): PatientId => useAppSelector(selectSelectedPatient)
-export const useHoveredPatient = () => useAppSelector(selectHoveredPatient)
+export const useActiveSelectedEntity = () => useAppSelector(selectSelectedActiveEntity)
+export const useActiveHoveredEntity = () => useAppSelector(selectHoveredActiveEntity)
 
-export interface PatientInteraction {
-  readonly selectedPatient: PatientId
-  readonly hoveredPatient: PatientId
-  readonly onPatientClick: (id: PatientId) => void
-  readonly onPatientHover: (id: PatientId) => void
+export interface EntityInteraction {
+  readonly selectedEntity: EntityId
+  readonly hoveredEntity: EntityId
+  readonly onEntityClick: (id: EntityId) => void
+  readonly onEntityHover: (id: EntityId) => void
 }
 
-export const usePatientInteraction = (): PatientInteraction => {
-  const selectedPatient = useSelectedPatient()
-  const hoveredPatient = useHoveredPatient()
+export const useEntityInteraction = (): EntityInteraction => {
+  const selectedEntity = useActiveSelectedEntity()
+  const hoveredEntity = useActiveHoveredEntity()
 
   const dispatch = useAppDispatch()
 
-  const onPatientClick = useCallback(
-    (id: PatientId) => {
-      dispatch(setSelectedPatient(selectedPatient === id ? PatientIdNone : id))
+  const onEntityClick = useCallback(
+    (id: EntityId) => {
+      dispatch(setSelectedEntity(selectedEntity === id ? EntityIdNone : id))
     },
-    [selectedPatient, dispatch]
+    [selectedEntity, dispatch]
   )
 
-  const onPatientHover = useCallback(
-    (id: PatientId) => {
-      dispatch(setHoveredPatient(id))
+  const onEntityHover = useCallback(
+    (id: EntityId) => {
+      dispatch(setHoveredEntity(id))
     },
     [dispatch]
   )
 
   return {
-    selectedPatient,
-    hoveredPatient,
-    onPatientClick,
-    onPatientHover,
+    selectedEntity,
+    hoveredEntity,
+    onEntityClick,
+    onEntityHover,
   }
 }

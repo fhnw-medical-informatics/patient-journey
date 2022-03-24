@@ -1,14 +1,15 @@
 import { DataColumn, GenericColumnType } from './columns'
 import { ParseResult } from 'papaparse'
+import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
 
 export const PATIENT_ID_COLUMN_TYPE = 'pid'
 
 export type PatientDataColumnType = typeof PATIENT_ID_COLUMN_TYPE | GenericColumnType
 export type PatientDataColumn = DataColumn<PatientDataColumnType>
 
-export interface Patient {
+export interface Patient extends Entity {
+  readonly type: 'patients'
   readonly pid: PatientId
-  readonly values: ReadonlyArray<string>
 }
 
 enum PatientIdBrand {}
@@ -16,20 +17,14 @@ enum PatientIdBrand {}
 export type PatientId = PatientIdBrand & string
 export const PatientIdNone = 'n/a' as PatientId
 
-export interface PatientData {
-  readonly type: 'patients'
-  readonly columns: ReadonlyArray<PatientDataColumn>
-  readonly allPatients: ReadonlyArray<Patient>
-  readonly selectedPatient: PatientId
-  readonly hoveredPatient: PatientId
-}
+export interface PatientData extends DataEntity<Patient, PatientDataColumn> {}
 
 export const EMPTY_PATIENT_DATA: PatientData = {
   type: 'patients',
   columns: [],
-  allPatients: [],
-  selectedPatient: PatientIdNone,
-  hoveredPatient: PatientIdNone,
+  allEntities: [],
+  selectedEntity: EntityIdNone,
+  hoveredEntity: EntityIdNone,
 }
 
 export const createPatientData = (result: ParseResult<string[]>): PatientData => {
@@ -48,8 +43,10 @@ export const createPatientData = (result: ParseResult<string[]>): PatientData =>
     return {
       ...EMPTY_PATIENT_DATA,
       columns,
-      allPatients: result.data.slice(HEADER_ROW_COUNT).map((row: string[]) => {
+      allEntities: result.data.slice(HEADER_ROW_COUNT).map((row: string[]) => {
         return {
+          uid: row[idColumnIndex] as EntityId,
+          type: 'patients',
           pid: row[idColumnIndex] as PatientId,
           values: row,
         }

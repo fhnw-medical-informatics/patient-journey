@@ -2,13 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { makeStyles } from '../../../utils'
-import { PatientData, PatientId, PatientIdNone } from '../../patients'
+import { PatientData, PatientIdNone } from '../../patients'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
 import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
-import { EventData, PatientJourneyEvent } from '../../events'
+import { EventData } from '../../events'
+import { EntityId } from '../../entities'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -36,15 +37,17 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface Props {
-  readonly data: PatientData | EventData
-  readonly onPatientClick: (id: PatientId) => void
-  readonly onPatientHover: (id: PatientId) => void
+  readonly data: PatientData['allEntities'] | EventData['allEntities']
+  readonly columns: PatientData['columns'] | EventData['columns']
+  readonly selectedEntity: EntityId
+  readonly hoveredEntity: EntityId
+  readonly onEntityClick: (id: EntityId) => void
+  readonly onEntityHover: (id: EntityId) => void
 }
 
-export const DataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
+export const DataTable = ({ data, columns, selectedEntity, hoveredEntity, onEntityClick, onEntityHover }: Props) => {
   const { classes } = useStyles()
-  const tableData = data.type === 'patients' ? data.allPatients : data.allEvents
-  const columns = data.columns
+  const tableData = data
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
   const [page, setPage] = useState<number>(0)
   // TODO: sortedData should be a selector
@@ -74,16 +77,12 @@ export const DataTable = ({ data, onPatientClick, onPatientHover }: Props) => {
                 <TableBody component={'tbody'}>
                   {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
                     <TableRow
-                      key={
-                        data.type === 'patients'
-                          ? `pid:${row.pid}-${idx}`
-                          : `eid:${(row as PatientJourneyEvent).eid}-${idx}`
-                      }
+                      key={`uid:${row.uid}-${idx}`}
                       hover={true}
-                      //selected={data.selectedPatient === row.pid}
-                      onClick={() => onPatientClick(row.pid)}
-                      onMouseEnter={() => onPatientHover(row.pid)}
-                      onMouseLeave={() => onPatientHover(PatientIdNone)}
+                      selected={selectedEntity === row.uid}
+                      onClick={() => onEntityClick(row.uid)}
+                      onMouseEnter={() => onEntityHover(row.uid)}
+                      onMouseLeave={() => onEntityHover(PatientIdNone)}
                     >
                       {columns.map((column) => {
                         const value = row.values[column.index] ?? ''

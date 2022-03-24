@@ -1,9 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { stringToMillis } from '../data/columns'
-import { PatientJourneyEvent } from '../data/events'
+import { Entity, EntityId } from '../data/entities'
 import { PatientId } from '../data/patients'
-import { selectFilteredActiveData } from '../data/selectors'
+import { selectActiveDataColumns, selectFilteredActiveData } from '../data/selectors'
 import { RootState } from '../store'
 import { TimelineColumn, TimelineColumnNone, TimelineState } from './timelineSlice'
 
@@ -13,14 +13,15 @@ const selectTimelineColumn = (s: RootState): TimelineColumn => s.timeline.column
 
 export const selectFilteredActiveDataAsEvents = createSelector(
   selectTimelineColumn,
+  selectActiveDataColumns,
   selectFilteredActiveData,
-  (timelineColumn, activeData) =>
+  (timelineColumn, activeColumns, activeData) =>
     timelineColumn !== TimelineColumnNone &&
-    activeData.columns.findIndex(
+    activeColumns.findIndex(
       (column) => column.name === timelineColumn.name && column.index === timelineColumn.index
     ) !== -1
-      ? ((activeData.type === 'patients' ? activeData.allPatients : activeData.allEvents).map((event) => ({
-          eventId: activeData.type === 'patients' ? event.pid : (event as PatientJourneyEvent).eid,
+      ? (activeData.map((event, idx) => ({
+          eventId: event.pid,
           laneId: event.pid,
           startTimeMillis:
             timelineColumn.type === 'date'
@@ -30,16 +31,16 @@ export const selectFilteredActiveDataAsEvents = createSelector(
       : []
 )
 
-export const selectFilteredActiveDataAsLanes = createSelector(selectFilteredActiveData, (activeData) =>
-  (activeData.type === 'patients' ? activeData.allPatients : activeData.allEvents).reduce((timelineLanes, event) => {
-    return timelineLanes.findIndex((lane) => lane.laneId === event.pid) >= 0
+export const selectFilteredActiveDataAsLanes = createSelector(selectFilteredActiveData, (activeData: Entity[]) =>
+  activeData.reduce((timelineLanes, event) => {
+    return timelineLanes.findIndex((lane) => lane.laneId === event.uid) >= 0
       ? timelineLanes
       : [
           ...timelineLanes,
           {
-            laneId: event.pid,
-            label: event.pid, // TODO: Proper label
+            laneId: event.uid,
+            label: event.uid, // TODO: Proper label
           },
         ]
-  }, [] as ReadonlyArray<TimelineLane<PatientId>>)
+  }, [] as ReadonlyArray<TimelineLane<EntityId>>)
 )

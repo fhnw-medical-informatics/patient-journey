@@ -1,7 +1,8 @@
 import React from 'react'
 import { Meta, Story } from '@storybook/react'
 import { Data, Props } from '../data/components/Data'
-import { EMPTY_PATIENT_DATA, PatientId } from '../data/patients'
+import { EMPTY_PATIENT_DATA, PatientData, PatientId } from '../data/patients'
+import { EMPTY_EVENT_DATA, EventData } from '../data/events'
 
 export default {
   title: 'Data',
@@ -40,16 +41,17 @@ DataLoadingComplete.args = {
         { index: 1, name: 'First Name', type: 'string' },
         { index: 2, name: 'Last Name', type: 'string' },
       ],
-      allPatients: [
-        { pid: '0' as PatientId, values: ['0', 'Ada', 'Lovelace'] },
-        { pid: '1' as PatientId, values: ['1', 'Michelle', 'Obama '] },
+      allEntities: [
+        { uid: '0' as PatientId, type: 'patients', pid: '0' as PatientId, values: ['0', 'Ada', 'Lovelace'] },
+        { uid: '0' as PatientId, type: 'patients', pid: '1' as PatientId, values: ['1', 'Michelle', 'Obama '] },
       ],
-    },
+    } as PatientData,
     eventData: {
+      ...EMPTY_EVENT_DATA,
       type: 'events',
       columns: [],
-      allEvents: [],
-    },
+      allEntities: [],
+    } as EventData,
     filters: [],
     view: 'patients',
   },

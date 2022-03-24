@@ -42,10 +42,10 @@ describe('sorting', () => {
     const dateColumn = data.columns[3]
     const booleanColumn = data.columns[4]
     const timestampColumn = data.columns[5]
-    expect(stableSort(data.allPatients, { type: 'asc', column: stringColumn })[0].pid).toEqual('a')
-    expect(stableSort(data.allPatients, { type: 'asc', column: numberColumn })[0].pid).toEqual('b')
-    expect(stableSort(data.allPatients, { type: 'asc', column: dateColumn })[0].pid).toEqual('c')
-    expect(stableSort(data.allPatients, { type: 'asc', column: booleanColumn })[0].pid).toEqual('b')
-    expect(stableSort(data.allPatients, { type: 'asc', column: timestampColumn })[0].pid).toEqual('b')
+    expect(stableSort(data.allEntities, { type: 'asc', column: stringColumn })[0].uid).toEqual('a')
+    expect(stableSort(data.allEntities, { type: 'asc', column: numberColumn })[0].uid).toEqual('b')
+    expect(stableSort(data.allEntities, { type: 'asc', column: dateColumn })[0].uid).toEqual('c')
+    expect(stableSort(data.allEntities, { type: 'asc', column: booleanColumn })[0].uid).toEqual('b')
+    expect(stableSort(data.allEntities, { type: 'asc', column: timestampColumn })[0].uid).toEqual('b')
   })
 })

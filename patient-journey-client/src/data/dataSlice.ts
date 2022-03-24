@@ -2,9 +2,10 @@ import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '../store'
 import * as csvParser from 'papaparse'
 import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './dataConfig'
-import { createPatientData, PatientData, PatientId } from './patients'
+import { createPatientData, PatientData } from './patients'
 import { createEventData, EventData } from './events'
 import { GenericFilter } from './filtering'
+import { EntityId } from './entities'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -64,11 +65,11 @@ const dataSlice = createSlice({
       view: 'patients',
       ...action.payload,
     }),
-    setSelectedPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
-      mutatePatientData(state, (pd) => (pd.selectedPatient = action.payload as PatientId))
+    setSelectedEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateActiveEntityData(state, (pd) => (pd.selectedEntity = action.payload as EntityId))
     },
-    setHoveredPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
-      mutatePatientData(state, (pd) => (pd.hoveredPatient = action.payload as PatientId))
+    setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateActiveEntityData(state, (pd) => (pd.hoveredEntity = action.payload as EntityId))
     },
     // TODO: Tests
     addDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
@@ -102,9 +103,12 @@ const dataSlice = createSlice({
   },
 })
 
-const mutatePatientData = (state: Draft<DataState>, applyMutation: (pd: Draft<PatientData>) => void) => {
+const mutateActiveEntityData = (
+  state: Draft<DataState>,
+  applyMutation: (pd: Draft<PatientData | EventData>) => void
+) => {
   if (state.type === 'loading-complete') {
-    applyMutation(state.patientData)
+    applyMutation(state.view === 'patients' ? state.patientData : state.eventData)
   }
 }
 
@@ -124,7 +128,7 @@ const mutateFilterData = (
 }
 
 export const dataReducer = dataSlice.reducer
-export const { setSelectedPatient, setHoveredPatient, addDataFilter, removeDataFilter, resetDataFilter, setDataView } =
+export const { setSelectedEntity, setHoveredEntity, addDataFilter, removeDataFilter, resetDataFilter, setDataView } =
   dataSlice.actions
 
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions

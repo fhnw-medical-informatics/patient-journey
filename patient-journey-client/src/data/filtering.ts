@@ -1,6 +1,7 @@
 import { parseMillis, parseDate } from './columns'
-import { EventData, EventDataColumn, PatientJourneyEvent } from './events'
-import { Patient, PatientData, PatientDataColumn } from './patients'
+import { Entity } from './entities'
+import { EventDataColumn } from './events'
+import { PatientDataColumn } from './patients'
 
 export interface Filter<T extends FilterColumn['type']> {
   column: FilterColumn
@@ -64,24 +65,17 @@ export const createFilter = <T extends FilterColumn['type']>(
 }
 
 // TODO: Write tests
-export const filterReducer = <T extends EventData | PatientData>(data: T, filter: GenericFilter): T => {
-  const dataSelector = data.type === 'events' ? 'allEvents' : 'allPatients'
-  const dataToFilter: EventData['allEvents'] | PatientData['allPatients'] =
-    data.type === 'events' ? data.allEvents : data.allPatients
-
+export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter): ReadonlyArray<Entity> => {
   switch (filter.type) {
     case 'string':
-      return {
-        ...data,
-        [dataSelector]: dataToFilter.filter((row) => {
-          const fieldValue = getFieldValue(row, filter)
+      return data.filter((row) => {
+        const fieldValue = getFieldValue(row, filter)
 
-          return (
-            fieldValue.isValid &&
-            fieldValue.value.toLowerCase().includes((filter as Filter<'string'>).value.text.toLowerCase())
-          )
-        }),
-      }
+        return (
+          fieldValue.isValid &&
+          fieldValue.value.toLowerCase().includes((filter as Filter<'string'>).value.text.toLowerCase())
+        )
+      })
     case 'number':
       const openFrom = isNaN((filter as Filter<'number'>).value.from)
       const openTo = isNaN((filter as Filter<'number'>).value.to)
@@ -89,33 +83,27 @@ export const filterReducer = <T extends EventData | PatientData>(data: T, filter
       if (openFrom && openTo) {
         return data
       } else {
-        return {
-          ...data,
-          [dataSelector]: dataToFilter.filter((row) => {
-            const fieldValue = getFieldValue(row, filter)
+        return data.filter((row) => {
+          const fieldValue = getFieldValue(row, filter)
 
-            return (
-              fieldValue.isValid &&
-              (openFrom || +fieldValue.value >= (filter as Filter<'number'>).value.from) &&
-              (openTo || +fieldValue.value <= (filter as Filter<'number'>).value.to)
-            )
-          }),
-        }
+          return (
+            fieldValue.isValid &&
+            (openFrom || +fieldValue.value >= (filter as Filter<'number'>).value.from) &&
+            (openTo || +fieldValue.value <= (filter as Filter<'number'>).value.to)
+          )
+        })
       }
     case 'boolean':
       const openBool = (filter as Filter<'boolean'>).value.isTrue === TrilianNone
 
-      return {
-        ...data,
-        [dataSelector]: dataToFilter.filter((row) => {
-          const fieldValue = getFieldValue(row, filter)
+      return data.filter((row) => {
+        const fieldValue = getFieldValue(row, filter)
 
-          return (
-            openBool ||
-            (fieldValue.isValid && (fieldValue.value === 'true') === (filter as Filter<'boolean'>).value.isTrue)
-          )
-        }),
-      }
+        return (
+          openBool ||
+          (fieldValue.isValid && (fieldValue.value === 'true') === (filter as Filter<'boolean'>).value.isTrue)
+        )
+      })
     case 'date':
     case 'timestamp':
       const openFromDate = (filter as Filter<'timestamp'>).value.millisFrom === MillisNone
@@ -124,36 +112,33 @@ export const filterReducer = <T extends EventData | PatientData>(data: T, filter
       if (openFromDate && openToDate) {
         return data
       } else {
-        return {
-          ...data,
-          [dataSelector]: dataToFilter.filter((row) => {
-            const fieldValue = getFieldValue(row, filter)
+        return data.filter((row) => {
+          const fieldValue = getFieldValue(row, filter)
 
-            if (!fieldValue.isValid) {
-              return false
-            }
+          if (!fieldValue.isValid) {
+            return false
+          }
 
-            let dateValue: Date
+          let dateValue: Date
 
-            if (filter.type === 'timestamp') {
-              dateValue = parseMillis(+fieldValue.value)
-            } else if (filter.type === 'date') {
-              dateValue = parseDate(fieldValue.value)
-            } else {
-              throw new Error('Filter is neither a timestamp nor a date')
-            }
+          if (filter.type === 'timestamp') {
+            dateValue = parseMillis(+fieldValue.value)
+          } else if (filter.type === 'date') {
+            dateValue = parseDate(fieldValue.value)
+          } else {
+            throw new Error('Filter is neither a timestamp nor a date')
+          }
 
-            const dateFrom = parseMillis((filter as Filter<'timestamp'>).value.millisFrom)
-            const dateTo = parseMillis((filter as Filter<'timestamp'>).value.millisTo)
+          const dateFrom = parseMillis((filter as Filter<'timestamp'>).value.millisFrom)
+          const dateTo = parseMillis((filter as Filter<'timestamp'>).value.millisTo)
 
-            // End of day when only date was used
-            if (dateTo.getUTCHours() === 0 && dateTo.getUTCMinutes() === 0) {
-              dateTo.setUTCHours(23, 59, 59, 999)
-            }
+          // End of day when only date was used
+          if (dateTo.getUTCHours() === 0 && dateTo.getUTCMinutes() === 0) {
+            dateTo.setUTCHours(23, 59, 59, 999)
+          }
 
-            return (openFromDate || dateValue >= dateFrom) && (openToDate || dateValue <= dateTo)
-          }),
-        }
+          return (openFromDate || dateValue >= dateFrom) && (openToDate || dateValue <= dateTo)
+        })
       }
     default:
       throw new Error(`Filter for type '${filter.type}' is not yet implemented`)
@@ -183,10 +168,7 @@ const safe = <T>(value?: T): FieldValue<T> =>
       }
     : missingFieldValue
 
-function getFieldValue<T extends FilterColumn['type']>(
-  entity: Patient | PatientJourneyEvent,
-  filter: Filter<T>
-): FieldValue<string> {
+function getFieldValue<T extends FilterColumn['type']>(entity: Entity, filter: Filter<T>): FieldValue<string> {
   const getSafe = () => {
     return safe(entity.values[filter.column.index])
   }
