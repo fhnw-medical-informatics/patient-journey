@@ -45,6 +45,22 @@ export const selectActiveData = (s: RootState): PatientData['allPatients'] | Eve
   }
 }
 
+const selectPatientDataColumns = (s: RootState): ReadonlyArray<PatientDataColumn> => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.patientData.columns
+  } else {
+    return EMPTY_PATIENT_DATA.columns
+  }
+}
+
+const selectEventDataColumns = (s: RootState): ReadonlyArray<EventDataColumn> => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.eventData.columns
+  } else {
+    return EMPTY_EVENT_DATA.columns
+  }
+}
+
 export const selectActiveDataColumns = (s: RootState): ReadonlyArray<PatientDataColumn | EventDataColumn> => {
   if (s.data.type === 'loading-complete') {
     return s.data.view === 'patients' ? s.data.patientData.columns : s.data.eventData.columns
@@ -64,24 +80,6 @@ export const selectDataView = (s: RootState): ActiveDataViewType => {
   }
 }
 
-const selectPatientFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
-  if (s.data.type === 'loading-complete') {
-    const columns = s.data.patientData.columns
-    return s.data.filters.filter((filter) => columns.findIndex((column) => column.name === filter.column.name) !== -1)
-  } else {
-    return []
-  }
-}
-
-const selectEventFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
-  if (s.data.type === 'loading-complete') {
-    const columns = s.data.eventData.columns
-    return s.data.filters.filter((filter) => columns.findIndex((column) => column.name === filter.column.name) !== -1)
-  } else {
-    return []
-  }
-}
-
 export const selectAllFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
   if (s.data.type === 'loading-complete') {
     return s.data.filters
@@ -89,6 +87,14 @@ export const selectAllFilters = (s: RootState): ReadonlyArray<GenericFilter> => 
     return []
   }
 }
+
+const selectPatientFilters = createSelector(selectPatientDataColumns, selectAllFilters, (patientDataColumns, filters) =>
+  filters.filter((filter) => patientDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
+)
+
+const selectEventFilters = createSelector(selectEventDataColumns, selectAllFilters, (eventDataColumns, filters) =>
+  filters.filter((filter) => eventDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
+)
 
 const selectFilteredPatientData = createSelector(
   selectPatientDataRows,
