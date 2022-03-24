@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { stringToMillis } from '../data/columns'
-import { Entity, EntityId } from '../data/entities'
+import { Entity } from '../data/entities'
 import { PatientId } from '../data/patients'
 import { selectActiveDataColumns, selectFilteredActiveData } from '../data/selectors'
 import { RootState } from '../store'
@@ -31,16 +31,13 @@ export const selectFilteredActiveDataAsEvents = createSelector(
       : []
 )
 
-export const selectFilteredActiveDataAsLanes = createSelector(selectFilteredActiveData, (activeData: Entity[]) =>
-  activeData.reduce((timelineLanes, event) => {
-    return timelineLanes.findIndex((lane) => lane.laneId === event.uid) >= 0
-      ? timelineLanes
-      : [
-          ...timelineLanes,
-          {
-            laneId: event.uid,
-            label: event.uid, // TODO: Proper label
-          },
-        ]
-  }, [] as ReadonlyArray<TimelineLane<EntityId>>)
+export const selectFilteredActiveDataAsLanes = createSelector(
+  selectFilteredActiveData,
+  (activeData) =>
+    Array.from(new Set((activeData as ReadonlyArray<Entity & { pid: PatientId }>).map((event) => event.pid))).map(
+      (pid) => ({
+        laneId: pid,
+        label: pid, // TODO: Proper label
+      })
+    ) as ReadonlyArray<TimelineLane<PatientId>>
 )
