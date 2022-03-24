@@ -51,27 +51,27 @@ describe('dataSlice', () => {
 
     // patients
     const patientData = (data as DataStateLoadingComplete).patientData
-    expect(patientData.allPatients.length).toEqual(2)
+    expect(patientData.allEntities.length).toEqual(2)
     expect(patientData.columns).toEqual([
       { index: 0, name: 'Col_1', type: 'string' },
       { index: 1, name: 'Id', type: 'pid' },
       { index: 2, name: 'Col_2', type: 'string' },
     ])
-    expect(patientData.allPatients[0].pid).toEqual('Id_1')
-    expect(patientData.allPatients[1].pid).toEqual('Id_2')
+    expect(patientData.allEntities[0].pid).toEqual('Id_1')
+    expect(patientData.allEntities[1].pid).toEqual('Id_2')
 
     // events
     const eventData = (data as DataStateLoadingComplete).eventData
-    expect(eventData.allEvents.length).toEqual(2)
+    expect(eventData.allEntities.length).toEqual(2)
     expect(eventData.columns).toEqual([
       { index: 0, name: 'Event ID', type: 'eid' },
       { index: 1, name: 'Patient ID', type: 'pid' },
       { index: 2, name: 'Timestamp', type: 'timestamp' },
     ])
-    expect(eventData.allEvents[0].eid).toEqual('EID_1')
-    expect(eventData.allEvents[0].pid).toEqual('PID_1')
-    expect(eventData.allEvents[1].eid).toEqual('EID_2')
-    expect(eventData.allEvents[1].pid).toEqual('PID_2')
+    expect(eventData.allEntities[0].eid).toEqual('EID_1')
+    expect(eventData.allEntities[0].pid).toEqual('PID_1')
+    expect(eventData.allEntities[1].eid).toEqual('EID_2')
+    expect(eventData.allEntities[1].pid).toEqual('PID_2')
   })
 
   it('loadData loading-complete empty data', async () => {
@@ -81,10 +81,10 @@ describe('dataSlice', () => {
     const data = store.getState().data
     expect(data.type).toEqual('loading-complete')
     const patientData = (data as DataStateLoadingComplete).patientData
-    expect(patientData.allPatients).toEqual([])
+    expect(patientData.allEntities).toEqual([])
     expect(patientData.columns).toEqual([])
     const eventData = (data as DataStateLoadingComplete).eventData
-    expect(eventData.allEvents).toEqual([])
+    expect(eventData.allEntities).toEqual([])
     expect(eventData.columns).toEqual([])
   })
 
@@ -100,7 +100,7 @@ describe('dataSlice', () => {
   it(`handles ${setSelectedPatient.type} action`, async () => {
     const store = createStore()
     await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
-    const getSelected = () => (store.getState().data as DataStateLoadingComplete).patientData.selectedPatient
+    const getSelected = () => (store.getState().data as DataStateLoadingComplete).patientData.selectedEntity
     expect(getSelected()).toEqual(PatientIdNone)
     store.dispatch(setSelectedPatient(ID_1))
     expect(getSelected()).toEqual(ID_1)
@@ -111,7 +111,7 @@ describe('dataSlice', () => {
   it(`handles ${setHoveredPatient.type} action`, async () => {
     const store = createStore()
     await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
-    const getHovered = () => (store.getState().data as DataStateLoadingComplete).patientData.hoveredPatient
+    const getHovered = () => (store.getState().data as DataStateLoadingComplete).patientData.hoveredEntity
     expect(getHovered()).toEqual(PatientIdNone)
     store.dispatch(setHoveredPatient(ID_1))
     expect(getHovered()).toEqual(ID_1)

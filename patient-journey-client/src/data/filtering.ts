@@ -1,6 +1,7 @@
 import { parseMillis, parseDate } from './columns'
-import { EventData, EventDataColumn, PatientJourneyEvent } from './events'
-import { Patient, PatientData, PatientDataColumn } from './patients'
+import { Entity } from './entities'
+import { EventDataColumn } from './events'
+import { PatientDataColumn } from './patients'
 
 export interface Filter<T extends FilterColumn['type']> {
   column: FilterColumn
@@ -64,10 +65,7 @@ export const createFilter = <T extends FilterColumn['type']>(
 }
 
 // TODO: Write tests
-export const filterReducer = <T extends EventData['allEvents'] | PatientData['allPatients']>(
-  data: T,
-  filter: GenericFilter
-): EventData['allEvents'] | PatientData['allPatients'] => {
+export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter): ReadonlyArray<Entity> => {
   switch (filter.type) {
     case 'string':
       return data.filter((row) => {
@@ -170,10 +168,7 @@ const safe = <T>(value?: T): FieldValue<T> =>
       }
     : missingFieldValue
 
-function getFieldValue<T extends FilterColumn['type']>(
-  entity: Patient | PatientJourneyEvent,
-  filter: Filter<T>
-): FieldValue<string> {
+function getFieldValue<T extends FilterColumn['type']>(entity: Entity, filter: Filter<T>): FieldValue<string> {
   const getSafe = () => {
     return safe(entity.values[filter.column.index])
   }

@@ -65,10 +65,10 @@ const dataSlice = createSlice({
       ...action.payload,
     }),
     setSelectedPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
-      mutatePatientData(state, (pd) => (pd.selectedPatient = action.payload as PatientId))
+      mutatePatientData(state, (pd) => (pd.selectedEntity = action.payload as PatientId))
     },
     setHoveredPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
-      mutatePatientData(state, (pd) => (pd.hoveredPatient = action.payload as PatientId))
+      mutatePatientData(state, (pd) => (pd.hoveredEntity = action.payload as PatientId))
     },
     // TODO: Tests
     addDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {

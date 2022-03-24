@@ -7,8 +7,8 @@ import { DateDataDiagram } from './DateDataDiagram'
 import { NumberDataDiagram } from './NumberDataDiagram'
 
 export interface DataDiagramsProps {
-  allActiveData: PatientData['allPatients'] | EventData['allEvents']
-  filteredActiveData: PatientData['allPatients'] | EventData['allEvents']
+  allActiveData: PatientData['allEntities'] | EventData['allEntities']
+  filteredActiveData: PatientData['allEntities'] | EventData['allEntities']
   column: FilterColumn
 }
 

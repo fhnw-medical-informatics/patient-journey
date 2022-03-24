@@ -1,6 +1,7 @@
 import { DataColumn, GenericColumnType } from './columns'
 import { PATIENT_ID_COLUMN_TYPE, PatientId } from './patients'
 import { ParseResult } from 'papaparse'
+import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
 
 export const EVENT_ID_COLUMN_TYPE = 'eid'
 
@@ -12,22 +13,20 @@ enum EventIdBrand {}
 export type EventId = EventIdBrand & string
 export const EventIdNone = 'n/a' as EventId
 
-export interface PatientJourneyEvent {
+export interface PatientJourneyEvent extends Entity {
+  readonly type: 'events'
   readonly eid: EventId
   readonly pid: PatientId
-  readonly values: ReadonlyArray<string>
 }
 
-export interface EventData {
-  readonly type: 'events'
-  readonly columns: ReadonlyArray<EventDataColumn>
-  readonly allEvents: ReadonlyArray<PatientJourneyEvent>
-}
+export interface EventData extends DataEntity<PatientJourneyEvent, EventDataColumn> {}
 
 export const EMPTY_EVENT_DATA: EventData = {
   type: 'events',
   columns: [],
-  allEvents: [],
+  allEntities: [],
+  selectedEntity: EntityIdNone,
+  hoveredEntity: EntityIdNone,
 }
 
 export const createEventData = (result: ParseResult<string[]>): EventData => {
@@ -47,8 +46,10 @@ export const createEventData = (result: ParseResult<string[]>): EventData => {
     return {
       ...EMPTY_EVENT_DATA,
       columns,
-      allEvents: result.data.slice(HEADER_ROW_COUNT).map((row: string[]) => {
+      allEntities: result.data.slice(HEADER_ROW_COUNT).map((row: string[]) => {
         return {
+          uid: row[eventIdColumnIndex] as EntityId,
+          type: 'events',
           eid: row[eventIdColumnIndex] as EventId,
           pid: row[patientIdColumnIndex] as PatientId,
           values: row,

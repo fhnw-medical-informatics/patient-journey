@@ -1,8 +1,9 @@
 // In addition to 'asc' | 'desc', we support a 3rd 'neutral' state (import order)
 
 import { stringToBoolean, stringToMillis, stringToNumber } from './columns'
-import { EventDataColumn, PatientJourneyEvent } from './events'
-import { Patient, PatientDataColumn } from './patients'
+import { Entity } from './entities'
+import { EventDataColumn } from './events'
+import { PatientDataColumn } from './patients'
 
 export type ColumnSortingState =
   | Readonly<{
@@ -14,14 +15,11 @@ export type ColumnSortingState =
     }>
 
 // Sorting logic inspired by https://codesandbox.io/s/f71wj?file=/demo.js
-export const stableSort = <T extends Patient | PatientJourneyEvent>(
-  rows: ReadonlyArray<T>,
-  sortingState: ColumnSortingState
-) => {
+export const stableSort = (rows: ReadonlyArray<Entity>, sortingState: ColumnSortingState) => {
   if (sortingState.type === 'neutral') {
     return rows
   } else {
-    const stabilizedThis = rows.map<[T, number]>((rowData, index) => [rowData, index])
+    const stabilizedThis = rows.map<[Entity, number]>((rowData, index) => [rowData, index])
     stabilizedThis.sort((a, b) => {
       const comparator = getComparator(sortingState.type, sortingState.column)
       const order = comparator(a[0], b[0])
@@ -33,15 +31,10 @@ export const stableSort = <T extends Patient | PatientJourneyEvent>(
 }
 
 function getComparator(order: 'asc' | 'desc', column: PatientDataColumn | EventDataColumn) {
-  return (p1: Patient | PatientJourneyEvent, p2: Patient | PatientJourneyEvent) =>
-    (order === 'asc' ? 1 : -1) * comparePatients(p1, p2, column)
+  return (p1: Entity, p2: Entity) => (order === 'asc' ? 1 : -1) * comparePatients(p1, p2, column)
 }
 
-function comparePatients(
-  p1: Patient | PatientJourneyEvent,
-  p2: Patient | PatientJourneyEvent,
-  column: PatientDataColumn | EventDataColumn
-) {
+function comparePatients(p1: Entity, p2: Entity, column: PatientDataColumn | EventDataColumn) {
   const v1 = p1.values[column.index]
   const v2 = p2.values[column.index]
 

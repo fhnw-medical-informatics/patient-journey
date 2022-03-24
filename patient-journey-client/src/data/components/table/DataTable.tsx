@@ -9,6 +9,7 @@ import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
 import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
 import { EventData } from '../../events'
+import { EntityId } from '@reduxjs/toolkit'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -36,13 +37,15 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface Props {
-  readonly data: PatientData['allPatients'] | EventData['allEvents']
+  readonly data: PatientData['allEntities'] | EventData['allEntities']
   readonly columns: PatientData['columns'] | EventData['columns']
+  readonly selectedEntity: EntityId
+  readonly hoveredEntity: EntityId
   readonly onPatientClick: (id: PatientId) => void
   readonly onPatientHover: (id: PatientId) => void
 }
 
-export const DataTable = ({ data, columns, onPatientClick, onPatientHover }: Props) => {
+export const DataTable = ({ data, columns, selectedEntity, hoveredEntity, onPatientClick, onPatientHover }: Props) => {
   const { classes } = useStyles()
   const tableData = data
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
@@ -74,11 +77,11 @@ export const DataTable = ({ data, columns, onPatientClick, onPatientHover }: Pro
                 <TableBody component={'tbody'}>
                   {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
                     <TableRow
-                      key={`pid:${row.pid}-${idx}`}
+                      key={`uid:${row.uid}-${idx}`}
                       hover={true}
-                      //selected={data.selectedPatient === row.pid}
-                      onClick={() => onPatientClick(row.pid)}
-                      onMouseEnter={() => onPatientHover(row.pid)}
+                      selected={selectedEntity === row.uid}
+                      onClick={() => onPatientClick(row.uid)}
+                      onMouseEnter={() => onPatientHover(row.uid)}
                       onMouseLeave={() => onPatientHover(PatientIdNone)}
                     >
                       {columns.map((column) => {
