@@ -1,7 +1,7 @@
 import { TablePagination, Typography } from '@mui/material'
 import React from 'react'
 import { makeStyles } from '../../../utils'
-import { useHoveredPatient, useSelectedPatient } from '../../hooks'
+import { useActiveHoveredEntity, useActiveSelectedEntity } from '../../hooks'
 import { PatientId, PatientIdNone } from '../../patients'
 
 export const FOOTER_HEIGHT = 40
@@ -47,8 +47,8 @@ export const TableFooter = ({ rowsPerPage, count, page, onPageChange }: Props) =
 }
 
 const DebugInfo = () => {
-  const selected = useSelectedPatient()
-  const hovered = useHoveredPatient()
+  const selected = useActiveSelectedEntity()
+  const hovered = useActiveHoveredEntity()
   const display = (id: PatientId) => (id === PatientIdNone ? '–' : id)
   return (
     <div>

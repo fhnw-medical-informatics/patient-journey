@@ -2,8 +2,8 @@ import {
   DataStateLoadingComplete,
   DataStateLoadingFailed,
   loadData,
-  setHoveredPatient,
-  setSelectedPatient,
+  setHoveredEntity,
+  setSelectedEntity,
 } from './dataSlice'
 import { createStore } from '../store'
 import { PatientId, PatientIdNone } from './patients'
@@ -97,25 +97,25 @@ describe('dataSlice', () => {
     expect((data as DataStateLoadingFailed).errorMessage).toEqual('Error fetching data')
   })
 
-  it(`handles ${setSelectedPatient.type} action`, async () => {
+  it(`handles ${setSelectedEntity.type} action`, async () => {
     const store = createStore()
     await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getSelected = () => (store.getState().data as DataStateLoadingComplete).patientData.selectedEntity
     expect(getSelected()).toEqual(PatientIdNone)
-    store.dispatch(setSelectedPatient(ID_1))
+    store.dispatch(setSelectedEntity(ID_1))
     expect(getSelected()).toEqual(ID_1)
-    store.dispatch(setSelectedPatient(PatientIdNone))
+    store.dispatch(setSelectedEntity(PatientIdNone))
     expect(getSelected()).toEqual(PatientIdNone)
   })
 
-  it(`handles ${setHoveredPatient.type} action`, async () => {
+  it(`handles ${setHoveredEntity.type} action`, async () => {
     const store = createStore()
     await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
     const getHovered = () => (store.getState().data as DataStateLoadingComplete).patientData.hoveredEntity
     expect(getHovered()).toEqual(PatientIdNone)
-    store.dispatch(setHoveredPatient(ID_1))
+    store.dispatch(setHoveredEntity(ID_1))
     expect(getHovered()).toEqual(ID_1)
-    store.dispatch(setHoveredPatient(PatientIdNone))
+    store.dispatch(setHoveredEntity(PatientIdNone))
     expect(getHovered()).toEqual(PatientIdNone)
   })
 })

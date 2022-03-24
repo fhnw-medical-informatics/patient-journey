@@ -2,14 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { makeStyles } from '../../../utils'
-import { PatientData, PatientId, PatientIdNone } from '../../patients'
+import { PatientData, PatientIdNone } from '../../patients'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
 import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
 import { EventData } from '../../events'
-import { EntityId } from '@reduxjs/toolkit'
+import { EntityId } from '../../entities'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -41,11 +41,11 @@ interface Props {
   readonly columns: PatientData['columns'] | EventData['columns']
   readonly selectedEntity: EntityId
   readonly hoveredEntity: EntityId
-  readonly onPatientClick: (id: PatientId) => void
-  readonly onPatientHover: (id: PatientId) => void
+  readonly onEntityClick: (id: EntityId) => void
+  readonly onEntityHover: (id: EntityId) => void
 }
 
-export const DataTable = ({ data, columns, selectedEntity, hoveredEntity, onPatientClick, onPatientHover }: Props) => {
+export const DataTable = ({ data, columns, selectedEntity, hoveredEntity, onEntityClick, onEntityHover }: Props) => {
   const { classes } = useStyles()
   const tableData = data
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
@@ -80,9 +80,9 @@ export const DataTable = ({ data, columns, selectedEntity, hoveredEntity, onPati
                       key={`uid:${row.uid}-${idx}`}
                       hover={true}
                       selected={selectedEntity === row.uid}
-                      onClick={() => onPatientClick(row.uid)}
-                      onMouseEnter={() => onPatientHover(row.uid)}
-                      onMouseLeave={() => onPatientHover(PatientIdNone)}
+                      onClick={() => onEntityClick(row.uid)}
+                      onMouseEnter={() => onEntityHover(row.uid)}
+                      onMouseLeave={() => onEntityHover(PatientIdNone)}
                     >
                       {columns.map((column) => {
                         const value = row.values[column.index] ?? ''

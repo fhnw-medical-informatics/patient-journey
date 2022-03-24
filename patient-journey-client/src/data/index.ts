@@ -1,7 +1,7 @@
 export {
   dataReducer,
-  setSelectedPatient,
-  setHoveredPatient,
+  setSelectedEntity,
+  setHoveredEntity,
   addDataFilter,
   removeDataFilter,
   resetDataFilter,
@@ -13,9 +13,9 @@ export {
   useActiveDataColumns,
   useAllFilters,
   useFilteredActiveData,
-  useSelectedPatient,
-  useHoveredPatient,
-  usePatientInteraction,
+  useActiveSelectedEntity,
+  useActiveHoveredEntity,
+  useEntityInteraction,
 } from './hooks'
 export { Data } from './containers/Data'
 export { DataViewSelector } from './containers/DataViewSelector'

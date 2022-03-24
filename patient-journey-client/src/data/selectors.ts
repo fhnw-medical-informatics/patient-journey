@@ -1,25 +1,18 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { RootState } from '../store'
 import { ActiveDataViewType } from './dataSlice'
+import { EntityId } from './entities'
 import { EMPTY_EVENT_DATA, EventData, EventDataColumn, PatientJourneyEvent } from './events'
 import { filterReducer, GenericFilter } from './filtering'
-import { EMPTY_PATIENT_DATA, Patient, PatientData, PatientDataColumn, PatientId } from './patients'
+import { EMPTY_PATIENT_DATA, Patient, PatientData, PatientDataColumn } from './patients'
 
-const selectPatientData = (s: RootState): PatientData => {
+const selectActiveEntityData = (s: RootState): PatientData | EventData => {
   if (s.data.type === 'loading-complete') {
-    return s.data.patientData
+    return s.data.view === 'patients' ? s.data.patientData : s.data.eventData
   } else {
     return EMPTY_PATIENT_DATA
   }
 }
-
-// const selectEventData = (s: RootState): EventData => {
-//   if (s.data.type === 'loading-complete') {
-//     return s.data.eventData
-//   } else {
-//     return EMPTY_EVENT_DATA
-//   }
-// }
 
 const selectPatientDataRows = (s: RootState): PatientData['allEntities'] => {
   if (s.data.type === 'loading-complete') {
@@ -69,8 +62,14 @@ export const selectActiveDataColumns = (s: RootState): ReadonlyArray<PatientData
   }
 }
 
-export const selectSelectedPatient = (s: RootState): PatientId => selectPatientData(s).selectedEntity
-export const selectHoveredPatient = (s: RootState): PatientId => selectPatientData(s).hoveredEntity
+export const selectSelectedActiveEntity = createSelector(
+  selectActiveEntityData,
+  (activeEntityData) => activeEntityData.selectedEntity as EntityId
+)
+export const selectHoveredActiveEntity = createSelector(
+  selectActiveEntityData,
+  (activeEntityData) => activeEntityData.hoveredEntity as EntityId
+)
 
 export const selectDataView = (s: RootState): ActiveDataViewType => {
   if (s.data.type === 'loading-complete') {

@@ -1,21 +1,13 @@
 import React from 'react'
 
 import { DataTable as DataTableComponent } from '../../components/table/DataTable'
-import {
-  useActiveDataColumns,
-  useFilteredActiveData,
-  useHoveredPatient,
-  usePatientInteraction,
-  useSelectedPatient,
-} from '../../hooks'
+import { useActiveDataColumns, useFilteredActiveData, useEntityInteraction } from '../../hooks'
 
 export const DataTable = () => {
   const activeData = useFilteredActiveData()
   const activeColumns = useActiveDataColumns()
-  const selectedEntity = useSelectedPatient() // TODO: useActiveSelectedEntity
-  const hoveredEntity = useHoveredPatient() // TODO: useActiveHoveredEntity
 
-  const { onPatientClick, onPatientHover } = usePatientInteraction()
+  const { onEntityClick, onEntityHover, selectedEntity, hoveredEntity } = useEntityInteraction()
 
   return (
     <DataTableComponent
@@ -23,8 +15,8 @@ export const DataTable = () => {
       columns={activeColumns}
       selectedEntity={selectedEntity}
       hoveredEntity={hoveredEntity}
-      onPatientClick={onPatientClick}
-      onPatientHover={onPatientHover}
+      onEntityClick={onEntityClick}
+      onEntityHover={onEntityHover}
     />
   )
 }
