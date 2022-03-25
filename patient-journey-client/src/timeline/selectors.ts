@@ -21,7 +21,7 @@ export const selectFilteredActiveDataAsEvents = createSelector(
       (column) => column.name === timelineColumn.name && column.index === timelineColumn.index
     ) !== -1
       ? (activeData.map((event, idx) => ({
-          eventId: event.pid,
+          eventId: event.uid,
           laneId: event.pid,
           startTimeMillis:
             timelineColumn.type === 'date'
