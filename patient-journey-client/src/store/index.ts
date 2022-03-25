@@ -4,12 +4,14 @@ import { themeReducer } from '../theme'
 import { dataReducer } from '../data'
 import { timelineReducer } from '../timeline'
 import { colorReducer } from '../color'
+import { alertReducer } from '../alert'
 
 export const reducer = combineReducers({
   theme: themeReducer,
   data: dataReducer,
   timeline: timelineReducer,
   color: colorReducer,
+  alert: alertReducer,
 })
 
 export type RootState = ReturnType<typeof reducer>
