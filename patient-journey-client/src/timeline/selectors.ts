@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
-import { ColorByColumnFn } from '../color'
+import { ColorByCategoryFn, ColorByColumnFn } from '../color'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
 import { PatientId } from '../data/patients'
@@ -48,7 +48,7 @@ export const selectFilteredActiveDataAsEvents = createSelector(
 export const selectFilteredActiveDataAsLanes = createSelector(
   selectExpandByColumn,
   selectFilteredActiveData,
-  (expandByColumn, activeData) =>
+  (expandByColumn, activeData) => (colorByCategoryFn: ColorByCategoryFn) =>
     Array.from(
       new Set(
         (activeData as ReadonlyArray<Entity & { pid: PatientId }>).map((event) =>
@@ -58,5 +58,6 @@ export const selectFilteredActiveDataAsLanes = createSelector(
     ).map((value) => ({
       laneId: value,
       label: value, // TODO: Proper label
+      color: expandByColumn !== TimelineColumnNone ? colorByCategoryFn(value) : undefined,
     })) as ReadonlyArray<TimelineLane<any>>
 )

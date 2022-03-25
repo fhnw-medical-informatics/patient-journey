@@ -18,9 +18,9 @@ import { useTheme } from '@mui/material'
 
 export const Timeline = () => {
   const theme = useTheme()
-  const [colorByColumnFn] = useColor()
+  const [colorByColumnFn, colorByCategoryFn] = useColor()
   const events = useActiveDataAsEvents(colorByColumnFn, theme.entityColors.selected)
-  const lanes = useActiveDataAsLanes()
+  const lanes = useActiveDataAsLanes(colorByCategoryFn)
   const { cluster, viewByColumn, expandByColumn } = useTimelineState()
   const activeColumns = useActiveDataColumns()
   const { onEntityClick, onEntityHover } = useEntityInteraction()
