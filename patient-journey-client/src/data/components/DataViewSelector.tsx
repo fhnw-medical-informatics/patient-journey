@@ -2,6 +2,18 @@ import React from 'react'
 
 import { FormGroup, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { ActiveDataViewType } from '../dataSlice'
+import { makeStyles } from '../../utils'
+import { alpha } from '@material-ui/core/styles/colorManipulator'
+
+const useStyles = makeStyles()((theme) => ({
+  button: {
+    color: 'white',
+    '&.Mui-selected': {
+      color: 'white',
+      backgroundColor: alpha(theme.palette.action.active, 0.4),
+    },
+  },
+}))
 
 export interface DataViewSelectorProps {
   activeDataView: ActiveDataViewType
@@ -9,17 +21,19 @@ export interface DataViewSelectorProps {
 }
 
 export const DataViewSelector = ({ activeDataView, onChangeDataView }: DataViewSelectorProps) => {
+  const { classes } = useStyles()
+
   const handleChange = (event: React.MouseEvent<HTMLElement, MouseEvent>, newValue: any) => {
     onChangeDataView(newValue)
   }
 
   return (
     <FormGroup>
-      <ToggleButtonGroup value={activeDataView} exclusive onChange={handleChange} aria-label="device">
-        <ToggleButton value={'patients'} aria-label="laptop">
+      <ToggleButtonGroup value={activeDataView} exclusive onChange={handleChange}>
+        <ToggleButton value={'patients'} className={classes.button}>
           Patients
         </ToggleButton>
-        <ToggleButton value={'events'} aria-label="tv">
+        <ToggleButton value={'events'} className={classes.button}>
           Events
         </ToggleButton>
       </ToggleButtonGroup>

@@ -8,6 +8,7 @@ import { Data, DataViewSelector } from '../../data'
 import SplitPane from 'react-split-pane'
 import { DataFilters } from '../../data/containers/filter/DataFilters'
 import { Timeline } from '../../timeline'
+import logo from './fhnw-logo.png'
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '15%'
 const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '60%'
@@ -24,8 +25,21 @@ const useStyles = makeStyles()((theme) => ({
   },
   toolbar: {
     display: 'grid',
-    gridTemplateColumns: 'min-content auto auto',
-    justifyItems: 'end',
+    gridTemplateColumns: 'auto 1fr auto',
+    justifyItems: 'start',
+  },
+  logo: {
+    height: 40,
+    justifySelf: 'start',
+    paddingRight: theme.spacing(2),
+  },
+  title: {
+    // centered on page (rather than in flow of toolbar items)
+    position: 'absolute',
+    width: '100%',
+    display: 'grid',
+    justifyItems: 'center',
+    pointerEvents: 'none',
   },
   main: {
     display: 'grid',
@@ -74,8 +88,9 @@ export const App = () => {
     <div className={classes.app}>
       <AppBar className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
+          <img className={classes.logo} src={logo} alt={'Fachhochschule Nordwestschweiz'} />
           <DataViewSelector />
-          <Typography>{`Patient Journey – v${import.meta.env.VITE_APP_VERSION}`}</Typography>
+          <Typography className={classes.title}>{`Patient Journey – v${import.meta.env.VITE_APP_VERSION}`}</Typography>
           <ThemeSwitch />
         </Toolbar>
       </AppBar>
