@@ -5,7 +5,8 @@ import { makeStyles } from '../../utils'
 
 import { FormControlLabel, Grid, MenuItem, Select, SelectChangeEvent, Switch, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
-import { TimelineColumn, TimelineColumnNone, TimelineState } from '../timelineSlice'
+
+import { TimelineColumn, TimelineColumnNone } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color'
@@ -20,23 +21,25 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface ControlPanelProps {
-  onSetTimelineColumn: (column: TimelineColumn) => void
+  viewByColumn: TimelineColumn
+  onSetViewByColumn: (column: TimelineColumn) => void
+  expandByColumn: TimelineColumn
+  onSetExpandByColumn: (column: TimelineColumn) => void
+  cluster: boolean
   onSetTimelineCluster: () => void
-  onSetTimelineGrouping: () => void
-  timelineState: TimelineState
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
-  numberOfEvents: Number
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
 }
 
 export const ControlPanel = ({
-  onSetTimelineColumn,
+  viewByColumn,
+  onSetViewByColumn,
+  expandByColumn,
+  onSetExpandByColumn,
+  cluster,
   onSetTimelineCluster,
-  onSetTimelineGrouping,
-  timelineState,
   availableColumns,
-  numberOfEvents,
   colorByColumn,
   onChangeColorByColumn,
 }: ControlPanelProps) => {
@@ -46,15 +49,15 @@ export const ControlPanel = ({
     const setInitialActiveColumn = () => {
       const firstTimeColumn = availableColumns.find((column) => column.type === 'timestamp' || column.type === 'date')
 
-      onSetTimelineColumn(firstTimeColumn ?? TimelineColumnNone)
+      onSetViewByColumn(firstTimeColumn ?? TimelineColumnNone)
     }
 
-    if (timelineState.column === TimelineColumnNone) {
+    if (viewByColumn === TimelineColumnNone) {
       // Set initial column if no column is selected
       setInitialActiveColumn()
     } else {
       // Set initial column if selected column is not available anymore
-      const currentColumn = timelineState.column
+      const currentColumn = viewByColumn
       const doesContain =
         availableColumns.findIndex(
           (column) => column.name === currentColumn.name && column.index === currentColumn.index
@@ -64,15 +67,24 @@ export const ControlPanel = ({
         setInitialActiveColumn()
       }
     }
-  }, [timelineState.column, onSetTimelineColumn, availableColumns])
+  }, [viewByColumn, onSetViewByColumn, availableColumns])
+
+  // Reset expandByColumn when availableColumns change
+  useEffect(() => {
+    onSetExpandByColumn(TimelineColumnNone)
+  }, [onSetExpandByColumn, availableColumns])
 
   // Reset colorByColumn when availableColumns change
   useEffect(() => {
     onChangeColorByColumn('off')
   }, [onChangeColorByColumn, availableColumns])
 
-  const onChangeColumn = (event: SelectChangeEvent) => {
-    onSetTimelineColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
+  const handleChangeViewByColumn = (event: SelectChangeEvent) => {
+    onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
+  }
+
+  const handleChangeExpandByColumn = (event: SelectChangeEvent) => {
+    onSetExpandByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
 
   const handleChangeColorByColumn = (event: SelectChangeEvent) => {
@@ -90,12 +102,35 @@ export const ControlPanel = ({
               </Typography>
               <FormControl>
                 <Select
-                  value={timelineState.column !== TimelineColumnNone ? timelineState.column.name : ''}
-                  onChange={onChangeColumn}
+                  value={viewByColumn !== TimelineColumnNone ? viewByColumn.name : ''}
+                  onChange={handleChangeViewByColumn}
                   size="small"
                 >
                   {availableColumns
                     .filter((column) => column.type === 'timestamp' || column.type === 'date')
+                    .map((column) => (
+                      <MenuItem key={column.name} value={column.name}>
+                        {column.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <Typography variant="overline" display="block">
+                Expand by
+              </Typography>
+              <FormControl>
+                <Select
+                  value={expandByColumn !== TimelineColumnNone ? expandByColumn.name : TimelineColumnNone}
+                  onChange={handleChangeExpandByColumn}
+                  size="small"
+                >
+                  <MenuItem value={TimelineColumnNone}>
+                    <i>{'Collapsed'}</i>
+                  </MenuItem>
+                  {availableColumns
+                    .filter((column) => ['pid', 'boolean', 'string'].includes(column.type))
                     .map((column) => (
                       <MenuItem key={column.name} value={column.name}>
                         {column.name}
@@ -129,13 +164,7 @@ export const ControlPanel = ({
             </Grid>
             <Grid item>
               <FormControlLabel
-                control={<Switch checked={timelineState.grouping} onChange={onSetTimelineGrouping} color="primary" />}
-                label="Collapse Patients"
-              />
-            </Grid>
-            <Grid item>
-              <FormControlLabel
-                control={<Switch checked={timelineState.cluster} onChange={onSetTimelineCluster} color="primary" />}
+                control={<Switch checked={cluster} onChange={onSetTimelineCluster} color="primary" />}
                 label="Cluster Events"
               />
             </Grid>

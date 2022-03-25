@@ -3,7 +3,7 @@ import { makeStyles } from '../../utils'
 import { LaneDisplayMode, TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { Paper } from '@mui/material'
 import { TimelineView } from './TimelineView'
-import { TimelineState, TimelineColumn } from '../timelineSlice'
+import { TimelineColumn } from '../timelineSlice'
 import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
@@ -21,14 +21,16 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface TimelineProps {
-  events: ReadonlyArray<TimelineEvent<PatientId, PatientId>>
-  lanes: ReadonlyArray<TimelineLane<PatientId>>
+  events: ReadonlyArray<TimelineEvent<PatientId, any>>
+  lanes: ReadonlyArray<TimelineLane<any>>
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
-  onSetTimelineColumn: (column: TimelineColumn) => void
+  viewByColumn: TimelineColumn
+  onSetViewByColumn: (column: TimelineColumn) => void
+  expandByColumn: TimelineColumn
+  onSetExpandByColumn: (column: TimelineColumn) => void
+  cluster: boolean
   onSetTimelineCluster: () => void
-  onSetTimelineGrouping: () => void
-  timelineState: TimelineState
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   onEventHover: (eventId: EntityId) => void
   onEventSelect: (eventId: EntityId) => void
@@ -41,10 +43,12 @@ export const Timeline = ({
   lanes,
   dateFormat,
   laneDisplayMode,
-  onSetTimelineColumn,
+  viewByColumn,
+  onSetViewByColumn,
+  expandByColumn,
+  onSetExpandByColumn,
+  cluster,
   onSetTimelineCluster,
-  onSetTimelineGrouping,
-  timelineState,
   availableColumns,
   onEventHover,
   onEventSelect,
@@ -56,12 +60,13 @@ export const Timeline = ({
   return (
     <Paper className={classes.root}>
       <ControlPanel
-        onSetTimelineColumn={onSetTimelineColumn}
+        viewByColumn={viewByColumn}
+        onSetViewByColumn={onSetViewByColumn}
+        expandByColumn={expandByColumn}
+        onSetExpandByColumn={onSetExpandByColumn}
+        cluster={cluster}
         onSetTimelineCluster={onSetTimelineCluster}
-        onSetTimelineGrouping={onSetTimelineGrouping}
-        timelineState={timelineState}
         availableColumns={availableColumns}
-        numberOfEvents={events.length}
         colorByColumn={colorByColumn}
         onChangeColorByColumn={onChangeColorByColumn}
       />
@@ -70,7 +75,7 @@ export const Timeline = ({
         lanes={lanes}
         dateFormat={dateFormat}
         laneDisplayMode={laneDisplayMode}
-        enableClustering={timelineState.cluster}
+        enableClustering={cluster}
         onHover={onEventHover}
         onSelect={onEventSelect}
       />

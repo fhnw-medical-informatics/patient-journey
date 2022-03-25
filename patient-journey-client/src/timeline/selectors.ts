@@ -1,8 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
-import { ColorByColumnFn } from '../color'
+import { ColorByCategoryFn, ColorByColumnFn } from '../color'
 import { stringToMillis } from '../data/columns'
-import { Entity } from '../data/entities'
+import { Entity, EntityId } from '../data/entities'
 import { PatientId } from '../data/patients'
 import {
   selectActiveDataColumns,
@@ -15,41 +15,49 @@ import { TimelineColumn, TimelineColumnNone, TimelineState } from './timelineSli
 
 export const selectTimelineState = (s: RootState): TimelineState => s.timeline
 
-const selectTimelineColumn = (s: RootState): TimelineColumn => s.timeline.column
+const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.viewByColumn
+
+const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expandByColumn
 
 export const selectFilteredActiveDataAsEvents = createSelector(
-  selectTimelineColumn,
+  selectViewByColumn,
+  selectExpandByColumn,
   selectActiveDataColumns,
   selectFilteredActiveData,
   selectSelectedActiveEntity,
   selectHoveredActiveEntity,
-  (timelineColumn, activeColumns, activeData, activeEntityId, hoveredEntityId) =>
+  (viewByColumn, expandByColumn, activeColumns, activeData, activeEntityId, hoveredEntityId) =>
     (colorByColumnFn: ColorByColumnFn, selectedColor: string) =>
-      timelineColumn !== TimelineColumnNone &&
-      activeColumns.findIndex(
-        (column) => column.name === timelineColumn.name && column.index === timelineColumn.index
-      ) !== -1
+      viewByColumn !== TimelineColumnNone &&
+      activeColumns.findIndex((column) => column.name === viewByColumn.name && column.index === viewByColumn.index) !==
+        -1
         ? (activeData.map((event) => ({
             eventId: event.uid,
-            laneId: event.pid,
+            laneId: expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index],
             isPinned: event.uid === activeEntityId || event.uid === hoveredEntityId,
             color:
               event.uid === activeEntityId || event.uid === hoveredEntityId ? selectedColor : colorByColumnFn(event),
             startTimeMillis:
-              timelineColumn.type === 'date'
-                ? stringToMillis(event.values[timelineColumn.index])
-                : +event.values[timelineColumn.index],
-          })) as ReadonlyArray<TimelineEvent<PatientId, PatientId>>)
+              viewByColumn.type === 'date'
+                ? stringToMillis(event.values[viewByColumn.index])
+                : +event.values[viewByColumn.index],
+          })) as ReadonlyArray<TimelineEvent<EntityId, any>>)
         : []
 )
 
 export const selectFilteredActiveDataAsLanes = createSelector(
+  selectExpandByColumn,
   selectFilteredActiveData,
-  (activeData) =>
-    Array.from(new Set((activeData as ReadonlyArray<Entity & { pid: PatientId }>).map((event) => event.pid))).map(
-      (pid) => ({
-        laneId: pid,
-        label: pid, // TODO: Proper label
-      })
-    ) as ReadonlyArray<TimelineLane<PatientId>>
+  (expandByColumn, activeData) => (colorByCategoryFn: ColorByCategoryFn) =>
+    Array.from(
+      new Set(
+        (activeData as ReadonlyArray<Entity & { pid: PatientId }>).map((event) =>
+          expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index]
+        )
+      )
+    ).map((value) => ({
+      laneId: value,
+      label: value, // TODO: Proper label
+      color: expandByColumn !== TimelineColumnNone ? colorByCategoryFn(value) : undefined,
+    })) as ReadonlyArray<TimelineLane<any>>
 )

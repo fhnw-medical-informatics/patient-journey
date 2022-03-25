@@ -12,8 +12,8 @@ import { EntityId, EntityIdNone } from '../../data/entities'
 import { useTheme } from '@mui/material'
 
 interface TimelineProps {
-  events: ReadonlyArray<TimelineEvent<PatientId, PatientId>>
-  lanes: ReadonlyArray<TimelineLane<PatientId>>
+  events: ReadonlyArray<TimelineEvent<PatientId, any>>
+  lanes: ReadonlyArray<TimelineLane<any>>
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   enableClustering: boolean
