@@ -7,6 +7,7 @@ import { TimelineState, TimelineColumn } from '../timelineSlice'
 import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
+import { EntityId } from '../../data/entities'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -28,6 +29,8 @@ interface TimelineProps {
   onSetTimelineGrouping: () => void
   timelineState: TimelineState
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
+  onEventHover: (eventId: EntityId) => void
+  onEventSelect: (eventId: EntityId) => void
 }
 
 export const Timeline = ({
@@ -40,6 +43,8 @@ export const Timeline = ({
   onSetTimelineGrouping,
   timelineState,
   availableColumns,
+  onEventHover,
+  onEventSelect,
 }: TimelineProps) => {
   const { classes } = useStyles()
 
@@ -59,6 +64,8 @@ export const Timeline = ({
         dateFormat={dateFormat}
         laneDisplayMode={laneDisplayMode}
         enableClustering={timelineState.cluster}
+        onHover={onEventHover}
+        onSelect={onEventSelect}
       />
     </Paper>
   )

@@ -3,7 +3,12 @@ import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { stringToMillis } from '../data/columns'
 import { Entity } from '../data/entities'
 import { PatientId } from '../data/patients'
-import { selectActiveDataColumns, selectFilteredActiveData } from '../data/selectors'
+import {
+  selectActiveDataColumns,
+  selectFilteredActiveData,
+  selectHoveredActiveEntity,
+  selectSelectedActiveEntity,
+} from '../data/selectors'
 import { RootState } from '../store'
 import { TimelineColumn, TimelineColumnNone, TimelineState } from './timelineSlice'
 
@@ -15,14 +20,18 @@ export const selectFilteredActiveDataAsEvents = createSelector(
   selectTimelineColumn,
   selectActiveDataColumns,
   selectFilteredActiveData,
-  (timelineColumn, activeColumns, activeData) =>
+  selectSelectedActiveEntity,
+  selectHoveredActiveEntity,
+  (timelineColumn, activeColumns, activeData, activeEntityId, hoveredEntityId) =>
     timelineColumn !== TimelineColumnNone &&
     activeColumns.findIndex(
       (column) => column.name === timelineColumn.name && column.index === timelineColumn.index
     ) !== -1
-      ? (activeData.map((event, idx) => ({
+      ? (activeData.map((event) => ({
           eventId: event.uid,
           laneId: event.pid,
+          isSelected: event.uid === activeEntityId || event.uid === hoveredEntityId,
+          isPinned: event.uid === activeEntityId || event.uid === hoveredEntityId,
           startTimeMillis:
             timelineColumn.type === 'date'
               ? stringToMillis(event.values[timelineColumn.index])
