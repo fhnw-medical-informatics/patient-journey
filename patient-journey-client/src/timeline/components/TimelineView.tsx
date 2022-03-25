@@ -8,8 +8,8 @@ import {
   createTimelineTheme,
 } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
-import { useCustomTheme } from '../../theme'
 import { EntityId, EntityIdNone } from '../../data/entities'
+import { useTheme } from '@mui/material'
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, PatientId>>
@@ -30,7 +30,7 @@ export const TimelineView = ({
   onSelect,
   onHover,
 }: TimelineProps) => {
-  const theme = useCustomTheme()
+  const theme = useTheme()
 
   const timelineTheme = createTimelineTheme(theme as any, {
     xAxis: {

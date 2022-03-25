@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { themeReducer } from '../theme'
 import { dataReducer } from '../data'
 import { timelineReducer } from '../timeline'
+import { colorReducer } from '../color'
 
 export const reducer = combineReducers({
   theme: themeReducer,
   data: dataReducer,
   timeline: timelineReducer,
+  color: colorReducer,
 })
 
 export type RootState = ReturnType<typeof reducer>

@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
+import { ColorByColumnFn } from '../color'
 import { stringToMillis } from '../data/columns'
 import { Entity } from '../data/entities'
 import { PatientId } from '../data/patients'
@@ -23,21 +24,23 @@ export const selectFilteredActiveDataAsEvents = createSelector(
   selectSelectedActiveEntity,
   selectHoveredActiveEntity,
   (timelineColumn, activeColumns, activeData, activeEntityId, hoveredEntityId) =>
-    timelineColumn !== TimelineColumnNone &&
-    activeColumns.findIndex(
-      (column) => column.name === timelineColumn.name && column.index === timelineColumn.index
-    ) !== -1
-      ? (activeData.map((event) => ({
-          eventId: event.uid,
-          laneId: event.pid,
-          isSelected: event.uid === activeEntityId || event.uid === hoveredEntityId,
-          isPinned: event.uid === activeEntityId || event.uid === hoveredEntityId,
-          startTimeMillis:
-            timelineColumn.type === 'date'
-              ? stringToMillis(event.values[timelineColumn.index])
-              : +event.values[timelineColumn.index],
-        })) as ReadonlyArray<TimelineEvent<PatientId, PatientId>>)
-      : []
+    (colorByColumnFn: ColorByColumnFn, selectedColor: string) =>
+      timelineColumn !== TimelineColumnNone &&
+      activeColumns.findIndex(
+        (column) => column.name === timelineColumn.name && column.index === timelineColumn.index
+      ) !== -1
+        ? (activeData.map((event) => ({
+            eventId: event.uid,
+            laneId: event.pid,
+            isPinned: event.uid === activeEntityId || event.uid === hoveredEntityId,
+            color:
+              event.uid === activeEntityId || event.uid === hoveredEntityId ? selectedColor : colorByColumnFn(event),
+            startTimeMillis:
+              timelineColumn.type === 'date'
+                ? stringToMillis(event.values[timelineColumn.index])
+                : +event.values[timelineColumn.index],
+          })) as ReadonlyArray<TimelineEvent<PatientId, PatientId>>)
+        : []
 )
 
 export const selectFilteredActiveDataAsLanes = createSelector(

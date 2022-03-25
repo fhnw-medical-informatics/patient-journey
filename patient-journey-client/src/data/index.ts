@@ -16,6 +16,7 @@ export {
   useActiveSelectedEntity,
   useActiveHoveredEntity,
   useEntityInteraction,
+  useCurrentColorColumnNumberRange,
 } from './hooks'
 export { Data } from './containers/Data'
 export { DataViewSelector } from './containers/DataViewSelector'

@@ -8,6 +8,7 @@ import HelpIcon from '@mui/icons-material/Help'
 import { TimelineColumn, TimelineColumnNone, TimelineState } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
+import { ColorByColumnNone, ColorByColumnOption } from '../../color'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -25,6 +26,8 @@ interface ControlPanelProps {
   timelineState: TimelineState
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   numberOfEvents: Number
+  colorByColumn: ColorByColumnOption
+  onChangeColorByColumn: (column: ColorByColumnOption) => void
 }
 
 export const ControlPanel = ({
@@ -34,6 +37,8 @@ export const ControlPanel = ({
   timelineState,
   availableColumns,
   numberOfEvents,
+  colorByColumn,
+  onChangeColorByColumn,
 }: ControlPanelProps) => {
   const { classes } = useStyles()
 
@@ -61,25 +66,59 @@ export const ControlPanel = ({
     }
   }, [timelineState.column, onSetTimelineColumn, availableColumns])
 
+  // Reset colorByColumn when availableColumns change
+  useEffect(() => {
+    onChangeColorByColumn('off')
+  }, [onChangeColorByColumn, availableColumns])
+
   const onChangeColumn = (event: SelectChangeEvent) => {
     onSetTimelineColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
 
+  const handleChangeColorByColumn = (event: SelectChangeEvent) => {
+    onChangeColorByColumn(availableColumns.find((column) => column.name === event.target.value) ?? ColorByColumnNone)
+  }
+
   return (
     <div className={classes.root}>
-      <Grid container alignItems={'flex-end'} justifyContent={'space-between'} className={classes.toolbar}>
+      <Grid container alignItems={'flex-start'} justifyContent={'space-between'} className={classes.toolbar}>
         <Grid item xs="auto">
-          <Grid container spacing={2}>
+          <Grid container alignItems={'flex-end'} spacing={4}>
             <Grid item>
+              <Typography variant="overline" display="block">
+                View by
+              </Typography>
               <FormControl>
                 <Select
-                  id="demo-simple-select"
                   value={timelineState.column !== TimelineColumnNone ? timelineState.column.name : ''}
                   onChange={onChangeColumn}
                   size="small"
                 >
                   {availableColumns
                     .filter((column) => column.type === 'timestamp' || column.type === 'date')
+                    .map((column) => (
+                      <MenuItem key={column.name} value={column.name}>
+                        {column.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <Typography variant="overline" display="block">
+                Color by
+              </Typography>
+              <FormControl>
+                <Select
+                  value={colorByColumn !== ColorByColumnNone ? colorByColumn.name : ColorByColumnNone}
+                  onChange={handleChangeColorByColumn}
+                  size="small"
+                >
+                  <MenuItem value={ColorByColumnNone}>
+                    <i>{'Off'}</i>
+                  </MenuItem>
+                  {availableColumns
+                    .filter((column) => ['timestamp', 'date', 'number', 'boolean', 'string'].includes(column.type))
                     .map((column) => (
                       <MenuItem key={column.name} value={column.name}>
                         {column.name}
@@ -103,7 +142,7 @@ export const ControlPanel = ({
           </Grid>
         </Grid>
         <Grid item xs="auto">
-          <Grid container spacing={2}>
+          <Grid container alignItems={'flex-start'} spacing={2}>
             <Grid item>
               <Tooltip
                 title={

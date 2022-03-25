@@ -7,6 +7,7 @@ import {
   selectActiveDataColumns,
   selectActiveData,
   selectAllFilters,
+  selectCurrentColorColumnNumberRange,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
@@ -50,3 +51,5 @@ export const useEntityInteraction = (): EntityInteraction => {
     onEntityHover,
   }
 }
+
+export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)

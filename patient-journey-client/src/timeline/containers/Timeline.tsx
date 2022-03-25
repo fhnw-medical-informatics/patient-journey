@@ -1,3 +1,5 @@
+import React, { useCallback } from 'react'
+
 import { Timeline as TimelineComponent } from '../components/Timeline'
 import { useAppDispatch } from '../../store'
 import { setTimelineCluster, setTimelineGrouping, setTimelineColumn, TimelineColumn } from '../timelineSlice'
@@ -5,19 +7,28 @@ import { useActiveDataColumns } from '../../data/hooks'
 import { useEntityInteraction } from '../../data'
 import { formatMillis } from '../../data/columns'
 import { useActiveDataAsEvents, useActiveDataAsLanes, useTimelineState } from '../hooks'
+import { ColorByColumnOption, setColorByColumn, useColor, useColorByColumn } from '../../color'
+import { useTheme } from '@mui/material'
 
 export const Timeline = () => {
-  const events = useActiveDataAsEvents()
+  const theme = useTheme()
+  const [colorByColumnFn] = useColor()
+  const events = useActiveDataAsEvents(colorByColumnFn, theme.entityColors.selected)
   const lanes = useActiveDataAsLanes()
   const timelineState = useTimelineState()
   const activeColumns = useActiveDataColumns()
   const { onEntityClick, onEntityHover } = useEntityInteraction()
+  const colorByColumn = useColorByColumn()
 
   const dispatch = useAppDispatch()
 
   const onSetTimelineColumn = (column: TimelineColumn) => dispatch(setTimelineColumn(column))
   const onSetTimelineCluster = () => dispatch(setTimelineCluster())
   const onSetTimelineGrouping = () => dispatch(setTimelineGrouping())
+  const onChangeColorByColumn = useCallback(
+    (column: ColorByColumnOption) => dispatch(setColorByColumn({ colorByColumn: column })),
+    [dispatch]
+  )
 
   return (
     <TimelineComponent
@@ -32,6 +43,8 @@ export const Timeline = () => {
       availableColumns={activeColumns}
       onEventHover={onEntityHover}
       onEventSelect={onEntityClick}
+      colorByColumn={colorByColumn}
+      onChangeColorByColumn={onChangeColorByColumn}
     />
   )
 }

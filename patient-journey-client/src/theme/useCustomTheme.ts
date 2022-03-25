@@ -1,11 +1,12 @@
 import { createTheme, Theme } from '@mui/material'
 import { useAppSelector } from '../store'
-import { deepPurple, yellow } from '@mui/material/colors'
+import { deepPurple, yellow, grey } from '@mui/material/colors'
 import { AppTheme } from './themeSlice'
 
 declare module '@mui/material/styles' {
   interface Theme {
     entityColors: {
+      default: string
       selected: string
     }
   }
@@ -14,17 +15,19 @@ declare module '@mui/material/styles' {
   // noinspection JSUnusedGlobalSymbols
   interface ThemeOptions {
     entityColors?: {
+      default?: string
       selected?: string
     }
   }
 }
 
-const createCustomTheme = (mode: AppTheme, selectionColor: string) =>
+const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor: string) =>
   createTheme({
     palette: {
       mode,
     },
     entityColors: {
+      default: defaultColor,
       selected: selectionColor,
     },
     components: {
@@ -48,8 +51,11 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string) =>
 const LIGHT_SELECTION_COLOR = yellow[200]
 const DARK_SELECTION_COLOR = deepPurple[400]
 
-export const lightTheme = createCustomTheme('light', LIGHT_SELECTION_COLOR)
-export const darkTheme = createCustomTheme('dark', DARK_SELECTION_COLOR)
+const LIGHT_DEFAULT_COLOR = grey[900]
+const DARK_DEFAULT_COLOR = grey[400]
+
+export const lightTheme = createCustomTheme('light', LIGHT_SELECTION_COLOR, LIGHT_DEFAULT_COLOR)
+export const darkTheme = createCustomTheme('dark', DARK_SELECTION_COLOR, DARK_DEFAULT_COLOR)
 
 export const useCustomTheme = () =>
   useAppSelector<Theme>((s) => {

@@ -1,5 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit'
+import { max, min } from 'd3-array'
+import { ColorByColumnNone } from '../color'
+import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
+import { stringToMillis } from './columns'
 import { ActiveDataViewType } from './dataSlice'
 import { EntityId } from './entities'
 import { EMPTY_EVENT_DATA, EventData, EventDataColumn, PatientJourneyEvent } from './events'
@@ -142,4 +146,28 @@ export const selectFilteredActiveData = createSelector(
   (crossFilteredPatientData, crossFilteredEventData, view) =>
     // Filters applied to patients, to influence events as well (and vice versa)
     view === 'patients' ? crossFilteredPatientData : crossFilteredEventData
+)
+
+export const selectCurrentColorColumnNumberRange = createSelector(
+  selectActiveData,
+  selectColorByColumn,
+  (activeData, colorByColumn) => {
+    if (colorByColumn === ColorByColumnNone) {
+      return null
+    }
+
+    switch (colorByColumn.type) {
+      case 'timestamp':
+      case 'number': {
+        const dataInNumbers = activeData.map((data) => +data.values[colorByColumn.index])
+        return [min(dataInNumbers) ?? 0, max(dataInNumbers) ?? 0]
+      }
+      case 'date': {
+        const dataInNumbers = activeData.map((data) => stringToMillis(data.values[colorByColumn.index]))
+        return [min(dataInNumbers) ?? 0, max(dataInNumbers) ?? 0]
+      }
+      default:
+        return null
+    }
+  }
 )

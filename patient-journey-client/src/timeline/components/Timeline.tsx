@@ -8,6 +8,7 @@ import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
 import { EntityId } from '../../data/entities'
+import { ColorByColumnOption } from '../../color'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -31,6 +32,8 @@ interface TimelineProps {
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   onEventHover: (eventId: EntityId) => void
   onEventSelect: (eventId: EntityId) => void
+  colorByColumn: ColorByColumnOption
+  onChangeColorByColumn: (column: ColorByColumnOption) => void
 }
 
 export const Timeline = ({
@@ -45,6 +48,8 @@ export const Timeline = ({
   availableColumns,
   onEventHover,
   onEventSelect,
+  colorByColumn,
+  onChangeColorByColumn,
 }: TimelineProps) => {
   const { classes } = useStyles()
 
@@ -57,6 +62,8 @@ export const Timeline = ({
         timelineState={timelineState}
         availableColumns={availableColumns}
         numberOfEvents={events.length}
+        colorByColumn={colorByColumn}
+        onChangeColorByColumn={onChangeColorByColumn}
       />
       <TimelineView
         events={events}
