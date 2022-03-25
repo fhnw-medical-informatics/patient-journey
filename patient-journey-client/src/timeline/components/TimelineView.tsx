@@ -9,6 +9,7 @@ import {
 } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { useCustomTheme } from '../../theme'
+import { EntityId, EntityIdNone } from '../../data/entities'
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, PatientId>>
@@ -16,9 +17,19 @@ interface TimelineProps {
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   enableClustering: boolean
+  onHover: (eventId: EntityId) => void
+  onSelect: (eventId: EntityId) => void
 }
 
-export const TimelineView = ({ events, lanes, dateFormat, laneDisplayMode, enableClustering }: TimelineProps) => {
+export const TimelineView = ({
+  events,
+  lanes,
+  dateFormat,
+  laneDisplayMode,
+  enableClustering,
+  onSelect,
+  onHover,
+}: TimelineProps) => {
   const theme = useCustomTheme()
 
   const timelineTheme = createTimelineTheme(theme as any, {
@@ -45,6 +56,11 @@ export const TimelineView = ({ events, lanes, dateFormat, laneDisplayMode, enabl
               laneDisplayMode={laneDisplayMode}
               enableEventClustering={enableClustering}
               theme={timelineTheme}
+              onEventClick={onSelect}
+              onEventHover={onHover}
+              onEventUnhover={() => {
+                onHover(EntityIdNone)
+              }}
             />
           )
         }}

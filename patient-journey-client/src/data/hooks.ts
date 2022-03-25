@@ -9,8 +9,7 @@ import {
   selectAllFilters,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
-import { useCallback } from 'react'
-import { EntityId, EntityIdNone } from './entities'
+import { EntityId } from './entities'
 
 export const useActiveDataView = () => useAppSelector(selectDataView)
 
@@ -36,19 +35,13 @@ export const useEntityInteraction = (): EntityInteraction => {
 
   const dispatch = useAppDispatch()
 
-  const onEntityClick = useCallback(
-    (id: EntityId) => {
-      dispatch(setSelectedEntity(selectedEntity === id ? EntityIdNone : id))
-    },
-    [selectedEntity, dispatch]
-  )
+  const onEntityClick = (id: EntityId) => {
+    dispatch(setSelectedEntity(id))
+  }
 
-  const onEntityHover = useCallback(
-    (id: EntityId) => {
-      dispatch(setHoveredEntity(id))
-    },
-    [dispatch]
-  )
+  const onEntityHover = (id: EntityId) => {
+    dispatch(setHoveredEntity(id))
+  }
 
   return {
     selectedEntity,

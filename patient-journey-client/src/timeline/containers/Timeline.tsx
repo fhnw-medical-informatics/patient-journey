@@ -2,6 +2,7 @@ import { Timeline as TimelineComponent } from '../components/Timeline'
 import { useAppDispatch } from '../../store'
 import { setTimelineCluster, setTimelineGrouping, setTimelineColumn, TimelineColumn } from '../timelineSlice'
 import { useActiveDataColumns } from '../../data/hooks'
+import { useEntityInteraction } from '../../data'
 import { formatMillis } from '../../data/columns'
 import { useActiveDataAsEvents, useActiveDataAsLanes, useTimelineState } from '../hooks'
 
@@ -10,6 +11,7 @@ export const Timeline = () => {
   const lanes = useActiveDataAsLanes()
   const timelineState = useTimelineState()
   const activeColumns = useActiveDataColumns()
+  const { onEntityClick, onEntityHover } = useEntityInteraction()
 
   const dispatch = useAppDispatch()
 
@@ -28,6 +30,8 @@ export const Timeline = () => {
       onSetTimelineGrouping={onSetTimelineGrouping}
       timelineState={timelineState}
       availableColumns={activeColumns}
+      onEventHover={onEntityHover}
+      onEventSelect={onEntityClick}
     />
   )
 }

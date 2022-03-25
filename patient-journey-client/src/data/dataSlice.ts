@@ -5,7 +5,7 @@ import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './dataConfig'
 import { createPatientData, PatientData } from './patients'
 import { createEventData, EventData } from './events'
 import { GenericFilter } from './filtering'
-import { EntityId } from './entities'
+import { EntityId, EntityIdNone } from './entities'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -66,7 +66,10 @@ const dataSlice = createSlice({
       ...action.payload,
     }),
     setSelectedEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
-      mutateActiveEntityData(state, (pd) => (pd.selectedEntity = action.payload as EntityId))
+      mutateActiveEntityData(
+        state,
+        (pd) => (pd.selectedEntity = pd.selectedEntity === action.payload ? EntityIdNone : (action.payload as EntityId))
+      )
     },
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutateActiveEntityData(state, (pd) => (pd.hoveredEntity = action.payload as EntityId))
