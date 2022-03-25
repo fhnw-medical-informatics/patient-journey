@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { useTheme } from '@material-ui/core'
+import { useTheme } from '@mui/material'
 import { scaleOrdinal } from 'd3-scale'
 import { schemePaired, schemeSet3, interpolatePlasma } from 'd3-scale-chromatic'
 
@@ -59,16 +59,16 @@ export const useColor = (): ColorByFn => {
   const numberRange = useCurrentColorColumnNumberRange()
   const colorByColumn: ColorByColumnOption = useColorByColumn()
 
-  const defaultColor = '#00FF00' // theme.ticketColors.default
+  const defaultColor = theme.entityColors.default
 
   const colorScaleCategory = useCallback(
-    (category: string) => (theme.palette.type === 'light' ? lightCategoryFn(category) : darkCategoryFn(category)),
-    [theme.palette.type]
+    (category: string) => (theme.palette.mode === 'light' ? lightCategoryFn(category) : darkCategoryFn(category)),
+    [theme.palette.mode]
   )
 
   const colorScaleNumber = useCallback(
-    (number: number) => (theme.palette.type === 'light' ? lightNumberFn(number) : darkNumberFn(number)),
-    [theme.palette.type]
+    (number: number) => (theme.palette.mode === 'light' ? lightNumberFn(number) : darkNumberFn(number)),
+    [theme.palette.mode]
   )
 
   const getColorByCategory = (category?: string) => (category ? colorScaleCategory(category) : defaultColor)

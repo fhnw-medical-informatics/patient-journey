@@ -7,10 +7,13 @@ import { useActiveDataColumns } from '../../data/hooks'
 import { useEntityInteraction } from '../../data'
 import { formatMillis } from '../../data/columns'
 import { useActiveDataAsEvents, useActiveDataAsLanes, useTimelineState } from '../hooks'
-import { ColorByColumnOption, setColorByColumn, useColorByColumn } from '../../color'
+import { ColorByColumnOption, setColorByColumn, useColor, useColorByColumn } from '../../color'
+import { useTheme } from '@mui/material'
 
 export const Timeline = () => {
-  const events = useActiveDataAsEvents()
+  const theme = useTheme()
+  const [colorByColumnFn] = useColor()
+  const events = useActiveDataAsEvents(colorByColumnFn, theme.entityColors.selected)
   const lanes = useActiveDataAsLanes()
   const timelineState = useTimelineState()
   const activeColumns = useActiveDataColumns()
