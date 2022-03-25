@@ -61,12 +61,6 @@ export const ControlPanel = ({
     }
   }, [timelineState.column, onSetTimelineColumn, availableColumns])
 
-  useEffect(() => {
-    if (timelineState.grouping === false && numberOfEvents > 10) {
-      onSetTimelineGrouping()
-    }
-  }, [timelineState.grouping, onSetTimelineGrouping, numberOfEvents])
-
   const onChangeColumn = (event: SelectChangeEvent) => {
     onSetTimelineColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
@@ -97,14 +91,13 @@ export const ControlPanel = ({
             <Grid item>
               <FormControlLabel
                 control={<Switch checked={timelineState.grouping} onChange={onSetTimelineGrouping} color="primary" />}
-                label="Group"
-                disabled={numberOfEvents > 10}
+                label="Collapse Patients"
               />
             </Grid>
             <Grid item>
               <FormControlLabel
                 control={<Switch checked={timelineState.cluster} onChange={onSetTimelineCluster} color="primary" />}
-                label="Cluster"
+                label="Cluster Events"
               />
             </Grid>
           </Grid>
