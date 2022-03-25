@@ -2,7 +2,13 @@ import React, { useCallback } from 'react'
 
 import { Timeline as TimelineComponent } from '../components/Timeline'
 import { useAppDispatch } from '../../store'
-import { setTimelineCluster, setTimelineGrouping, setTimelineColumn, TimelineColumn } from '../timelineSlice'
+import {
+  setTimelineCluster,
+  setExpandByColumn,
+  setViewByColumn,
+  TimelineColumn,
+  TimelineColumnNone,
+} from '../timelineSlice'
 import { useActiveDataColumns } from '../../data/hooks'
 import { useEntityInteraction } from '../../data'
 import { formatMillis } from '../../data/columns'
@@ -15,16 +21,18 @@ export const Timeline = () => {
   const [colorByColumnFn] = useColor()
   const events = useActiveDataAsEvents(colorByColumnFn, theme.entityColors.selected)
   const lanes = useActiveDataAsLanes()
-  const timelineState = useTimelineState()
+  const { cluster, viewByColumn, expandByColumn } = useTimelineState()
   const activeColumns = useActiveDataColumns()
   const { onEntityClick, onEntityHover } = useEntityInteraction()
   const colorByColumn = useColorByColumn()
 
   const dispatch = useAppDispatch()
 
-  const onSetTimelineColumn = (column: TimelineColumn) => dispatch(setTimelineColumn(column))
+  const onSetViewByColumn = useCallback((column: TimelineColumn) => dispatch(setViewByColumn(column)), [dispatch])
+  const onSetExpandByColumn = useCallback((column: TimelineColumn) => dispatch(setExpandByColumn(column)), [dispatch])
+
   const onSetTimelineCluster = () => dispatch(setTimelineCluster())
-  const onSetTimelineGrouping = () => dispatch(setTimelineGrouping())
+
   const onChangeColorByColumn = useCallback(
     (column: ColorByColumnOption) => dispatch(setColorByColumn({ colorByColumn: column })),
     [dispatch]
@@ -33,18 +41,20 @@ export const Timeline = () => {
   return (
     <TimelineComponent
       dateFormat={formatMillis}
-      laneDisplayMode={timelineState.grouping ? 'collapsed' : 'expanded'}
+      laneDisplayMode={expandByColumn === TimelineColumnNone ? 'collapsed' : 'expanded'}
       events={events}
       lanes={lanes}
-      onSetTimelineColumn={onSetTimelineColumn}
-      onSetTimelineCluster={onSetTimelineCluster}
-      onSetTimelineGrouping={onSetTimelineGrouping}
-      timelineState={timelineState}
       availableColumns={activeColumns}
-      onEventHover={onEntityHover}
-      onEventSelect={onEntityClick}
+      viewByColumn={viewByColumn}
+      onSetViewByColumn={onSetViewByColumn}
+      expandByColumn={expandByColumn}
+      onSetExpandByColumn={onSetExpandByColumn}
+      cluster={cluster}
+      onSetTimelineCluster={onSetTimelineCluster}
       colorByColumn={colorByColumn}
       onChangeColorByColumn={onChangeColorByColumn}
+      onEventHover={onEntityHover}
+      onEventSelect={onEntityClick}
     />
   )
 }

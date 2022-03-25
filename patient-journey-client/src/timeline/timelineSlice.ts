@@ -8,26 +8,31 @@ export const TimelineColumnNone = 'None'
 type NoTimelineColumn = typeof TimelineColumnNone
 
 export type TimelineState = {
-  column: TimelineColumn
+  viewByColumn: TimelineColumn
+  expandByColumn: TimelineColumn
   cluster: boolean
-  grouping: boolean
 }
 
 const timelineSlice = createSlice({
   name: 'timeline',
-  initialState: { cluster: true, grouping: true, column: TimelineColumnNone } as TimelineState,
+  initialState: {
+    cluster: true,
+    grouping: true,
+    viewByColumn: TimelineColumnNone,
+    expandByColumn: TimelineColumnNone,
+  } as TimelineState,
   reducers: {
-    setTimelineColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
-      state.column = action.payload
+    setViewByColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
+      state.viewByColumn = action.payload
+    },
+    setExpandByColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
+      state.expandByColumn = action.payload
     },
     setTimelineCluster: (state: Draft<TimelineState>) => {
       state.cluster = !state.cluster
-    },
-    setTimelineGrouping: (state: Draft<TimelineState>) => {
-      state.grouping = !state.grouping
     },
   },
 })
 
 export const timelineReducer = timelineSlice.reducer
-export const { setTimelineColumn, setTimelineCluster, setTimelineGrouping } = timelineSlice.actions
+export const { setViewByColumn, setExpandByColumn, setTimelineCluster } = timelineSlice.actions
