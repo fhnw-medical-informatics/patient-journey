@@ -6,6 +6,7 @@ import { createPatientData, PatientData } from './patients'
 import { createEventData, EventData } from './events'
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone } from './entities'
+import { addAlerts, Alert } from '../alert/alertSlice'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -143,7 +144,10 @@ export const loadData =
     try {
       const patientData = createPatientData(await parseFromUrl(patientDataUrl))
       const eventData = createEventData(await parseFromUrl(eventDataUrl))
-      dispatch(loadingDataComplete({ patientData, eventData }))
+      const data = { patientData, eventData }
+      dispatch(loadingDataComplete(data))
+      const alerts = findDataInconsistencies(data)
+      dispatch(addAlerts(alerts))
     } catch (e) {
       console.error(e)
       dispatch(loadingDataFailed('Error fetching data'))
@@ -160,3 +164,16 @@ export const parseFromString = (csv: string) => {
   // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
   return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
 }
+
+const findDataInconsistencies = ({ patientData }: LoadedData): ReadonlyArray<Alert> => {
+  const duplicatePatientIds = findDuplicates(patientData.allEntities.map((patient) => patient.uid))
+  if (duplicatePatientIds.length > 0) {
+    return [{ topic: 'Data Import Error', message: `Non-unique patient identifiers: ${duplicatePatientIds}` }]
+  } else {
+    return []
+  }
+}
+
+const findDuplicates = <T>(array: ReadonlyArray<T>): ReadonlyArray<T> => [
+  ...new Set(array.filter((e, i, a) => a.indexOf(e) !== i)),
+]
