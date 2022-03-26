@@ -78,6 +78,11 @@ export const Alerts = ({ alerts, unreadCount, onMarkAlertsRead }: Props) => {
       >
         <Box className={classes.listContainer}>
           <List>
+            {alerts.length === 0 && (
+              <ListItem>
+                <ListItemText primary={'No alerts – Yay! ✨'} />
+              </ListItem>
+            )}
             {[...alerts].reverse().map((alert, index) => (
               <div key={index}>
                 <ListItem>
