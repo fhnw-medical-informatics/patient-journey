@@ -2,10 +2,10 @@ import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { AppDispatch } from '../store'
 import * as csvParser from 'papaparse'
 import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './dataConfig'
-import { createPatientData, PatientData } from './patients'
+import { createPatientData, PatientData, PatientId } from './patients'
 import { createEventData, EventData } from './events'
 import { GenericFilter } from './filtering'
-import { Entity, EntityId, EntityIdNone } from './entities'
+import { EntityId, EntityIdNone } from './entities'
 import { addAlerts, Alert } from '../alert/alertSlice'
 
 type DataStateLoadingPending = Readonly<{
@@ -168,17 +168,28 @@ export const parseFromString = (csv: string) => {
 const findDataInconsistencies = ({ patientData, eventData }: LoadedData): ReadonlyArray<Alert> => {
   let alerts = []
   const topic = 'Data Import Error'
-  const duplicatePatientIds = findDuplicateUids(patientData.allEntities)
+  const pids = patientData.allEntities.map((p) => p.pid)
+  const duplicatePatientIds = findDuplicateIds(pids)
   if (duplicatePatientIds.length > 0) {
-    alerts.push({ topic, message: `Non-unique patient identifiers: ${duplicatePatientIds}` })
+    alerts.push({ topic, message: `Patient table contains non-unique pid values: [${duplicatePatientIds}]` })
   }
-  const duplicateEventIds = findDuplicateUids(eventData.allEntities)
+  const eids = eventData.allEntities.map((e) => e.eid)
+  const duplicateEventIds = findDuplicateIds(eids)
   if (duplicateEventIds.length > 0) {
-    alerts.push({ topic, message: `Non-unique event identifiers: ${duplicateEventIds}` })
+    alerts.push({ topic, message: `Event table contains non-unique eid values: [${duplicateEventIds}]` })
+  }
+  const pidRefs = eventData.allEntities.map((e) => e.pid)
+  const nonMatchingPidRefs = findNonMatchingPidRefs(new Set(pids), pidRefs)
+  if (nonMatchingPidRefs.length > 0) {
+    alerts.push({ topic, message: `Event table contains invalid pid references: [${nonMatchingPidRefs}]` })
   }
   return alerts
 }
 
-const findDuplicateUids = (array: ReadonlyArray<Entity>): ReadonlyArray<EntityId> => [
-  ...new Set(array.map((e) => e.uid).filter((e, i, a) => a.indexOf(e) !== i)),
+const findDuplicateIds = (uids: ReadonlyArray<EntityId>): ReadonlyArray<EntityId> => [
+  ...new Set(uids.filter((e, i, a) => a.indexOf(e) !== i)),
+]
+
+const findNonMatchingPidRefs = (knownPids: ReadonlySet<PatientId>, pidRefs: ReadonlyArray<PatientId>) => [
+  ...new Set(pidRefs.filter((pidRef) => !knownPids.has(pidRef))),
 ]
