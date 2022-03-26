@@ -5,7 +5,7 @@ import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './dataConfig'
 import { createPatientData, PatientData } from './patients'
 import { createEventData, EventData } from './events'
 import { GenericFilter } from './filtering'
-import { EntityId, EntityIdNone } from './entities'
+import { Entity, EntityId, EntityIdNone } from './entities'
 import { addAlerts, Alert } from '../alert/alertSlice'
 
 type DataStateLoadingPending = Readonly<{
@@ -165,15 +165,20 @@ export const parseFromString = (csv: string) => {
   return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
 }
 
-const findDataInconsistencies = ({ patientData }: LoadedData): ReadonlyArray<Alert> => {
-  const duplicatePatientIds = findDuplicates(patientData.allEntities.map((patient) => patient.uid))
+const findDataInconsistencies = ({ patientData, eventData }: LoadedData): ReadonlyArray<Alert> => {
+  let alerts = []
+  const topic = 'Data Import Error'
+  const duplicatePatientIds = findDuplicateUids(patientData.allEntities)
   if (duplicatePatientIds.length > 0) {
-    return [{ topic: 'Data Import Error', message: `Non-unique patient identifiers: ${duplicatePatientIds}` }]
-  } else {
-    return []
+    alerts.push({ topic, message: `Non-unique patient identifiers: ${duplicatePatientIds}` })
   }
+  const duplicateEventIds = findDuplicateUids(eventData.allEntities)
+  if (duplicateEventIds.length > 0) {
+    alerts.push({ topic, message: `Non-unique event identifiers: ${duplicateEventIds}` })
+  }
+  return alerts
 }
 
-const findDuplicates = <T>(array: ReadonlyArray<T>): ReadonlyArray<T> => [
-  ...new Set(array.filter((e, i, a) => a.indexOf(e) !== i)),
+const findDuplicateUids = (array: ReadonlyArray<Entity>): ReadonlyArray<EntityId> => [
+  ...new Set(array.map((e) => e.uid).filter((e, i, a) => a.indexOf(e) !== i)),
 ]
