@@ -1,6 +1,7 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 
 export interface Alert {
+  readonly topic: string
   readonly message: string
 }
 
@@ -10,7 +11,14 @@ export interface AlertState {
 }
 
 const initialState: AlertState = {
-  alerts: [],
+  alerts: [
+    { topic: 'bli', message: 'Data Import' },
+    { topic: 'bla', message: 'Foo' },
+    { topic: 'blo', message: 'Bar' },
+    { topic: 'x', message: 'Bar' },
+    { topic: 'y', message: 'Bar' },
+    { topic: 'z', message: 'Bar' },
+  ],
   unreadCount: 3,
 }
 

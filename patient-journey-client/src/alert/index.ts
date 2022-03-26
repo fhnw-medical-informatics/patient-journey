@@ -1,2 +1,2 @@
 export { alertReducer } from './alertSlice'
-export { AlertsButton } from './containers/AlertsButton'
+export { Alerts } from './containers/Alerts'

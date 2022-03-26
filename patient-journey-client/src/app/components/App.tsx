@@ -9,7 +9,7 @@ import SplitPane from 'react-split-pane'
 import { DataFilters } from '../../data/containers/filter/DataFilters'
 import { Timeline } from '../../timeline'
 import logo from './fhnw-logo.png'
-import { AlertsButton } from '../../alert'
+import { Alerts } from '../../alert'
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '15%'
 const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '60%'
@@ -92,7 +92,7 @@ export const App = () => {
           <img className={classes.logo} src={logo} alt={'Fachhochschule Nordwestschweiz'} />
           <DataViewSelector />
           <Typography className={classes.title}>{`Patient Journey – v${import.meta.env.VITE_APP_VERSION}`}</Typography>
-          <AlertsButton />
+          <Alerts />
           <ThemeSwitch />
         </Toolbar>
       </AppBar>
