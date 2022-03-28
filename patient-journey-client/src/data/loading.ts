@@ -24,7 +24,8 @@ export const loadData = async (
 ) => {
   onLoadingDataInProgress()
   try {
-    const patientData = createPatientData(await parseFromUrl(patientDataUrl))
+    const onAlert = (message: string) => onAddAlerts([{ topic: DATA_LOADING_ERROR, message }])
+    const patientData = createPatientData(await parseFromUrl(patientDataUrl), onAlert)
     const eventData = createEventData(await parseFromUrl(eventDataUrl))
     const data = { patientData, eventData }
     onLoadingDataComplete(data)

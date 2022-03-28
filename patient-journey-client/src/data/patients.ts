@@ -1,6 +1,7 @@
 import { DataColumn, GenericColumnType } from './columns'
 import { ParseResult } from 'papaparse'
 import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
+import { noOp } from '../utils'
 
 export const PATIENT_ID_COLUMN_TYPE = 'pid'
 
@@ -27,7 +28,10 @@ export const EMPTY_PATIENT_DATA: PatientData = {
   hoveredEntity: EntityIdNone,
 }
 
-export const createPatientData = (result: ParseResult<string[]>): PatientData => {
+export const createPatientData = (
+  result: ParseResult<string[]>,
+  onAlert: (message: string) => void = noOp
+): PatientData => {
   const HEADER_ROW_COUNT = 2
   if (result.data.length < HEADER_ROW_COUNT) {
     return EMPTY_PATIENT_DATA
@@ -35,19 +39,29 @@ export const createPatientData = (result: ParseResult<string[]>): PatientData =>
     const columnNames = result.data[0]
     const columnTypes = result.data[1].map((v) => v.toLowerCase())
     const idColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
+    const isMissingIdColumn = idColumnIndex < 0
+
+    if (isMissingIdColumn) {
+      onAlert(
+        `Patient data table is missing mandatory '${PATIENT_ID_COLUMN_TYPE}' column type. Using row index to identify patients.`
+      )
+    }
+
     const columns = columnNames.map<PatientDataColumn>((name, index) => ({
       name,
       type: columnTypes[index] as PatientDataColumnType,
       index,
     }))
+
     return {
       ...EMPTY_PATIENT_DATA,
       columns,
-      allEntities: result.data.slice(HEADER_ROW_COUNT).map((row: string[]) => {
+      allEntities: result.data.slice(HEADER_ROW_COUNT).map((row: string[], index) => {
+        const id = isMissingIdColumn ? String(index) : row[idColumnIndex]
         return {
-          uid: row[idColumnIndex] as EntityId,
+          uid: id as EntityId,
           type: 'patients',
-          pid: row[idColumnIndex] as PatientId,
+          pid: id as PatientId,
           values: row,
         }
       }),

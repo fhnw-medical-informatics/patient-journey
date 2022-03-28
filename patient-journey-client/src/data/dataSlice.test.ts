@@ -6,15 +6,17 @@ import {
   setSelectedEntity,
 } from './dataSlice'
 import { createStore } from '../store'
-import { PatientId, PatientIdNone } from './patients'
+import { Patient, PatientId, PatientIdNone } from './patients'
 import { DATA_LOADING_ERROR } from './loading'
 
 const PID_1 = 'PID_1' as PatientId
-const MOCK_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
-const MOCK_EVENT_CSV = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp\nEID_1,PID_1,1\nEID_2,PID_2,2'
+const TEST_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
+const TEST_PATIENT_CSV_MISSING_PID = 'Name\nstring\nJane'
+const TEST_EVENT_CSV = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp\nEID_1,PID_1,1\nEID_2,PID_2,2'
 
 describe('dataSlice', () => {
   const successPatientDataUrl = 'success-patient-data-url'
+  const successPatientDataUrlMissingPid = 'successPatientDataUrlMissingPid'
   const successEventDataUrl = 'success-event-data-url'
   const successUrlEmpty = 'success-url-empty'
   const errorUrl = 'error-url'
@@ -26,12 +28,17 @@ describe('dataSlice', () => {
         case `${successPatientDataUrl}`:
           return Promise.resolve({
             ok: true,
-            text: () => Promise.resolve(MOCK_PATIENT_CSV),
+            text: () => Promise.resolve(TEST_PATIENT_CSV),
+          })
+        case `${successPatientDataUrlMissingPid}`:
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(TEST_PATIENT_CSV_MISSING_PID),
           })
         case `${successEventDataUrl}`:
           return Promise.resolve({
             ok: true,
-            text: () => Promise.resolve(MOCK_EVENT_CSV),
+            text: () => Promise.resolve(TEST_EVENT_CSV),
           })
         case `${successUrlEmpty}`:
           return Promise.resolve({
@@ -91,6 +98,27 @@ describe('dataSlice', () => {
     const eventData = (data as DataStateLoadingComplete).eventData
     expect(eventData.allEntities).toEqual([])
     expect(eventData.columns).toEqual([])
+  })
+
+  it('loadData loading-complete patients table missing pid', async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrlMissingPid, successUrlEmpty)(store.dispatch)
+
+    const state = store.getState()
+    const data = state.data
+    expect(data.type).toEqual('loading-complete')
+    const patientData = (data as DataStateLoadingComplete).patientData
+    const expectedPatient: Patient = {
+      type: 'patients',
+      pid: '0' as PatientId,
+      uid: '0' as PatientId,
+      values: ['Jane'],
+    }
+    expect(patientData.allEntities[0]).toEqual(expectedPatient)
+    expect(state.alert.alerts.length).toEqual(1)
+    expect(state.alert.alerts[0].message).toEqual(
+      "Patient data table is missing mandatory 'pid' column type. Using row index to identify patients."
+    )
   })
 
   it('loadData loading-failed', async () => {
