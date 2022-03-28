@@ -1,6 +1,9 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 
+type AlertType = 'error' | 'warning'
+
 export interface Alert {
+  readonly type: AlertType
   readonly topic: string
   readonly message: string
 }

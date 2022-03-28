@@ -12,7 +12,6 @@ export type EventDataColumn = DataColumn<EventDataColumnType>
 enum EventIdBrand {}
 
 export type EventId = EventIdBrand & string
-export const EventIdNone = 'n/a' as EventId
 
 export interface PatientJourneyEvent extends Entity {
   readonly type: 'events'
@@ -32,7 +31,7 @@ export const EMPTY_EVENT_DATA: EventData = {
 
 export const createEventData = (
   result: ParseResult<string[]>,
-  onAlert: (message: string) => void = noOp
+  onWarning: (message: string) => void = noOp
 ): EventData => {
   const HEADER_ROW_COUNT = 2
   if (result.data.length < HEADER_ROW_COUNT) {
@@ -44,8 +43,8 @@ export const createEventData = (
     const isMissingEventIdColumn = eventIdColumnIndex < 0
 
     if (isMissingEventIdColumn) {
-      onAlert(
-        `Event data table is missing mandatory '${EVENT_ID_COLUMN_TYPE}' column type. Using row index to identify events.`
+      onWarning(
+        `No '${EVENT_ID_COLUMN_TYPE}' column type found in event data table. Using row index to identify events.`
       )
     }
 

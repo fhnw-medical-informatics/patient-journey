@@ -125,7 +125,7 @@ describe('dataSlice', () => {
     expect(patientData.allEntities[0]).toEqual(expectedPatient)
     expect(state.alert.alerts.length).toEqual(1)
     expect(state.alert.alerts[0].message).toEqual(
-      "Patient data table is missing mandatory 'pid' column type. Using row index to identify patients."
+      "No 'pid' column type found in patient data table. Using row index to identify patients."
     )
   })
 
@@ -147,7 +147,7 @@ describe('dataSlice', () => {
     expect(eventData.allEntities[0]).toEqual(expectedEvent)
     expect(state.alert.alerts.length).toEqual(1)
     expect(state.alert.alerts[0].message).toEqual(
-      "Event data table is missing mandatory 'eid' column type. Using row index to identify events."
+      "No 'eid' column type found in event data table. Using row index to identify events."
     )
   })
 

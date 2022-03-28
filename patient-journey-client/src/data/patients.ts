@@ -30,7 +30,7 @@ export const EMPTY_PATIENT_DATA: PatientData = {
 
 export const createPatientData = (
   result: ParseResult<string[]>,
-  onAlert: (message: string) => void = noOp
+  onWarning: (message: string) => void = noOp
 ): PatientData => {
   const HEADER_ROW_COUNT = 2
   if (result.data.length < HEADER_ROW_COUNT) {
@@ -42,8 +42,8 @@ export const createPatientData = (
     const isMissingIdColumn = idColumnIndex < 0
 
     if (isMissingIdColumn) {
-      onAlert(
-        `Patient data table is missing mandatory '${PATIENT_ID_COLUMN_TYPE}' column type. Using row index to identify patients.`
+      onWarning(
+        `No '${PATIENT_ID_COLUMN_TYPE}' column type found in patient data table. Using row index to identify patients.`
       )
     }
 

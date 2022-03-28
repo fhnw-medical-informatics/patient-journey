@@ -32,7 +32,12 @@ const useStyles = makeStyles()((theme) => ({
   unreadMarker: {
     width: UNREAD_MARKER_SIZE,
     height: UNREAD_MARKER_SIZE,
+  },
+  unreadMarkerError: {
     backgroundColor: theme.palette.error.main,
+  },
+  unreadMarkerWarning: {
+    backgroundColor: theme.palette.warning.main,
   },
 }))
 
@@ -43,7 +48,7 @@ interface Props {
 }
 
 export const Alerts = ({ alerts, unreadCount, onMarkAlertsRead }: Props) => {
-  const { classes } = useStyles()
+  const { classes, cx } = useStyles()
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
 
@@ -58,11 +63,13 @@ export const Alerts = ({ alerts, unreadCount, onMarkAlertsRead }: Props) => {
 
   const openPopover = Boolean(anchorEl)
   const id = openPopover ? 'simple-popover' : undefined
+  const hasUnreadErrors = [...alerts].reverse().findIndex((a) => a.type === 'error') < unreadCount
+  const badgeColor = hasUnreadErrors ? 'error' : 'warning'
 
   return (
     <>
       <IconButton className={classes.button} onClick={handleClick}>
-        <Badge color="error" badgeContent={unreadCount}>
+        <Badge color={badgeColor} badgeContent={unreadCount}>
           <NotificationsNoneRoundedIcon />
         </Badge>
       </IconButton>
@@ -87,7 +94,16 @@ export const Alerts = ({ alerts, unreadCount, onMarkAlertsRead }: Props) => {
               <div key={index}>
                 <ListItem>
                   <ListItemAvatar className={classes.listGutter}>
-                    {index < unreadCount && <Avatar className={classes.unreadMarker}>{''}</Avatar>}
+                    {index < unreadCount && (
+                      <Avatar
+                        className={cx(
+                          classes.unreadMarker,
+                          alert.type === 'error' ? classes.unreadMarkerError : classes.unreadMarkerWarning
+                        )}
+                      >
+                        {''}
+                      </Avatar>
+                    )}
                   </ListItemAvatar>
                   <ListItemText primary={alert.topic} secondary={alert.message} />
                 </ListItem>
