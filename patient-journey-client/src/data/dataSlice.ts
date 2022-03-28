@@ -137,6 +137,8 @@ export const { setSelectedEntity, setHoveredEntity, addDataFilter, removeDataFil
 
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 
+const ALERT_DATA_IMPORT_ERROR = 'Data Import Error'
+
 export const loadData =
   (patientDataUrl: string = PATIENT_DATA_FILE_URL, eventDataUrl: string = EVENT_DATA_FILE_URL) =>
   async (dispatch: AppDispatch) => {
@@ -149,13 +151,35 @@ export const loadData =
       const alerts = findDataInconsistencies(data)
       dispatch(addAlerts(alerts))
     } catch (e) {
-      console.error(e)
-      dispatch(loadingDataFailed('Error fetching data'))
+      console.error(ALERT_DATA_IMPORT_ERROR, e)
+      dispatch(loadingDataFailed(ALERT_DATA_IMPORT_ERROR))
+      if (e instanceof Response) {
+        dispatch(
+          addAlerts([
+            {
+              topic: ALERT_DATA_IMPORT_ERROR,
+              message: `${e.statusText} (${e.url})`,
+            },
+          ])
+        )
+      } else {
+        dispatch(
+          addAlerts([
+            {
+              topic: ALERT_DATA_IMPORT_ERROR,
+              message: String(e),
+            },
+          ])
+        )
+      }
     }
   }
 
 export async function parseFromUrl(url: string) {
   const response = await fetch(url)
+  if (!response.ok) {
+    return Promise.reject(response)
+  }
   const csv = await response.text()
   return parseFromString(csv)
 }
@@ -167,21 +191,29 @@ export const parseFromString = (csv: string) => {
 
 const findDataInconsistencies = ({ patientData, eventData }: LoadedData): ReadonlyArray<Alert> => {
   let alerts = []
-  const topic = 'Data Import Error'
   const pids = patientData.allEntities.map((p) => p.pid)
   const duplicatePatientIds = findDuplicateIds(pids)
   if (duplicatePatientIds.length > 0) {
-    alerts.push({ topic, message: `Patient table contains non-unique pid values: [${duplicatePatientIds}]` })
+    alerts.push({
+      topic: ALERT_DATA_IMPORT_ERROR,
+      message: `Patient table contains non-unique pid values: [${duplicatePatientIds}]`,
+    })
   }
   const eids = eventData.allEntities.map((e) => e.eid)
   const duplicateEventIds = findDuplicateIds(eids)
   if (duplicateEventIds.length > 0) {
-    alerts.push({ topic, message: `Event table contains non-unique eid values: [${duplicateEventIds}]` })
+    alerts.push({
+      topic: ALERT_DATA_IMPORT_ERROR,
+      message: `Event table contains non-unique eid values: [${duplicateEventIds}]`,
+    })
   }
   const pidRefs = eventData.allEntities.map((e) => e.pid)
   const nonMatchingPidRefs = findNonMatchingPidRefs(new Set(pids), pidRefs)
   if (nonMatchingPidRefs.length > 0) {
-    alerts.push({ topic, message: `Event table contains invalid pid references: [${nonMatchingPidRefs}]` })
+    alerts.push({
+      topic: ALERT_DATA_IMPORT_ERROR,
+      message: `Event table contains invalid pid references: [${nonMatchingPidRefs}]`,
+    })
   }
   return alerts
 }

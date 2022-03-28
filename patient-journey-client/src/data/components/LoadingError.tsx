@@ -27,11 +27,9 @@ export const LoadingError = ({ errorMessage }: Props) => {
     <div className={classes.centered}>
       <ErrorIcon fontSize={'large'} />
       <Typography className={classes.label} align={'center'}>
-        {'Loading data failed'}
-        <br />
         {errorMessage}
         <br />
-        <em>{'Details in Console'}</em>
+        <em>{'Check notifications and/or console for details'}</em>
       </Typography>
     </div>
   )
