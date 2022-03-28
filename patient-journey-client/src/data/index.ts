@@ -1,5 +1,4 @@
 export {
-  dataReducer,
   setSelectedEntity,
   setHoveredEntity,
   addDataFilter,

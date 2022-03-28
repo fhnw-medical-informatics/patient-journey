@@ -1,3 +1,4 @@
 export * from './useColor'
-export * from './colorSlice'
+export type { ColorState, ColorByColumn, ColorByColumnOption } from './colorSlice'
+export { setColorByColumn, ColorByColumnNone } from './colorSlice'
 export * from './hooks'

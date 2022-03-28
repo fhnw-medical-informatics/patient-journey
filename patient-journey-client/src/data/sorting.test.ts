@@ -6,7 +6,7 @@ import {
   stableSort,
 } from './sorting'
 import { createPatientData } from './patients'
-import { parseFromString } from './dataSlice'
+import { parseFromString } from './loading'
 
 const TEST_DATA =
   'Id,StringColumn,NumberColumn,DateColumn,BooleanColumn,TimestampColumn\n' + //
