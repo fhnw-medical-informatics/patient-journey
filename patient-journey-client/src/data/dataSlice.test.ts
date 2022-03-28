@@ -7,16 +7,19 @@ import {
 } from './dataSlice'
 import { createStore } from '../store'
 import { Patient, PatientId, PatientIdNone } from './patients'
+import { EventId, PatientJourneyEvent } from './events'
 import { DATA_LOADING_ERROR } from './loading'
 
 const PID_1 = 'PID_1' as PatientId
 const TEST_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
 const TEST_PATIENT_CSV_MISSING_PID = 'Name\nstring\nJane'
 const TEST_EVENT_CSV = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp\nEID_1,PID_1,1\nEID_2,PID_2,2'
+const TEST_EVENT_CSV_MISSING_EID = 'Patient ID,Timestamp\npid,timestamp\nPID_1,42'
 
 describe('dataSlice', () => {
   const successPatientDataUrl = 'success-patient-data-url'
   const successPatientDataUrlMissingPid = 'successPatientDataUrlMissingPid'
+  const successEventDataUrlMissingEid = 'successEventDataUrlMissingEid'
   const successEventDataUrl = 'success-event-data-url'
   const successUrlEmpty = 'success-url-empty'
   const errorUrl = 'error-url'
@@ -39,6 +42,11 @@ describe('dataSlice', () => {
           return Promise.resolve({
             ok: true,
             text: () => Promise.resolve(TEST_EVENT_CSV),
+          })
+        case `${successEventDataUrlMissingEid}`:
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(TEST_EVENT_CSV_MISSING_EID),
           })
         case `${successUrlEmpty}`:
           return Promise.resolve({
@@ -118,6 +126,28 @@ describe('dataSlice', () => {
     expect(state.alert.alerts.length).toEqual(1)
     expect(state.alert.alerts[0].message).toEqual(
       "Patient data table is missing mandatory 'pid' column type. Using row index to identify patients."
+    )
+  })
+
+  it('loadData loading-complete events table missing eid', async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successEventDataUrlMissingEid)(store.dispatch)
+
+    const state = store.getState()
+    const data = state.data
+    expect(data.type).toEqual('loading-complete')
+    const eventData = (data as DataStateLoadingComplete).eventData
+    const expectedEvent: PatientJourneyEvent = {
+      type: 'events',
+      eid: '0' as EventId,
+      uid: '0' as EventId,
+      pid: PID_1,
+      values: [PID_1, '42'],
+    }
+    expect(eventData.allEntities[0]).toEqual(expectedEvent)
+    expect(state.alert.alerts.length).toEqual(1)
+    expect(state.alert.alerts[0].message).toEqual(
+      "Event data table is missing mandatory 'eid' column type. Using row index to identify events."
     )
   })
 

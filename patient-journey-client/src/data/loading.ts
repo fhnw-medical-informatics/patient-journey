@@ -26,7 +26,7 @@ export const loadData = async (
   try {
     const onAlert = (message: string) => onAddAlerts([{ topic: DATA_LOADING_ERROR, message }])
     const patientData = createPatientData(await parseFromUrl(patientDataUrl), onAlert)
-    const eventData = createEventData(await parseFromUrl(eventDataUrl))
+    const eventData = createEventData(await parseFromUrl(eventDataUrl), onAlert)
     const data = { patientData, eventData }
     onLoadingDataComplete(data)
     const alerts = findDataInconsistencies(data)
