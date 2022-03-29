@@ -1,9 +1,8 @@
 import React from 'react'
 
-import { FormGroup, ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { alpha, FormGroup, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { ActiveDataViewType } from '../dataSlice'
 import { makeStyles } from '../../utils'
-import { alpha } from '@material-ui/core/styles/colorManipulator'
 
 const useStyles = makeStyles()((theme) => ({
   button: {

@@ -1,9 +1,17 @@
 import React, { useEffect } from 'react'
-import { FormControl, Typography } from '@material-ui/core'
+import {
+  FormControl,
+  FormControlLabel,
+  Grid,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Switch,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 
 import { makeStyles } from '../../utils'
-
-import { FormControlLabel, Grid, MenuItem, Select, SelectChangeEvent, Switch, Tooltip } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
 
 import { TimelineColumn, TimelineColumnNone } from '../timelineSlice'
