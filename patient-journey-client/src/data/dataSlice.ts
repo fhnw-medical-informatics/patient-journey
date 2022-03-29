@@ -75,7 +75,6 @@ const dataSlice = createSlice({
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutateActiveEntityData(state, (pd) => (pd.hoveredEntity = action.payload as EntityId))
     },
-    // TODO: Tests
     addDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
       mutateFilterData(state, (fd) => {
         const existingFilterIndex = fd.findIndex((filter) => filter.column.name === action.payload.column.name)
@@ -87,18 +86,19 @@ const dataSlice = createSlice({
         }
       })
     },
-    // TODO: Tests
     removeDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
       mutateFilterData(state, (fd) => {
-        fd = fd.filter((filter) => filter.column.name !== action.payload.column.name)
+        const existingFilterIndex = fd.findIndex((filter) => filter.column.name === action.payload.column.name)
+
+        if (existingFilterIndex !== -1) {
+          fd.splice(existingFilterIndex, 1)
+        }
       })
     },
-    // TODO: Tests
     resetDataFilter: (state: Draft<DataState>) => ({
       ...state,
       filters: [],
     }),
-    // TODO: Tests
     setDataView: (state: Draft<DataState>, action: PayloadAction<ActiveDataViewType>) => {
       mutateDataViewData(state, (vd) => {
         vd.view = action.payload
