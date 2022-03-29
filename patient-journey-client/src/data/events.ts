@@ -31,10 +31,12 @@ export const EMPTY_EVENT_DATA: EventData = {
 
 export const createEventData = (
   result: ParseResult<string[]>,
-  onWarning: (message: string) => void = noOp
+  onWarning: (message: string) => void = noOp,
+  onError: (message: string) => void = noOp
 ): EventData => {
   const HEADER_ROW_COUNT = 2
   if (result.data.length < HEADER_ROW_COUNT) {
+    onError('Event data table must contain two header rows (column names, column types).')
     return EMPTY_EVENT_DATA
   } else {
     const columnNames = result.data[0]

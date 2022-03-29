@@ -98,7 +98,8 @@ describe('dataSlice', () => {
     const store = createStore()
     await loadData(successUrlEmpty, successUrlEmpty)(store.dispatch)
 
-    const data = store.getState().data
+    const state = store.getState()
+    const data = state.data
     expect(data.type).toEqual('loading-complete')
     const patientData = (data as DataStateLoadingComplete).patientData
     expect(patientData.allEntities).toEqual([])
@@ -106,6 +107,17 @@ describe('dataSlice', () => {
     const eventData = (data as DataStateLoadingComplete).eventData
     expect(eventData.allEntities).toEqual([])
     expect(eventData.columns).toEqual([])
+    expect(state.alert.alerts.length).toEqual(2)
+    const patientDataAlert = state.alert.alerts[0]
+    expect(patientDataAlert.type).toEqual('error')
+    expect(patientDataAlert.message).toEqual(
+      'Patient data table must contain two header rows (column names, column types).'
+    )
+    const eventDataAlert = state.alert.alerts[1]
+    expect(eventDataAlert.type).toEqual('error')
+    expect(eventDataAlert.message).toEqual(
+      'Event data table must contain two header rows (column names, column types).'
+    )
   })
 
   it('loadData loading-complete patients table missing pid', async () => {
@@ -123,7 +135,7 @@ describe('dataSlice', () => {
       values: ['Jane'],
     }
     expect(patientData.allEntities[0]).toEqual(expectedPatient)
-    expect(state.alert.alerts.length).toEqual(1)
+    expect(state.alert.alerts.length).toBeGreaterThan(1)
     expect(state.alert.alerts[0].message).toEqual(
       "No 'pid' column type found in patient data table. Using row index to identify patients."
     )

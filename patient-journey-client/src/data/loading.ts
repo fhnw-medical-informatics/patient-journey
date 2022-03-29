@@ -24,33 +24,21 @@ export const loadData = async (
   onAddAlerts: (alerts: ReadonlyArray<Alert>) => void
 ) => {
   onLoadingDataInProgress()
+  const onWarning = (message: string) => onAddAlerts([{ type: 'warning', topic: DATA_LOADING_WARNING, message }])
+  const onError = (message: string) => onAddAlerts([{ type: 'error', topic: DATA_LOADING_ERROR, message }])
   try {
-    const onWarning = (message: string) => onAddAlerts([{ type: 'warning', topic: DATA_LOADING_WARNING, message }])
-    const patientData = createPatientData(await parseFromUrl(patientDataUrl), onWarning)
-    const eventData = createEventData(await parseFromUrl(eventDataUrl), onWarning)
+    const patientData = createPatientData(await parseFromUrl(patientDataUrl), onWarning, onError)
+    const eventData = createEventData(await parseFromUrl(eventDataUrl), onWarning, onError)
     const data = { patientData, eventData }
+    checkDataInconsistencies(data, onWarning)
     onLoadingDataComplete(data)
-    const alerts = findDataInconsistencies(data)
-    onAddAlerts(alerts)
   } catch (e: any) {
     console.error(DATA_LOADING_ERROR, e)
     onLoadingDataFailed(DATA_LOADING_ERROR)
     if (e instanceof Response) {
-      onAddAlerts([
-        {
-          type: 'error',
-          topic: DATA_LOADING_ERROR,
-          message: `${e.statusText} (${e.url})`,
-        },
-      ])
+      onError(`${e.statusText} (${e.url})`)
     } else {
-      onAddAlerts([
-        {
-          type: 'error',
-          topic: DATA_LOADING_ERROR,
-          message: e.message,
-        },
-      ])
+      onError(e.message)
     }
   }
 }
@@ -69,36 +57,25 @@ export const parseFromString = (csv: string) => {
   return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
 }
 
-const findDataInconsistencies = ({ patientData, eventData }: LoadedData): ReadonlyArray<Alert> => {
-  let alerts: Array<Alert> = []
+const checkDataInconsistencies = (
+  { patientData, eventData }: LoadedData,
+  onWarning: (message: string) => void
+): void => {
   const pids = patientData.allEntities.map((p) => p.pid)
   const duplicatePatientIds = findDuplicateIds(pids)
   if (duplicatePatientIds.length > 0) {
-    alerts.push({
-      type: 'warning',
-      topic: DATA_LOADING_WARNING,
-      message: `Patient data table contains non-unique pid values: [${duplicatePatientIds}]`,
-    })
+    onWarning(`Patient data table contains non-unique pid values: [${duplicatePatientIds}]`)
   }
   const eids = eventData.allEntities.map((e) => e.eid)
   const duplicateEventIds = findDuplicateIds(eids)
   if (duplicateEventIds.length > 0) {
-    alerts.push({
-      type: 'warning',
-      topic: DATA_LOADING_WARNING,
-      message: `Event data table contains non-unique eid values: [${duplicateEventIds}]`,
-    })
+    onWarning(`Event data table contains non-unique eid values: [${duplicateEventIds}]`)
   }
   const pidRefs = eventData.allEntities.map((e) => e.pid)
   const nonMatchingPidRefs = findNonMatchingPidRefs(new Set(pids), pidRefs)
   if (nonMatchingPidRefs.length > 0) {
-    alerts.push({
-      type: 'warning',
-      topic: DATA_LOADING_WARNING,
-      message: `Event data table contains invalid pid references: [${nonMatchingPidRefs}]`,
-    })
+    onWarning(`Event data table contains invalid pid references: [${nonMatchingPidRefs}]`)
   }
-  return alerts
 }
 
 const findDuplicateIds = (uids: ReadonlyArray<EntityId>): ReadonlyArray<EntityId> => [

@@ -30,10 +30,12 @@ export const EMPTY_PATIENT_DATA: PatientData = {
 
 export const createPatientData = (
   result: ParseResult<string[]>,
-  onWarning: (message: string) => void = noOp
+  onWarning: (message: string) => void = noOp,
+  onError: (message: string) => void = noOp
 ): PatientData => {
   const HEADER_ROW_COUNT = 2
   if (result.data.length < HEADER_ROW_COUNT) {
+    onError('Patient data table must contain two header rows (column names, column types).')
     return EMPTY_PATIENT_DATA
   } else {
     const columnNames = result.data[0]
