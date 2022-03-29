@@ -64,7 +64,6 @@ export const createFilter = <T extends FilterColumn['type']>(
   }
 }
 
-// TODO: Write tests
 export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter): ReadonlyArray<Entity> => {
   switch (filter.type) {
     case 'string':
@@ -174,17 +173,3 @@ function getFieldValue<T extends FilterColumn['type']>(entity: Entity, filter: F
   }
   return getSafe() as FieldValue<T>
 }
-
-// const testFn = (data: EventDataColumn | PatientDataColumn) => {
-//   const test: EventDataColumn = {
-//     type: 'string',
-//     name: 'test',
-//     index: 0,
-//   }
-
-//   if (test.type === 'string') {
-//     const testFilter = createFilter(test, test.type, {})
-//   } else if (test.type === 'timestamp') {
-//     const testFilter = createFilter(test, test.type, {})
-//   }
-// }
