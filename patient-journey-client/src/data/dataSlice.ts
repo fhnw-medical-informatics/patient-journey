@@ -27,7 +27,7 @@ export type DataStateLoadingComplete = Readonly<{
   ActiveDataView &
   Filters
 
-export type ActiveDataViewType = PatientData['type'] | EventData['type']
+export type ActiveDataViewType = 'patients' | 'events'
 
 interface ActiveDataView {
   readonly view: ActiveDataViewType

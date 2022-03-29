@@ -2,14 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { makeStyles } from '../../../utils'
-import { PatientData, PatientIdNone } from '../../patients'
+import { PatientIdNone } from '../../patients'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
 import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
-import { EventData } from '../../events'
-import { EntityId } from '../../entities'
+import { Entity, EntityId } from '../../entities'
+import { DataColumn } from '../../columns'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -37,8 +37,8 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface Props {
-  readonly data: PatientData['allEntities'] | EventData['allEntities']
-  readonly columns: PatientData['columns'] | EventData['columns']
+  readonly data: ReadonlyArray<Entity>
+  readonly columns: ReadonlyArray<DataColumn<any>>
   readonly selectedEntity: EntityId
   readonly hoveredEntity: EntityId
   readonly onEntityClick: (id: EntityId) => void

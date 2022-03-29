@@ -12,7 +12,6 @@ export interface Entity {
 export type EntityType = 'patients' | 'events'
 
 export interface DataEntity<T extends Entity, C> {
-  readonly type: T['type']
   readonly columns: ReadonlyArray<C>
   readonly allEntities: ReadonlyArray<T>
   readonly selectedEntity: EntityId

@@ -21,7 +21,6 @@ export const PatientIdNone = 'n/a' as PatientId
 export interface PatientData extends DataEntity<Patient, PatientDataColumn> {}
 
 export const EMPTY_PATIENT_DATA: PatientData = {
-  type: 'patients',
   columns: [],
   allEntities: [],
   selectedEntity: EntityIdNone,

@@ -1,14 +1,12 @@
 import React from 'react'
-
-import { EventData } from '../../events'
 import { FilterColumn } from '../../filtering'
-import { PatientData } from '../../patients'
 import { DateDataDiagram } from './DateDataDiagram'
 import { NumberDataDiagram } from './NumberDataDiagram'
+import { Entity } from '../../entities'
 
 export interface DataDiagramsProps {
-  allActiveData: PatientData['allEntities'] | EventData['allEntities']
-  filteredActiveData: PatientData['allEntities'] | EventData['allEntities']
+  allActiveData: ReadonlyArray<Entity>
+  filteredActiveData: ReadonlyArray<Entity>
   column: FilterColumn
 }
 

@@ -5,11 +5,10 @@ import { ScaleTime, scaleTime } from 'd3-scale'
 
 import { BarDatum, ResponsiveBar } from '@nivo/bar'
 
-import { parseDate, parseMillis, format } from '../../columns'
-import { PatientJourneyEvent } from '../../events'
-import { Patient } from '../../patients'
+import { format, parseDate, parseMillis } from '../../columns'
 import { DataDiagramsProps } from './DataDiagrams'
 import { makeStyles } from '../../../utils'
+import { Entity } from '../../entities'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -42,7 +41,7 @@ export type DateDataDiagramProps = DataDiagramsProps
 export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: DateDataDiagramProps) => {
   const { classes } = useStyles()
 
-  const extractValueUndefinedSafe = (d: Patient | PatientJourneyEvent) => {
+  const extractValueUndefinedSafe = (d: Entity) => {
     const value = d.values[column.index] ?? ''
 
     if (value === null || value.trim().length === 0) {

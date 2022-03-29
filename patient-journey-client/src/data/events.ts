@@ -22,7 +22,6 @@ export interface PatientJourneyEvent extends Entity {
 export interface EventData extends DataEntity<PatientJourneyEvent, EventDataColumn> {}
 
 export const EMPTY_EVENT_DATA: EventData = {
-  type: 'events',
   columns: [],
   allEntities: [],
   selectedEntity: EntityIdNone,
