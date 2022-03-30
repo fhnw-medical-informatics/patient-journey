@@ -4,8 +4,16 @@ import {
   loadData,
   setHoveredEntity,
   setSelectedEntity,
+  addDataFilter,
+  removeDataFilter,
+  resetDataFilter,
+  setDataView,
+  ActiveDataViewType,
 } from './dataSlice'
+
 import { createStore } from '../store'
+
+import { Filter } from './filtering'
 import { Patient, PatientId, PatientIdNone } from './patients'
 import { EventId, PatientJourneyEvent } from './events'
 import { DATA_LOADING_ERROR } from './loading'
@@ -192,5 +200,98 @@ describe('dataSlice', () => {
     expect(getHovered()).toEqual(PID_1)
     store.dispatch(setHoveredEntity(PatientIdNone))
     expect(getHovered()).toEqual(PatientIdNone)
+  })
+
+  it(`handles ${addDataFilter.type} action`, async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    expect(getFilters()).toEqual([])
+
+    const testFilter: Filter<'string'> = {
+      column: { index: 0, name: 'Col_1', type: 'string' },
+      type: 'string',
+      value: {
+        text: 'test',
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter))
+    expect(getFilters()).toEqual([testFilter])
+
+    const testFilter2: Filter<'number'> = {
+      column: { index: 0, name: 'Col_2', type: 'number' },
+      type: 'number',
+      value: {
+        from: 1,
+        to: 2,
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter2))
+    expect(getFilters()).toEqual([testFilter, testFilter2])
+  })
+
+  it(`handles ${removeDataFilter.type} action`, async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    expect(getFilters()).toEqual([])
+
+    const testFilter: Filter<'string'> = {
+      column: { index: 0, name: 'Col_1', type: 'string' },
+      type: 'string',
+      value: {
+        text: 'test',
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter))
+    expect(getFilters()).toEqual([testFilter])
+
+    const testFilter2: Filter<'number'> = {
+      column: { index: 0, name: 'Col_2', type: 'number' },
+      type: 'number',
+      value: {
+        from: 1,
+        to: 2,
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter2))
+    expect(getFilters()).toEqual([testFilter, testFilter2])
+
+    store.dispatch(removeDataFilter(testFilter))
+    expect(getFilters()).toEqual([testFilter2])
+  })
+
+  it(`handles ${resetDataFilter.type} action`, async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    expect(getFilters()).toEqual([])
+
+    const testFilter: Filter<'string'> = {
+      column: { index: 0, name: 'Col_1', type: 'string' },
+      type: 'string',
+      value: {
+        text: 'test',
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter))
+    expect(getFilters()).toEqual([testFilter])
+
+    store.dispatch(resetDataFilter())
+    expect(getFilters()).toEqual([])
+  })
+
+  it(`handles ${setDataView.type} action`, async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    const getView = () => (store.getState().data as DataStateLoadingComplete).view
+    expect(getView()).toEqual('patients')
+    store.dispatch(setDataView('events' as ActiveDataViewType))
+    expect(getView()).toEqual('events')
   })
 })

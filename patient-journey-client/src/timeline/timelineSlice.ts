@@ -13,14 +13,15 @@ export type TimelineState = {
   cluster: boolean
 }
 
+export const initialTimelineState: TimelineState = {
+  cluster: true,
+  viewByColumn: TimelineColumnNone,
+  expandByColumn: TimelineColumnNone,
+}
+
 const timelineSlice = createSlice({
   name: 'timeline',
-  initialState: {
-    cluster: true,
-    grouping: true,
-    viewByColumn: TimelineColumnNone,
-    expandByColumn: TimelineColumnNone,
-  } as TimelineState,
+  initialState: initialTimelineState,
   reducers: {
     setViewByColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
       state.viewByColumn = action.payload
