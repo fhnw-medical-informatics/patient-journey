@@ -53,20 +53,38 @@ The following types are supported:
 === Specific Structure
 ==== Patient Data
 
-Demo example: link:public/data/mock-patients.csv[mock-patients.csv]
+Example:
 
-Mandatory column types:
+----
+Patient ID,First Name,Last Name,Date Of Birth,Height
+pid,string,string,date,number
+1,Raphael,Blumenthal,07.12.1929,179
+2,Dany,Bär,03.06.1985,181
+3,Candice,Schaich,26.02.1991,171
+4,Janosch,Schick,11.07.1935,165
+5,Alessio,Weber,30.07.1965,178
+6,Kreshnik,Süss,22.02.1971,189
+7,Edon,Fisler,06.10.1957,175
+8,Vera,Gambacciani,04.12.1952,169
+9,Clelia,Jordi,04.08.1927,180
+----
 
-* `pid`
+The first column of type `pid` is used to uniquely identify patients.
+If no `pid` column exists, the row index is used as a fallback.
 
 ==== Event Data
 
-Demo example: link:public/data/mock-events.csv[mock-events.csv]
+----
+Event ID,Patient ID,Timestamp
+eid,pid,timestamp
+1,1,1645453113884
+2,1,1645454113885
+3,2,1645455113886
+----
 
-Mandatory column types:
+The first column of type `eid` is used to uniquely identify events.
+If no `eid` column exists, the row index is used as a fallback.
 
-* `pid`
-* `eid`
-
+The first column of type `pid` is used to link events to patients.
 
 &copy; FHNW Medical Decision Support Systems Group 2022 – link:LICENSE[MIT License]

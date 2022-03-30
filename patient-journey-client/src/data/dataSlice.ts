@@ -1,12 +1,11 @@
-import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
-import { AppDispatch } from '../store'
-import * as csvParser from 'papaparse'
-import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './dataConfig'
-import { createPatientData, PatientData, PatientId } from './patients'
-import { createEventData, EventData } from './events'
+import { AnyAction, createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
+import { PatientData } from './patients'
+import { EventData } from './events'
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone } from './entities'
-import { addAlerts, Alert } from '../alert/alertSlice'
+import { EVENT_DATA_FILE_URL, loadData as loadDataImpl, LoadedData, PATIENT_DATA_FILE_URL } from './loading'
+import { addAlerts } from '../alert/alertSlice'
+import { Dispatch } from 'redux'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -27,11 +26,6 @@ export type DataStateLoadingComplete = Readonly<{
   LoadedData &
   ActiveDataView &
   Filters
-
-interface LoadedData {
-  readonly patientData: PatientData
-  readonly eventData: EventData
-}
 
 export type ActiveDataViewType = PatientData['type'] | EventData['type']
 
@@ -137,59 +131,16 @@ export const { setSelectedEntity, setHoveredEntity, addDataFilter, removeDataFil
 
 const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 
+/** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
 export const loadData =
   (patientDataUrl: string = PATIENT_DATA_FILE_URL, eventDataUrl: string = EVENT_DATA_FILE_URL) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(loadingDataInProgress())
-    try {
-      const patientData = createPatientData(await parseFromUrl(patientDataUrl))
-      const eventData = createEventData(await parseFromUrl(eventDataUrl))
-      const data = { patientData, eventData }
-      dispatch(loadingDataComplete(data))
-      const alerts = findDataInconsistencies(data)
-      dispatch(addAlerts(alerts))
-    } catch (e) {
-      console.error(e)
-      dispatch(loadingDataFailed('Error fetching data'))
-    }
+  async (dispatch: Dispatch<AnyAction>) => {
+    return await loadDataImpl(
+      patientDataUrl,
+      eventDataUrl,
+      () => dispatch(loadingDataInProgress()),
+      (data) => dispatch(loadingDataComplete(data)),
+      (message) => dispatch(loadingDataFailed(message)),
+      (alerts) => dispatch(addAlerts(alerts))
+    )
   }
-
-export async function parseFromUrl(url: string) {
-  const response = await fetch(url)
-  const csv = await response.text()
-  return parseFromString(csv)
-}
-
-export const parseFromString = (csv: string) => {
-  // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
-  return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
-}
-
-const findDataInconsistencies = ({ patientData, eventData }: LoadedData): ReadonlyArray<Alert> => {
-  let alerts = []
-  const topic = 'Data Import Error'
-  const pids = patientData.allEntities.map((p) => p.pid)
-  const duplicatePatientIds = findDuplicateIds(pids)
-  if (duplicatePatientIds.length > 0) {
-    alerts.push({ topic, message: `Patient table contains non-unique pid values: [${duplicatePatientIds}]` })
-  }
-  const eids = eventData.allEntities.map((e) => e.eid)
-  const duplicateEventIds = findDuplicateIds(eids)
-  if (duplicateEventIds.length > 0) {
-    alerts.push({ topic, message: `Event table contains non-unique eid values: [${duplicateEventIds}]` })
-  }
-  const pidRefs = eventData.allEntities.map((e) => e.pid)
-  const nonMatchingPidRefs = findNonMatchingPidRefs(new Set(pids), pidRefs)
-  if (nonMatchingPidRefs.length > 0) {
-    alerts.push({ topic, message: `Event table contains invalid pid references: [${nonMatchingPidRefs}]` })
-  }
-  return alerts
-}
-
-const findDuplicateIds = (uids: ReadonlyArray<EntityId>): ReadonlyArray<EntityId> => [
-  ...new Set(uids.filter((e, i, a) => a.indexOf(e) !== i)),
-]
-
-const findNonMatchingPidRefs = (knownPids: ReadonlySet<PatientId>, pidRefs: ReadonlyArray<PatientId>) => [
-  ...new Set(pidRefs.filter((pidRef) => !knownPids.has(pidRef))),
-]
