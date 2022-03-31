@@ -43,14 +43,12 @@ const useStyles = makeStyles()((theme) => ({
     pointerEvents: 'none',
   },
   main: {
-    display: 'grid',
     height: '100%',
     width: '100%',
     position: 'relative',
   },
   left: {
     padding: theme.spacing(1),
-    display: 'grid',
     width: '100%',
     height: '100%',
     overflowY: 'auto',
@@ -58,13 +56,11 @@ const useStyles = makeStyles()((theme) => ({
   },
   top: {
     padding: theme.spacing(1),
-    display: 'grid',
     width: '100%',
     height: '100%',
   },
   bottom: {
     padding: theme.spacing(1),
-    display: 'grid',
     width: '100%',
     height: '100%',
   },

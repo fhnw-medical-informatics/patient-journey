@@ -13,5 +13,13 @@ export const TextDataFilter = ({ column, type, value, onChange }: TextDataFilter
     onChange(createFilter(column, type, { text: event.target.value }))
   }
 
-  return <TextField label={column.name} variant="outlined" value={value.text} onChange={handleChange} />
+  return (
+    <TextField
+      label={column.name}
+      variant="outlined"
+      value={value.text}
+      onChange={handleChange}
+      InputLabelProps={{ shrink: true }}
+    />
+  )
 }

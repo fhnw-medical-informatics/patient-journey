@@ -1,13 +1,23 @@
 import React from 'react'
 
 import { useAppDispatch } from '../../../store'
-import { useAllFilters, useActiveDataColumns } from '../../hooks'
+import {
+  useAllFilters,
+  useActiveDataColumns,
+  useActiveData,
+  useFilteredActiveData,
+  useActiveDataView,
+} from '../../hooks'
 
 import { DataFilters as DataFiltersComponent } from '../../components/filter/DataFilters'
 import { GenericFilter } from '../../filtering'
 import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlice'
 
 export const DataFilters = () => {
+  const activeView = useActiveDataView()
+  const allActiveData = useActiveData()
+  const filteredActiveData = useFilteredActiveData()
+
   const filters = useAllFilters()
   const activeColums = useActiveDataColumns()
 
@@ -27,6 +37,9 @@ export const DataFilters = () => {
 
   return (
     <DataFiltersComponent
+      activeView={activeView}
+      allActiveData={allActiveData}
+      filteredActiveData={filteredActiveData}
       activeFilters={filters}
       availableColumns={activeColums}
       onAddFilter={handleAddFilter}
