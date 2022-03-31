@@ -9,6 +9,9 @@ import { format, parseDate, parseMillis } from '../../columns'
 import { DataDiagramsProps } from './DataDiagrams'
 import { makeStyles } from '../../../utils'
 import { Entity } from '../../entities'
+import { ColorByColumnNone } from '../../../color'
+import { useTheme } from '@mui/material'
+import { barColors } from './shared'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -38,8 +41,15 @@ interface BinDatum {
 
 export type DateDataDiagramProps = DataDiagramsProps
 
-export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: DateDataDiagramProps) => {
+export const DateDataDiagram = ({
+  allActiveData,
+  filteredActiveData,
+  column,
+  colorByColumn,
+  colorByNumberFn,
+}: DateDataDiagramProps) => {
   const { classes } = useStyles()
+  const theme = useTheme()
 
   const extractValueUndefinedSafe = (d: Entity) => {
     const value = d.values[column.index] ?? ''
@@ -60,8 +70,7 @@ export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: D
   const allDates = allActiveData.flatMap(extractValueUndefinedSafe)
   const filteredDates = filteredActiveData.flatMap(extractValueUndefinedSafe)
 
-  // TODO: Support coloring
-  // const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())
+  const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
@@ -106,7 +115,7 @@ export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: D
         indexBy={'binIndex'}
         keys={['filteredIn', 'filteredOut']}
         groupMode={'stacked'}
-        //colors={field === colorByField ? colors : barColors(theme)}
+        colors={colorByColumn !== ColorByColumnNone && column.name === colorByColumn.name ? colors : barColors(theme)}
         tooltip={tooltip}
         enableLabel={false}
         enableGridY={false}
