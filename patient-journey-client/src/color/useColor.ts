@@ -7,13 +7,11 @@ import { schemePaired, schemeSet3, interpolatePlasma } from 'd3-scale-chromatic'
 import { ColorByColumnNone, ColorByColumnOption } from './colorSlice'
 import { useColorByColumn } from './hooks'
 import { FilterColumn } from '../data/filtering'
-import { PatientJourneyEvent } from '../data/events'
-import { Patient } from '../data/patients'
 import { Entity } from '../data/entities'
 import { useCurrentColorColumnNumberRange } from '../data'
 import { stringToMillis } from '../data/columns'
 
-export type ColorByColumnFn = (entity?: Patient | PatientJourneyEvent) => string
+export type ColorByColumnFn = (entity?: Entity) => string
 export type ColorByCategoryFn = (category?: string) => string
 export type ColorByNumberFn = (number?: number) => string
 
@@ -76,7 +74,7 @@ export const useColor = (): ColorByFn => {
   const getColorByNumber = (value?: number) =>
     value && numberRange ? colorScaleNumber((value - numberRange[0]) / (numberRange[1] - numberRange[0])) : defaultColor
 
-  const getColorByColumn = (entity?: Patient | PatientJourneyEvent) => {
+  const getColorByColumn = (entity?: Entity) => {
     if (!entity || colorByColumn === ColorByColumnNone) {
       return defaultColor
     }
@@ -103,12 +101,7 @@ export const useColor = (): ColorByFn => {
     }
   }
 
-  return [
-    (entity?: Patient | PatientJourneyEvent) => getColorByColumn(entity),
-    getColorByCategory,
-    getColorByNumber,
-    colorByColumn,
-  ]
+  return [(entity?: Entity) => getColorByColumn(entity), getColorByCategory, getColorByNumber, colorByColumn]
 }
 
 const getFieldValue = (entity: Entity, column: FilterColumn): string => {
