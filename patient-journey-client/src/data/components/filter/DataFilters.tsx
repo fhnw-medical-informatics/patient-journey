@@ -122,6 +122,7 @@ export const DataFilters = ({
                   type={availableColumn.type}
                   filter={filter}
                   onAddFilter={onAddFilter}
+                  onRemoveFilter={onRemoveFilter}
                 />
               </FilterCard>
             </Grid>

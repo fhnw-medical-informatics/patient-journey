@@ -8,11 +8,18 @@ import { TrilianNone, createFilter, Filter } from '../../filtering'
 
 export interface BooleanDataFilterProps extends Filter<'boolean'> {
   onChange: (filter: Filter<'boolean'>) => void
+  onRemove: (filter: Filter<'boolean'>) => void
 }
 
-export const BooleanDataFilter = ({ column, type, value, onChange }: BooleanDataFilterProps) => {
+export const BooleanDataFilter = ({ column, type, value, onChange, onRemove }: BooleanDataFilterProps) => {
   const handleChange = (event: React.MouseEvent<HTMLElement, MouseEvent>, newValue: any) => {
-    onChange(createFilter(column, type, { isTrue: newValue }))
+    const filter = createFilter(column, type, { isTrue: newValue })
+
+    if (filter.value.isTrue !== TrilianNone) {
+      onChange(filter)
+    } else {
+      onRemove(filter)
+    }
   }
 
   return (

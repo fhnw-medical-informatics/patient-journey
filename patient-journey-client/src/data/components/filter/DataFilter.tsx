@@ -12,6 +12,7 @@ export interface DataFilterProps<T extends FilterColumn['type']> {
   type: T
   filter?: Filter<T>
   onAddFilter: (filter: GenericFilter) => void
+  onRemoveFilter: (filter: GenericFilter) => void
 }
 
 export const DataFilter = <T extends FilterColumn['type']>({
@@ -19,6 +20,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
   type,
   filter,
   onAddFilter,
+  onRemoveFilter,
 }: DataFilterProps<T>) => {
   switch (type) {
     case 'string':
@@ -28,6 +30,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
           type={type}
           value={(filter as Filter<'string'> | undefined)?.value ?? { text: '' }}
           onChange={onAddFilter}
+          onRemove={onRemoveFilter}
         />
       )
     case 'number':
@@ -42,6 +45,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
             }
           }
           onChange={onAddFilter}
+          onRemove={onRemoveFilter}
         />
       )
     case 'boolean':
@@ -55,6 +59,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
             }
           }
           onChange={onAddFilter}
+          onRemove={onRemoveFilter}
         />
       )
     case 'date':
@@ -70,6 +75,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
             }
           }
           onChange={onAddFilter}
+          onRemove={onRemoveFilter}
         />
       )
     default:

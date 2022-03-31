@@ -21,18 +21,23 @@ const useStyles = makeStyles()((theme) => ({
 
 export interface DateDataFilterProps extends Filter<'timestamp' | 'date'> {
   onChange: (filter: Filter<'timestamp' | 'date'>) => void
+  onRemove: (filter: Filter<'timestamp' | 'date'>) => void
 }
 
-export const DateDataFilter = ({ column, type, value, onChange }: DateDataFilterProps) => {
+export const DateDataFilter = ({ column, type, value, onChange, onRemove }: DateDataFilterProps) => {
   const { classes } = useStyles()
 
   const handleChange = (fromValue: Millis | null, toValue: Millis | null) => {
-    onChange(
-      createFilter(column, type, {
-        millisFrom: fromValue !== null ? fromValue : value.millisFrom,
-        millisTo: toValue !== null ? toValue : value.millisTo,
-      })
-    )
+    const filter = createFilter(column, type, {
+      millisFrom: fromValue !== null ? fromValue : value.millisFrom,
+      millisTo: toValue !== null ? toValue : value.millisTo,
+    })
+
+    if (filter.value.millisFrom === MillisNone && filter.value.millisTo === MillisNone) {
+      onRemove(filter)
+    } else {
+      onChange(filter)
+    }
   }
 
   const parseDateTextField = (input: string): Millis | null => {
