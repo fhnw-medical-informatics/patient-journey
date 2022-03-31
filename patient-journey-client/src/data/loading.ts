@@ -10,6 +10,8 @@ export const EVENT_DATA_FILE_URL = 'data/mock-events.csv'
 export const DATA_LOADING_ERROR = 'Data Loading Error'
 export const DATA_LOADING_WARNING = 'Data Loading Warning'
 
+const HEADER_ROW_COUNT = 2
+
 export interface LoadedData {
   readonly patientData: PatientData
   readonly eventData: EventData
@@ -27,34 +29,40 @@ export const loadData = async (
   const onWarning = (message: string) => onAddAlerts([{ type: 'warning', topic: DATA_LOADING_WARNING, message }])
   const onError = (message: string) => onAddAlerts([{ type: 'error', topic: DATA_LOADING_ERROR, message }])
   try {
-    const patientData = createPatientData(await parseFromUrl(patientDataUrl), onWarning, onError)
-    const eventData = createEventData(await parseFromUrl(eventDataUrl), onWarning, onError)
+    const patientData = createPatientData(await parseFromUrl(patientDataUrl, 'Patient'), HEADER_ROW_COUNT, onWarning)
+    const eventData = createEventData(await parseFromUrl(eventDataUrl, 'Event'), HEADER_ROW_COUNT, onWarning)
     const data = { patientData, eventData }
     checkDataInconsistencies(data, onWarning)
     onLoadingDataComplete(data)
   } catch (e: any) {
     console.error(DATA_LOADING_ERROR, e)
     onLoadingDataFailed(DATA_LOADING_ERROR)
-    if (e instanceof Response) {
-      onError(`${e.statusText} (${e.url})`)
-    } else {
-      onError(e.message)
-    }
+    onError(e.message)
   }
 }
 
-async function parseFromUrl(url: string) {
+async function parseFromUrl(url: string, entityName: string) {
   const response = await fetch(url)
   if (!response.ok) {
-    return Promise.reject(response)
+    throw new Error(`${response.statusText} (${response.url})`)
   }
   const csv = await response.text()
-  return parseFromString(csv)
+  const result = parseFromString(csv)
+  if (result.errors.length > 0) {
+    throw new Error('Parsing errors: ' + result.errors.join('\n'))
+  }
+  if (result.data.length < HEADER_ROW_COUNT) {
+    throw new Error(`${entityName} data table must contain two header rows (column names, column types).`)
+  } else if (result.data.length === HEADER_ROW_COUNT) {
+    throw new Error(`${entityName} data table must contain at least one row of data.`)
+  } else {
+    return result
+  }
 }
 
 export const parseFromString = (csv: string) => {
   // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
-  return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true })
+  return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true, delimiter: ',' })
 }
 
 const checkDataInconsistencies = (

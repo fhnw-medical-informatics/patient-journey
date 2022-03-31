@@ -36,7 +36,7 @@ describe('sorting', () => {
     expect(compareBooleanValues('', 'true')).toBeGreaterThan(0)
   })
   it('stableSort', () => {
-    const data = createPatientData(parseFromString(TEST_DATA))
+    const data = createPatientData(parseFromString(TEST_DATA), 2)
     const stringColumn = data.columns[1]
     const numberColumn = data.columns[2]
     const dateColumn = data.columns[3]

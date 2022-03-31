@@ -1,14 +1,14 @@
 import {
+  ActiveDataViewType,
+  addDataFilter,
   DataStateLoadingComplete,
   DataStateLoadingFailed,
   loadData,
-  setHoveredEntity,
-  setSelectedEntity,
-  addDataFilter,
   removeDataFilter,
   resetDataFilter,
   setDataView,
-  ActiveDataViewType,
+  setHoveredEntity,
+  setSelectedEntity,
 } from './dataSlice'
 
 import { createStore } from '../store'
@@ -22,17 +22,21 @@ const PID_1 = 'PID_1' as PatientId
 const TEST_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
 const TEST_PATIENT_CSV_MISSING_PID = 'Name\nstring\nJane'
 const TEST_PATIENT_CSV_INVALID_COLUMN_TYPE = 'ID,Name,Invalid\npid,string,invalid\nPID_1,Jane,X\nPID_2,John,Y'
+const TEST_PATIENT_CSV_HEADERS_ONLY = 'Col_1,Id,Col_2\nstring,PiD,string'
 const TEST_EVENT_CSV = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp\nEID_1,PID_1,1\nEID_2,PID_2,2'
 const TEST_EVENT_CSV_MISSING_EID = 'Patient ID,Timestamp\npid,timestamp\nPID_1,42'
 const TEST_EVENT_CSV_INVALID_COLUMN_TYPE = 'Event ID,Patient ID,Invalid\neid,pid,invalid\nEID_1,PID_1,1\nEID_2,PID_2,2'
+const TEST_EVENT_CSV_HEADERS_ONLY = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp'
 
 describe('dataSlice', () => {
   const successPatientDataUrl = 'successPatientDataUrl'
   const successPatientDataUrlMissingPid = 'successPatientDataUrlMissingPid'
   const successPatientDataUrlInvalidColumnType = 'successPatientUrlDataInvalidColumnType'
+  const successPatientDataUrlHeadersOnly = 'successPatientDataUrlHeadersOnly'
   const successEventDataUrl = 'success-event-data-url'
   const successEventDataUrlMissingEid = 'successEventDataUrlMissingEid'
   const successEventDataUrlInvalidColumnType = 'successEventDataUrlInvalidColumnType'
+  const successEventDataUrlHeadersOnly = 'successEventDataUrlHeadersOnly'
   const successUrlEmpty = 'success-url-empty'
   const errorUrl = 'error-url'
   const globalAny = global as any
@@ -55,6 +59,11 @@ describe('dataSlice', () => {
             ok: true,
             text: () => Promise.resolve(TEST_PATIENT_CSV_INVALID_COLUMN_TYPE),
           })
+        case `${successPatientDataUrlHeadersOnly}`:
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(TEST_PATIENT_CSV_HEADERS_ONLY),
+          })
         case `${successEventDataUrl}`:
           return Promise.resolve({
             ok: true,
@@ -69,6 +78,11 @@ describe('dataSlice', () => {
           return Promise.resolve({
             ok: true,
             text: () => Promise.resolve(TEST_EVENT_CSV_INVALID_COLUMN_TYPE),
+          })
+        case `${successEventDataUrlHeadersOnly}`:
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(TEST_EVENT_CSV_HEADERS_ONLY),
           })
         case `${successUrlEmpty}`:
           return Promise.resolve({
@@ -116,42 +130,15 @@ describe('dataSlice', () => {
     expect(eventData.allEntities[1].pid).toEqual('PID_2')
   })
 
-  it('loadData loading-complete empty data', async () => {
-    const store = createStore()
-    await loadData(successUrlEmpty, successUrlEmpty)(store.dispatch)
-
-    const state = store.getState()
-    const data = state.data
-    expect(data.type).toEqual('loading-complete')
-    const patientData = (data as DataStateLoadingComplete).patientData
-    expect(patientData.allEntities).toEqual([])
-    expect(patientData.columns).toEqual([])
-    const eventData = (data as DataStateLoadingComplete).eventData
-    expect(eventData.allEntities).toEqual([])
-    expect(eventData.columns).toEqual([])
-    expect(state.alert.alerts.length).toEqual(2)
-    const patientDataAlert = state.alert.alerts[0]
-    expect(patientDataAlert.type).toEqual('error')
-    expect(patientDataAlert.message).toEqual(
-      'Patient data table must contain two header rows (column names, column types).'
-    )
-    const eventDataAlert = state.alert.alerts[1]
-    expect(eventDataAlert.type).toEqual('error')
-    expect(eventDataAlert.message).toEqual(
-      'Event data table must contain two header rows (column names, column types).'
-    )
-  })
-
   it('loadData loading-complete patient data table missing pid', async () => {
     const store = createStore()
-    await loadData(successPatientDataUrlMissingPid, successUrlEmpty)(store.dispatch)
+    await loadData(successPatientDataUrlMissingPid, successEventDataUrl)(store.dispatch)
 
     const state = store.getState()
     const data = state.data
     expect(data.type).toEqual('loading-complete')
     const patientData = (data as DataStateLoadingComplete).patientData
     const expectedPatient: Patient = {
-      type: 'patients',
       pid: '0' as PatientId,
       uid: '0' as PatientId,
       values: ['Jane'],
@@ -181,7 +168,6 @@ describe('dataSlice', () => {
     expect(data.type).toEqual('loading-complete')
     const eventData = (data as DataStateLoadingComplete).eventData
     const expectedEvent: PatientJourneyEvent = {
-      type: 'events',
       eid: '0' as EventId,
       uid: '0' as EventId,
       pid: PID_1,
@@ -212,6 +198,54 @@ describe('dataSlice', () => {
     expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)
   })
 
+  it('loadData loading-failed patient table missing header rows', async () => {
+    const store = createStore()
+    await loadData(successUrlEmpty, successUrlEmpty)(store.dispatch)
+
+    const state = store.getState()
+    const data = state.data
+    expect(data.type).toEqual('loading-failed')
+    expect(state.alert.alerts.length).toEqual(1)
+    expect(state.alert.alerts[0].message).toEqual(
+      'Patient data table must contain two header rows (column names, column types).'
+    )
+  })
+
+  it('loadData loading-failed event missing header rows', async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+
+    const state = store.getState()
+    const data = state.data
+    expect(data.type).toEqual('loading-failed')
+    expect(state.alert.alerts.length).toEqual(1)
+    expect(state.alert.alerts[0].message).toEqual(
+      'Event data table must contain two header rows (column names, column types).'
+    )
+  })
+
+  it('loadData loading-failed patient table no data rows', async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrlHeadersOnly, successUrlEmpty)(store.dispatch)
+    const data = store.getState().data
+    expect(data.type).toEqual('loading-failed')
+    expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)
+    expect(store.getState().alert.alerts.length).toEqual(1)
+    expect(store.getState().alert.alerts[0].message).toEqual(
+      'Patient data table must contain at least one row of data.'
+    )
+  })
+
+  it('loadData loading-failed event table no data rows', async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successEventDataUrlHeadersOnly)(store.dispatch)
+    const data = store.getState().data
+    expect(data.type).toEqual('loading-failed')
+    expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)
+    expect(store.getState().alert.alerts.length).toEqual(1)
+    expect(store.getState().alert.alerts[0].message).toEqual('Event data table must contain at least one row of data.')
+  })
+
   it(`handles ${setSelectedEntity.type} action`, async () => {
     const store = createStore()
     await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
@@ -225,7 +259,7 @@ describe('dataSlice', () => {
 
   it(`handles ${setHoveredEntity.type} action`, async () => {
     const store = createStore()
-    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getHovered = () => (store.getState().data as DataStateLoadingComplete).patientData.hoveredEntity
     expect(getHovered()).toEqual(PatientIdNone)
     store.dispatch(setHoveredEntity(PID_1))
@@ -236,7 +270,7 @@ describe('dataSlice', () => {
 
   it(`handles ${addDataFilter.type} action`, async () => {
     const store = createStore()
-    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
     expect(getFilters()).toEqual([])
 
@@ -266,7 +300,7 @@ describe('dataSlice', () => {
 
   it(`does not add the same filter twice with ${addDataFilter.type} action`, async () => {
     const store = createStore()
-    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
     expect(getFilters()).toEqual([])
 
@@ -287,7 +321,7 @@ describe('dataSlice', () => {
 
   it(`does not add the same filter twice with ${addDataFilter.type} action, if the filter value is different, it updates the value`, async () => {
     const store = createStore()
-    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
     expect(getFilters()).toEqual([])
 
@@ -316,7 +350,7 @@ describe('dataSlice', () => {
 
   it(`handles ${removeDataFilter.type} action`, async () => {
     const store = createStore()
-    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
     expect(getFilters()).toEqual([])
 
@@ -349,7 +383,7 @@ describe('dataSlice', () => {
 
   it(`handles ${resetDataFilter.type} action`, async () => {
     const store = createStore()
-    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
     expect(getFilters()).toEqual([])
 
@@ -370,7 +404,7 @@ describe('dataSlice', () => {
 
   it(`handles ${setDataView.type} action`, async () => {
     const store = createStore()
-    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    await loadData(successPatientDataUrl, successEventDataUrl)(store.dispatch)
     const getView = () => (store.getState().data as DataStateLoadingComplete).view
     expect(getView()).toEqual('patients')
     store.dispatch(setDataView('events' as ActiveDataViewType))

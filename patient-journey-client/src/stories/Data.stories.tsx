@@ -42,13 +42,12 @@ DataLoadingComplete.args = {
         { index: 2, name: 'Last Name', type: 'string' },
       ],
       allEntities: [
-        { uid: '0' as PatientId, type: 'patients', pid: '0' as PatientId, values: ['0', 'Ada', 'Lovelace'] },
-        { uid: '0' as PatientId, type: 'patients', pid: '1' as PatientId, values: ['1', 'Michelle', 'Obama '] },
+        { uid: '0' as PatientId, pid: '0' as PatientId, values: ['0', 'Ada', 'Lovelace'] },
+        { uid: '0' as PatientId, pid: '1' as PatientId, values: ['1', 'Michelle', 'Obama '] },
       ],
     } as PatientData,
     eventData: {
       ...EMPTY_EVENT_DATA,
-      type: 'events',
       columns: [],
       allEntities: [],
     } as EventData,

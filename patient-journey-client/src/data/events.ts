@@ -16,7 +16,6 @@ enum EventIdBrand {}
 export type EventId = EventIdBrand & string
 
 export interface PatientJourneyEvent extends Entity {
-  readonly type: 'events'
   readonly eid: EventId
   readonly pid: PatientId
 }
@@ -32,51 +31,42 @@ export const EMPTY_EVENT_DATA: EventData = {
 
 export const createEventData = (
   result: ParseResult<string[]>,
-  onWarning: (message: string) => void = noOp,
-  onError: (message: string) => void = noOp
+  headerRowCount: number,
+  onWarning: (message: string) => void = noOp
 ): EventData => {
-  const HEADER_ROW_COUNT = 2
-  if (result.data.length < HEADER_ROW_COUNT) {
-    onError('Event data table must contain two header rows (column names, column types).')
-    return EMPTY_EVENT_DATA
-  } else {
-    const columnNames = result.data[0]
-    const columnTypes = result.data[1].map((v) => v.toLowerCase())
-    const eventIdColumnIndex = columnTypes.indexOf(EVENT_ID_COLUMN_TYPE)
-    const isMissingEventIdColumn = eventIdColumnIndex < 0
+  const columnNames = result.data[0]
+  const columnTypes = result.data[1].map((v) => v.toLowerCase())
+  const eventIdColumnIndex = columnTypes.indexOf(EVENT_ID_COLUMN_TYPE)
+  const isMissingEventIdColumn = eventIdColumnIndex < 0
 
-    if (isMissingEventIdColumn) {
-      onWarning(
-        `No '${EVENT_ID_COLUMN_TYPE}' column type found in event data table. Using row index to identify events.`
-      )
+  if (isMissingEventIdColumn) {
+    onWarning(`No '${EVENT_ID_COLUMN_TYPE}' column type found in event data table. Using row index to identify events.`)
+  }
+
+  columnTypes.forEach((type) => {
+    if (!isEventDataColumnType(type)) {
+      onWarning(`Invalid column type '${type}' found in event data table. Falling back to 'string'.`)
     }
+  })
 
-    columnTypes.forEach((type) => {
-      if (!isEventDataColumnType(type)) {
-        onError(`Invalid column type '${type}' found in event data table. Falling back to 'string'.`)
+  const patientIdColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
+  const columns = columnNames.map<EventDataColumn>((name, index) => ({
+    name,
+    type: columnTypes[index] as EventDataColumnType,
+    index,
+  }))
+  return {
+    ...EMPTY_EVENT_DATA,
+    columns,
+    allEntities: result.data.slice(headerRowCount).map((row: string[], index) => {
+      const id = isMissingEventIdColumn ? String(index) : row[eventIdColumnIndex]
+      return {
+        uid: id as EntityId,
+        eid: id as EventId,
+        pid: row[patientIdColumnIndex] as PatientId,
+        values: row,
       }
-    })
-
-    const patientIdColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
-    const columns = columnNames.map<EventDataColumn>((name, index) => ({
-      name,
-      type: columnTypes[index] as EventDataColumnType,
-      index,
-    }))
-    return {
-      ...EMPTY_EVENT_DATA,
-      columns,
-      allEntities: result.data.slice(HEADER_ROW_COUNT).map((row: string[], index) => {
-        const id = isMissingEventIdColumn ? String(index) : row[eventIdColumnIndex]
-        return {
-          uid: id as EntityId,
-          type: 'events',
-          eid: id as EventId,
-          pid: row[patientIdColumnIndex] as PatientId,
-          values: row,
-        }
-      }),
-    }
+    }),
   }
 }
 

@@ -6,12 +6,10 @@ import { PatientDataColumn } from './patients'
 const mockData: ReadonlyArray<Entity> = [
   {
     uid: '1' as EntityId,
-    type: 'patients',
     values: ['Jessica', '25', 'false', '31.12.2019', '1648555453169'],
   },
   {
     uid: '2' as EntityId,
-    type: 'patients',
     values: ['Peter', '31', 'true', '31.12.2018', '1648552453169'],
   },
 ]
