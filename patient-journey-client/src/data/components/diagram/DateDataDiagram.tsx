@@ -9,9 +9,9 @@ import { format, parseDate, parseMillis } from '../../columns'
 import { DataDiagramsProps } from './DataDiagrams'
 import { makeStyles } from '../../../utils'
 import { Entity } from '../../entities'
-import { ColorByColumnNone } from '../../../color'
 import { useTheme } from '@mui/material'
 import { barColors } from './shared'
+import { ColorByColumnNone } from '../../../color'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -80,21 +80,32 @@ export const DateDataDiagram = ({
     const allTicketBins = createBins(allDates, timeScale)
     const filteredTicketBins = createBins(filteredDates, timeScale)
 
-    return allTicketBins.map<BinDatum>((_, binIndex) => {
-      const allTicketBin = allTicketBins[binIndex]
-      const binStart = allTicketBin.x0
-      const binEnd = allTicketBin.x1
-      const filteredTicketBin = filteredTicketBins[binIndex]
-      const allCount = (allTicketBin && allTicketBin.length) ?? 0
-      const filteredCount = (filteredTicketBin && filteredTicketBin.length) ?? 0
-      return {
-        binIndex,
-        binStart,
-        binEnd,
-        filteredIn: filteredCount,
-        filteredOut: allCount - filteredCount,
-      }
-    })
+    return (
+      allTicketBins
+        .map<BinDatum>((_, binIndex) => {
+          const allTicketBin = allTicketBins[binIndex]
+          const binStart = allTicketBin.x0
+          const binEnd = allTicketBin.x1
+          const filteredTicketBin = filteredTicketBins[binIndex]
+          const allCount = (allTicketBin && allTicketBin.length) ?? 0
+          const filteredCount = (filteredTicketBin && filteredTicketBin.length) ?? 0
+          return {
+            binIndex,
+            binStart,
+            binEnd,
+            filteredIn: filteredCount,
+            filteredOut: allCount - filteredCount,
+          }
+        })
+        // Remove the last bin if it is empty
+        .reduce<BinDatum[]>(
+          (acc, curr, currIndex) =>
+            curr.filteredIn === 0 && curr.filteredOut === 0 && currIndex === allTicketBins.length - 1
+              ? acc
+              : [...acc, curr],
+          []
+        )
+    )
   }, [allDates, filteredDates])
 
   const tooltip = useCallback(

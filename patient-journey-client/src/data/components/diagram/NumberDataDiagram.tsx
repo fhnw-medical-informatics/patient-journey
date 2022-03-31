@@ -77,21 +77,31 @@ export const NumberDataDiagram = ({
     const allTicketBins = createBins(allNumbers, timeScale)
     const filteredTicketBins = createBins(filteredNumbers, timeScale)
 
-    return allTicketBins.map<BinDatum>((_, binIndex) => {
-      const allTicketBin = allTicketBins[binIndex]
-      const binStart = allTicketBin.x0
-      const binEnd = allTicketBin.x1
-      const filteredTicketBin = filteredTicketBins[binIndex]
-      const allCount = (allTicketBin && allTicketBin.length) ?? 0
-      const filteredCount = (filteredTicketBin && filteredTicketBin.length) ?? 0
-      return {
-        binIndex,
-        binStart,
-        binEnd,
-        filteredIn: filteredCount,
-        filteredOut: allCount - filteredCount,
-      }
-    })
+    return (
+      allTicketBins
+        .map<BinDatum>((_, binIndex) => {
+          const allTicketBin = allTicketBins[binIndex]
+          const binStart = allTicketBin.x0
+          const binEnd = allTicketBin.x1
+          const filteredTicketBin = filteredTicketBins[binIndex]
+          const allCount = (allTicketBin && allTicketBin.length) ?? 0
+          const filteredCount = (filteredTicketBin && filteredTicketBin.length) ?? 0
+          return {
+            binIndex,
+            binStart,
+            binEnd,
+            filteredIn: filteredCount,
+            filteredOut: allCount - filteredCount,
+          }
+        })
+        // Remove the last bin if it is empty
+        .reduce<BinDatum[]>((acc, bin, binIndex) => {
+          if (bin.filteredIn === 0 && bin.filteredOut === 0 && binIndex === allTicketBins.length - 1) {
+            return acc
+          }
+          return [...acc, bin]
+        }, [])
+    )
   }, [allNumbers, filteredNumbers])
 
   const tooltip = useCallback(
