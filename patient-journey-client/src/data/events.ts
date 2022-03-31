@@ -38,6 +38,12 @@ export const createEventData = (
   const columnTypes = result.data[1].map((v) => v.toLowerCase())
   const eventIdColumnIndex = columnTypes.indexOf(EVENT_ID_COLUMN_TYPE)
   const isMissingEventIdColumn = eventIdColumnIndex < 0
+  const patientIdColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
+  const isMissingPatientIdColumn = patientIdColumnIndex < 0
+
+  if (isMissingPatientIdColumn) {
+    throw new Error(`No '${PATIENT_ID_COLUMN_TYPE}' column type found in event data table.`)
+  }
 
   if (isMissingEventIdColumn) {
     onWarning(`No '${EVENT_ID_COLUMN_TYPE}' column type found in event data table. Using row index to identify events.`)
@@ -49,7 +55,6 @@ export const createEventData = (
     }
   })
 
-  const patientIdColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
   const columns = columnNames.map<EventDataColumn>((name, index) => ({
     name,
     type: columnTypes[index] as EventDataColumnType,
