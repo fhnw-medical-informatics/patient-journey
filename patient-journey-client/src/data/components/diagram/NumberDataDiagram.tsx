@@ -17,7 +17,7 @@ const useStyles = makeStyles()((theme) => ({
     height: '100px',
   },
   tooltipText: {
-    color: 'white',
+    color: theme.palette.text.primary,
     fontSize: '12px',
   },
 }))
