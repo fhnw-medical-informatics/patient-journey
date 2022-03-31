@@ -41,7 +41,7 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-interface Props {
+export interface Props {
   readonly alerts: ReadonlyArray<Alert>
   readonly unreadCount: number
   readonly onMarkAlertsRead: () => void
@@ -63,7 +63,8 @@ export const Alerts = ({ alerts, unreadCount, onMarkAlertsRead }: Props) => {
 
   const openPopover = Boolean(anchorEl)
   const id = openPopover ? 'simple-popover' : undefined
-  const hasUnreadErrors = [...alerts].reverse().findIndex((a) => a.type === 'error') < unreadCount
+  const firstErrorIndex = [...alerts].reverse().findIndex((a) => a.type === 'error')
+  const hasUnreadErrors = firstErrorIndex >= 0 && firstErrorIndex < unreadCount
   const badgeColor = hasUnreadErrors ? 'error' : 'warning'
 
   return (
