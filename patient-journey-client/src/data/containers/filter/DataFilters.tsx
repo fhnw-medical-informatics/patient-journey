@@ -12,6 +12,7 @@ import {
 import { DataFilters as DataFiltersComponent } from '../../components/filter/DataFilters'
 import { GenericFilter } from '../../filtering'
 import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlice'
+import { useColor } from '../../../color'
 
 export const DataFilters = () => {
   const activeView = useActiveDataView()
@@ -20,6 +21,8 @@ export const DataFilters = () => {
 
   const filters = useAllFilters()
   const activeColums = useActiveDataColumns()
+
+  const [, , colorByNumberFn, colorByColumn] = useColor()
 
   const dispatch = useAppDispatch()
 
@@ -45,6 +48,8 @@ export const DataFilters = () => {
       onAddFilter={handleAddFilter}
       onRemoveFilter={handleRemoveFilter}
       onResetFilters={handleResetFilters}
+      colorByColumn={colorByColumn}
+      colorByNumberFn={colorByNumberFn}
     />
   )
 }

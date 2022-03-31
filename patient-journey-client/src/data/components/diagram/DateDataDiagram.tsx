@@ -9,6 +9,9 @@ import { format, parseDate, parseMillis } from '../../columns'
 import { DataDiagramsProps } from './DataDiagrams'
 import { makeStyles } from '../../../utils'
 import { Entity } from '../../entities'
+import { useTheme } from '@mui/material'
+import { barColors } from './shared'
+import { ColorByColumnNone } from '../../../color'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -16,7 +19,7 @@ const useStyles = makeStyles()((theme) => ({
     height: '100px',
   },
   tooltipText: {
-    color: 'white',
+    color: theme.palette.text.primary,
     fontSize: '12px',
   },
 }))
@@ -38,8 +41,15 @@ interface BinDatum {
 
 export type DateDataDiagramProps = DataDiagramsProps
 
-export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: DateDataDiagramProps) => {
+export const DateDataDiagram = ({
+  allActiveData,
+  filteredActiveData,
+  column,
+  colorByColumn,
+  colorByNumberFn,
+}: DateDataDiagramProps) => {
   const { classes } = useStyles()
+  const theme = useTheme()
 
   const extractValueUndefinedSafe = (d: Entity) => {
     const value = d.values[column.index] ?? ''
@@ -60,8 +70,7 @@ export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: D
   const allDates = allActiveData.flatMap(extractValueUndefinedSafe)
   const filteredDates = filteredActiveData.flatMap(extractValueUndefinedSafe)
 
-  // TODO: Support coloring
-  // const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())
+  const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
@@ -71,29 +80,40 @@ export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: D
     const allTicketBins = createBins(allDates, timeScale)
     const filteredTicketBins = createBins(filteredDates, timeScale)
 
-    return allTicketBins.map<BinDatum>((_, binIndex) => {
-      const allTicketBin = allTicketBins[binIndex]
-      const binStart = allTicketBin.x0
-      const binEnd = allTicketBin.x1
-      const filteredTicketBin = filteredTicketBins[binIndex]
-      const allCount = (allTicketBin && allTicketBin.length) ?? 0
-      const filteredCount = (filteredTicketBin && filteredTicketBin.length) ?? 0
-      return {
-        binIndex,
-        binStart,
-        binEnd,
-        filteredIn: filteredCount,
-        filteredOut: allCount - filteredCount,
-      }
-    })
+    return (
+      allTicketBins
+        .map<BinDatum>((_, binIndex) => {
+          const allTicketBin = allTicketBins[binIndex]
+          const binStart = allTicketBin.x0
+          const binEnd = allTicketBin.x1
+          const filteredTicketBin = filteredTicketBins[binIndex]
+          const allCount = (allTicketBin && allTicketBin.length) ?? 0
+          const filteredCount = (filteredTicketBin && filteredTicketBin.length) ?? 0
+          return {
+            binIndex,
+            binStart,
+            binEnd,
+            filteredIn: filteredCount,
+            filteredOut: allCount - filteredCount,
+          }
+        })
+        // Remove the last bin if it is empty
+        .reduce<BinDatum[]>(
+          (acc, curr, currIndex) =>
+            curr.filteredIn === 0 && curr.filteredOut === 0 && currIndex === allTicketBins.length - 1
+              ? acc
+              : [...acc, curr],
+          []
+        )
+    )
   }, [allDates, filteredDates])
 
   const tooltip = useCallback(
     ({ index }) => {
       const d = data[index]
       const dateRange = `${
-        d.binStart ? format(d.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
-      } - ${d.binEnd ? format(d.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''}`
+        d.binStart !== undefined ? format(d.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
+      } - ${d.binEnd !== undefined ? format(d.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''}`
       return <div className={classes.tooltipText}>{dateRange}</div>
     },
     [data, classes, column]
@@ -106,7 +126,7 @@ export const DateDataDiagram = ({ allActiveData, filteredActiveData, column }: D
         indexBy={'binIndex'}
         keys={['filteredIn', 'filteredOut']}
         groupMode={'stacked'}
-        //colors={field === colorByField ? colors : barColors(theme)}
+        colors={colorByColumn !== ColorByColumnNone && column.name === colorByColumn.name ? colors : barColors(theme)}
         tooltip={tooltip}
         enableLabel={false}
         enableGridY={false}
