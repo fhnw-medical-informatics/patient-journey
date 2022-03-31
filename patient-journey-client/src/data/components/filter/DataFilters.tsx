@@ -11,6 +11,7 @@ import { Entity } from '../../entities'
 import { DataFilter } from './DataFilter'
 import { FilterCard } from './FilterCard'
 import { ActiveDataViewType } from '../../dataSlice'
+import { ColorByColumnOption, ColorByNumberFn } from '../../../color'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -31,6 +32,8 @@ interface DataFiltersProps {
   onAddFilter: (filter: GenericFilter) => void
   onRemoveFilter: (filter: GenericFilter) => void
   onResetFilters: () => void
+  colorByColumn: ColorByColumnOption
+  colorByNumberFn: ColorByNumberFn
 }
 
 export const DataFilters = ({
@@ -42,6 +45,8 @@ export const DataFilters = ({
   onAddFilter,
   onRemoveFilter,
   onResetFilters,
+  colorByColumn,
+  colorByNumberFn,
 }: DataFiltersProps) => {
   const { classes } = useStyles()
 
@@ -116,6 +121,8 @@ export const DataFilters = ({
                   column={availableColumn}
                   allActiveData={allActiveData}
                   filteredActiveData={filteredActiveData}
+                  colorByColumn={colorByColumn}
+                  colorByNumberFn={colorByNumberFn}
                 />
                 <DataFilter
                   column={availableColumn}

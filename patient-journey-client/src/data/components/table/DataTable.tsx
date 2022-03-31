@@ -10,6 +10,7 @@ import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
 import { Entity, EntityId } from '../../entities'
 import { DataColumn } from '../../columns'
+import { ColorByColumnFn, ColorByColumnNone, ColorByColumnOption } from '../../../color'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -43,9 +44,20 @@ interface Props {
   readonly hoveredEntity: EntityId
   readonly onEntityClick: (id: EntityId) => void
   readonly onEntityHover: (id: EntityId) => void
+  readonly colorByColumn: ColorByColumnOption
+  readonly colorByColumnFn: ColorByColumnFn
 }
 
-export const DataTable = ({ data, columns, selectedEntity, hoveredEntity, onEntityClick, onEntityHover }: Props) => {
+export const DataTable = ({
+  data,
+  columns,
+  selectedEntity,
+  hoveredEntity,
+  onEntityClick,
+  onEntityHover,
+  colorByColumn,
+  colorByColumnFn,
+}: Props) => {
   const { classes } = useStyles()
   const tableData = data
   const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
@@ -83,6 +95,15 @@ export const DataTable = ({ data, columns, selectedEntity, hoveredEntity, onEnti
                       onClick={() => onEntityClick(row.uid)}
                       onMouseEnter={() => onEntityHover(row.uid)}
                       onMouseLeave={() => onEntityHover(PatientIdNone)}
+                      style={{
+                        borderLeft: colorByColumn !== ColorByColumnNone ? `5px solid ${colorByColumnFn(row)}` : 'unset',
+                        backgroundColor:
+                          colorByColumn !== ColorByColumnNone
+                            ? `${colorByColumnFn(row)}${
+                                selectedEntity === row.uid || hoveredEntity === row.uid ? 'AA' : '33'
+                              }`
+                            : '',
+                      }}
                     >
                       {columns.map((column) => {
                         const value = row.values[column.index] ?? ''
