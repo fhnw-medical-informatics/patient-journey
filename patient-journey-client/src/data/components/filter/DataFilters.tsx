@@ -5,11 +5,12 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt'
 import { makeStyles } from '../../../utils'
 
 import { Filter, FilterColumn, GenericFilter } from '../../filtering'
-import { Button, Grid } from '@mui/material'
+import { Button, Grid, Typography } from '@mui/material'
 import { DataDiagrams } from '../diagram/DataDiagrams'
 import { Entity } from '../../entities'
 import { DataFilter } from './DataFilter'
 import { FilterCard } from './FilterCard'
+import { ActiveDataViewType } from '../../dataSlice'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -22,6 +23,7 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface DataFiltersProps {
+  activeView: ActiveDataViewType
   allActiveData: ReadonlyArray<Entity>
   filteredActiveData: ReadonlyArray<Entity>
   activeFilters: ReadonlyArray<GenericFilter>
@@ -32,6 +34,7 @@ interface DataFiltersProps {
 }
 
 export const DataFilters = ({
+  activeView,
   allActiveData,
   filteredActiveData,
   activeFilters,
@@ -52,6 +55,10 @@ export const DataFilters = ({
       | undefined
   }
 
+  const otherFilters = activeFilters.filter(
+    (filter) => availableColumns.findIndex((column) => column.name === filter.column.name) === -1
+  )
+
   return (
     <Grid container spacing={1} alignContent="flex-start">
       <Grid item xs={12}>
@@ -69,7 +76,28 @@ export const DataFilters = ({
           </Grid>
         </Grid>
       </Grid>
-
+      {otherFilters.length > 0 && (
+        <Grid item xs={12}>
+          <FilterCard
+            label={`${activeView === 'patients' ? 'Event' : 'Patient'} Filters`}
+            isActive={true}
+            onRemove={() => {
+              otherFilters.forEach((filter) => {
+                onRemoveFilter(filter)
+              })
+            }}
+          >
+            <Typography>
+              {activeView === 'patients' ? 'Patient' : 'Event'} results are limited by{' '}
+              <strong>
+                {otherFilters.length} active {activeView === 'patients' ? 'event' : 'patient'} filter
+                {otherFilters.length > 1 ? 's' : ''}
+              </strong>
+              .
+            </Typography>
+          </FilterCard>
+        </Grid>
+      )}
       {availableColumns
         .filter((col) => ['string', 'number', 'boolean', 'date', 'timestamp'].includes(col.type))
         .map((availableColumn) => {

@@ -1,7 +1,6 @@
 import React from 'react'
 
-import { Card, CardContent, Grid, Typography, IconButton, useTheme } from '@mui/material'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
+import { Card, CardContent, Grid, Typography, useTheme, Button } from '@mui/material'
 
 export interface FilterCardProps {
   label: string
@@ -25,11 +24,13 @@ export const FilterCard = ({ label, isActive, onRemove, children }: FilterCardPr
             {label}
           </Typography>
         </Grid>
-        <Grid item>
-          <IconButton onClick={onRemove} disabled={!isActive}>
-            <HighlightOffIcon />
-          </IconButton>
-        </Grid>
+        {isActive && (
+          <Grid item>
+            <Button variant="text" onClick={onRemove} disabled={!isActive}>
+              Clear
+            </Button>
+          </Grid>
+        )}
       </Grid>
       <CardContent sx={{ '> *:not(:last-child)': { marginBottom: theme.spacing(3) } }}>{children}</CardContent>
     </Card>
