@@ -264,6 +264,56 @@ describe('dataSlice', () => {
     expect(getFilters()).toEqual([testFilter, testFilter2])
   })
 
+  it(`does not add the same filter twice with ${addDataFilter.type} action`, async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    expect(getFilters()).toEqual([])
+
+    const testFilter: Filter<'string'> = {
+      column: { index: 0, name: 'Col_1', type: 'string' },
+      type: 'string',
+      value: {
+        text: 'test',
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter))
+    expect(getFilters()).toEqual([testFilter])
+
+    store.dispatch(addDataFilter(testFilter))
+    expect(getFilters()).toEqual([testFilter])
+  })
+
+  it(`does not add the same filter twice with ${addDataFilter.type} action, if the filter value is different, it updates the value`, async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)
+    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    expect(getFilters()).toEqual([])
+
+    const testFilter: Filter<'string'> = {
+      column: { index: 0, name: 'Col_1', type: 'string' },
+      type: 'string',
+      value: {
+        text: 'test',
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter))
+    expect(getFilters()).toEqual([testFilter])
+
+    const testFilter2: Filter<'string'> = {
+      column: { index: 0, name: 'Col_1', type: 'string' },
+      type: 'string',
+      value: {
+        text: 'test2',
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter2))
+    expect(getFilters()).toEqual([testFilter2])
+  })
+
   it(`handles ${removeDataFilter.type} action`, async () => {
     const store = createStore()
     await loadData(successPatientDataUrl, successUrlEmpty)(store.dispatch)

@@ -17,18 +17,23 @@ const useStyles = makeStyles()((theme) => ({
 
 export interface NumberDataFilterProps extends Filter<'number'> {
   onChange: (filter: Filter<'number'>) => void
+  onRemove: (filter: Filter<'number'>) => void
 }
 
-export const NumberDataFilter = ({ column, type, value, onChange }: NumberDataFilterProps) => {
+export const NumberDataFilter = ({ column, type, value, onChange, onRemove }: NumberDataFilterProps) => {
   const { classes } = useStyles()
 
   const handleChange = (fromValue: number | null, toValue: number | null) => {
-    onChange(
-      createFilter(column, type, {
-        from: fromValue !== null ? fromValue : value.from,
-        to: toValue !== null ? toValue : value.to,
-      })
-    )
+    const filter = createFilter(column, type, {
+      from: fromValue !== null ? fromValue : value.from,
+      to: toValue !== null ? toValue : value.to,
+    })
+
+    if (isNaN(filter.value.from) && isNaN(filter.value.to)) {
+      onRemove(filter)
+    } else {
+      onChange(filter)
+    }
   }
 
   return (
