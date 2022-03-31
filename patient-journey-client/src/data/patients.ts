@@ -1,11 +1,13 @@
-import { DataColumn, GenericColumnType } from './columns'
+import { DataColumn, GENERIC_COLUMN_TYPES } from './columns'
 import { ParseResult } from 'papaparse'
 import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
 import { noOp } from '../utils'
 
-export const PATIENT_ID_COLUMN_TYPE = 'pid'
+export const PATIENT_ID_COLUMN_TYPE = 'pid' as const
 
-export type PatientDataColumnType = typeof PATIENT_ID_COLUMN_TYPE | GenericColumnType
+export const PATIENT_DATA_COLUMN_TYPES = [...GENERIC_COLUMN_TYPES, PATIENT_ID_COLUMN_TYPE]
+export type PatientDataColumnType = typeof PATIENT_DATA_COLUMN_TYPES[number]
+
 export type PatientDataColumn = DataColumn<PatientDataColumnType>
 
 export interface Patient extends Entity {
@@ -48,6 +50,12 @@ export const createPatientData = (
       )
     }
 
+    columnTypes.forEach((type) => {
+      if (!isPatientDataColumnType(type)) {
+        onError(`Invalid column type '${type}' found in patient data table. Falling back to 'string'.`)
+      }
+    })
+
     const columns = columnNames.map<PatientDataColumn>((name, index) => ({
       name,
       type: columnTypes[index] as PatientDataColumnType,
@@ -69,3 +77,6 @@ export const createPatientData = (
     }
   }
 }
+
+export const isPatientDataColumnType = (columnType: string): boolean =>
+  PATIENT_DATA_COLUMN_TYPES.includes(columnType as PatientDataColumnType)

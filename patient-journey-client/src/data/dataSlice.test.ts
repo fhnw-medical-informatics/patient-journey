@@ -21,14 +21,18 @@ import { DATA_LOADING_ERROR } from './loading'
 const PID_1 = 'PID_1' as PatientId
 const TEST_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
 const TEST_PATIENT_CSV_MISSING_PID = 'Name\nstring\nJane'
+const TEST_PATIENT_CSV_INVALID_COLUMN_TYPE = 'ID,Name,Invalid\npid,string,invalid\nPID_1,Jane,X\nPID_2,John,Y'
 const TEST_EVENT_CSV = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp\nEID_1,PID_1,1\nEID_2,PID_2,2'
 const TEST_EVENT_CSV_MISSING_EID = 'Patient ID,Timestamp\npid,timestamp\nPID_1,42'
+const TEST_EVENT_CSV_INVALID_COLUMN_TYPE = 'Event ID,Patient ID,Invalid\neid,pid,invalid\nEID_1,PID_1,1\nEID_2,PID_2,2'
 
 describe('dataSlice', () => {
-  const successPatientDataUrl = 'success-patient-data-url'
+  const successPatientDataUrl = 'successPatientDataUrl'
   const successPatientDataUrlMissingPid = 'successPatientDataUrlMissingPid'
-  const successEventDataUrlMissingEid = 'successEventDataUrlMissingEid'
+  const successPatientDataUrlInvalidColumnType = 'successPatientUrlDataInvalidColumnType'
   const successEventDataUrl = 'success-event-data-url'
+  const successEventDataUrlMissingEid = 'successEventDataUrlMissingEid'
+  const successEventDataUrlInvalidColumnType = 'successEventDataUrlInvalidColumnType'
   const successUrlEmpty = 'success-url-empty'
   const errorUrl = 'error-url'
   const globalAny = global as any
@@ -46,6 +50,11 @@ describe('dataSlice', () => {
             ok: true,
             text: () => Promise.resolve(TEST_PATIENT_CSV_MISSING_PID),
           })
+        case `${successPatientDataUrlInvalidColumnType}`:
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(TEST_PATIENT_CSV_INVALID_COLUMN_TYPE),
+          })
         case `${successEventDataUrl}`:
           return Promise.resolve({
             ok: true,
@@ -55,6 +64,11 @@ describe('dataSlice', () => {
           return Promise.resolve({
             ok: true,
             text: () => Promise.resolve(TEST_EVENT_CSV_MISSING_EID),
+          })
+        case `${successEventDataUrlInvalidColumnType}`:
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(TEST_EVENT_CSV_INVALID_COLUMN_TYPE),
           })
         case `${successUrlEmpty}`:
           return Promise.resolve({
@@ -128,7 +142,7 @@ describe('dataSlice', () => {
     )
   })
 
-  it('loadData loading-complete patients table missing pid', async () => {
+  it('loadData loading-complete patient data table missing pid', async () => {
     const store = createStore()
     await loadData(successPatientDataUrlMissingPid, successUrlEmpty)(store.dispatch)
 
@@ -149,7 +163,16 @@ describe('dataSlice', () => {
     )
   })
 
-  it('loadData loading-complete events table missing eid', async () => {
+  it('loadData loading-complete patient data table invalid column type', async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrlInvalidColumnType, successEventDataUrl)(store.dispatch)
+    expect(store.getState().alert.alerts.length).toEqual(1)
+    expect(store.getState().alert.alerts[0].message).toEqual(
+      "Invalid column type 'invalid' found in patient data table. Falling back to 'string'."
+    )
+  })
+
+  it('loadData loading-complete event data table missing eid', async () => {
     const store = createStore()
     await loadData(successPatientDataUrl, successEventDataUrlMissingEid)(store.dispatch)
 
@@ -168,6 +191,15 @@ describe('dataSlice', () => {
     expect(state.alert.alerts.length).toEqual(1)
     expect(state.alert.alerts[0].message).toEqual(
       "No 'eid' column type found in event data table. Using row index to identify events."
+    )
+  })
+
+  it('loadData loading-complete event data table invalid column type', async () => {
+    const store = createStore()
+    await loadData(successPatientDataUrl, successEventDataUrlInvalidColumnType)(store.dispatch)
+    expect(store.getState().alert.alerts.length).toEqual(1)
+    expect(store.getState().alert.alerts[0].message).toEqual(
+      "Invalid column type 'invalid' found in event data table. Falling back to 'string'."
     )
   })
 

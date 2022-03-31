@@ -6,7 +6,7 @@ export interface DataColumn<T> {
   readonly index: number
 }
 
-export type GenericColumnType = 'string' | 'boolean' | 'number' | 'date' | 'timestamp'
+export const GENERIC_COLUMN_TYPES = ['string', 'boolean', 'number', 'date', 'timestamp'] as const
 
 const isEmpty = (s: string) => s.trim().length === 0
 

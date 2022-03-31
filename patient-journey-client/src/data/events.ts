@@ -1,12 +1,14 @@
-import { DataColumn, GenericColumnType } from './columns'
+import { DataColumn, GENERIC_COLUMN_TYPES } from './columns'
 import { PATIENT_ID_COLUMN_TYPE, PatientId } from './patients'
 import { ParseResult } from 'papaparse'
 import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
 import { noOp } from '../utils'
 
-export const EVENT_ID_COLUMN_TYPE = 'eid'
+export const EVENT_ID_COLUMN_TYPE = 'eid' as const
 
-export type EventDataColumnType = typeof EVENT_ID_COLUMN_TYPE | typeof PATIENT_ID_COLUMN_TYPE | GenericColumnType
+export const EVENT_DATA_COLUMN_TYPES = [...GENERIC_COLUMN_TYPES, EVENT_ID_COLUMN_TYPE, PATIENT_ID_COLUMN_TYPE] as const
+export type EventDataColumnType = typeof EVENT_DATA_COLUMN_TYPES[number]
+
 export type EventDataColumn = DataColumn<EventDataColumnType>
 
 enum EventIdBrand {}
@@ -49,6 +51,12 @@ export const createEventData = (
       )
     }
 
+    columnTypes.forEach((type) => {
+      if (!isEventDataColumnType(type)) {
+        onError(`Invalid column type '${type}' found in event data table. Falling back to 'string'.`)
+      }
+    })
+
     const patientIdColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
     const columns = columnNames.map<EventDataColumn>((name, index) => ({
       name,
@@ -71,3 +79,6 @@ export const createEventData = (
     }
   }
 }
+
+export const isEventDataColumnType = (columnType: string): boolean =>
+  EVENT_DATA_COLUMN_TYPES.includes(columnType as EventDataColumnType)
