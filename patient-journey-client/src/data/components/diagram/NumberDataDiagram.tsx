@@ -97,7 +97,7 @@ export const NumberDataDiagram = ({
   const tooltip = useCallback(
     ({ index }) => {
       const d = data[index]
-      const dateRange = `${d.binStart ? d.binStart : ''} - ${d.binEnd ? d.binEnd : ''}`
+      const dateRange = `${d.binStart !== undefined ? d.binStart : ''} - ${d.binEnd !== undefined ? d.binEnd : ''}`
       return <div className={classes.tooltipText}>{dateRange}</div>
     },
     [data, classes]

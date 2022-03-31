@@ -101,8 +101,8 @@ export const DateDataDiagram = ({
     ({ index }) => {
       const d = data[index]
       const dateRange = `${
-        d.binStart ? format(d.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
-      } - ${d.binEnd ? format(d.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''}`
+        d.binStart !== undefined ? format(d.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
+      } - ${d.binEnd !== undefined ? format(d.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''}`
       return <div className={classes.tooltipText}>{dateRange}</div>
     },
     [data, classes, column]
