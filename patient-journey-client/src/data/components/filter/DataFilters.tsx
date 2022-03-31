@@ -4,13 +4,12 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt'
 
 import { makeStyles } from '../../../utils'
 
-import { TrilianNone, Filter, FilterColumn, GenericFilter, MillisNone, NumberNone } from '../../filtering'
-import { BooleanDataFilter } from './BooleanDataFilter'
-import { DateDataFilter } from './DateDataFilter'
-import { NumberDataFilter } from './NumberDataFilter'
-import { TextDataFilter } from './TextDataFilter'
+import { Filter, FilterColumn, GenericFilter } from '../../filtering'
 import { Button, Grid } from '@mui/material'
-import { DataDiagrams } from '../../containers/diagram/DataDiagrams'
+import { DataDiagrams } from '../diagram/DataDiagrams'
+import { Entity } from '../../entities'
+import { DataFilter } from './DataFilter'
+import { FilterCard } from './FilterCard'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -20,20 +19,27 @@ const useStyles = makeStyles()((theme) => ({
   gridItem: {
     lineHeight: 1,
   },
-  filter: {
-    padding: `${theme.spacing(2)} ${theme.spacing(1)}`,
-  },
 }))
 
 interface DataFiltersProps {
+  allActiveData: ReadonlyArray<Entity>
+  filteredActiveData: ReadonlyArray<Entity>
   activeFilters: ReadonlyArray<GenericFilter>
   availableColumns: ReadonlyArray<FilterColumn>
   onAddFilter: (filter: GenericFilter) => void
-  onRemoveFilter: (columnName: GenericFilter) => void
+  onRemoveFilter: (filter: GenericFilter) => void
   onResetFilters: () => void
 }
 
-export const DataFilters = ({ activeFilters, availableColumns, onAddFilter, onResetFilters }: DataFiltersProps) => {
+export const DataFilters = ({
+  allActiveData,
+  filteredActiveData,
+  activeFilters,
+  availableColumns,
+  onAddFilter,
+  onRemoveFilter,
+  onResetFilters,
+}: DataFiltersProps) => {
   const { classes } = useStyles()
 
   const findActiveFilter = <T extends FilterColumn['type']>(
@@ -47,88 +53,52 @@ export const DataFilters = ({ activeFilters, availableColumns, onAddFilter, onRe
   }
 
   return (
-    <div>
-      <Grid container direction={'row'} alignItems={'center'}>
-        <Grid className={classes.gridItem} item xs="auto">
-          <FilterAltIcon />
-        </Grid>
-        <Grid className={classes.gridItem} item xs>
-          <h3 className={classes.title}>Filters</h3>
-        </Grid>
-        <Grid className={classes.gridItem} item>
-          <Button onClick={onResetFilters} disabled={activeFilters.length === 0}>
-            Reset {activeFilters.length > 0 && `(${activeFilters.length})`}
-          </Button>
+    <Grid container spacing={1} alignContent="flex-start">
+      <Grid item xs={12}>
+        <Grid container direction={'row'} alignItems={'center'}>
+          <Grid className={classes.gridItem} item xs="auto">
+            <FilterAltIcon />
+          </Grid>
+          <Grid className={classes.gridItem} item xs>
+            <h3 className={classes.title}>Filters</h3>
+          </Grid>
+          <Grid className={classes.gridItem} item>
+            <Button onClick={onResetFilters} disabled={activeFilters.length === 0}>
+              Reset {activeFilters.length > 0 && `(${activeFilters.length})`}
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
 
-      {availableColumns.map((availableColumn) => {
-        switch (availableColumn.type) {
-          case 'string':
-            return (
-              <div key={availableColumn.name} className={classes.filter}>
-                <TextDataFilter
+      {availableColumns
+        .filter((col) => ['string', 'number', 'boolean', 'date', 'timestamp'].includes(col.type))
+        .map((availableColumn) => {
+          const filter = findActiveFilter(availableColumn, activeFilters, availableColumn.type)
+
+          return (
+            <Grid item key={availableColumn.name} xs={12}>
+              <FilterCard
+                label={availableColumn.name}
+                isActive={filter !== undefined}
+                onRemove={() => {
+                  filter && onRemoveFilter(filter)
+                }}
+              >
+                <DataDiagrams
+                  column={availableColumn}
+                  allActiveData={allActiveData}
+                  filteredActiveData={filteredActiveData}
+                />
+                <DataFilter
                   column={availableColumn}
                   type={availableColumn.type}
-                  value={findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? { text: '' }}
-                  onChange={onAddFilter}
+                  filter={filter}
+                  onAddFilter={onAddFilter}
                 />
-              </div>
-            )
-          case 'number':
-            return (
-              <div key={availableColumn.name} className={classes.filter}>
-                <DataDiagrams column={availableColumn} />
-                <NumberDataFilter
-                  column={availableColumn}
-                  type={availableColumn.type}
-                  value={
-                    findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? {
-                      from: NumberNone,
-                      to: NumberNone,
-                    }
-                  }
-                  onChange={onAddFilter}
-                />
-              </div>
-            )
-          case 'boolean':
-            return (
-              <div key={availableColumn.name} className={classes.filter}>
-                <BooleanDataFilter
-                  column={availableColumn}
-                  type={availableColumn.type}
-                  value={
-                    findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? {
-                      isTrue: TrilianNone,
-                    }
-                  }
-                  onChange={onAddFilter}
-                />
-              </div>
-            )
-          case 'date':
-          case 'timestamp':
-            return (
-              <div key={availableColumn.name} className={classes.filter}>
-                <DataDiagrams column={availableColumn} />
-                <DateDataFilter
-                  column={availableColumn}
-                  type={availableColumn.type}
-                  value={
-                    findActiveFilter(availableColumn, activeFilters, availableColumn.type)?.value ?? {
-                      millisFrom: MillisNone,
-                      millisTo: MillisNone,
-                    }
-                  }
-                  onChange={onAddFilter}
-                />
-              </div>
-            )
-          default:
-            return null
-        }
-      })}
-    </div>
+              </FilterCard>
+            </Grid>
+          )
+        })}
+    </Grid>
   )
 }

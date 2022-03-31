@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { FormGroup, FormLabel, TextField } from '@mui/material'
+import { FormGroup, TextField } from '@mui/material'
 import { createFilter, Filter, Millis, MillisNone } from '../../filtering'
 import { makeStyles } from '../../../utils'
 import { format, isValidDate, parseHTMLDateInput } from '../../columns'
@@ -9,13 +9,13 @@ const CONTROL_TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm'
 const CONTROL_DATE_FORMAT = 'yyyy-MM-dd'
 
 const useStyles = makeStyles()((theme) => ({
-  label: {
-    margin: theme.spacing(1),
-    marginBottom: theme.spacing(2),
+  container: {
+    '> *:not(:last-child)': {
+      marginBottom: theme.spacing(2),
+    },
   },
   input: {
     maxWidth: '227px',
-    paddingBottom: theme.spacing(1),
   },
 }))
 
@@ -46,8 +46,7 @@ export const DateDataFilter = ({ column, type, value, onChange }: DateDataFilter
   }
 
   return (
-    <FormGroup>
-      <FormLabel className={classes.label}>{column.name}</FormLabel>
+    <FormGroup className={classes.container}>
       <div className={classes.input}>
         <TextField
           label={'From'}
@@ -67,7 +66,6 @@ export const DateDataFilter = ({ column, type, value, onChange }: DateDataFilter
       </div>
       <div className={classes.input}>
         <TextField
-          className={classes.input}
           label={'To'}
           variant="outlined"
           type={type === 'timestamp' ? 'datetime-local' : 'date'}

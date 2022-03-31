@@ -1,17 +1,17 @@
 import React from 'react'
 
-import { FormGroup, FormLabel, TextField } from '@mui/material'
+import { FormGroup, TextField } from '@mui/material'
 import { createFilter, Filter } from '../../filtering'
 import { makeStyles } from '../../../utils'
 
 const useStyles = makeStyles()((theme) => ({
-  label: {
-    margin: theme.spacing(1),
-    marginBottom: theme.spacing(2),
+  container: {
+    '> *:not(:last-child)': {
+      marginBottom: theme.spacing(2),
+    },
   },
   input: {
     maxWidth: '100px',
-    marginBottom: theme.spacing(1),
   },
 }))
 
@@ -32,8 +32,7 @@ export const NumberDataFilter = ({ column, type, value, onChange }: NumberDataFi
   }
 
   return (
-    <FormGroup>
-      <FormLabel className={classes.label}>{column.name}</FormLabel>
+    <FormGroup className={classes.container}>
       <div className={classes.input}>
         <TextField
           label={'From'}
@@ -43,6 +42,7 @@ export const NumberDataFilter = ({ column, type, value, onChange }: NumberDataFi
           onChange={(event) => {
             handleChange(event.target.value ? +event.target.value : NaN, null)
           }}
+          InputLabelProps={{ shrink: true }}
         />
       </div>
       <div className={classes.input}>
@@ -54,6 +54,7 @@ export const NumberDataFilter = ({ column, type, value, onChange }: NumberDataFi
           onChange={(event) => {
             handleChange(null, event.target.value ? +event.target.value : NaN)
           }}
+          InputLabelProps={{ shrink: true }}
         />
       </div>
     </FormGroup>
