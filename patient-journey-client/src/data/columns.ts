@@ -1,4 +1,4 @@
-import { format as dateFnFormat, parse, toDate, parseISO, formatISO } from 'date-fns'
+import { format as dateFnFormat, toDate, parseISO, formatISO } from 'date-fns'
 
 export interface DataColumn<T> {
   readonly name: string
@@ -23,12 +23,15 @@ export const stringToBoolean = (s: string) => {
   }
 }
 
-const DATE_PARSE_FORMAT = 'dd.MM.yyyy'
 const DATE_TIMESTAMP_FORMAT = 'dd.MM.yyyy HH:mm'
 
-// new Date('2020-01-01') does not work reliably in all browsers
-export const parseDate = (date: string, sourceFormat?: string) =>
-  parse(date, sourceFormat ?? DATE_PARSE_FORMAT, new Date())
+// Parses a date string in the format "dd.MM.yyyy" to a Date object
+// We don't use date-fns parse, because it's performance is much slower
+// than the native Date.parse / new Date()
+export const parseDate = (date: string) => {
+  const [day, month, year] = date.split('.')
+  return new Date(`${year}-${month}-${day}`)
+}
 
 export const parseHTMLDateInput = (isoDateString: string) => parseISO(isoDateString)
 
