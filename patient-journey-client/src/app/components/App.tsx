@@ -1,19 +1,17 @@
-import React, { useState } from 'react'
+import React from 'react'
+
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
-import { ThemeSwitch } from '../../theme/containers/ThemeSwitch'
-import { Typography, useTheme } from '@mui/material'
-import { makeStyles } from '../../utils'
-import SplitPane from 'react-split-pane'
-import { DataFilters } from '../../data/containers/filter/DataFilters'
-import { Timeline } from '../../timeline/containers/Timeline'
+import { Typography } from '@mui/material'
+
 import logo from './fhnw-logo.png'
+
+import { makeStyles } from '../../utils'
+import { ThemeSwitch } from '../../theme/containers/ThemeSwitch'
+
+import { Data } from '../../data/containers/Data'
 import { Alerts } from '../../alert/containers/Alerts'
 import { DataViewSelector } from '../../data/containers/DataViewSelector'
-import { Data } from '../../data/containers/Data'
-
-const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '15%'
-const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '60%'
 
 const useStyles = makeStyles()((theme) => ({
   app: {
@@ -48,39 +46,10 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     position: 'relative',
   },
-  left: {
-    padding: theme.spacing(1),
-    width: '100%',
-    height: '100%',
-    overflowY: 'auto',
-    overflowX: 'hidden',
-  },
-  top: {
-    padding: theme.spacing(1),
-    width: '100%',
-    height: '100%',
-  },
-  bottom: {
-    padding: theme.spacing(1),
-    width: '100%',
-    height: '100%',
-  },
-  resizer: {
-    minWidth: 5,
-    minHeight: 5,
-    boxSizing: 'border-box',
-    background: theme.palette.divider,
-    opacity: 0.5,
-    zIndex: 1,
-    backgroundClip: 'padding-box',
-  },
 }))
 
 export const App = () => {
   const { classes } = useStyles()
-  const theme = useTheme()
-  const [splitPaneHorizontalSize, setSplitPaneHorizontalSize] = useState<'default' | number>('default')
-  const [splitPaneVerticalSize, setSplitPaneVerticalSize] = useState<'default' | number>('default')
 
   return (
     <div className={classes.app}>
@@ -94,41 +63,7 @@ export const App = () => {
         </Toolbar>
       </AppBar>
       <div className={classes.main}>
-        <SplitPane
-          split={'vertical'}
-          resizerClassName={classes.resizer}
-          size={splitPaneHorizontalSize === 'default' ? DEFAULT_SPLIT_PANE_VERTICAL_SIZE : splitPaneVerticalSize}
-          onChange={setSplitPaneVerticalSize}
-          resizerStyle={{
-            cursor: 'ew-resize',
-          }}
-        >
-          <div className={classes.left}>
-            <DataFilters />
-          </div>
-          <SplitPane
-            split={'horizontal'}
-            resizerClassName={classes.resizer}
-            size={splitPaneHorizontalSize === 'default' ? DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE : splitPaneHorizontalSize}
-            onChange={setSplitPaneHorizontalSize}
-            resizerStyle={{
-              cursor: 'ns-resize',
-            }}
-            pane2Style={{
-              display: 'grid',
-              width: '100%',
-              height: '100%',
-              backgroundColor: theme.palette.background.paper,
-            }}
-          >
-            <div className={classes.top}>
-              <Data />
-            </div>
-            <div className={classes.bottom}>
-              <Timeline />
-            </div>
-          </SplitPane>
-        </SplitPane>
+        <Data />
       </div>
     </div>
   )

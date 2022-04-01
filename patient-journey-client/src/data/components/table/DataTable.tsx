@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Table, TableBody, TableCell, TableRow } from '@mui/material'
+
+import { Paper, Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
+
 import { makeStyles } from '../../../utils'
+
 import { PatientIdNone } from '../../patients'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { TableHeader } from './TableHeader'
@@ -17,6 +20,12 @@ const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
 
 const useStyles = makeStyles()((theme) => ({
+  root: {
+    display: 'grid',
+    width: '100%',
+    height: '100%',
+    placeItems: 'center',
+  },
   maxed: {
     display: 'grid',
     width: '100%',
@@ -69,66 +78,69 @@ export const DataTable = ({
   useEffect(() => setPage(0), [tableData.length])
 
   return (
-    <div className={classes.maxed}>
-      <AutoSizer>
-        {({ width, height }: Size) => {
-          const columnWidth = width / columns.length
-          const bodyHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT
-          const rowsPerPage = Math.floor(bodyHeight / ROW_HEIGHT)
-          const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, tableData.length - page * rowsPerPage)
-          const isAllRowsEmpty = emptyRowCount === rowsPerPage
+    <Paper className={classes.root}>
+      <div className={classes.maxed}>
+        <AutoSizer>
+          {({ width, height }: Size) => {
+            const columnWidth = width / columns.length
+            const bodyHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT
+            const rowsPerPage = Math.floor(bodyHeight / ROW_HEIGHT)
+            const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, tableData.length - page * rowsPerPage)
+            const isAllRowsEmpty = emptyRowCount === rowsPerPage
 
-          return (
-            <div style={{ width, height }}>
-              <Table size="small" className={classes.table} padding={'none'}>
-                <TableHeader
-                  columns={columns}
-                  columnWidth={columnWidth}
-                  sortingState={sortingState}
-                  setSortingState={setSortingState}
-                />
-                <TableBody component={'tbody'}>
-                  {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
-                    <TableRow
-                      key={`uid:${row.uid}-${idx}`}
-                      hover={true}
-                      selected={selectedEntity === row.uid}
-                      onClick={() => onEntityClick(row.uid)}
-                      onMouseEnter={() => onEntityHover(row.uid)}
-                      onMouseLeave={() => onEntityHover(PatientIdNone)}
-                      style={{
-                        borderLeft: colorByColumn !== ColorByColumnNone ? `5px solid ${colorByColumnFn(row)}` : 'unset',
-                        backgroundColor:
-                          colorByColumn !== ColorByColumnNone
-                            ? `${colorByColumnFn(row)}${
-                                selectedEntity === row.uid || hoveredEntity === row.uid ? 'AA' : '33'
-                              }`
-                            : '',
-                      }}
-                    >
-                      {columns.map((column) => {
-                        const value = row.values[column.index] ?? ''
-                        return <TableValue key={column.index} column={column} value={value} width={columnWidth} />
-                      })}
-                    </TableRow>
-                  ))}
-                  <VerticalSpacer
-                    isAllRowsEmpty={isAllRowsEmpty}
-                    height={isAllRowsEmpty ? bodyHeight : bodyHeight - (rowsPerPage - emptyRowCount) * ROW_HEIGHT}
+            return (
+              <div style={{ width, height }}>
+                <Table size="small" className={classes.table} padding={'none'}>
+                  <TableHeader
+                    columns={columns}
+                    columnWidth={columnWidth}
+                    sortingState={sortingState}
+                    setSortingState={setSortingState}
                   />
-                </TableBody>
-              </Table>
-              <TableFooter
-                rowsPerPage={rowsPerPage}
-                count={tableData.length}
-                page={page}
-                onPageChange={(e, newPage) => setPage(newPage)}
-              />
-            </div>
-          )
-        }}
-      </AutoSizer>
-    </div>
+                  <TableBody component={'tbody'}>
+                    {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
+                      <TableRow
+                        key={`uid:${row.uid}-${idx}`}
+                        hover={true}
+                        selected={selectedEntity === row.uid}
+                        onClick={() => onEntityClick(row.uid)}
+                        onMouseEnter={() => onEntityHover(row.uid)}
+                        onMouseLeave={() => onEntityHover(PatientIdNone)}
+                        style={{
+                          borderLeft:
+                            colorByColumn !== ColorByColumnNone ? `5px solid ${colorByColumnFn(row)}` : 'unset',
+                          backgroundColor:
+                            colorByColumn !== ColorByColumnNone
+                              ? `${colorByColumnFn(row)}${
+                                  selectedEntity === row.uid || hoveredEntity === row.uid ? 'AA' : '33'
+                                }`
+                              : '',
+                        }}
+                      >
+                        {columns.map((column) => {
+                          const value = row.values[column.index] ?? ''
+                          return <TableValue key={column.index} column={column} value={value} width={columnWidth} />
+                        })}
+                      </TableRow>
+                    ))}
+                    <VerticalSpacer
+                      isAllRowsEmpty={isAllRowsEmpty}
+                      height={isAllRowsEmpty ? bodyHeight : bodyHeight - (rowsPerPage - emptyRowCount) * ROW_HEIGHT}
+                    />
+                  </TableBody>
+                </Table>
+                <TableFooter
+                  rowsPerPage={rowsPerPage}
+                  count={tableData.length}
+                  page={page}
+                  onPageChange={(e, newPage) => setPage(newPage)}
+                />
+              </div>
+            )
+          }}
+        </AutoSizer>
+      </div>
+    </Paper>
   )
 }
 
