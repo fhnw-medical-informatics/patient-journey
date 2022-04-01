@@ -1,9 +1,6 @@
 import React from 'react'
-
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
-
 import { makeStyles } from '../../../utils'
-
 import { Filter, FilterColumn, GenericFilter } from '../../filtering'
 import { Button, Grid, Typography } from '@mui/material'
 import { DataDiagrams } from '../diagram/DataDiagrams'
@@ -11,7 +8,8 @@ import { Entity } from '../../entities'
 import { DataFilter } from './DataFilter'
 import { FilterCard } from './FilterCard'
 import { ActiveDataViewType } from '../../dataSlice'
-import { ColorByColumnOption, ColorByNumberFn } from '../../../color'
+import { ColorByColumnOption } from '../../../color/colorSlice'
+import { ColorByNumberFn } from '../../../color/useColor'
 
 const useStyles = makeStyles()((theme) => ({
   title: {

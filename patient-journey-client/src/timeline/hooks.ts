@@ -1,4 +1,4 @@
-import { ColorByCategoryFn, ColorByColumnFn } from '../color'
+import { ColorByCategoryFn, ColorByColumnFn } from '../color/useColor'
 import { useAppSelector } from '../store'
 
 import { selectFilteredActiveDataAsEvents, selectFilteredActiveDataAsLanes, selectTimelineState } from './selectors'

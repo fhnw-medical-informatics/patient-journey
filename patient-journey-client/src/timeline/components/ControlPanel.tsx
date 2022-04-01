@@ -10,14 +10,12 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-
 import { makeStyles } from '../../utils'
 import HelpIcon from '@mui/icons-material/Help'
-
 import { TimelineColumn, TimelineColumnNone } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
-import { ColorByColumnNone, ColorByColumnOption } from '../../color'
+import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
 
 const useStyles = makeStyles()((theme) => ({
   root: {

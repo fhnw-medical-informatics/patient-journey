@@ -3,7 +3,8 @@ import { FilterColumn } from '../../filtering'
 import { DateDataDiagram } from './DateDataDiagram'
 import { NumberDataDiagram } from './NumberDataDiagram'
 import { Entity } from '../../entities'
-import { ColorByColumnOption, ColorByNumberFn } from '../../../color'
+import { ColorByColumnOption } from '../../../color/colorSlice'
+import { ColorByNumberFn } from '../../../color/useColor'
 
 export interface DataDiagramsProps {
   allActiveData: ReadonlyArray<Entity>

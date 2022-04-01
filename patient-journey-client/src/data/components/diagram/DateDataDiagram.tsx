@@ -1,17 +1,14 @@
 import React, { useCallback, useMemo } from 'react'
-
 import { bin, extent } from 'd3-array'
 import { ScaleTime, scaleTime } from 'd3-scale'
-
 import { BarDatum, ResponsiveBar } from '@nivo/bar'
-
 import { format, parseDate, parseMillis } from '../../columns'
 import { DataDiagramsProps } from './DataDiagrams'
 import { makeStyles } from '../../../utils'
 import { Entity } from '../../entities'
 import { useTheme } from '@mui/material'
 import { barColors } from './shared'
-import { ColorByColumnNone } from '../../../color'
+import { ColorByColumnNone } from '../../../color/colorSlice'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
