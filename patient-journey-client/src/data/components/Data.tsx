@@ -5,17 +5,18 @@ import { LoadingProgress } from './LoadingProgress'
 import { DataView } from './DataView'
 
 export interface Props {
-  readonly data: DataState
+  readonly type: DataState['type']
+  readonly errorMessage: string
 }
 
-export const Data = ({ data }: Props) => {
-  switch (data.type) {
+export const Data = ({ type, errorMessage = '' }: Props) => {
+  switch (type) {
     case 'loading-pending':
       return <Typography>No Data</Typography>
     case 'loading-in-progress':
       return <LoadingProgress />
     case 'loading-failed':
-      return <LoadingError errorMessage={data.errorMessage} />
+      return <LoadingError errorMessage={errorMessage} />
     case 'loading-complete': {
       return <DataView />
     }

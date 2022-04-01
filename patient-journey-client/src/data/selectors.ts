@@ -10,6 +10,18 @@ import { EMPTY_EVENT_DATA, EventData, EventDataColumn, PatientJourneyEvent } fro
 import { filterReducer, GenericFilter } from './filtering'
 import { EMPTY_PATIENT_DATA, Patient, PatientData, PatientDataColumn } from './patients'
 
+export const selectDataLoadingState = (s: RootState) => {
+  return s.data.type
+}
+
+export const selectDataLoadingErrorMessage = (s: RootState): string => {
+  if (s.data.type === 'loading-failed') {
+    return s.data.errorMessage
+  } else {
+    return ''
+  }
+}
+
 const selectActiveEntityData = (s: RootState): PatientData | EventData => {
   if (s.data.type === 'loading-complete') {
     return s.data.view === 'patients' ? s.data.patientData : s.data.eventData

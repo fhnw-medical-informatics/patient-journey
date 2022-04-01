@@ -8,9 +8,14 @@ import {
   selectActiveData,
   selectAllFilters,
   selectCurrentColorColumnNumberRange,
+  selectDataLoadingState,
+  selectDataLoadingErrorMessage,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
+
+export const useDataLoadingState = () => useAppSelector(selectDataLoadingState)
+export const useDataLoadingErrorMessage = () => useAppSelector(selectDataLoadingErrorMessage)
 
 export const useActiveDataView = () => useAppSelector(selectDataView)
 
