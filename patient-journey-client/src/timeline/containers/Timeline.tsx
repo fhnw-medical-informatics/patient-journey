@@ -3,17 +3,18 @@ import React, { useCallback } from 'react'
 import { Timeline as TimelineComponent } from '../components/Timeline'
 import { useAppDispatch } from '../../store'
 import {
-  setTimelineCluster,
   setExpandByColumn,
+  setTimelineCluster,
   setViewByColumn,
   TimelineColumn,
   TimelineColumnNone,
 } from '../timelineSlice'
-import { useActiveDataColumns } from '../../data/hooks'
-import { useEntityInteraction } from '../../data'
+import { useActiveDataColumns, useEntityInteraction } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import { useActiveDataAsEvents, useActiveDataAsLanes, useTimelineState } from '../hooks'
-import { ColorByColumnOption, setColorByColumn, useColor, useColorByColumn } from '../../color'
+import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
+import { useColor } from '../../color/useColor'
+import { useColorByColumn } from '../../color/useColorByColumn'
 import { useTheme } from '@mui/material'
 
 export const Timeline = () => {

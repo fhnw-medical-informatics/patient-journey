@@ -1,10 +1,5 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { useDispatch, useSelector } from 'react-redux'
-
-// Importing reducers from slice rather than including them in each index
-// prevents circular dependencies (mainly because index also contains container
-// components, which in turn import `useAppDispatch`/`useAppSelector`)
-
 import { dataReducer } from '../data/dataSlice'
 import { themeReducer } from '../theme/themeSlice'
 import { timelineReducer } from '../timeline/timelineSlice'

@@ -8,7 +8,7 @@ import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
 import { EntityId } from '../../data/entities'
-import { ColorByColumnOption } from '../../color'
+import { ColorByColumnOption } from '../../color/colorSlice'
 
 const useStyles = makeStyles()((theme) => ({
   root: {

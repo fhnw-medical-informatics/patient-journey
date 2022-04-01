@@ -1,14 +1,12 @@
 import { useCallback } from 'react'
 import { useTheme } from '@mui/material'
 import { scaleOrdinal } from 'd3-scale'
-import { schemePaired, schemeSet3, interpolatePlasma } from 'd3-scale-chromatic'
-
-// import { useAllTicketsMilliRange } from '../data'
+import { interpolatePlasma, schemePaired, schemeSet3 } from 'd3-scale-chromatic'
 import { ColorByColumnNone, ColorByColumnOption } from './colorSlice'
-import { useColorByColumn } from './hooks'
+import { useColorByColumn } from './useColorByColumn'
 import { FilterColumn } from '../data/filtering'
 import { Entity } from '../data/entities'
-import { useCurrentColorColumnNumberRange } from '../data'
+import { useCurrentColorColumnNumberRange } from '../data/hooks'
 import { stringToMillis } from '../data/columns'
 
 export type ColorByColumnFn = (entity?: Entity) => string

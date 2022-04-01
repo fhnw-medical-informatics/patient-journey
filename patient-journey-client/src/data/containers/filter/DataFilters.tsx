@@ -1,18 +1,16 @@
 import React from 'react'
-
 import { useAppDispatch } from '../../../store'
 import {
-  useAllFilters,
-  useActiveDataColumns,
   useActiveData,
-  useFilteredActiveData,
+  useActiveDataColumns,
   useActiveDataView,
+  useAllFilters,
+  useFilteredActiveData,
 } from '../../hooks'
-
 import { DataFilters as DataFiltersComponent } from '../../components/filter/DataFilters'
 import { GenericFilter } from '../../filtering'
 import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlice'
-import { useColor } from '../../../color'
+import { useColor } from '../../../color/useColor'
 
 export const DataFilters = () => {
   const activeView = useActiveDataView()

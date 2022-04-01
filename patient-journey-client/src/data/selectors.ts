@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { max, min } from 'd3-array'
-import { ColorByColumnNone } from '../color'
+import { ColorByColumnNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
 import { stringToMillis } from './columns'

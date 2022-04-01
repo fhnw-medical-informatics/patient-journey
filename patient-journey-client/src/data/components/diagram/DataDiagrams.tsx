@@ -1,17 +1,7 @@
 import React from 'react'
-import { FilterColumn } from '../../filtering'
 import { DateDataDiagram } from './DateDataDiagram'
 import { NumberDataDiagram } from './NumberDataDiagram'
-import { Entity } from '../../entities'
-import { ColorByColumnOption, ColorByNumberFn } from '../../../color'
-
-export interface DataDiagramsProps {
-  allActiveData: ReadonlyArray<Entity>
-  filteredActiveData: ReadonlyArray<Entity>
-  column: FilterColumn
-  colorByColumn: ColorByColumnOption
-  colorByNumberFn: ColorByNumberFn
-}
+import { DataDiagramsProps } from './shared'
 
 export const DataDiagrams = ({ column, ...props }: DataDiagramsProps) => {
   switch (column.type) {

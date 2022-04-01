@@ -10,7 +10,8 @@ import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
 import { Entity, EntityId } from '../../entities'
 import { DataColumn } from '../../columns'
-import { ColorByColumnFn, ColorByColumnNone, ColorByColumnOption } from '../../../color'
+import { ColorByColumnNone, ColorByColumnOption } from '../../../color/colorSlice'
+import { ColorByColumnFn } from '../../../color/useColor'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding

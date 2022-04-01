@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { ThemeSwitch as ThemeSwitchComponent } from '../components/ThemeSwitch'
-import { toggleTheme } from '../index'
+import { toggleTheme } from '../themeSlice'
 import { useAppDispatch, useAppSelector } from '../../store'
 
 export const ThemeSwitch = () => {
