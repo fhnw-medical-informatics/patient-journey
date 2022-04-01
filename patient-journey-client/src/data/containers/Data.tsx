@@ -1,7 +1,9 @@
-import { useAppSelector } from '../../store'
 import { Data as DataComponent } from '../components/Data'
+import { useDataLoadingErrorMessage, useDataLoadingState } from '../hooks'
 
 export const Data = () => {
-  const data = useAppSelector((s) => s.data)
-  return <DataComponent data={data} />
+  const type = useDataLoadingState()
+  const errorMessage = useDataLoadingErrorMessage()
+
+  return <DataComponent type={type} errorMessage={errorMessage} />
 }

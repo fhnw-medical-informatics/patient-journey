@@ -19,6 +19,12 @@ export type RootState = ReturnType<typeof reducer>
 export const createStore = () =>
   configureStore({
     reducer,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        // https://redux-toolkit.js.org/api/getDefaultMiddleware
+        serializableCheck: import.meta.env.VITE_APP_REDUX_TOOLKIT_DEVCHECKS === 'true',
+        immutableCheck: import.meta.env.VITE_APP_REDUX_TOOLKIT_DEVCHECKS === 'true',
+      }),
   })
 
 export const store = createStore()

@@ -1,6 +1,6 @@
-import { EntityId } from './entities'
-import { createPatientData, PatientData, PatientId } from './patients'
-import { createEventData, EventData } from './events'
+import { DataEntity, Entity, EntityId } from './entities'
+import { createPatientData, PatientData, PatientDataColumn, PatientId } from './patients'
+import { createEventData, EventData, EventDataColumn } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 
@@ -83,6 +83,32 @@ const checkDataInconsistencies = (
   const nonMatchingPidRefs = findNonMatchingPidRefs(new Set(pids), pidRefs)
   if (nonMatchingPidRefs.length > 0) {
     onWarning(`Event data table contains invalid pid references: [${nonMatchingPidRefs}]`)
+  }
+  checkDateFormats(patientData, 'Patient')
+  checkDateFormats(eventData, 'Event')
+}
+
+// Checks that all date values of columns that are of type 'date' use the format dd.MM.yyyy
+// If not, an error is thrown with the offending column name and row number.
+const checkDateFormats = <T extends DataEntity<Entity, PatientDataColumn | EventDataColumn>>(
+  data: T,
+  entityName: string
+): void => {
+  const dateColumns = data.columns.filter((c) => c.type === 'date')
+
+  for (const column of dateColumns) {
+    const dateValues = data.allEntities.map((e) => e.values[column.index])
+
+    for (let i = 0; i < dateValues.length; i++) {
+      const dateValue = dateValues[i]
+      if (dateValue && !/^\d{2}\.\d{2}\.\d{4}$/.test(dateValue)) {
+        throw new Error(
+          `${entityName} - Invalid date format for column "${column.name}" in row ${
+            i + HEADER_ROW_COUNT + 1
+          } (${dateValue}). Dates must be in the format dd.MM.yyyy.`
+        )
+      }
+    }
   }
 }
 
