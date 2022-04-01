@@ -48,31 +48,44 @@ export const NumberDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const extractValueUndefinedSafe = (d: Entity) => {
-    const value = d.values[column.index] ?? ''
-
-    if (value === null || value.trim().length === 0) {
-      return []
-    }
-
-    switch (column.type) {
-      case 'number':
-        return [parseFloat(value)]
-      default:
-        throw new Error('Unsupported Format')
-    }
-  }
-  const allNumbers = allActiveData.flatMap(extractValueUndefinedSafe)
-  const filteredNumbers = filteredActiveData.flatMap(extractValueUndefinedSafe)
-
   const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())
+
+  const extractValueUndefinedSafe = useCallback(
+    (d: Entity) => {
+      const value = d.values[column.index] ?? ''
+
+      if (value === null || value.trim().length === 0) {
+        return []
+      }
+
+      switch (column.type) {
+        case 'number':
+          return [parseFloat(value)]
+        default:
+          throw new Error('Unsupported Format')
+      }
+    },
+    [column]
+  )
+
+  const allNumbers = useMemo(
+    () => allActiveData.flatMap(extractValueUndefinedSafe),
+    [allActiveData, extractValueUndefinedSafe]
+  )
+
+  const filteredNumbers = useMemo(
+    () => filteredActiveData.flatMap(extractValueUndefinedSafe),
+    [filteredActiveData, extractValueUndefinedSafe]
+  )
+
+  const [min, max] = useMemo(() => extent(allNumbers), [allNumbers])
+
+  const timeScale = useMemo(() => scaleLinear<number, number>().domain([min!, max!]).nice(), [min, max])
+
+  const allTicketBins = useMemo(() => createBins(allNumbers, timeScale), [allNumbers, timeScale])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    const [min, max] = extent(allNumbers)
-    const timeScale = scaleLinear<number, number>().domain([min!, max!]).nice()
-
-    const allTicketBins = createBins(allNumbers, timeScale)
     const filteredTicketBins = createBins(filteredNumbers, timeScale)
 
     return (
@@ -100,7 +113,7 @@ export const NumberDataDiagram = ({
           return [...acc, bin]
         }, [])
     )
-  }, [allNumbers, filteredNumbers])
+  }, [allTicketBins, filteredNumbers, timeScale])
 
   const tooltip = useCallback(
     ({ index }) => {

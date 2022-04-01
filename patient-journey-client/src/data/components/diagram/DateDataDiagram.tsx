@@ -48,33 +48,46 @@ export const DateDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const extractValueUndefinedSafe = (d: Entity) => {
-    const value = d.values[column.index] ?? ''
-
-    if (value === null || value.trim().length === 0) {
-      return []
-    }
-
-    switch (column.type) {
-      case 'date':
-        return [parseDate(value)]
-      case 'timestamp':
-        return [parseMillis(+value)]
-      default:
-        throw new Error('Unsupported Format')
-    }
-  }
-  const allDates = allActiveData.flatMap(extractValueUndefinedSafe)
-  const filteredDates = filteredActiveData.flatMap(extractValueUndefinedSafe)
-
   const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())
+
+  const extractValueUndefinedSafe = useCallback(
+    (d: Entity) => {
+      const value = d.values[column.index] ?? ''
+
+      if (value === null || value.trim().length === 0) {
+        return []
+      }
+
+      switch (column.type) {
+        case 'date':
+          return [parseDate(value)]
+        case 'timestamp':
+          return [parseMillis(+value)]
+        default:
+          throw new Error('Unsupported Format')
+      }
+    },
+    [column]
+  )
+
+  const allDates = useMemo(
+    () => allActiveData.flatMap(extractValueUndefinedSafe),
+    [allActiveData, extractValueUndefinedSafe]
+  )
+
+  const filteredDates = useMemo(
+    () => filteredActiveData.flatMap(extractValueUndefinedSafe),
+    [filteredActiveData, extractValueUndefinedSafe]
+  )
+
+  const [min, max] = useMemo(() => extent(allDates), [allDates])
+
+  const timeScale = useMemo(() => scaleTime<Date, Date>().domain([min!, max!]).nice(), [min, max])
+
+  const allTicketBins = useMemo(() => createBins(allDates, timeScale), [allDates, timeScale])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    const [min, max] = extent(allDates)
-    const timeScale = scaleTime<Date, Date>().domain([min!, max!]).nice()
-
-    const allTicketBins = createBins(allDates, timeScale)
     const filteredTicketBins = createBins(filteredDates, timeScale)
 
     return (
@@ -103,7 +116,7 @@ export const DateDataDiagram = ({
           []
         )
     )
-  }, [allDates, filteredDates])
+  }, [allTicketBins, filteredDates, timeScale])
 
   const tooltip = useCallback(
     ({ index }) => {
