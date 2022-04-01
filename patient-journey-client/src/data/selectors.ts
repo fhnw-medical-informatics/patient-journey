@@ -5,7 +5,7 @@ import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
 import { stringToMillis } from './columns'
 import { ActiveDataViewType } from './dataSlice'
-import { EntityId } from './entities'
+import { EntityId, EntityIdNone } from './entities'
 import { EMPTY_EVENT_DATA, EventData, EventDataColumn, PatientJourneyEvent } from './events'
 import { filterReducer, GenericFilter } from './filtering'
 import { EMPTY_PATIENT_DATA, Patient, PatientData, PatientDataColumn } from './patients'
@@ -19,14 +19,6 @@ export const selectDataLoadingErrorMessage = (s: RootState): string => {
     return s.data.errorMessage
   } else {
     return ''
-  }
-}
-
-const selectActiveEntityData = (s: RootState): PatientData | EventData => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.view === 'patients' ? s.data.patientData : s.data.eventData
-  } else {
-    return EMPTY_PATIENT_DATA
   }
 }
 
@@ -78,14 +70,21 @@ export const selectActiveDataColumns = (s: RootState): ReadonlyArray<PatientData
   }
 }
 
-export const selectSelectedActiveEntity = createSelector(
-  selectActiveEntityData,
-  (activeEntityData) => activeEntityData.selectedEntity as EntityId
-)
-export const selectHoveredActiveEntity = createSelector(
-  selectActiveEntityData,
-  (activeEntityData) => activeEntityData.hoveredEntity as EntityId
-)
+export const selectSelectedActiveEntity = (s: RootState): EntityId => {
+  if (s.data.type === 'loading-complete') {
+    return (s.data.view === 'patients' ? s.data.patientData : s.data.eventData).selectedEntity
+  } else {
+    return EntityIdNone
+  }
+}
+
+export const selectHoveredActiveEntity = (s: RootState): EntityId => {
+  if (s.data.type === 'loading-complete') {
+    return (s.data.view === 'patients' ? s.data.patientData : s.data.eventData).hoveredEntity
+  } else {
+    return EntityIdNone
+  }
+}
 
 export const selectDataView = (s: RootState): ActiveDataViewType => {
   if (s.data.type === 'loading-complete') {
