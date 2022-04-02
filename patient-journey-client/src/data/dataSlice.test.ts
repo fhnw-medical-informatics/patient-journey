@@ -17,6 +17,8 @@ import { Filter } from './filtering'
 import { Patient, PatientId, PatientIdNone } from './patients'
 import { EventId, PatientJourneyEvent } from './events'
 import { DATA_LOADING_ERROR } from './loading'
+import { createStoreWithMockData } from '../test/createStoreWithMockData'
+import { selectAllFilters, selectDataView, selectHoveredActiveEntity, selectSelectedActiveEntity } from './selectors'
 
 const PID_1 = 'PID_1' as PatientId
 const TEST_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
@@ -267,9 +269,8 @@ describe('dataSlice', () => {
   })
 
   it(`handles ${setSelectedEntity.type} action`, async () => {
-    const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
-    const getSelected = () => (store.getState().data as DataStateLoadingComplete).patientData.selectedEntity
+    const { store } = await createStoreWithMockData()
+    const getSelected = () => selectSelectedActiveEntity(store.getState())
     expect(getSelected()).toEqual(PatientIdNone)
     store.dispatch(setSelectedEntity(PID_1))
     expect(getSelected()).toEqual(PID_1)
@@ -278,9 +279,8 @@ describe('dataSlice', () => {
   })
 
   it(`handles ${setHoveredEntity.type} action`, async () => {
-    const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
-    const getHovered = () => (store.getState().data as DataStateLoadingComplete).patientData.hoveredEntity
+    const { store } = await createStoreWithMockData()
+    const getHovered = () => selectHoveredActiveEntity(store.getState())
     expect(getHovered()).toEqual(PatientIdNone)
     store.dispatch(setHoveredEntity(PID_1))
     expect(getHovered()).toEqual(PID_1)
@@ -289,9 +289,8 @@ describe('dataSlice', () => {
   })
 
   it(`handles ${addDataFilter.type} action`, async () => {
-    const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
-    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    const { store } = await createStoreWithMockData()
+    const getFilters = () => selectAllFilters(store.getState())
     expect(getFilters()).toEqual([])
 
     const testFilter: Filter<'string'> = {
@@ -319,9 +318,8 @@ describe('dataSlice', () => {
   })
 
   it(`does not add the same filter twice with ${addDataFilter.type} action`, async () => {
-    const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
-    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    const { store } = await createStoreWithMockData()
+    const getFilters = () => selectAllFilters(store.getState())
     expect(getFilters()).toEqual([])
 
     const testFilter: Filter<'string'> = {
@@ -340,9 +338,8 @@ describe('dataSlice', () => {
   })
 
   it(`does not add the same filter twice with ${addDataFilter.type} action, if the filter value is different, it updates the value`, async () => {
-    const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
-    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    const { store } = await createStoreWithMockData()
+    const getFilters = () => selectAllFilters(store.getState())
     expect(getFilters()).toEqual([])
 
     const testFilter: Filter<'string'> = {
@@ -369,9 +366,8 @@ describe('dataSlice', () => {
   })
 
   it(`handles ${removeDataFilter.type} action`, async () => {
-    const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
-    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    const { store } = await createStoreWithMockData()
+    const getFilters = () => selectAllFilters(store.getState())
     expect(getFilters()).toEqual([])
 
     const testFilter: Filter<'string'> = {
@@ -402,9 +398,8 @@ describe('dataSlice', () => {
   })
 
   it(`handles ${resetDataFilter.type} action`, async () => {
-    const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
-    const getFilters = () => (store.getState().data as DataStateLoadingComplete).filters
+    const { store } = await createStoreWithMockData()
+    const getFilters = () => selectAllFilters(store.getState())
     expect(getFilters()).toEqual([])
 
     const testFilter: Filter<'string'> = {
@@ -423,9 +418,8 @@ describe('dataSlice', () => {
   })
 
   it(`handles ${setDataView.type} action`, async () => {
-    const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
-    const getView = () => (store.getState().data as DataStateLoadingComplete).view
+    const { store } = await createStoreWithMockData()
+    const getView = () => selectDataView(store.getState())
     expect(getView()).toEqual('patients')
     store.dispatch(setDataView('events' as ActiveDataViewType))
     expect(getView()).toEqual('events')

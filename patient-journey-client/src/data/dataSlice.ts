@@ -1,11 +1,10 @@
-import { AnyAction, createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
-import { PatientData } from './patients'
-import { EventData } from './events'
+import { AnyAction, createSlice, Draft, isAnyOf, PayloadAction } from '@reduxjs/toolkit'
 import { GenericFilter } from './filtering'
-import { EntityId, EntityIdNone } from './entities'
+import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
 import { EVENT_DATA_FILE_URL, loadData as loadDataImpl, LoadedData, PATIENT_DATA_FILE_URL } from './loading'
 import { addAlerts } from '../alert/alertSlice'
 import { Dispatch } from 'redux'
+import { DataColumn } from './columns'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -27,7 +26,8 @@ export type DataStateLoadingComplete = Readonly<{
   ActiveDataView &
   Filters
 
-export type ActiveDataViewType = 'patients' | 'events'
+export const ACTIVE_DATA_VIEWS = ['patients', 'events'] as const
+export type ActiveDataViewType = typeof ACTIVE_DATA_VIEWS[number]
 
 interface ActiveDataView {
   readonly view: ActiveDataViewType
@@ -63,29 +63,30 @@ const dataSlice = createSlice({
     setSelectedEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutateActiveEntityData(
         state,
-        (pd) => (pd.selectedEntity = pd.selectedEntity === action.payload ? EntityIdNone : (action.payload as EntityId))
+        (data) =>
+          (data.selectedEntity = data.selectedEntity === action.payload ? EntityIdNone : (action.payload as EntityId))
       )
     },
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
-      mutateActiveEntityData(state, (pd) => (pd.hoveredEntity = action.payload as EntityId))
+      mutateActiveEntityData(state, (data) => (data.hoveredEntity = action.payload as EntityId))
     },
     addDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
-      mutateFilterData(state, (fd) => {
-        const existingFilterIndex = fd.findIndex((filter) => filter.column.name === action.payload.column.name)
+      mutateFilterData(state, (data) => {
+        const existingFilterIndex = data.findIndex((filter) => filter.column.name === action.payload.column.name)
 
         if (existingFilterIndex !== -1) {
-          fd[existingFilterIndex] = action.payload
+          data[existingFilterIndex] = action.payload
         } else {
-          fd.push(action.payload)
+          data.push(action.payload)
         }
       })
     },
     removeDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
-      mutateFilterData(state, (fd) => {
-        const existingFilterIndex = fd.findIndex((filter) => filter.column.name === action.payload.column.name)
+      mutateFilterData(state, (data) => {
+        const existingFilterIndex = data.findIndex((filter) => filter.column.name === action.payload.column.name)
 
         if (existingFilterIndex !== -1) {
-          fd.splice(existingFilterIndex, 1)
+          data.splice(existingFilterIndex, 1)
         }
       })
     },
@@ -94,8 +95,8 @@ const dataSlice = createSlice({
       filters: [],
     }),
     setDataView: (state: Draft<DataState>, action: PayloadAction<ActiveDataViewType>) => {
-      mutateDataViewData(state, (vd) => {
-        vd.view = action.payload
+      mutateDataViewData(state, (data) => {
+        data.view = action.payload
       })
     },
   },
@@ -103,14 +104,14 @@ const dataSlice = createSlice({
 
 const mutateActiveEntityData = (
   state: Draft<DataState>,
-  applyMutation: (pd: Draft<PatientData | EventData>) => void
+  applyMutation: (data: Draft<DataEntity<Entity, DataColumn<string>>>) => void
 ) => {
   if (state.type === 'loading-complete') {
     applyMutation(state.view === 'patients' ? state.patientData : state.eventData)
   }
 }
 
-const mutateDataViewData = (state: Draft<DataState>, applyMutation: (pd: Draft<ActiveDataView>) => void) => {
+const mutateDataViewData = (state: Draft<DataState>, applyMutation: (data: Draft<ActiveDataView>) => void) => {
   if (state.type === 'loading-complete') {
     applyMutation(state)
   }
@@ -118,7 +119,7 @@ const mutateDataViewData = (state: Draft<DataState>, applyMutation: (pd: Draft<A
 
 const mutateFilterData = (
   state: Draft<DataState>,
-  applyMutation: (fd: Draft<ReadonlyArray<GenericFilter>>) => void
+  applyMutation: (data: Draft<ReadonlyArray<GenericFilter>>) => void
 ) => {
   if (state.type === 'loading-complete') {
     applyMutation(state.filters)
@@ -129,7 +130,9 @@ export const dataReducer = dataSlice.reducer
 export const { setSelectedEntity, setHoveredEntity, addDataFilter, removeDataFilter, resetDataFilter, setDataView } =
   dataSlice.actions
 
-const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
+export const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
+
+export const ACTIONS_AFFECTING_ROW_COUNT = isAnyOf(addDataFilter, removeDataFilter, resetDataFilter)
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
 export const loadData =
