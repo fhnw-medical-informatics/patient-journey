@@ -54,7 +54,7 @@ interface Paging {
 }
 
 interface Props extends Sorting, Paging {
-  readonly data: ReadonlyArray<Entity>
+  readonly rows: ReadonlyArray<Entity>
   readonly columns: ReadonlyArray<DataColumn<any>>
   readonly selectedEntity: EntityId
   readonly hoveredEntity: EntityId
@@ -65,7 +65,7 @@ interface Props extends Sorting, Paging {
 }
 
 export const DataTable = ({
-  data,
+  rows,
   columns,
   selectedEntity,
   hoveredEntity,
@@ -79,10 +79,9 @@ export const DataTable = ({
   colorByColumnFn,
 }: Props) => {
   const { classes } = useStyles()
-  const tableData = data
 
   // TODO: sortedData should be a selector
-  const sortedRows = useMemo(() => stableSort(tableData, sorting), [tableData, sorting])
+  const sortedRows = useMemo(() => stableSort(rows, sorting), [rows, sorting])
 
   return (
     <Paper className={classes.root}>
@@ -92,7 +91,7 @@ export const DataTable = ({
             const columnWidth = width / columns.length
             const bodyHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT
             const rowsPerPage = Math.floor(bodyHeight / ROW_HEIGHT)
-            const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, tableData.length - page * rowsPerPage)
+            const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
             const isAllRowsEmpty = emptyRowCount === rowsPerPage
 
             return (
@@ -138,7 +137,7 @@ export const DataTable = ({
                 </Table>
                 <TableFooter
                   rowsPerPage={rowsPerPage}
-                  count={tableData.length}
+                  count={rows.length}
                   page={page}
                   onPageChange={(e, newPage) => onPageChange(newPage)}
                 />

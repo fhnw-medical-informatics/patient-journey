@@ -28,7 +28,7 @@ export const DataTable = () => {
 
   return (
     <DataTableComponent
-      data={activeData}
+      rows={activeData}
       columns={activeColumns}
       selectedEntity={selectedEntity}
       hoveredEntity={hoveredEntity}
