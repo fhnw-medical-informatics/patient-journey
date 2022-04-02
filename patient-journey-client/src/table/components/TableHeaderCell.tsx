@@ -1,9 +1,8 @@
 import { Divider, TableCell, TableSortLabel, Theme } from '@mui/material'
 import React from 'react'
-import { makeStyles } from '../../../utils'
-import { ColumnSortingState } from '../../sorting'
-import { PatientDataColumn } from '../../patients'
-import { EventDataColumn } from '../../events'
+import { makeStyles } from '../../utils'
+import { ColumnSortingState } from '../../data/sorting'
+import { DataColumn } from '../../data/columns'
 
 const useStyles = makeStyles()((theme: Theme) => ({
   cell: {
@@ -35,7 +34,7 @@ export interface Sorting {
 }
 
 export interface Props extends Sorting {
-  readonly column: PatientDataColumn | EventDataColumn
+  readonly column: DataColumn<string>
   readonly columnWidth: number
   readonly suppressDivider?: boolean
 }

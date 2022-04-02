@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react'
 import { TableCell } from '@mui/material'
-import { PatientDataColumn } from '../../patients'
-import { makeStyles } from '../../../utils'
-import { formatMillis, stringToBoolean } from '../../columns'
+import { PatientDataColumn } from '../../data/patients'
+import { makeStyles } from '../../utils'
+import { formatMillis, stringToBoolean } from '../../data/columns'
 import { Check } from '@mui/icons-material'
-import { EventDataColumn } from '../../events'
+import { EventDataColumn } from '../../data/events'
 
 const useStyles = makeStyles()((theme) => ({
   tableCell: {

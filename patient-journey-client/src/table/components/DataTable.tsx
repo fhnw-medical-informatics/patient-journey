@@ -3,18 +3,18 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Paper, Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 
-import { makeStyles } from '../../../utils'
+import { makeStyles } from '../../utils'
 
-import { PatientIdNone } from '../../patients'
+import { PatientIdNone } from '../../data/patients'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
-import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
-import { Entity, EntityId } from '../../entities'
-import { DataColumn } from '../../columns'
-import { ColorByColumnNone, ColorByColumnOption } from '../../../color/colorSlice'
-import { ColorByColumnFn } from '../../../color/useColor'
+import { Entity, EntityId } from '../../data/entities'
+import { DataColumn } from '../../data/columns'
+import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
+import { ColorByColumnFn } from '../../color/useColor'
+import { ColumnSortingState, stableSort } from '../../data/sorting'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding

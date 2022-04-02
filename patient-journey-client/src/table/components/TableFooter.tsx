@@ -1,8 +1,8 @@
 import { TablePagination, Typography } from '@mui/material'
 import React from 'react'
-import { makeStyles } from '../../../utils'
-import { useActiveHoveredEntity, useActiveSelectedEntity } from '../../hooks'
-import { PatientId, PatientIdNone } from '../../patients'
+import { makeStyles } from '../../utils'
+import { useActiveHoveredEntity, useActiveSelectedEntity } from '../../data/hooks'
+import { PatientId, PatientIdNone } from '../../data/patients'
 
 export const FOOTER_HEIGHT = 40
 

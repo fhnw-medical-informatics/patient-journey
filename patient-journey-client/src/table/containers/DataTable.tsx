@@ -1,7 +1,7 @@
 import React from 'react'
-import { useColor } from '../../../color/useColor'
-import { DataTable as DataTableComponent } from '../../components/table/DataTable'
-import { useActiveDataColumns, useEntityInteraction, useFilteredActiveData } from '../../hooks'
+import { useColor } from '../../color/useColor'
+import { DataTable as DataTableComponent } from '../components/DataTable'
+import { useActiveDataColumns, useEntityInteraction, useFilteredActiveData } from '../../data/hooks'
 
 export const DataTable = () => {
   const activeData = useFilteredActiveData()
