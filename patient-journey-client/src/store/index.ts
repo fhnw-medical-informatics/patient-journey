@@ -5,10 +5,12 @@ import { themeReducer } from '../theme/themeSlice'
 import { timelineReducer } from '../timeline/timelineSlice'
 import { colorReducer } from '../color/colorSlice'
 import { alertReducer } from '../alert/alertSlice'
+import { tableReducer } from '../table/tableSlice'
 
 export const reducer = combineReducers({
   theme: themeReducer,
   data: dataReducer,
+  table: tableReducer,
   timeline: timelineReducer,
   color: colorReducer,
   alert: alertReducer,

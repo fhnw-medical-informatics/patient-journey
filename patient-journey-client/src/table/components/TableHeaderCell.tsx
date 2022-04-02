@@ -29,8 +29,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
 }))
 
 export interface Sorting {
-  readonly sortingState: ColumnSortingState
-  readonly setSortingState: (sortingState: ColumnSortingState) => void
+  readonly sorting: ColumnSortingState
+  readonly onSortingChange: (sortingState: ColumnSortingState) => void
 }
 
 export interface Props extends Sorting {
@@ -39,23 +39,17 @@ export interface Props extends Sorting {
   readonly suppressDivider?: boolean
 }
 
-export const TableHeaderCell = ({
-  column,
-  columnWidth,
-  sortingState,
-  setSortingState,
-  suppressDivider = false,
-}: Props) => {
+export const TableHeaderCell = ({ column, columnWidth, sorting, onSortingChange, suppressDivider = false }: Props) => {
   const { classes } = useStyles()
 
   const changeSortingState = () => {
-    if (sortingState.type === 'neutral' || sortingState.column.index !== column.index) {
-      setSortingState({ type: 'asc', column })
+    if (sorting.type === 'neutral' || sorting.column.index !== column.index) {
+      onSortingChange({ type: 'asc', column })
     } else {
-      if (sortingState.type === 'asc') {
-        setSortingState({ type: 'desc', column })
+      if (sorting.type === 'asc') {
+        onSortingChange({ type: 'desc', column })
       } else {
-        setSortingState({ type: 'neutral' })
+        onSortingChange({ type: 'neutral' })
       }
     }
   }
@@ -71,11 +65,9 @@ export const TableHeaderCell = ({
       <div className={classes.contents}>
         <TableSortLabel
           className={classes.sortLabel}
-          active={sortingState.type !== 'neutral' && sortingState.column.index === column.index}
-          title={sortingTooltip(sortingState)}
-          direction={
-            sortingState.type === 'neutral' || sortingState.column.index !== column.index ? 'desc' : sortingState.type
-          }
+          active={sorting.type !== 'neutral' && sorting.column.index === column.index}
+          title={sortingTooltip(sorting)}
+          direction={sorting.type === 'neutral' || sorting.column.index !== column.index ? 'desc' : sorting.type}
         >
           {column.name}
         </TableSortLabel>

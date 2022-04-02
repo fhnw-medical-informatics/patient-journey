@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { Paper, Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
@@ -14,7 +14,8 @@ import { Entity, EntityId } from '../../data/entities'
 import { DataColumn } from '../../data/columns'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
 import { ColorByColumnFn } from '../../color/useColor'
-import { ColumnSortingState, stableSort } from '../../data/sorting'
+import { stableSort } from '../../data/sorting'
+import { Sorting } from './TableHeaderCell'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -47,7 +48,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-interface Props {
+interface Paging {
+  readonly page: number
+  readonly onPageChange: (page: number) => void
+}
+
+interface Props extends Sorting, Paging {
   readonly data: ReadonlyArray<Entity>
   readonly columns: ReadonlyArray<DataColumn<any>>
   readonly selectedEntity: EntityId
@@ -63,19 +69,20 @@ export const DataTable = ({
   columns,
   selectedEntity,
   hoveredEntity,
+  sorting,
+  page,
   onEntityClick,
   onEntityHover,
+  onSortingChange,
+  onPageChange,
   colorByColumn,
   colorByColumnFn,
 }: Props) => {
   const { classes } = useStyles()
   const tableData = data
-  const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
-  const [page, setPage] = useState<number>(0)
-  // TODO: sortedData should be a selector
-  const sortedRows = useMemo(() => stableSort(tableData, sortingState), [tableData, sortingState])
 
-  useEffect(() => setPage(0), [tableData.length])
+  // TODO: sortedData should be a selector
+  const sortedRows = useMemo(() => stableSort(tableData, sorting), [tableData, sorting])
 
   return (
     <Paper className={classes.root}>
@@ -94,8 +101,8 @@ export const DataTable = ({
                   <TableHeader
                     columns={columns}
                     columnWidth={columnWidth}
-                    sortingState={sortingState}
-                    setSortingState={setSortingState}
+                    sorting={sorting}
+                    onSortingChange={onSortingChange}
                   />
                   <TableBody component={'tbody'}>
                     {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
@@ -133,7 +140,7 @@ export const DataTable = ({
                   rowsPerPage={rowsPerPage}
                   count={tableData.length}
                   page={page}
-                  onPageChange={(e, newPage) => setPage(newPage)}
+                  onPageChange={(e, newPage) => onPageChange(newPage)}
                 />
               </div>
             )
