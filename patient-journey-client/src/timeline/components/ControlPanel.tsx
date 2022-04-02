@@ -182,7 +182,7 @@ export const ControlPanel = ({
               <Tooltip
                 title={
                   <div>
-                    <Typography color="inherit">Timline keyboard shortcuts</Typography>
+                    <Typography color="inherit">Timeline keyboard shortcuts</Typography>
                     <table>
                       <tbody>
                         <tr>

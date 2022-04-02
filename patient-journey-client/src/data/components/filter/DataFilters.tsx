@@ -10,6 +10,7 @@ import { FilterCard } from './FilterCard'
 import { ActiveDataViewType } from '../../dataSlice'
 import { ColorByColumnOption } from '../../../color/colorSlice'
 import { ColorByNumberFn } from '../../../color/useColor'
+import { ColorByQualityFn } from '../../../color/useColor'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -32,6 +33,7 @@ interface DataFiltersProps {
   onResetFilters: () => void
   colorByColumn: ColorByColumnOption
   colorByNumberFn: ColorByNumberFn
+  colorByQualityFn: ColorByQualityFn
 }
 
 export const DataFilters = ({
@@ -45,6 +47,7 @@ export const DataFilters = ({
   onResetFilters,
   colorByColumn,
   colorByNumberFn,
+  colorByQualityFn,
 }: DataFiltersProps) => {
   const { classes } = useStyles()
 
@@ -102,7 +105,7 @@ export const DataFilters = ({
         </Grid>
       )}
       {availableColumns
-        .filter((col) => ['string', 'number', 'boolean', 'date', 'timestamp'].includes(col.type))
+        .filter((col) => ['string', 'number', 'boolean', 'date', 'timestamp', 'quality'].includes(col.type))
         .map((availableColumn) => {
           const filter = findActiveFilter(availableColumn, activeFilters, availableColumn.type)
 
@@ -121,6 +124,7 @@ export const DataFilters = ({
                   filteredActiveData={filteredActiveData}
                   colorByColumn={colorByColumn}
                   colorByNumberFn={colorByNumberFn}
+                  colorByQualityFn={colorByQualityFn}
                 />
                 <DataFilter
                   column={availableColumn}

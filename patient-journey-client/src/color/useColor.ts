@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useTheme } from '@mui/material'
 import { scaleOrdinal } from 'd3-scale'
-import { interpolatePlasma, schemePaired, schemeSet3 } from 'd3-scale-chromatic'
+import { interpolatePlasma, schemePaired, schemeSet3, schemeSet1, schemeSet2 } from 'd3-scale-chromatic'
 import { ColorByColumnNone, ColorByColumnOption } from './colorSlice'
 import { useColorByColumn } from './useColorByColumn'
 import { FilterColumn } from '../data/filtering'
@@ -11,12 +11,16 @@ import { stringToMillis } from '../data/columns'
 
 export type ColorByColumnFn = (entity?: Entity) => string
 export type ColorByCategoryFn = (category?: string) => string
+export type ColorByQualityFn = (quality?: string) => string
 export type ColorByNumberFn = (number?: number) => string
 
-export type ColorByFn = [ColorByColumnFn, ColorByCategoryFn, ColorByNumberFn, ColorByColumnOption]
+export type ColorByFn = [ColorByColumnFn, ColorByCategoryFn, ColorByNumberFn, ColorByQualityFn, ColorByColumnOption]
 
 const lightCategoryFn = scaleOrdinal(schemePaired)
 const darkCategoryFn = scaleOrdinal(schemeSet3)
+
+const lightQualityFn = scaleOrdinal(schemeSet1)
+const darkQualityFn = scaleOrdinal(schemeSet2)
 
 const lightNumberFn = interpolatePlasma
 const darkNumberFn = interpolatePlasma
@@ -62,12 +66,19 @@ export const useColor = (): ColorByFn => {
     [theme.palette.mode]
   )
 
+  const colorScaleQuality = useCallback(
+    (quality: string) => (theme.palette.mode === 'light' ? lightQualityFn(quality) : darkQualityFn(quality)),
+    [theme.palette.mode]
+  )
+
   const colorScaleNumber = useCallback(
     (number: number) => (theme.palette.mode === 'light' ? lightNumberFn(number) : darkNumberFn(number)),
     [theme.palette.mode]
   )
 
   const getColorByCategory = (category?: string) => (category ? colorScaleCategory(category) : defaultColor)
+
+  const getColorByQuality = (quality?: string) => (quality ? colorScaleQuality(quality) : defaultColor)
 
   const getColorByNumber = (value?: number) =>
     value && numberRange ? colorScaleNumber((value - numberRange[0]) / (numberRange[1] - numberRange[0])) : defaultColor
@@ -94,12 +105,20 @@ export const useColor = (): ColorByFn => {
       case 'boolean':
       case 'string':
         return getColorByCategory(getFieldValue(entity, colorByColumn))
+      case 'quality':
+        return getColorByQuality(getFieldValue(entity, colorByColumn))
       default:
         return defaultColor
     }
   }
 
-  return [(entity?: Entity) => getColorByColumn(entity), getColorByCategory, getColorByNumber, colorByColumn]
+  return [
+    (entity?: Entity) => getColorByColumn(entity),
+    getColorByCategory,
+    getColorByNumber,
+    getColorByQuality,
+    colorByColumn,
+  ]
 }
 
 const getFieldValue = (entity: Entity, column: FilterColumn): string => {

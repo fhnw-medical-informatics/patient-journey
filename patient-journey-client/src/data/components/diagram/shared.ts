@@ -3,7 +3,7 @@ import { grey } from '@mui/material/colors'
 import { Entity } from '../../entities'
 import { FilterColumn } from '../../filtering'
 import { ColorByColumnOption } from '../../../color/colorSlice'
-import { ColorByNumberFn } from '../../../color/useColor'
+import { ColorByNumberFn, ColorByQualityFn } from '../../../color/useColor'
 
 export interface DataDiagramsProps {
   allActiveData: ReadonlyArray<Entity>
@@ -11,6 +11,7 @@ export interface DataDiagramsProps {
   column: FilterColumn
   colorByColumn: ColorByColumnOption
   colorByNumberFn: ColorByNumberFn
+  colorByQualityFn: ColorByQualityFn
 }
 
 export const barColors = (theme: Theme) => [

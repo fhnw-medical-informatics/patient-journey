@@ -6,6 +6,7 @@ import { BooleanDataFilter } from './BooleanDataFilter'
 import { DateDataFilter } from './DateDataFilter'
 import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
+import { QualityDataFilter } from './QualityDataFilter'
 
 export interface DataFilterProps<T extends FilterColumn['type']> {
   column: FilterColumn
@@ -74,6 +75,16 @@ export const DataFilter = <T extends FilterColumn['type']>({
               millisTo: MillisNone,
             }
           }
+          onChange={onAddFilter}
+          onRemove={onRemoveFilter}
+        />
+      )
+    case 'quality':
+      return (
+        <QualityDataFilter
+          column={column}
+          type={type}
+          value={(filter as Filter<'quality'> | undefined)?.value ?? { text: '' }}
           onChange={onAddFilter}
           onRemove={onRemoveFilter}
         />
