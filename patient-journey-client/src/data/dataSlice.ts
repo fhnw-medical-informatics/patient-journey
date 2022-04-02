@@ -130,7 +130,7 @@ export const dataReducer = dataSlice.reducer
 export const { setSelectedEntity, setHoveredEntity, addDataFilter, removeDataFilter, resetDataFilter, setDataView } =
   dataSlice.actions
 
-const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
+export const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
 
 export const ACTIONS_AFFECTING_ROW_COUNT = isAnyOf(addDataFilter, removeDataFilter, resetDataFilter)
 
