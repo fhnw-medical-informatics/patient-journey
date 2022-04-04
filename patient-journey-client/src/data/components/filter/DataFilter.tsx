@@ -7,9 +7,11 @@ import { DateDataFilter } from './DateDataFilter'
 import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
 import { QualityDataFilter } from './QualityDataFilter'
+import { Entity } from '../../entities'
 
 export interface DataFilterProps<T extends FilterColumn['type']> {
   column: FilterColumn
+  allActiveData: ReadonlyArray<Entity>
   type: T
   filter?: Filter<T>
   onAddFilter: (filter: GenericFilter) => void
@@ -18,6 +20,7 @@ export interface DataFilterProps<T extends FilterColumn['type']> {
 
 export const DataFilter = <T extends FilterColumn['type']>({
   column,
+  allActiveData,
   type,
   filter,
   onAddFilter,
@@ -83,6 +86,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
       return (
         <QualityDataFilter
           column={column}
+          allActiveData={allActiveData}
           type={type}
           value={(filter as Filter<'quality'> | undefined)?.value ?? { text: '' }}
           onChange={onAddFilter}
