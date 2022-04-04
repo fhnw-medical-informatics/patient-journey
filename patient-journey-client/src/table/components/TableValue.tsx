@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react'
 import { TableCell } from '@mui/material'
-import { PatientDataColumn } from '../../data/patients'
 import { makeStyles } from '../../utils'
-import { formatMillis, stringToBoolean } from '../../data/columns'
+import { DataColumn, formatMillis, stringToBoolean } from '../../data/columns'
 import { Check } from '@mui/icons-material'
-import { EventDataColumn } from '../../data/events'
 
 const useStyles = makeStyles()((theme) => ({
   tableCell: {
@@ -19,7 +17,7 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 interface Props {
-  readonly column: PatientDataColumn | EventDataColumn
+  readonly column: DataColumn<string>
   readonly width: number
   readonly value: string
 }
