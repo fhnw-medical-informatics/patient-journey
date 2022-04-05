@@ -146,7 +146,7 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
 
         return (
           fieldValue.isValid &&
-          fieldValue.value.toLowerCase().includes((filter as Filter<'string'>).value.text.toLowerCase())
+          fieldValue.value.toLowerCase().includes((filter as Filter<'quality'>).value.text.toLowerCase())
         )
       })
     default:
