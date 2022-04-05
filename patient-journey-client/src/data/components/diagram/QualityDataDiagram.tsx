@@ -37,7 +37,7 @@ export const QualityDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const colors = (node: any) => colorByQualityFn(node?.data?.binEnd?.valueOf())
+  const colors = (node: any) => colorByQualityFn(node?.data?.valueOf())
 
   const extractValueUndefinedSafe = useCallback(
     (d: Entity) => {
@@ -67,10 +67,10 @@ export const QualityDataDiagram = ({
     [filteredActiveData, extractValueUndefinedSafe]
   )
 
-  const uniqueQualities = useMemo(() => allQualities.filter((v, i, a) => a.indexOf(v) === i), [allQualities])
+  const qualities = useMemo(() => [...new Set(allQualities)], [allQualities])
 
   const data = useMemo(() => {
-    return uniqueQualities.map<BinDatum>((quality: string, binIndex: number) => {
+    return qualities.map<BinDatum>((quality: string, binIndex: number) => {
       const predicate = (t: string) => t === quality
 
       const allCount = allQualities.filter(predicate).length
@@ -84,7 +84,7 @@ export const QualityDataDiagram = ({
         quality,
       }
     })
-  }, [allQualities, filteredQualities, uniqueQualities])
+  }, [allQualities, filteredQualities, qualities])
 
   const tooltip = useCallback(
     ({ index }) => {

@@ -159,7 +159,9 @@ export const ControlPanel = ({
                     <i>{'Off'}</i>
                   </MenuItem>
                   {availableColumns
-                    .filter((column) => ['timestamp', 'date', 'number', 'boolean', 'string'].includes(column.type))
+                    .filter((column) =>
+                      ['timestamp', 'date', 'number', 'boolean', 'string', 'quality'].includes(column.type)
+                    )
                     .map((column) => (
                       <MenuItem key={column.name} value={column.name}>
                         {column.name}
