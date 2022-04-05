@@ -1,20 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { Paper, Table, TableBody, TableCell, TableRow } from '@mui/material'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 
-import { makeStyles } from '../../../utils'
+import { makeStyles } from '../../utils'
 
-import { PatientIdNone } from '../../patients'
+import { PatientIdNone } from '../../data/patients'
 import { NoMatchesPlaceholder } from './NoMatchesPlaceholder'
 import { TableHeader } from './TableHeader'
 import { FOOTER_HEIGHT, TableFooter } from './TableFooter'
-import { ColumnSortingState, stableSort } from '../../sorting'
 import { TableValue } from './TableValue'
-import { Entity, EntityId } from '../../entities'
-import { DataColumn } from '../../columns'
-import { ColorByColumnNone, ColorByColumnOption } from '../../../color/colorSlice'
-import { ColorByColumnFn } from '../../../color/useColor'
+import { Entity, EntityId } from '../../data/entities'
+import { DataColumn } from '../../data/columns'
+import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
+import { ColorByColumnFn } from '../../color/useColor'
+import { stableSort } from '../../data/sorting'
+import { Sorting } from './TableHeaderCell'
 
 const ROW_HEIGHT = 28.85 // MUI 'dense' table with our custom padding
 const HEADER_HEIGHT = 48 // MUI header height with our custom padding
@@ -47,8 +48,13 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-interface Props {
-  readonly data: ReadonlyArray<Entity>
+interface Paging {
+  readonly page: number
+  readonly onPageChange: (page: number) => void
+}
+
+interface Props extends Sorting, Paging {
+  readonly rows: ReadonlyArray<Entity>
   readonly columns: ReadonlyArray<DataColumn<any>>
   readonly selectedEntity: EntityId
   readonly hoveredEntity: EntityId
@@ -59,23 +65,23 @@ interface Props {
 }
 
 export const DataTable = ({
-  data,
+  rows,
   columns,
   selectedEntity,
   hoveredEntity,
+  sorting,
+  page,
   onEntityClick,
   onEntityHover,
+  onSortingChange,
+  onPageChange,
   colorByColumn,
   colorByColumnFn,
 }: Props) => {
   const { classes } = useStyles()
-  const tableData = data
-  const [sortingState, setSortingState] = useState<ColumnSortingState>({ type: 'neutral' })
-  const [page, setPage] = useState<number>(0)
-  // TODO: sortedData should be a selector
-  const sortedRows = useMemo(() => stableSort(tableData, sortingState), [tableData, sortingState])
 
-  useEffect(() => setPage(0), [tableData.length])
+  // TODO: sortedData should be a selector
+  const sortedRows = useMemo(() => stableSort(rows, sorting), [rows, sorting])
 
   return (
     <Paper className={classes.root}>
@@ -85,7 +91,7 @@ export const DataTable = ({
             const columnWidth = width / columns.length
             const bodyHeight = height - HEADER_HEIGHT - FOOTER_HEIGHT
             const rowsPerPage = Math.floor(bodyHeight / ROW_HEIGHT)
-            const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, tableData.length - page * rowsPerPage)
+            const emptyRowCount = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
             const isAllRowsEmpty = emptyRowCount === rowsPerPage
 
             return (
@@ -94,8 +100,8 @@ export const DataTable = ({
                   <TableHeader
                     columns={columns}
                     columnWidth={columnWidth}
-                    sortingState={sortingState}
-                    setSortingState={setSortingState}
+                    sorting={sorting}
+                    onSortingChange={onSortingChange}
                   />
                   <TableBody component={'tbody'}>
                     {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, idx) => (
@@ -131,9 +137,9 @@ export const DataTable = ({
                 </Table>
                 <TableFooter
                   rowsPerPage={rowsPerPage}
-                  count={tableData.length}
+                  count={rows.length}
                   page={page}
-                  onPageChange={(e, newPage) => setPage(newPage)}
+                  onPageChange={(e, newPage) => onPageChange(newPage)}
                 />
               </div>
             )

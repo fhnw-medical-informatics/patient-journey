@@ -1,9 +1,7 @@
 // In addition to 'asc' | 'desc', we support a 3rd 'neutral' state (import order)
 
-import { stringToBoolean, stringToMillis, stringToNumber } from './columns'
+import { DataColumn, stringToBoolean, stringToMillis, stringToNumber } from './columns'
 import { Entity } from './entities'
-import { EventDataColumn } from './events'
-import { PatientDataColumn } from './patients'
 
 export type ColumnSortingState =
   | Readonly<{
@@ -11,7 +9,7 @@ export type ColumnSortingState =
     }>
   | Readonly<{
       type: 'asc' | 'desc'
-      column: PatientDataColumn | EventDataColumn
+      column: DataColumn<string>
     }>
 
 // Sorting logic inspired by https://codesandbox.io/s/f71wj?file=/demo.js
@@ -30,11 +28,11 @@ export const stableSort = (rows: ReadonlyArray<Entity>, sortingState: ColumnSort
   }
 }
 
-function getComparator(order: 'asc' | 'desc', column: PatientDataColumn | EventDataColumn) {
+function getComparator(order: 'asc' | 'desc', column: DataColumn<string>) {
   return (p1: Entity, p2: Entity) => (order === 'asc' ? 1 : -1) * comparePatients(p1, p2, column)
 }
 
-function comparePatients(p1: Entity, p2: Entity, column: PatientDataColumn | EventDataColumn) {
+function comparePatients(p1: Entity, p2: Entity, column: DataColumn<string>) {
   const v1 = p1.values[column.index]
   const v2 = p2.values[column.index]
 
