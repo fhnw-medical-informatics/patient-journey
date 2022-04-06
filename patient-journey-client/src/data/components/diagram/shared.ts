@@ -14,7 +14,6 @@ export interface DataDiagramsProps {
   colorByQualityFn: ColorByQualityFn
 }
 
-export const barColors = (theme: Theme) => [
-  theme.palette.primary.main,
-  theme.palette.mode === 'light' ? grey[200] : grey[800],
-]
+export const greyColor = (theme: Theme) => (theme.palette.mode === 'light' ? grey[200] : grey[800])
+
+export const barColors = (theme: Theme) => [theme.palette.primary.main, greyColor(theme)]

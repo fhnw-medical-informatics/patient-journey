@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { BarDatum, ResponsiveBar } from '@nivo/bar'
-import { DataDiagramsProps } from './shared'
+import { DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { Entity } from '../../entities'
 import { useTheme } from '@mui/material'
@@ -37,7 +37,13 @@ export const QualityDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const colors = (node: any) => colorByQualityFn(node?.data?.valueOf())
+  const colors = (node: any) => {
+    if (node.id === 'filteredOut') {
+      return greyColor(theme)
+    } else {
+      return colorByQualityFn(node?.data?.valueOf())
+    }
+  }
 
   const extractValueUndefinedSafe = useCallback(
     (d: Entity) => {
