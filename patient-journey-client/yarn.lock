@@ -3857,11 +3857,6 @@
   resolved "https://registry.yarnpkg.com/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
   integrity sha512-rr+OQyAjxze7GgWrSaJwydHStIhHq2lvY3BOC2Mj7KnzI7XK0Uw1TOOdI9lDoajEbSWLiYgoo4f1R51erQfhPQ==
 
-"@types/d3-array@^2.9.0":
-  version "2.12.3"
-  resolved "https://registry.yarnpkg.com/@types/d3-array/-/d3-array-2.12.3.tgz#8d16d51fb04ad5a5a8ebe14eb8263a579f1efdd1"
-  integrity sha512-hN879HLPTVqZV3FQEXy7ptt083UXwguNbnxdTGzVW4y4KjX5uyNKljrQixZcSJfLyFirbpUokxpXtvR+N5+KIg==
-
 "@types/d3-array@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@types/d3-array/-/d3-array-3.0.2.tgz#71c35bca8366a40d1b8fce9279afa4a77fb0065d"
@@ -11294,12 +11289,11 @@ react-style-proptype@^3.2.2:
   dependencies:
     prop-types "^15.5.4"
 
-react-svg-timeline@^0.18.0:
-  version "0.18.0"
-  resolved "https://registry.yarnpkg.com/react-svg-timeline/-/react-svg-timeline-0.18.0.tgz#11dc8f36a311b67ebaf6fe525cb2f9bd7b30c4a6"
-  integrity sha512-p2PFKB+/fUxtRlyUlD478LykBvn5fpVZzu3SPLHlA+D6C+y1+I++yOZSvFMF2GF8vYvG9CJVNacbZS5u8aQCMA==
+react-svg-timeline@^0.19.0:
+  version "0.19.0"
+  resolved "https://registry.yarnpkg.com/react-svg-timeline/-/react-svg-timeline-0.19.0.tgz#acca096132ea39de166a8faae5d6b1e318322d15"
+  integrity sha512-LsV7KHJ8RoKVQBtOz2Eurvkuj+RPwfERPU10jZR3pMjnPC+g98Ktvt3nw3xQd38dtERIli6s7fO9D2Hi0qfktQ==
   dependencies:
-    "@types/d3-array" "^2.9.0"
     d3-array "^2.11.0"
     d3-scale "^3.0.1"
     date-fns "^2.2.1"
