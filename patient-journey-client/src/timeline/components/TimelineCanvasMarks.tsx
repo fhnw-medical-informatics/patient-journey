@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import { CustomLayer, TimelineEvent } from 'react-svg-timeline'
 
-type RenderInfo = { ctx: CanvasRenderingContext2D; canvasElement: HTMLCanvasElement }
+type RenderInfo = { ctx: CanvasRenderingContext2D }
 
 const defaultSingleEventMarkHeight = 20
 
@@ -29,7 +29,6 @@ export const TimelineCanvasMarks: CustomLayer = ({
         if (ctx) {
           const renderInfo = {
             ctx,
-            canvasElement,
           }
           setRenderInfo(renderInfo)
         }
@@ -38,11 +37,14 @@ export const TimelineCanvasMarks: CustomLayer = ({
     [setRenderInfo]
   )
 
+  // Draw the marks
   useEffect(() => {
     if (renderInfo) {
       const { ctx } = renderInfo
 
       ctx.clearRect(0, 0, width, height)
+
+      ctx.strokeStyle = theme.palette.text.primary
 
       // Draw Clusters
       const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))
@@ -58,42 +60,34 @@ export const TimelineCanvasMarks: CustomLayer = ({
         .range([clusterRadiusMin, clusterRadiusMax])
 
       eventClusters.forEach((cluster) => {
-        const x = xScale(cluster.timeMillis)
+        // Round to avoid sub-pixel rendering
+        const x = Math.round(xScale(cluster.timeMillis))
+        const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(cluster.laneId!)!)
 
         ctx.fillStyle = theme.palette.primary.main
-        ctx.strokeStyle = theme.palette.text.primary
         ctx.beginPath()
-        ctx.arc(
-          x,
-          laneDisplayMode === 'collapsed' ? height / 2 : yScale(cluster.laneId!)!,
-          clusterScale(cluster.size),
-          0,
-          360
-        )
+        ctx.arc(x, y, clusterScale(cluster.size), 0, 360)
         ctx.fill()
         ctx.stroke()
-        ctx.closePath()
+        // ctx.closePath() - ctx.fill() automatically closes the path
       })
 
       // Draw Events
-
       const drawEvent = <EID extends string, E extends TimelineEvent<EID, any>>(event: E) => {
-        const x = xScale(event.startTimeMillis)
+        // Round to avoid sub-pixel rendering
+        const x = Math.round(xScale(event.startTimeMillis))
+        const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId!)!)
 
         ctx.fillStyle = event.color ?? theme.palette.primary.main
-        ctx.strokeStyle = theme.palette.text.primary
 
+        // Note: We could further optimize this, by
+        // grouping events by color and then beginPath()ing
+        // and filling/stroking only once per color.
         ctx.beginPath()
-        ctx.arc(
-          x,
-          laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId!)!,
-          defaultSingleEventMarkHeight / 2,
-          0,
-          360
-        )
+        ctx.arc(x, y, defaultSingleEventMarkHeight / 2, 0, 360)
         ctx.fill()
         ctx.stroke()
-        ctx.closePath()
+        // ctx.closePath() - ctx.fill() automatically closes the path
       }
 
       // Draw events
@@ -103,16 +97,9 @@ export const TimelineCanvasMarks: CustomLayer = ({
     }
   }, [renderInfo, events, xScale, width, height, yScale, laneDisplayMode, eventClusters, theme])
 
-  useEffect(() => {
-    if (renderInfo) {
-    }
-  }, [renderInfo, eventClusters, xScale, yScale, laneDisplayMode, height])
-
   return (
     <foreignObject x="0" y="0" width={width} height={height}>
-      <div style={{ height: '100%', width: '100%' }}>
-        <canvas ref={canvasRef} id="event-marks-canvas" width={width} height={height}></canvas>
-      </div>
+      <canvas ref={canvasRef} width={width} height={height}></canvas>
     </foreignObject>
   )
 }
