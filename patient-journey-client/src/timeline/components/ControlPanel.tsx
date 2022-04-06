@@ -136,7 +136,7 @@ export const ControlPanel = ({
                     <i>{'Collapsed'}</i>
                   </MenuItem>
                   {availableColumns
-                    .filter((column) => ['pid', 'boolean', 'string'].includes(column.type))
+                    .filter((column) => ['pid', 'boolean', 'string', 'quality'].includes(column.type))
                     .map((column) => (
                       <MenuItem key={column.name} value={column.name}>
                         {column.name}
