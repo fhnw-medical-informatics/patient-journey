@@ -51,7 +51,7 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
 const LIGHT_SELECTION_COLOR = yellow[200]
 const DARK_SELECTION_COLOR = deepPurple[400]
 
-const LIGHT_DEFAULT_COLOR = grey[900]
+const LIGHT_DEFAULT_COLOR = grey[300]
 const DARK_DEFAULT_COLOR = grey[400]
 
 export const lightTheme = createCustomTheme('light', LIGHT_SELECTION_COLOR, LIGHT_DEFAULT_COLOR)
