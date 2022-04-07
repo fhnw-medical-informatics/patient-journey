@@ -53,6 +53,8 @@ interface BooleanFilterValue {
   isTrue: Trilian
 }
 
+export const QualityFilterNone = ''
+
 export const createFilter = <T extends FilterColumn['type']>(
   column: FilterColumn,
   type: T,

@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from 'react'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 
-import { createFilter, Filter } from '../../filtering'
+import { createFilter, Filter, QualityFilterNone } from '../../filtering'
 import { Entity } from '../../entities'
 
 export interface QualityDataFilterProps extends Filter<'quality'> {
@@ -56,7 +56,15 @@ export const QualityDataFilter = ({
   }
 
   return (
-    <Select value={value.text} onChange={handleChange} label={column.name} fullWidth>
+    <Select
+      value={value.text !== QualityFilterNone ? value.text : QualityFilterNone}
+      onChange={handleChange}
+      label={column.name}
+      fullWidth
+    >
+      <MenuItem value={QualityFilterNone}>
+        <i>{'None'}</i>
+      </MenuItem>
       {uniqueQualities.map((q) => (
         <MenuItem key={q} value={q}>
           {q}
