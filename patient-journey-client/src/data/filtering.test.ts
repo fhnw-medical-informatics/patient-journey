@@ -6,11 +6,11 @@ import { PatientDataColumn } from './patients'
 const mockData: ReadonlyArray<Entity> = [
   {
     uid: '1' as EntityId,
-    values: ['Jessica', '25', 'false', '31.12.2019', '1648555453169'],
+    values: ['Jessica', '25', 'false', '31.12.2019', '1648555453169', 'A'],
   },
   {
     uid: '2' as EntityId,
-    values: ['Peter', '31', 'true', '31.12.2018', '1648552453169'],
+    values: ['Peter', '31', 'true', '31.12.2018', '1648552453169', 'B'],
   },
 ]
 
@@ -39,6 +39,11 @@ const mockColumns: ReadonlyArray<PatientDataColumn> = [
     name: 'Timestamp',
     type: 'timestamp',
     index: 4,
+  },
+  {
+    name: 'Blood Type',
+    type: 'quality',
+    index: 5,
   },
 ]
 
@@ -258,5 +263,41 @@ describe('Filter Reducer', () => {
     const filteredData = filterReducer(mockData, timestampFilter)
     expect(filteredData.length).toBe(1)
     expect(filteredData[0].uid).toBe('1')
+  })
+
+  it('should handle a qualitative filter', () => {
+    const qualityFilter: Filter<'quality'> = {
+      column: mockColumns[5],
+      type: 'quality',
+      value: { text: 'A' },
+    }
+
+    const filteredData = filterReducer(mockData, qualityFilter)
+    expect(filteredData.length).toBe(1)
+    expect(filteredData[0].uid).toBe('1')
+  })
+
+  it('should handle a qualitative filter with a non-existing quality', () => {
+    const qualityFilter: Filter<'quality'> = {
+      column: mockColumns[5],
+      type: 'quality',
+      value: { text: 'O−' },
+    }
+
+    const filteredData = filterReducer(mockData, qualityFilter)
+    expect(filteredData.length).toBe(0)
+  })
+
+  it('should handle a qualitative filter with an empty value', () => {
+    const qualityFilter: Filter<'quality'> = {
+      column: mockColumns[5],
+      type: 'quality',
+      value: { text: '' },
+    }
+
+    const filteredData = filterReducer(mockData, qualityFilter)
+    expect(filteredData.length).toBe(2)
+    expect(filteredData[0].uid).toBe('1')
+    expect(filteredData[1].uid).toBe('2')
   })
 })
