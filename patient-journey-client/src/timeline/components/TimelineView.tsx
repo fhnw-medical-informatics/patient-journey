@@ -11,6 +11,8 @@ import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { EntityId, EntityIdNone } from '../../data/entities'
 import { useTheme } from '@mui/material'
 
+import { TimelineCanvasMarks } from './TimelineCanvasMarks'
+
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, any>>
   lanes: ReadonlyArray<TimelineLane<any>>
@@ -61,6 +63,7 @@ export const TimelineView = ({
               onEventUnhover={() => {
                 onHover(EntityIdNone)
               }}
+              layers={['grid', 'axes', TimelineCanvasMarks, 'interaction']}
             />
           )
         }}
