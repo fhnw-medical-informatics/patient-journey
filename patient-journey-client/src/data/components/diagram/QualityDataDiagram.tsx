@@ -41,7 +41,7 @@ export const QualityDataDiagram = ({
     if (node.id === 'filteredOut') {
       return greyColor(theme)
     } else {
-      return colorByCategoryFn(node?.data?.valueOf())
+      return colorByCategoryFn(node?.data?.quality.valueOf())
     }
   }
 

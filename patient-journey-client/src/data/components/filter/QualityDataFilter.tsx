@@ -43,7 +43,7 @@ export const QualityDataFilter = ({
     [allActiveData, extractValueUndefinedSafe]
   )
 
-  const uniqueQualities = allQualities.filter((v, i, a) => a.indexOf(v) === i)
+  const qualities = useMemo(() => [...new Set(allQualities)], [allQualities])
 
   const handleChange = (event: SelectChangeEvent) => {
     const filter = createFilter(column, type, { text: event.target.value })
@@ -65,7 +65,7 @@ export const QualityDataFilter = ({
       <MenuItem value={QualityFilterNone}>
         <i>{'None'}</i>
       </MenuItem>
-      {uniqueQualities.map((q) => (
+      {qualities.map((q) => (
         <MenuItem key={q} value={q}>
           {q}
         </MenuItem>
