@@ -32,7 +32,7 @@ export const QualityDataDiagram = ({
   filteredActiveData,
   column,
   colorByColumn,
-  colorByQualityFn,
+  colorByCategoryFn,
 }: QualityDiagramProps) => {
   const { classes } = useStyles()
   const theme = useTheme()
@@ -41,7 +41,7 @@ export const QualityDataDiagram = ({
     if (node.id === 'filteredOut') {
       return greyColor(theme)
     } else {
-      return colorByQualityFn(node?.data?.valueOf())
+      return colorByCategoryFn(node?.data?.valueOf())
     }
   }
 

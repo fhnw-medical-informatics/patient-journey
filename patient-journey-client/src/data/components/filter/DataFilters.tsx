@@ -9,8 +9,7 @@ import { DataFilter } from './DataFilter'
 import { FilterCard } from './FilterCard'
 import { ActiveDataViewType } from '../../dataSlice'
 import { ColorByColumnOption } from '../../../color/colorSlice'
-import { ColorByNumberFn } from '../../../color/useColor'
-import { ColorByQualityFn } from '../../../color/useColor'
+import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/useColor'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -33,7 +32,7 @@ interface DataFiltersProps {
   onResetFilters: () => void
   colorByColumn: ColorByColumnOption
   colorByNumberFn: ColorByNumberFn
-  colorByQualityFn: ColorByQualityFn
+  colorByCategoryFn: ColorByCategoryFn
 }
 
 export const DataFilters = ({
@@ -47,7 +46,7 @@ export const DataFilters = ({
   onResetFilters,
   colorByColumn,
   colorByNumberFn,
-  colorByQualityFn,
+  colorByCategoryFn,
 }: DataFiltersProps) => {
   const { classes } = useStyles()
 
@@ -124,7 +123,7 @@ export const DataFilters = ({
                   filteredActiveData={filteredActiveData}
                   colorByColumn={colorByColumn}
                   colorByNumberFn={colorByNumberFn}
-                  colorByQualityFn={colorByQualityFn}
+                  colorByCategoryFn={colorByCategoryFn}
                 />
                 <DataFilter
                   column={availableColumn}
