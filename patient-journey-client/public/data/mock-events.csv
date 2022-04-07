@@ -1,5 +1,5 @@
 Event ID,Patient ID,Timestamp,Description
-eid,pid,timestamp,string
+eid,pid,timestamp,quality
 1,1,1645453113884,first
 2,1,1645454113885,second
 3,2,1645455113886,another

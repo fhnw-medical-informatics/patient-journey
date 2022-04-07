@@ -49,6 +49,7 @@ The following types are supported:
 `number`:: valid numerical values (convertable via unary + operator)
 `timestamp`:: milliseconds since epoch (rendered specific to timezone/locale)
 `date`:: data values formatted as `dd.MM.yyyy` (rendered as is, *not* timezone/locale specific, thus suitable for birthdays)
+`quality`:: qualitative variable (string or number) that can take on a limited number of possible values
 
 === Specific Structure
 ==== Patient Data
@@ -56,17 +57,17 @@ The following types are supported:
 Example:
 
 ----
-Patient ID,First Name,Last Name,Date Of Birth,Height
-pid,string,string,date,number
-1,Raphael,Blumenthal,07.12.1929,179
-2,Dany,Bär,03.06.1985,181
-3,Candice,Schaich,26.02.1991,171
-4,Janosch,Schick,11.07.1935,165
-5,Alessio,Weber,30.07.1965,178
-6,Kreshnik,Süss,22.02.1971,189
-7,Edon,Fisler,06.10.1957,175
-8,Vera,Gambacciani,04.12.1952,169
-9,Clelia,Jordi,04.08.1927,180
+Patient ID,First Name,Last Name,Date Of Birth,Height,Blood Type
+pid,string,string,date,number,quality
+1,Raphael,Blumenthal,07.12.1929,179,A
+2,Dany,Bär,03.06.1985,181,B
+3,Candice,Schaich,26.02.1991,171,O
+4,Janosch,Schick,11.07.1935,165,AB
+5,Alessio,Weber,30.07.1965,178,A
+6,Kreshnik,Süss,22.02.1971,189,B
+7,Edon,Fisler,06.10.1957,175,B
+8,Vera,Gambacciani,04.12.1952,169,A
+9,Clelia,Jordi,04.08.1927,180,A
 ----
 
 The first column of type `pid` is used to uniquely identify patients.

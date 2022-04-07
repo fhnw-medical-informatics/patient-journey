@@ -136,7 +136,7 @@ export const ControlPanel = ({
                     <i>{'Collapsed'}</i>
                   </MenuItem>
                   {availableColumns
-                    .filter((column) => ['pid', 'boolean', 'string'].includes(column.type))
+                    .filter((column) => ['pid', 'boolean', 'string', 'quality'].includes(column.type))
                     .map((column) => (
                       <MenuItem key={column.name} value={column.name}>
                         {column.name}
@@ -159,7 +159,9 @@ export const ControlPanel = ({
                     <i>{'Off'}</i>
                   </MenuItem>
                   {availableColumns
-                    .filter((column) => ['timestamp', 'date', 'number', 'boolean', 'string'].includes(column.type))
+                    .filter((column) =>
+                      ['timestamp', 'date', 'number', 'boolean', 'string', 'quality'].includes(column.type)
+                    )
                     .map((column) => (
                       <MenuItem key={column.name} value={column.name}>
                         {column.name}
@@ -182,7 +184,7 @@ export const ControlPanel = ({
               <Tooltip
                 title={
                   <div>
-                    <Typography color="inherit">Timline keyboard shortcuts</Typography>
+                    <Typography color="inherit">Timeline keyboard shortcuts</Typography>
                     <table>
                       <tbody>
                         <tr>

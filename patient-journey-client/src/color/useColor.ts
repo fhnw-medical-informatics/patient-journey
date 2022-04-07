@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useTheme } from '@mui/material'
 import { scaleOrdinal } from 'd3-scale'
-import { interpolatePlasma, schemePaired, schemeSet3 } from 'd3-scale-chromatic'
+import { interpolatePlasma, schemeSet1, schemeSet2 } from 'd3-scale-chromatic'
 import { ColorByColumnNone, ColorByColumnOption } from './colorSlice'
 import { useColorByColumn } from './useColorByColumn'
 import { FilterColumn } from '../data/filtering'
@@ -15,8 +15,8 @@ export type ColorByNumberFn = (number?: number) => string
 
 export type ColorByFn = [ColorByColumnFn, ColorByCategoryFn, ColorByNumberFn, ColorByColumnOption]
 
-const lightCategoryFn = scaleOrdinal(schemePaired)
-const darkCategoryFn = scaleOrdinal(schemeSet3)
+const lightCategoryFn = scaleOrdinal(schemeSet1)
+const darkCategoryFn = scaleOrdinal(schemeSet2)
 
 const lightNumberFn = interpolatePlasma
 const darkNumberFn = interpolatePlasma
@@ -93,6 +93,7 @@ export const useColor = (): ColorByFn => {
         return getColorByNumber(+getFieldValue(entity, colorByColumn))
       case 'boolean':
       case 'string':
+      case 'quality':
         return getColorByCategory(getFieldValue(entity, colorByColumn))
       default:
         return defaultColor

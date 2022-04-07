@@ -20,7 +20,7 @@ export const DataFilters = () => {
   const filters = useAllFilters()
   const activeColums = useActiveDataColumns()
 
-  const [, , colorByNumberFn, colorByColumn] = useColor()
+  const [, colorByCategoryFn, colorByNumberFn, colorByColumn] = useColor()
 
   const dispatch = useAppDispatch()
 
@@ -48,6 +48,7 @@ export const DataFilters = () => {
       onResetFilters={handleResetFilters}
       colorByColumn={colorByColumn}
       colorByNumberFn={colorByNumberFn}
+      colorByCategoryFn={colorByCategoryFn}
     />
   )
 }

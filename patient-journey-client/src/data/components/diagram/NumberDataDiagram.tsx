@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { bin, extent } from 'd3-array'
 import { ScaleLinear, scaleLinear } from 'd3-scale'
 import { BarDatum, ResponsiveBar } from '@nivo/bar'
-import { DataDiagramsProps } from './shared'
+import { DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { Entity } from '../../entities'
 import { useTheme } from '@mui/material'
@@ -48,7 +48,13 @@ export const NumberDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const colors = (node: any) => colorByNumberFn(node?.data?.binEnd?.valueOf())
+  const colors = (node: any) => {
+    if (node.id === 'filteredOut') {
+      return greyColor(theme)
+    } else {
+      return colorByNumberFn(node?.data?.binEnd?.valueOf())
+    }
+  }
 
   const extractValueUndefinedSafe = useCallback(
     (d: Entity) => {
