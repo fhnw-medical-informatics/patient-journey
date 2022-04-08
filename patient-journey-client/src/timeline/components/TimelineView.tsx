@@ -32,13 +32,8 @@ export const TimelineView = ({
   onSelect,
   onHover,
 }: TimelineProps) => {
-  const theme = useTheme()
-
-  const timelineTheme = createTimelineTheme(theme as any, {
-    xAxis: {
-      labelColor: theme.palette.text.primary,
-    },
-  })
+  const muiTheme = useTheme()
+  const timelineTheme = createTimelineTheme(muiTheme.palette.mode, muiTheme)
 
   if (events.length === 0) {
     return null
