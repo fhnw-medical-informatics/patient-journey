@@ -75,7 +75,7 @@
     "react-dom": "17.0.2",
     "react-redux": "7.2.6",
     "react-split-pane": "0.1.92",
-    "react-svg-timeline": "^0.20.0",
+    "react-svg-timeline": "^0.21.0",
     "react-virtualized-auto-sizer": "^1.0.6",
     "tss-react": "^3.3.6"
   },
