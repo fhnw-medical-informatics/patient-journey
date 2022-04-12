@@ -5,7 +5,7 @@ import {
   LaneDisplayMode,
   TimelineEvent,
   TimelineLane,
-  createTimelineTheme,
+  deriveTimelineTheme,
 } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { EntityId, EntityIdNone } from '../../data/entities'
@@ -33,7 +33,7 @@ export const TimelineView = ({
   onHover,
 }: TimelineProps) => {
   const muiTheme = useTheme()
-  const timelineTheme = createTimelineTheme(muiTheme.palette.mode, muiTheme)
+  const timelineTheme = deriveTimelineTheme(muiTheme.palette.mode, muiTheme)
 
   if (events.length === 0) {
     return null
