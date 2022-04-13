@@ -1,4 +1,4 @@
-import { parseMillis, parseDate } from './columns'
+import { parseMillis, parseDate, stringToBoolean } from './columns'
 import { Entity } from './entities'
 import { EventDataColumn } from './events'
 import { PatientDataColumn } from './patients'
@@ -103,7 +103,7 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
 
         return (
           openBool ||
-          (fieldValue.isValid && (fieldValue.value === 'true') === (filter as Filter<'boolean'>).value.isTrue)
+          (fieldValue.isValid && stringToBoolean(fieldValue.value) === (filter as Filter<'boolean'>).value.isTrue)
         )
       })
     case 'date':
