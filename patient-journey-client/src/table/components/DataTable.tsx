@@ -10,7 +10,7 @@ import { Entity, EntityId, EntityIdNone } from '../../data/entities'
 import { DataColumn, formatMillis, parseDate, parseMillis, stringToBoolean } from '../../data/columns'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
 import { ColorByColumnFn } from '../../color/useColor'
-import { ColumnSortingState } from '../../data/sorting'
+import { ColumnSortingState, compareEntityValues } from '../../data/sorting'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -59,6 +59,7 @@ export const DataTable = ({
         field: `${column.index}`,
         headerName: column.name,
         flex: 1,
+        sortComparator: (a, b) => compareEntityValues(a, b, column),
         valueGetter: (params) => params.row.values[column.index],
         valueParser: (value) => {
           switch (column.type) {
