@@ -53,29 +53,66 @@ export const DataTable = ({
   const theme = useTheme()
   const { classes } = useStyles()
 
-  const dataGridColumns: GridColumns<Entity> = useMemo(
-    () =>
-      columns.map((column) => ({
-        field: `${column.index}`,
-        headerName: column.name,
-        flex: 1,
-        valueGetter: (params) => params.row.values[column.index],
-        valueFormatter: (params) => {
-          if (params.value === null || params.value.trim().length === 0) {
-            return ''
-          }
-          switch (column.type) {
-            case 'boolean':
-              return stringToBoolean(params.value) ? 'X' : ''
-            case 'timestamp':
-              return formatMillis(+params.value)
-            default:
-              return params.value
-          }
+  const dataGridColumns: GridColumns<Entity> = useMemo(() => {
+    let cols: GridColumns<Entity> = columns.map((column) => ({
+      field: `${column.index}`,
+      headerName: column.name,
+      flex: 1,
+      valueGetter: (params) => params.row.values[column.index],
+      valueFormatter: (params) => {
+        if (params.value === null || params.value.trim().length === 0) {
+          return ''
+        }
+        switch (column.type) {
+          case 'boolean':
+            return stringToBoolean(params.value) ? 'X' : ''
+          case 'timestamp':
+            return formatMillis(+params.value)
+          default:
+            return params.value
+        }
+      },
+    }))
+
+    if (colorByColumn !== ColorByColumnNone) {
+      cols = [
+        {
+          field: 'color',
+          headerName: '',
+          sortable: false,
+          width: 30,
+          renderCell: ({ row }) => {
+            const color = colorByColumnFn(row)
+
+            return (
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <div
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    backgroundColor: color,
+                    border: `1px solid #fff`,
+                  }}
+                />
+              </div>
+            )
+          },
         },
-      })),
-    [columns]
-  )
+        ...cols,
+      ]
+    }
+
+    return cols
+  }, [columns, colorByColumn, colorByColumnFn])
 
   // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
   // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773
@@ -129,10 +166,6 @@ export const DataTable = ({
                 onMouseLeave={() => onEntityHover(EntityIdNone)}
                 style={{
                   ...props.style,
-                  borderLeft:
-                    colorByColumn !== ColorByColumnNone
-                      ? `5px solid ${colorByColumnFn(props.row)}`
-                      : '5px solid transparent',
                   backgroundColor:
                     colorByColumn !== ColorByColumnNone
                       ? theme.palette.mode === 'dark'
