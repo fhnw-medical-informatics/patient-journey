@@ -6,6 +6,7 @@ import SplitPane from 'react-split-pane'
 import { DataFilters } from '../containers/filter/DataFilters'
 import { Timeline } from '../../timeline/containers/Timeline'
 import { DataTable } from '../../table/containers/DataTable'
+import { DataLegend } from './DataLegend'
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '15%'
 const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '60%'
@@ -18,15 +19,25 @@ const useStyles = makeStyles()((theme) => ({
     overflowY: 'auto',
     overflowX: 'hidden',
   },
-  top: {
+  right: {
+    display: 'grid',
+    width: '100%',
+    height: '100%',
+    gridTemplateRows: '1fr auto',
+  },
+  rightSplitTop: {
     padding: theme.spacing(1),
     width: '100%',
     height: '100%',
   },
-  bottom: {
+  rightSplitBottom: {
     padding: theme.spacing(1),
+    paddingBottom: 0,
     width: '100%',
     height: '100%',
+  },
+  legend: {
+    padding: theme.spacing(1),
   },
   resizer: {
     minWidth: 5,
@@ -58,28 +69,36 @@ export const DataView = () => {
       <div className={classes.left}>
         <DataFilters />
       </div>
-      <SplitPane
-        split={'horizontal'}
-        resizerClassName={classes.resizer}
-        size={splitPaneHorizontalSize === 'default' ? DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE : splitPaneHorizontalSize}
-        onChange={setSplitPaneHorizontalSize}
-        resizerStyle={{
-          cursor: 'ns-resize',
-        }}
-        pane2Style={{
-          display: 'grid',
-          width: '100%',
-          height: '100%',
-          backgroundColor: theme.palette.background.paper,
-        }}
-      >
-        <div className={classes.top}>
-          <DataTable />
+      <div className={classes.right}>
+        <SplitPane
+          split={'horizontal'}
+          resizerClassName={classes.resizer}
+          size={splitPaneHorizontalSize === 'default' ? DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE : splitPaneHorizontalSize}
+          onChange={setSplitPaneHorizontalSize}
+          style={{
+            position: 'static',
+          }}
+          resizerStyle={{
+            cursor: 'ns-resize',
+          }}
+          pane2Style={{
+            display: 'grid',
+            width: '100%',
+            height: '100%',
+            backgroundColor: theme.palette.background.paper,
+          }}
+        >
+          <div className={classes.rightSplitTop}>
+            <DataTable />
+          </div>
+          <div className={classes.rightSplitBottom}>
+            <Timeline />
+          </div>
+        </SplitPane>
+        <div className={classes.legend}>
+          <DataLegend />
         </div>
-        <div className={classes.bottom}>
-          <Timeline />
-        </div>
-      </SplitPane>
+      </div>
     </SplitPane>
   )
 }

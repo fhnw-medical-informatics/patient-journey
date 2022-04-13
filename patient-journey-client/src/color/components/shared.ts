@@ -1,0 +1,2 @@
+export const COLOR_LEGEND_SIZE = 10
+export const COLOR_LEGEND_GRADIENT_SIZE = 350

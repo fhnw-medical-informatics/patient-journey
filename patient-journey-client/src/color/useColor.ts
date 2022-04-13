@@ -12,12 +12,14 @@ import { stringToMillis } from '../data/columns'
 export type ColorByColumnFn = (entity?: Entity) => string
 export type ColorByCategoryFn = (category?: string) => string
 export type ColorByNumberFn = (number?: number) => string
+export type ColorScaleType = 'single' | 'categorical' | 'linear'
 
 export type Coloring = Readonly<{
   colorByColumnFn: ColorByColumnFn
   colorByCategoryFn: ColorByCategoryFn
   colorByNumberFn: ColorByNumberFn
   colorByColumn: ColorByColumnOption
+  colorScale: ColorScaleType
 }>
 
 const lightCategoryFn = scaleOrdinal(schemeSet1)
@@ -68,11 +70,32 @@ export const useColor = (): Coloring => {
     }
   }
 
+  const colorScale = getColorScale(colorByColumn)
+
   return {
     colorByColumnFn: (entity?: Entity) => getColorByColumn(entity),
     colorByCategoryFn: getColorByCategory,
     colorByNumberFn: getColorByNumber,
     colorByColumn,
+    colorScale,
+  }
+}
+
+const getColorScale = (column: ColorByColumnOption): ColorScaleType => {
+  if (column === ColorByColumnNone) {
+    return 'single'
+  }
+  switch (column.type) {
+    case 'date':
+    case 'timestamp':
+    case 'number':
+      return 'linear'
+    case 'boolean':
+    case 'string':
+    case 'quality':
+      return 'categorical'
+    default:
+      return 'single'
   }
 }
 

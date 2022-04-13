@@ -16,6 +16,7 @@ import { TimelineColumn, TimelineColumnNone } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
+import { NoColoringLabel } from '../../color/components/NoColoringLabel'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -156,7 +157,7 @@ export const ControlPanel = ({
                   size="small"
                 >
                   <MenuItem value={ColorByColumnNone}>
-                    <i>{'Off'}</i>
+                    <NoColoringLabel />
                   </MenuItem>
                   {availableColumns
                     .filter((column) =>
