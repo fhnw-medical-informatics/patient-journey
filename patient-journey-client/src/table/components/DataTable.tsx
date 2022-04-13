@@ -154,6 +154,23 @@ export const DataTable = ({
               />
             ),
           }}
+          sx={{
+            '& .MuiDataGrid-row.Mui-selected': {
+              backgroundColor: theme.entityColors.selected,
+            },
+            '& .MuiDataGrid-row.Mui-selected:hover': {
+              backgroundColor: theme.entityColors.selected,
+            },
+            '& .MuiDataGrid-row:hover': {
+              backgroundColor:
+                theme.palette.mode === 'dark'
+                  ? darken(theme.entityColors.selected, 0.6)
+                  : lighten(theme.entityColors.selected, 0.8),
+            },
+            '& .MuiDataGrid-cell:focus': {
+              outline: 'none',
+            },
+          }}
         />
       </div>
     </Paper>
