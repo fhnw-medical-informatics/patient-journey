@@ -195,7 +195,7 @@ export const DataTable = ({
                   ? darken(theme.entityColors.selected, 0.6)
                   : lighten(theme.entityColors.selected, 0.8),
             },
-            '& .MuiDataGrid-cell:focus': {
+            '& .MuiDataGrid-cell:focus, .MuiDataGrid-columnHeader:focus, .MuiDataGrid-columnHeader:focus-within': {
               outline: 'none',
             },
           }}
