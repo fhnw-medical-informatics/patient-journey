@@ -39,7 +39,7 @@ function compareEntities(p1: Entity, p2: Entity, column: DataColumn<string>) {
   return compareEntityValues(v1, v2, column)
 }
 
-export function compareEntityValues(v1: any, v2: any, column: DataColumn<any>) {
+function compareEntityValues(v1: any, v2: any, column: DataColumn<any>) {
   switch (column.type) {
     case 'number':
     case 'timestamp':

@@ -7,10 +7,10 @@ import { DataGrid, GridColumns, GridRow, GridRowProps } from '@mui/x-data-grid'
 import { makeStyles } from '../../utils'
 
 import { Entity, EntityId, EntityIdNone } from '../../data/entities'
-import { DataColumn, formatMillis, parseDate, parseMillis, stringToBoolean } from '../../data/columns'
+import { DataColumn, formatMillis, stringToBoolean } from '../../data/columns'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
 import { ColorByColumnFn } from '../../color/useColor'
-import { ColumnSortingState, compareEntityValues } from '../../data/sorting'
+import { ColumnSortingState, stableSort } from '../../data/sorting'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -59,18 +59,7 @@ export const DataTable = ({
         field: `${column.index}`,
         headerName: column.name,
         flex: 1,
-        sortComparator: (a, b) => compareEntityValues(a, b, column),
         valueGetter: (params) => params.row.values[column.index],
-        valueParser: (value) => {
-          switch (column.type) {
-            case 'date':
-              return parseDate(value)
-            case 'timestamp':
-              return parseMillis(+value)
-            default:
-              return value
-          }
-        },
         valueFormatter: (params) => {
           if (params.value === null || params.value.trim().length === 0) {
             return ''
@@ -88,11 +77,15 @@ export const DataTable = ({
     [columns]
   )
 
+  // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
+  // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773
+  const sortedRows = useMemo(() => stableSort(rows, sorting).map((row) => ({ ...row, id: row.uid })), [rows, sorting])
+
   return (
     <Paper className={classes.root}>
       <div className={classes.maxed}>
         <DataGrid
-          rows={rows.map((row) => ({ ...row, id: row.uid }))}
+          rows={sortedRows}
           columns={dataGridColumns}
           disableColumnFilter
           disableColumnMenu
@@ -101,6 +94,7 @@ export const DataTable = ({
           onSelectionModelChange={(newSelectionModel) => {
             onEntityClick(newSelectionModel[0] as EntityId)
           }}
+          sortingMode="server"
           sortModel={
             sorting.type !== 'neutral'
               ? [
