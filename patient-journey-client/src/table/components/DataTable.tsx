@@ -100,7 +100,7 @@ export const DataTable = ({
                     height: '20px',
                     borderRadius: '50%',
                     backgroundColor: color,
-                    border: `1px solid #fff`,
+                    border: `1px solid ${theme.palette.text.primary}`,
                   }}
                 />
               </div>
@@ -112,7 +112,7 @@ export const DataTable = ({
     }
 
     return cols
-  }, [columns, colorByColumn, colorByColumnFn])
+  }, [columns, colorByColumn, colorByColumnFn, theme])
 
   // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
   // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773
