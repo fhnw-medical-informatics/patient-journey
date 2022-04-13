@@ -1,4 +1,4 @@
-import { AnyAction, createSlice, Draft, isAnyOf, PayloadAction } from '@reduxjs/toolkit'
+import { AnyAction, createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { GenericFilter } from './filtering'
 import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
 import { EVENT_DATA_FILE_URL, loadData as loadDataImpl, LoadedData, PATIENT_DATA_FILE_URL } from './loading'
@@ -131,8 +131,6 @@ export const { setSelectedEntity, setHoveredEntity, addDataFilter, removeDataFil
   dataSlice.actions
 
 export const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
-
-export const ACTIONS_AFFECTING_ROW_COUNT = isAnyOf(addDataFilter, removeDataFilter, resetDataFilter)
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
 export const loadData =

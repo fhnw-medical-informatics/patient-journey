@@ -16,11 +16,7 @@ export const stringToNumber = (s: string) => {
 }
 
 export const stringToBoolean = (s: string) => {
-  try {
-    return JSON.parse(s)
-  } catch (e) {
-    return false
-  }
+  return isEmpty(s) ? false : s.toLowerCase() === 'true'
 }
 
 const DATE_TIMESTAMP_FORMAT = 'dd.MM.yyyy HH:mm'

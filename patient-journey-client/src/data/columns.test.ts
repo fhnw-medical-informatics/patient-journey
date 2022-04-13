@@ -1,4 +1,4 @@
-import { formatMillis, parseDate } from './columns'
+import { formatMillis, parseDate, stringToBoolean } from './columns'
 
 describe('columns', () => {
   describe('formatMillies', () => {
@@ -12,6 +12,28 @@ describe('columns', () => {
   describe('parseDate', () => {
     it('parses 31.12.2019', () => {
       expect(parseDate('31.12.2019').getTime()).toEqual(1577750400000)
+    })
+  })
+
+  describe('stringToBoolean', () => {
+    it('parses true', () => {
+      expect(stringToBoolean('true')).toEqual(true)
+    })
+
+    it('parses false', () => {
+      expect(stringToBoolean('false')).toEqual(false)
+    })
+
+    it('parses empty', () => {
+      expect(stringToBoolean('')).toEqual(false)
+    })
+
+    it('parses capital true', () => {
+      expect(stringToBoolean('TRUE')).toEqual(true)
+    })
+
+    it('parses capital false', () => {
+      expect(stringToBoolean('FALSE')).toEqual(false)
     })
   })
 })
