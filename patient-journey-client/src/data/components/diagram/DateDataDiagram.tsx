@@ -2,12 +2,10 @@ import React, { useCallback, useMemo } from 'react'
 import { bin, extent } from 'd3-array'
 import { ScaleTime, scaleTime } from 'd3-scale'
 import { BarDatum, ResponsiveBar } from '@nivo/bar'
-import { format, parseDate, parseMillis } from '../../columns'
-import { DataDiagramsProps, greyColor } from './shared'
+import { extractDateValueSafe, format } from '../../columns'
+import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
-import { Entity } from '../../entities'
 import { useTheme } from '@mui/material'
-import { barColors } from './shared'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 
 const useStyles = makeStyles()((theme) => ({
@@ -36,7 +34,7 @@ interface BinDatum {
   readonly filteredOut: number
 }
 
-export type DateDataDiagramProps = DataDiagramsProps
+export type DateDataDiagramProps = DataDiagramsProps<'date' | 'timestamp'>
 
 export const DateDataDiagram = ({
   allActiveData,
@@ -56,34 +54,13 @@ export const DateDataDiagram = ({
     }
   }
 
-  const extractValueUndefinedSafe = useCallback(
-    (d: Entity) => {
-      const value = d.values[column.index] ?? ''
+  const extractValueSafe = useMemo(() => extractDateValueSafe(column), [column])
 
-      if (value === null || value.trim().length === 0) {
-        return []
-      }
-
-      switch (column.type) {
-        case 'date':
-          return [parseDate(value)]
-        case 'timestamp':
-          return [parseMillis(+value)]
-        default:
-          throw new Error('Unsupported Format')
-      }
-    },
-    [column]
-  )
-
-  const allDates = useMemo(
-    () => allActiveData.flatMap(extractValueUndefinedSafe),
-    [allActiveData, extractValueUndefinedSafe]
-  )
+  const allDates = useMemo(() => allActiveData.flatMap(extractValueSafe), [allActiveData, extractValueSafe])
 
   const filteredDates = useMemo(
-    () => filteredActiveData.flatMap(extractValueUndefinedSafe),
-    [filteredActiveData, extractValueUndefinedSafe]
+    () => filteredActiveData.flatMap(extractValueSafe),
+    [filteredActiveData, extractValueSafe]
   )
 
   const [min, max] = useMemo(() => extent(allDates), [allDates])

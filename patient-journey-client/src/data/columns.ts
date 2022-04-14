@@ -1,4 +1,5 @@
-import { format as dateFnFormat, toDate, parseISO, formatISO } from 'date-fns'
+import { format as dateFnFormat, formatISO, parseISO, toDate } from 'date-fns'
+import { Entity } from './entities'
 
 export interface DataColumn<T> {
   readonly name: string
@@ -44,3 +45,38 @@ export const formatHTMLDateInput = (ms: number) => (isFinite(ms) ? formatISO(par
 export const isValidDate = (date: any): boolean => {
   return !isNaN(date) && date instanceof Date
 }
+
+export const extractNumberValueSafe =
+  (column: DataColumn<'number'>) =>
+  (entity: Entity): [number] | [] => {
+    const value = entity.values[column.index] ?? ''
+    if (value === null || value.trim().length === 0) {
+      return []
+    } else {
+      return [stringToNumber(value)]
+    }
+  }
+
+export const extractDateValueSafe =
+  (column: DataColumn<'timestamp' | 'date'>) =>
+  (entity: Entity): [Date] | [] => {
+    const value = entity.values[column.index] ?? ''
+    if (value === null || value.trim().length === 0) {
+      return []
+    } else if (column.type === 'timestamp') {
+      return [parseMillis(stringToMillis(value))]
+    } else {
+      return [parseDate(value)]
+    }
+  }
+
+export const extractQualityValueSafe =
+  (column: DataColumn<'quality'>) =>
+  (entity: Entity): [string] | [] => {
+    const value = entity.values[column.index] ?? ''
+    if (value === undefined || value.trim().length === 0) {
+      return []
+    } else {
+      return [value]
+    }
+  }

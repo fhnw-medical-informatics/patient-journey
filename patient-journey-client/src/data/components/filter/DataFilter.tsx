@@ -8,6 +8,7 @@ import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
 import { QualityDataFilter } from './QualityDataFilter'
 import { Entity } from '../../entities'
+import { DataColumn } from '../../columns'
 
 export interface DataFilterProps<T extends FilterColumn['type']> {
   column: FilterColumn
@@ -85,7 +86,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
     case 'quality':
       return (
         <QualityDataFilter
-          column={column}
+          column={column as DataColumn<'quality'>}
           allActiveData={allActiveData}
           type={type}
           value={(filter as Filter<'quality'> | undefined)?.value ?? { text: '' }}

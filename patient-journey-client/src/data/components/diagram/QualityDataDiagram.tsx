@@ -2,10 +2,10 @@ import React, { useCallback, useMemo } from 'react'
 import { BarDatum, ResponsiveBar } from '@nivo/bar'
 import { DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
-import { Entity } from '../../entities'
 import { useTheme } from '@mui/material'
 import { barColors } from './shared'
 import { ColorByColumnNone } from '../../../color/colorSlice'
+import { extractQualityValueSafe } from '../../columns'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -25,7 +25,7 @@ interface BinDatum {
   readonly filteredOut: number
 }
 
-export type QualityDiagramProps = DataDiagramsProps
+export type QualityDiagramProps = DataDiagramsProps<'quality'>
 
 export const QualityDataDiagram = ({
   allActiveData,
@@ -45,32 +45,13 @@ export const QualityDataDiagram = ({
     }
   }
 
-  const extractValueUndefinedSafe = useCallback(
-    (d: Entity) => {
-      const value = d.values[column.index] ?? ''
+  const extractValueSafe = useMemo(() => extractQualityValueSafe(column), [column])
 
-      if (value === undefined || value.trim().length === 0) {
-        return []
-      }
-
-      switch (column.type) {
-        case 'quality':
-          return [value]
-        default:
-          throw new Error('Unsupported Format')
-      }
-    },
-    [column]
-  )
-
-  const allQualities = useMemo(
-    () => allActiveData.flatMap(extractValueUndefinedSafe),
-    [allActiveData, extractValueUndefinedSafe]
-  )
+  const allQualities = useMemo(() => allActiveData.flatMap(extractValueSafe), [allActiveData, extractValueSafe])
 
   const filteredQualities = useMemo(
-    () => filteredActiveData.flatMap(extractValueUndefinedSafe),
-    [filteredActiveData, extractValueUndefinedSafe]
+    () => filteredActiveData.flatMap(extractValueSafe),
+    [filteredActiveData, extractValueSafe]
   )
 
   const qualities = useMemo(() => [...new Set(allQualities)], [allQualities])
