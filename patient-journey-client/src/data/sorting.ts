@@ -29,13 +29,17 @@ export const stableSort = (rows: ReadonlyArray<Entity>, sortingState: ColumnSort
 }
 
 function getComparator(order: 'asc' | 'desc', column: DataColumn<string>) {
-  return (p1: Entity, p2: Entity) => (order === 'asc' ? 1 : -1) * comparePatients(p1, p2, column)
+  return (p1: Entity, p2: Entity) => (order === 'asc' ? 1 : -1) * compareEntities(p1, p2, column)
 }
 
-function comparePatients(p1: Entity, p2: Entity, column: DataColumn<string>) {
+function compareEntities(p1: Entity, p2: Entity, column: DataColumn<string>) {
   const v1 = p1.values[column.index]
   const v2 = p2.values[column.index]
 
+  return compareEntityValues(v1, v2, column)
+}
+
+function compareEntityValues(v1: any, v2: any, column: DataColumn<any>) {
   switch (column.type) {
     case 'number':
     case 'timestamp':

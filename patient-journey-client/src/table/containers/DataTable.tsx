@@ -4,7 +4,7 @@ import { DataTable as DataTableComponent } from '../components/DataTable'
 import { useActiveDataColumns, useEntityInteraction, useFilteredActiveData } from '../../data/hooks'
 import { useActiveTableState } from '../hooks'
 import { useAppDispatch, useAppSelector } from '../../store'
-import { setPage, setSorting } from '../tableSlice'
+import { setSorting } from '../tableSlice'
 import { selectDataView } from '../../data/selectors'
 import { ColumnSortingState } from '../../data/sorting'
 
@@ -24,8 +24,6 @@ export const DataTable = () => {
     [dispatch, view]
   )
 
-  const onPageChange = useCallback((page: number) => dispatch(setPage({ view, page })), [dispatch, view])
-
   return (
     <DataTableComponent
       rows={activeData}
@@ -33,11 +31,9 @@ export const DataTable = () => {
       selectedEntity={selectedEntity}
       hoveredEntity={hoveredEntity}
       sorting={activeTableState.sorting}
-      page={activeTableState.page}
       onEntityClick={onEntityClick}
       onEntityHover={onEntityHover}
       onSortingChange={onSortingChange}
-      onPageChange={onPageChange}
       colorByColumn={colorByColumn}
       colorByColumnFn={colorByColumnFn}
     />
