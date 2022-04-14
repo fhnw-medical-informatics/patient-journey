@@ -2,12 +2,11 @@ import React, { useCallback, useMemo } from 'react'
 import { bin, extent } from 'd3-array'
 import { ScaleLinear, scaleLinear } from 'd3-scale'
 import { BarDatum, ResponsiveBar } from '@nivo/bar'
-import { DataDiagramsProps, greyColor } from './shared'
+import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
-import { Entity } from '../../entities'
 import { useTheme } from '@mui/material'
-import { barColors } from './shared'
 import { ColorByColumnNone } from '../../../color/colorSlice'
+import { extractNumberValueSafe } from '../../columns'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -35,7 +34,7 @@ interface BinDatum {
   readonly filteredOut: number
 }
 
-export type NumberDiagramProps = DataDiagramsProps
+export type NumberDiagramProps = DataDiagramsProps<'number'>
 
 // TODO: Merge with "DateDataDiagram" as most logic is shared except scale and typings
 export const NumberDataDiagram = ({
@@ -56,32 +55,13 @@ export const NumberDataDiagram = ({
     }
   }
 
-  const extractValueUndefinedSafe = useCallback(
-    (d: Entity) => {
-      const value = d.values[column.index] ?? ''
+  const extractValueSafe = useMemo(() => extractNumberValueSafe(column), [column])
 
-      if (value === null || value.trim().length === 0) {
-        return []
-      }
-
-      switch (column.type) {
-        case 'number':
-          return [parseFloat(value)]
-        default:
-          throw new Error('Unsupported Format')
-      }
-    },
-    [column]
-  )
-
-  const allNumbers = useMemo(
-    () => allActiveData.flatMap(extractValueUndefinedSafe),
-    [allActiveData, extractValueUndefinedSafe]
-  )
+  const allNumbers = useMemo(() => allActiveData.flatMap(extractValueSafe), [allActiveData, extractValueSafe])
 
   const filteredNumbers = useMemo(
-    () => filteredActiveData.flatMap(extractValueUndefinedSafe),
-    [filteredActiveData, extractValueUndefinedSafe]
+    () => filteredActiveData.flatMap(extractValueSafe),
+    [filteredActiveData, extractValueSafe]
   )
 
   const [min, max] = useMemo(() => extent(allNumbers), [allNumbers])

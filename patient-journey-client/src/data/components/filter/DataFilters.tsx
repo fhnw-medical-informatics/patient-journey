@@ -127,7 +127,6 @@ export const DataFilters = ({
                 />
                 <DataFilter
                   column={availableColumn}
-                  allActiveData={allActiveData}
                   type={availableColumn.type}
                   filter={filter}
                   onAddFilter={onAddFilter}

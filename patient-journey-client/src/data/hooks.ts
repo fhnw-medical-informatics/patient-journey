@@ -10,9 +10,11 @@ import {
   selectCurrentColorColumnNumberRange,
   selectDataLoadingState,
   selectDataLoadingErrorMessage,
+  selectAllActiveDataQualities,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
+import { DataColumn } from './columns'
 
 export const useDataLoadingState = () => useAppSelector(selectDataLoadingState)
 export const useDataLoadingErrorMessage = () => useAppSelector(selectDataLoadingErrorMessage)
@@ -58,3 +60,9 @@ export const useEntityInteraction = (): EntityInteraction => {
 }
 
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
+
+export const useAllActiveDataQualities = (column: DataColumn<'quality'>) =>
+  useAppSelector((state) => selectAllActiveDataQualities(state, column))
+
+export const useUniqueActiveDataQualities = (column: DataColumn<'quality'>) =>
+  Array.from(new Set(useAppSelector((state) => selectAllActiveDataQualities(state, column))))
