@@ -1,14 +1,14 @@
 import { Theme } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { Entity } from '../../entities'
-import { FilterColumn } from '../../filtering'
 import { ColorByColumnOption } from '../../../color/colorSlice'
-import { ColorByNumberFn, ColorByCategoryFn } from '../../../color/useColor'
+import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/useColor'
+import { DataColumn } from '../../columns'
 
-export interface DataDiagramsProps {
+export interface DataDiagramsProps<T> {
   allActiveData: ReadonlyArray<Entity>
   filteredActiveData: ReadonlyArray<Entity>
-  column: FilterColumn
+  column: DataColumn<T>
   colorByColumn: ColorByColumnOption
   colorByNumberFn: ColorByNumberFn
   colorByCategoryFn: ColorByCategoryFn

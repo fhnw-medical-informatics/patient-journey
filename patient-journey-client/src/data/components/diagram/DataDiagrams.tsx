@@ -4,7 +4,7 @@ import { NumberDataDiagram } from './NumberDataDiagram'
 import { QualityDataDiagram } from './QualityDataDiagram'
 import { DataDiagramsProps } from './shared'
 
-export const DataDiagrams = ({ column, ...props }: DataDiagramsProps) => {
+export const DataDiagrams = ({ column, ...props }: DataDiagramsProps<any>) => {
   switch (column.type) {
     case 'number':
       return <NumberDataDiagram {...props} column={column} />
