@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react'
 import { BarDatum, ResponsiveBar } from '@nivo/bar'
-import { DataDiagramsProps, greyColor } from './shared'
+import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
-import { barColors } from './shared'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { extractQualityValueSafe } from '../../columns'
+import { useAllActiveDataQualities, useUniqueActiveDataQualities } from '../../hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -45,19 +45,16 @@ export const QualityDataDiagram = ({
     }
   }
 
-  const extractValueSafe = useMemo(() => extractQualityValueSafe(column), [column])
+  const filteredQualities = useMemo(() => {
+    const extractValue = extractQualityValueSafe(column)
+    return filteredActiveData.flatMap(extractValue)
+  }, [filteredActiveData, column])
 
-  const allQualities = useMemo(() => allActiveData.flatMap(extractValueSafe), [allActiveData, extractValueSafe])
-
-  const filteredQualities = useMemo(
-    () => filteredActiveData.flatMap(extractValueSafe),
-    [filteredActiveData, extractValueSafe]
-  )
-
-  const qualities = useMemo(() => [...new Set(allQualities)], [allQualities])
+  const allQualities = useAllActiveDataQualities(column)
+  const uniqueQualities = useUniqueActiveDataQualities(column)
 
   const data = useMemo(() => {
-    return qualities.map<BinDatum>((quality: string, binIndex: number) => {
+    return uniqueQualities.map<BinDatum>((quality: string, binIndex: number) => {
       const predicate = (t: string) => t === quality
 
       const allCount = allQualities.filter(predicate).length
@@ -71,7 +68,7 @@ export const QualityDataDiagram = ({
         quality,
       }
     })
-  }, [allQualities, filteredQualities, qualities])
+  }, [allQualities, filteredQualities, uniqueQualities])
 
   const tooltip = useCallback(
     ({ index }) => {
