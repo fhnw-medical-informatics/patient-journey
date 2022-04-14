@@ -64,7 +64,7 @@ export const extractDateValueSafe =
     if (value === null || value.trim().length === 0) {
       return []
     } else if (column.type === 'timestamp') {
-      return [parseMillis(stringToMillis(value))]
+      return [parseMillis(+value)]
     } else {
       return [parseDate(value)]
     }
