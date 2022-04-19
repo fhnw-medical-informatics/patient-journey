@@ -65,7 +65,7 @@
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.3.1",
     "@mui/material": "^5.4.0",
-    "@mui/x-data-grid": "^5.8.0",
+    "@mui/x-data-grid-pro": "^5.9.0",
     "@nivo/bar": "^0.79.1",
     "@nivo/core": "^0.79.0",
     "@reduxjs/toolkit": "^1.7.1",

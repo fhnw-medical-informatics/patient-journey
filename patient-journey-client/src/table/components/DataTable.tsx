@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 
 import { darken, lighten, Paper, useTheme } from '@mui/material'
 
-import { DataGrid, GridColumns, GridRow, GridRowProps } from '@mui/x-data-grid'
+import { DataGridPro, LicenseInfo, GridColumns, GridRow, GridRowProps } from '@mui/x-data-grid-pro'
 
 import { makeStyles } from '../../utils'
 
@@ -11,6 +11,9 @@ import { DataColumn, formatMillis, stringToBoolean } from '../../data/columns'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
 import { ColorByColumnFn } from '../../color/useColor'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
+
+// https://mui.com/x/advanced-components/#license-key-installation
+LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -121,7 +124,7 @@ export const DataTable = ({
   return (
     <Paper className={classes.root}>
       <div className={classes.maxed}>
-        <DataGrid
+        <DataGridPro
           rows={sortedRows}
           columns={dataGridColumns}
           disableColumnFilter
