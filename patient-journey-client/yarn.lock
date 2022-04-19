@@ -2456,10 +2456,10 @@
     prop-types "^15.7.2"
     react-is "^17.0.2"
 
-"@mui/utils@^5.4.4":
-  version "5.6.0"
-  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-5.6.0.tgz#0ec741f5ac7c89ac76054832bed2d6e17ab1c011"
-  integrity sha512-LbZKkCOn4243vbEVGbaKV7t6eN6kz7t95DR6AcUCRk4daH3l7CXPYkWsyzysRWdXgSzHmIyrgg4FZKzTy0dTHQ==
+"@mui/utils@^5.6.0":
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-5.6.1.tgz#4ab79a21bd481555d9a588f4b18061b3c28ea5db"
+  integrity sha512-CPrzrkiBusCZBLWu0Sg5MJvR3fKJyK3gKecLVX012LULyqg2U64Oz04BKhfkbtBrPBbSQxM+DWW9B1c9hmV9nQ==
   dependencies:
     "@babel/runtime" "^7.17.2"
     "@types/prop-types" "^15.7.4"
@@ -2467,15 +2467,37 @@
     prop-types "^15.7.2"
     react-is "^17.0.2"
 
-"@mui/x-data-grid@^5.8.0":
-  version "5.8.0"
-  resolved "https://registry.yarnpkg.com/@mui/x-data-grid/-/x-data-grid-5.8.0.tgz#85a663ca9f700124bf260110f661a739135b8015"
-  integrity sha512-8U2Ltdi/Iy4zKfdBMwN62V20S2KSnRIuyyy7t8xK4QLSPsa9IIIM+6G6EnqL6z5ZWr4rnB/+EIjzjy+qcUlC4A==
+"@mui/x-data-grid-pro@^5.9.0":
+  version "5.9.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-data-grid-pro/-/x-data-grid-pro-5.9.0.tgz#6ab58ff4e2c0782f642dff7597ebc0204a8fcd1c"
+  integrity sha512-vQWzs8oA6SJSP2A9/VE6O9m7zc3/FoixpQWy4lcjCBzFgRadHngHosgx5nL8+BL0wQRmVgyxb+PlcVTD4FKVxw==
   dependencies:
-    "@mui/utils" "^5.4.4"
+    "@mui/utils" "^5.6.0"
+    "@mui/x-data-grid" "5.9.0"
+    "@mui/x-license-pro" "5.9.0"
+    "@types/format-util" "^1.0.2"
+    clsx "^1.0.4"
+    prop-types "^15.8.1"
+    reselect "^4.1.5"
+
+"@mui/x-data-grid@5.9.0":
+  version "5.9.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-data-grid/-/x-data-grid-5.9.0.tgz#2f9801dcc662d40ef66ae5b1cc1fe24b48242fc8"
+  integrity sha512-RTRGtj5N/Y6Oe41mhcdQM93PtDves2wwMPfabRlstvCSB3m6608JikepeP7txDMV50x7yEYDHgDVSY3cQul0xQ==
+  dependencies:
+    "@mui/utils" "^5.6.0"
     clsx "^1.1.1"
     prop-types "^15.8.1"
     reselect "^4.1.5"
+
+"@mui/x-license-pro@5.9.0":
+  version "5.9.0"
+  resolved "https://registry.yarnpkg.com/@mui/x-license-pro/-/x-license-pro-5.9.0.tgz#d810b321c32a50a35c88da9af183adfeeea821fa"
+  integrity sha512-iX/SOYxELUYHKWr1XHGQ4/Tv6jT5jRZaPqIe54aAJQQF/w1lP2SIugsFMf/ekTY4t/Jsv+XDp4cZr8AR5D26LA==
+  dependencies:
+    "@mui/utils" "^5.6.0"
+    esm "^3.2.25"
+    yargs "^17.4.1"
 
 "@nivo/annotations@0.79.1":
   version "0.79.1"
@@ -3835,6 +3857,11 @@
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/d3-time/-/d3-time-3.0.0.tgz#e1ac0f3e9e195135361fa1a1d62f795d87e6e819"
   integrity sha512-sZLCdHvBUcNby1cB6Fd3ZBrABbjz3v1Vm90nysCQ6Vt7vd6e/h9Lt7SiJUoEX0l4Dzc7P5llKyhqSi1ycSf1Hg==
+
+"@types/format-util@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@types/format-util/-/format-util-1.0.2.tgz#7d19feb1caf59b6ea99c83dfe795ffa3f06b87d7"
+  integrity sha512-9SrLCpgzWo2yHHhiMOX0WwgDh37nSbDbWUsRc1ss++o8O97E3tB6SJiyUQM21UeUsKvZNuhDCmkRaINZ4uJAfg==
 
 "@types/glob@*", "@types/glob@^7.1.1":
   version "7.1.4"
@@ -5684,7 +5711,7 @@ clone-deep@^4.0.1:
     kind-of "^6.0.2"
     shallow-clone "^3.0.0"
 
-clsx@^1.1.1:
+clsx@^1.0.4, clsx@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.1.1.tgz#98b3134f9abbdf23b2663491ace13c5c03a73188"
   integrity sha512-6/bPho624p3S2pMyvP5kKBPXnI3ufHLObBFCfgx+LkeR5lg2XYy2hqZqUf45ypD8COn2bhgGJSUE+l5dhNBieA==
@@ -7272,6 +7299,11 @@ eslint@^8.7.0:
     strip-json-comments "^3.1.0"
     text-table "^0.2.0"
     v8-compile-cache "^2.0.3"
+
+esm@^3.2.25:
+  version "3.2.25"
+  resolved "https://registry.yarnpkg.com/esm/-/esm-3.2.25.tgz#342c18c29d56157688ba5ce31f8431fbb795cc10"
+  integrity sha512-U1suiZ2oDVWv4zPO56S0NcR5QriEahGtdN2OR6FiOG4WJvcjBVFB0qI4+eKoWFH483PKGuLuu6V8Z4T5g63UVA==
 
 espree@^9.2.0, espree@^9.3.0:
   version "9.3.0"
@@ -13499,6 +13531,11 @@ yargs-parser@^20.2.2, yargs-parser@^20.2.7:
   resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-20.2.9.tgz#2eb7dc3b0289718fc295f362753845c41a0c94ee"
   integrity sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==
 
+yargs-parser@^21.0.0:
+  version "21.0.1"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-21.0.1.tgz#0267f286c877a4f0f728fceb6f8a3e4cb95c6e35"
+  integrity sha512-9BK1jFpLzJROCI5TzwZL/TU4gqjK5xiHV/RfWLOahrjAko/e4DJkRDZQXfvqAsiZzzYhgAzbgz6lg48jcm4GLg==
+
 yargs@^16.2.0:
   version "16.2.0"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-16.2.0.tgz#1c82bf0f6b6a66eafce7ef30e376f49a12477f66"
@@ -13511,6 +13548,19 @@ yargs@^16.2.0:
     string-width "^4.2.0"
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
+
+yargs@^17.4.1:
+  version "17.4.1"
+  resolved "https://registry.yarnpkg.com/yargs/-/yargs-17.4.1.tgz#ebe23284207bb75cee7c408c33e722bfb27b5284"
+  integrity sha512-WSZD9jgobAg3ZKuCQZSa3g9QOJeCCqLoLAykiWgmXnDo9EPnn4RPf5qVTtzgOx66o6/oqhcA5tHtJXpG8pMt3g==
+  dependencies:
+    cliui "^7.0.2"
+    escalade "^3.1.1"
+    get-caller-file "^2.0.5"
+    require-directory "^2.1.1"
+    string-width "^4.2.3"
+    y18n "^5.0.5"
+    yargs-parser "^21.0.0"
 
 yocto-queue@^0.1.0:
   version "0.1.0"
