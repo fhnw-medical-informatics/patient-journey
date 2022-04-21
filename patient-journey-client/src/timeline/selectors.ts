@@ -11,7 +11,7 @@ import {
   selectSelectedActiveEntity,
 } from '../data/selectors'
 import { RootState } from '../store'
-import { TimelineColumn, TimelineColumnNone, TimelineState } from './timelineSlice'
+import { CursorPosition, TimelineColumn, TimelineColumnNone, TimelineState } from './timelineSlice'
 
 export const selectTimelineState = (s: RootState): TimelineState => s.timeline
 
@@ -61,3 +61,5 @@ export const selectFilteredActiveDataAsLanes = createSelector(
       color: expandByColumn !== TimelineColumnNone ? colorByCategoryFn(value) : undefined,
     })) as ReadonlyArray<TimelineLane<any>>
 )
+
+export const selectCursorPosition = (s: RootState): CursorPosition => s.timeline.cursorPosition

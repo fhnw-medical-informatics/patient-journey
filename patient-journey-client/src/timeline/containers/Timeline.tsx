@@ -3,6 +3,8 @@ import React, { useCallback } from 'react'
 import { Timeline as TimelineComponent } from '../components/Timeline'
 import { useAppDispatch } from '../../store'
 import {
+  CursorPosition,
+  setCursorPosition,
   setExpandByColumn,
   setTimelineCluster,
   setViewByColumn,
@@ -39,6 +41,13 @@ export const Timeline = () => {
     [dispatch]
   )
 
+  const onCursorPositionChange = useCallback(
+    (cursorPosition: CursorPosition) => {
+      dispatch(setCursorPosition(cursorPosition))
+    },
+    [dispatch]
+  )
+
   return (
     <TimelineComponent
       dateFormat={formatMillis}
@@ -56,6 +65,7 @@ export const Timeline = () => {
       onChangeColorByColumn={onChangeColorByColumn}
       onEventHover={onEntityHover}
       onEventSelect={onEntityClick}
+      onCursorPositionChange={onCursorPositionChange}
     />
   )
 }

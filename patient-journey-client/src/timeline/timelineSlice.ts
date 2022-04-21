@@ -7,16 +7,23 @@ export type TimelineColumn = EventDataColumn | PatientDataColumn | NoTimelineCol
 export const TimelineColumnNone = 'None'
 type NoTimelineColumn = typeof TimelineColumnNone
 
+export const CursorPositionNone = { x: NaN, y: NaN }
+type NoCursorPosition = typeof CursorPositionNone
+
+export type CursorPosition = { x: number; y: number } | NoCursorPosition
+
 export type TimelineState = {
   viewByColumn: TimelineColumn
   expandByColumn: TimelineColumn
   cluster: boolean
+  cursorPosition: CursorPosition
 }
 
 export const initialTimelineState: TimelineState = {
   cluster: true,
   viewByColumn: TimelineColumnNone,
   expandByColumn: TimelineColumnNone,
+  cursorPosition: CursorPositionNone,
 }
 
 const timelineSlice = createSlice({
@@ -32,8 +39,15 @@ const timelineSlice = createSlice({
     setTimelineCluster: (state: Draft<TimelineState>) => {
       state.cluster = !state.cluster
     },
+    setCursorPosition: (state: Draft<TimelineState>, action: PayloadAction<CursorPosition>) => {
+      state.cursorPosition = action.payload
+    },
+    resetCursorPosition: (state: Draft<TimelineState>) => {
+      state.cursorPosition = CursorPositionNone
+    },
   },
 })
 
 export const timelineReducer = timelineSlice.reducer
-export const { setViewByColumn, setExpandByColumn, setTimelineCluster } = timelineSlice.actions
+export const { setViewByColumn, setExpandByColumn, setTimelineCluster, setCursorPosition, resetCursorPosition } =
+  timelineSlice.actions
