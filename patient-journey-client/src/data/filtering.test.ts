@@ -42,7 +42,7 @@ const mockColumns: ReadonlyArray<PatientDataColumn> = [
   },
   {
     name: 'Blood Type',
-    type: 'quality',
+    type: 'category',
     index: 5,
   },
 ]
@@ -266,36 +266,36 @@ describe('Filter Reducer', () => {
   })
 
   it('should handle a qualitative filter', () => {
-    const qualityFilter: Filter<'quality'> = {
+    const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
-      type: 'quality',
+      type: 'category',
       value: { text: 'A' },
     }
 
-    const filteredData = filterReducer(mockData, qualityFilter)
+    const filteredData = filterReducer(mockData, categoryFilter)
     expect(filteredData.length).toBe(1)
     expect(filteredData[0].uid).toBe('1')
   })
 
-  it('should handle a qualitative filter with a non-existing quality', () => {
-    const qualityFilter: Filter<'quality'> = {
+  it('should handle a qualitative filter with a non-existing category', () => {
+    const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
-      type: 'quality',
+      type: 'category',
       value: { text: 'O−' },
     }
 
-    const filteredData = filterReducer(mockData, qualityFilter)
+    const filteredData = filterReducer(mockData, categoryFilter)
     expect(filteredData.length).toBe(0)
   })
 
   it('should handle a qualitative filter with an empty value', () => {
-    const qualityFilter: Filter<'quality'> = {
+    const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
-      type: 'quality',
+      type: 'category',
       value: { text: '' },
     }
 
-    const filteredData = filterReducer(mockData, qualityFilter)
+    const filteredData = filterReducer(mockData, categoryFilter)
     expect(filteredData.length).toBe(2)
     expect(filteredData[0].uid).toBe('1')
     expect(filteredData[1].uid).toBe('2')

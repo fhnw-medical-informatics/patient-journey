@@ -3,7 +3,7 @@ import { max, min } from 'd3-array'
 import { ColorByColumnNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
-import { DataColumn, extractQualityValueSafe, stringToMillis } from './columns'
+import { DataColumn, extractCategoryValueSafe, stringToMillis } from './columns'
 import { ActiveDataViewType } from './dataSlice'
 import { EntityId, EntityIdNone } from './entities'
 import { EMPTY_EVENT_DATA, EventData, EventDataColumn, PatientJourneyEvent } from './events'
@@ -185,9 +185,9 @@ export const selectCurrentColorColumnNumberRange = createSelector(
 
 export const selectAllActiveDataQualities = createSelector(
   selectActiveData,
-  (s: RootState, column: DataColumn<'quality'>) => column,
+  (s: RootState, column: DataColumn<'category'>) => column,
   (activeData, column) => {
-    const valueExtractor = extractQualityValueSafe(column)
+    const valueExtractor = extractCategoryValueSafe(column)
     return activeData.flatMap(valueExtractor)
   }
 )

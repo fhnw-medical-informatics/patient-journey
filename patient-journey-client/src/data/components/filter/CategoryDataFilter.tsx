@@ -3,17 +3,17 @@ import React from 'react'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 
-import { createFilter, Filter, QualityFilterNone } from '../../filtering'
+import { createFilter, Filter, CategoryFilterNone } from '../../filtering'
 import { DataColumn } from '../../columns'
 import { useUniqueActiveDataQualities } from '../../hooks'
 
-export interface QualityDataFilterProps extends Filter<'quality'> {
-  column: DataColumn<'quality'>
-  onChange: (filter: Filter<'quality'>) => void
-  onRemove: (filter: Filter<'quality'>) => void
+export interface CategoryDataFilterProps extends Filter<'category'> {
+  column: DataColumn<'category'>
+  onChange: (filter: Filter<'category'>) => void
+  onRemove: (filter: Filter<'category'>) => void
 }
 
-export const QualityDataFilter = ({ column, type, value, onChange, onRemove }: QualityDataFilterProps) => {
+export const CategoryDataFilter = ({ column, type, value, onChange, onRemove }: CategoryDataFilterProps) => {
   const uniqueQualities = useUniqueActiveDataQualities(column)
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -28,12 +28,12 @@ export const QualityDataFilter = ({ column, type, value, onChange, onRemove }: Q
 
   return (
     <Select
-      value={value.text !== QualityFilterNone ? value.text : QualityFilterNone}
+      value={value.text !== CategoryFilterNone ? value.text : CategoryFilterNone}
       onChange={handleChange}
       label={column.name}
       fullWidth
     >
-      <MenuItem value={QualityFilterNone}>
+      <MenuItem value={CategoryFilterNone}>
         <i>{'None'}</i>
       </MenuItem>
       {uniqueQualities.map((q) => (

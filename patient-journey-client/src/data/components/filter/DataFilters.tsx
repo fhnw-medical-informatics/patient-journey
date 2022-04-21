@@ -104,7 +104,7 @@ export const DataFilters = ({
         </Grid>
       )}
       {availableColumns
-        .filter((col) => ['string', 'number', 'boolean', 'date', 'timestamp', 'quality'].includes(col.type))
+        .filter((col) => ['string', 'number', 'boolean', 'date', 'timestamp', 'category'].includes(col.type))
         .map((availableColumn) => {
           const filter = findActiveFilter(availableColumn, activeFilters, availableColumn.type)
 

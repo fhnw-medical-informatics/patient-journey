@@ -61,8 +61,8 @@ export const useEntityInteraction = (): EntityInteraction => {
 
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
 
-export const useAllActiveDataQualities = (column: DataColumn<'quality'>) =>
+export const useAllActiveDataQualities = (column: DataColumn<'category'>) =>
   useAppSelector((state) => selectAllActiveDataQualities(state, column))
 
-export const useUniqueActiveDataQualities = (column: DataColumn<'quality'>) =>
+export const useUniqueActiveDataQualities = (column: DataColumn<'category'>) =>
   Array.from(new Set(useAppSelector((state) => selectAllActiveDataQualities(state, column))))

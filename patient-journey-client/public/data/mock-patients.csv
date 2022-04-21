@@ -1,5 +1,5 @@
 Patient ID,First Name,Last Name,Date Of Birth,Height,Shirt Size,Hair Color,Special,Timestamp
-pid,string,string,date,number,quality,quality,boolean,timestamp
+pid,string,string,date,number,category,category,boolean,timestamp
 1,Raphael,Blumenthal,07.12.1929,179,M,Blonde,TRUE,1096022698067
 2,Dany,Bär,03.06.1985,181,M,Black,FALSE,1501139339354
 3,Candice,Schaich,26.02.1991,171,M,Black,TRUE,1149164220071

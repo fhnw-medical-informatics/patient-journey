@@ -24,7 +24,7 @@ type FilterValue = {
   pid: TextFilterValue
   date: TimestampFilterValue
   timestamp: TimestampFilterValue
-  quality: TextFilterValue
+  category: TextFilterValue
 }
 
 interface TextFilterValue {
@@ -53,7 +53,7 @@ interface BooleanFilterValue {
   isTrue: Trilian
 }
 
-export const QualityFilterNone = ''
+export const CategoryFilterNone = ''
 
 export const createFilter = <T extends FilterColumn['type']>(
   column: FilterColumn,
@@ -142,13 +142,13 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
           return (openFromDate || dateValue >= dateFrom) && (openToDate || dateValue <= dateTo)
         })
       }
-    case 'quality':
+    case 'category':
       return data.filter((row) => {
         const fieldValue = getFieldValue(row, filter)
 
         return (
           fieldValue.isValid &&
-          fieldValue.value.toLowerCase().includes((filter as Filter<'quality'>).value.text.toLowerCase())
+          fieldValue.value.toLowerCase().includes((filter as Filter<'category'>).value.text.toLowerCase())
         )
       })
     default:
