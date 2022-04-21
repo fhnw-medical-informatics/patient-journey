@@ -3,7 +3,8 @@ import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { ColorByCategoryFn, ColorByColumnFn } from '../color/useColor'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
-import { PatientId } from '../data/patients'
+import { EventDataColumn, PatientJourneyEvent } from '../data/events'
+import { Patient, PatientDataColumn, PatientId } from '../data/patients'
 import {
   selectActiveDataColumns,
   selectFilteredActiveData,
@@ -22,6 +23,29 @@ const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expand
 // https://redux.js.org/usage/deriving-data-selectors#createselector-behavior
 const selectColorByColumnFn = (s: RootState, colorByColumnFn: ColorByColumnFn): ColorByColumnFn => colorByColumnFn
 
+const convertEntityToTimelineEvent = (
+  viewByColumn: TimelineColumn,
+  expandByColumn: TimelineColumn,
+  activeColumns: ReadonlyArray<PatientDataColumn | EventDataColumn>,
+  activeData: ReadonlyArray<Patient | PatientJourneyEvent>,
+  colorByColumnFn?: ColorByColumnFn
+) => {
+  return viewByColumn !== TimelineColumnNone &&
+    activeColumns.findIndex((column) => column.name === viewByColumn.name && column.index === viewByColumn.index) !== -1
+    ? (activeData.map((event) => ({
+        eventId: event.uid,
+        laneId: expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index],
+        isPinned: false,
+        color: colorByColumnFn ? colorByColumnFn(event) : undefined,
+        startTimeMillis:
+          viewByColumn.type === 'date'
+            ? stringToMillis(event.values[viewByColumn.index])
+            : +event.values[viewByColumn.index],
+      })) as ReadonlyArray<TimelineEvent<EntityId, any>>)
+    : []
+}
+
+// TODO: Fix parametrization in other selectors
 export const selectFilteredActiveDataAsEvents = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
@@ -30,24 +54,22 @@ export const selectFilteredActiveDataAsEvents = createSelector(
   selectColorByColumnFn,
   (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) => {
     console.log('Executin')
-    return viewByColumn !== TimelineColumnNone &&
-      activeColumns.findIndex((column) => column.name === viewByColumn.name && column.index === viewByColumn.index) !==
-        -1
-      ? (activeData.map((event) => ({
-          eventId: event.uid,
-          laneId: expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index],
-          isPinned: false,
-          color: colorByColumnFn(event),
-          startTimeMillis:
-            viewByColumn.type === 'date'
-              ? stringToMillis(event.values[viewByColumn.index])
-              : +event.values[viewByColumn.index],
-        })) as ReadonlyArray<TimelineEvent<EntityId, any>>)
-      : []
+    return convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
   }
 )
 
-const selectFilteredActiveEventsAsMap = createSelector(selectFilteredActiveDataAsEvents, (events) => {
+export const selectFilteredActiveDataAsEventsWithoutColor = createSelector(
+  selectViewByColumn,
+  selectExpandByColumn,
+  selectActiveDataColumns,
+  selectFilteredActiveData,
+  (viewByColumn, expandByColumn, activeColumns, activeData) => {
+    console.log('Executin no colores')
+    return convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData)
+  }
+)
+
+const selectFilteredActiveEventsAsMap = createSelector(selectFilteredActiveDataAsEventsWithoutColor, (events) => {
   const eventMap = new Map<EntityId, TimelineEvent<EntityId, any>>()
 
   events.forEach((event) => {
@@ -69,10 +91,14 @@ export const selectHoveredActiveEntityAsEvent = createSelector(
   (eventMap, hoveredEntity) => eventMap.get(hoveredEntity)
 )
 
+const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategoryFn): ColorByCategoryFn =>
+  colorByCategoryFn
+
 export const selectFilteredActiveDataAsLanes = createSelector(
   selectExpandByColumn,
   selectFilteredActiveData,
-  (expandByColumn, activeData) => (colorByCategoryFn: ColorByCategoryFn) =>
+  selectColorByCategoryFn,
+  (expandByColumn, activeData, colorByCategoryFn) =>
     Array.from(
       new Set(
         (activeData as ReadonlyArray<Entity & { pid: PatientId }>).map((event) =>

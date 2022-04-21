@@ -17,11 +17,9 @@ export const useTimlineCursorPosition = () => useAppSelector(selectCursorPositio
 export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn) =>
   useAppSelector((state) => selectFilteredActiveDataAsEvents(state, colorByColumnFn))
 
-export const useSelectedActiveEntityAsEvent = (colorByColumnFn: ColorByColumnFn) =>
-  useAppSelector((state) => selectSelectedActiveEntityAsEvent(state, colorByColumnFn))
+export const useSelectedActiveEntityAsEvent = () => useAppSelector(selectSelectedActiveEntityAsEvent)
 
-export const useHoveredActiveEntityAsEvent = (colorByColumnFn: ColorByColumnFn) =>
-  useAppSelector((state) => selectHoveredActiveEntityAsEvent(state, colorByColumnFn))
+export const useHoveredActiveEntityAsEvent = () => useAppSelector(selectHoveredActiveEntityAsEvent)
 
 export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
-  useAppSelector(selectFilteredActiveDataAsLanes)(colorByCategoryFn)
+  useAppSelector((state) => selectFilteredActiveDataAsLanes(state, colorByCategoryFn))
