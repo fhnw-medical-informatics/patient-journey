@@ -183,11 +183,20 @@ export const selectCurrentColorColumnNumberRange = createSelector(
   }
 )
 
+const selectDataQualityColumn = (s: RootState, column: DataColumn<'quality'>) => column
+
 export const selectAllActiveDataQualities = createSelector(
   selectActiveData,
-  (s: RootState, column: DataColumn<'quality'>) => column,
+  selectDataQualityColumn,
   (activeData, column) => {
     const valueExtractor = extractQualityValueSafe(column)
     return activeData.flatMap(valueExtractor)
+  }
+)
+
+export const selectUniqueActiveDataQualities = createSelector(
+  selectAllActiveDataQualities,
+  (allActiveDataQualities) => {
+    return Array.from(new Set(allActiveDataQualities))
   }
 )

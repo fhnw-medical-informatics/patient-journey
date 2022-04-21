@@ -11,6 +11,7 @@ import {
   selectDataLoadingState,
   selectDataLoadingErrorMessage,
   selectAllActiveDataQualities,
+  selectUniqueActiveDataQualities,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
@@ -65,4 +66,4 @@ export const useAllActiveDataQualities = (column: DataColumn<'quality'>) =>
   useAppSelector((state) => selectAllActiveDataQualities(state, column))
 
 export const useUniqueActiveDataQualities = (column: DataColumn<'quality'>) =>
-  Array.from(new Set(useAppSelector((state) => selectAllActiveDataQualities(state, column))))
+  useAppSelector((state) => selectUniqueActiveDataQualities(state, column))
