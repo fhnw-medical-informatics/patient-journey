@@ -24,25 +24,53 @@ export const selectFilteredActiveDataAsEvents = createSelector(
   selectExpandByColumn,
   selectActiveDataColumns,
   selectFilteredActiveData,
+  (viewByColumn, expandByColumn, activeColumns, activeData) => (colorByColumnFn: ColorByColumnFn) =>
+    viewByColumn !== TimelineColumnNone &&
+    activeColumns.findIndex((column) => column.name === viewByColumn.name && column.index === viewByColumn.index) !== -1
+      ? (activeData.map((event) => ({
+          eventId: event.uid,
+          laneId: expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index],
+          isPinned: false,
+          color: colorByColumnFn(event),
+          startTimeMillis:
+            viewByColumn.type === 'date'
+              ? stringToMillis(event.values[viewByColumn.index])
+              : +event.values[viewByColumn.index],
+        })) as ReadonlyArray<TimelineEvent<EntityId, any>>)
+      : []
+)
+
+const selectFilteredActiveEventsAsMap = createSelector(
+  selectFilteredActiveDataAsEvents,
+  (events) => (selectedColor: string) => {
+    const eventMap = new Map<EntityId, TimelineEvent<EntityId, any>>()
+
+    events(() => selectedColor).forEach((event) => {
+      eventMap.set(event.eventId, event)
+    })
+
+    return eventMap
+  }
+)
+
+export const selectSelectedActiveEntityAsEvent = createSelector(
+  selectFilteredActiveEventsAsMap,
   selectSelectedActiveEntity,
+  (eventMap, selectedEntity) => (selectedColor: string) => {
+    const event = eventMap(selectedColor).get(selectedEntity)
+
+    return event ? { ...event, color: selectedColor } : undefined
+  }
+)
+
+export const selectHoveredActiveEntityAsEvent = createSelector(
+  selectFilteredActiveEventsAsMap,
   selectHoveredActiveEntity,
-  (viewByColumn, expandByColumn, activeColumns, activeData, activeEntityId, hoveredEntityId) =>
-    (colorByColumnFn: ColorByColumnFn, selectedColor: string) =>
-      viewByColumn !== TimelineColumnNone &&
-      activeColumns.findIndex((column) => column.name === viewByColumn.name && column.index === viewByColumn.index) !==
-        -1
-        ? (activeData.map((event) => ({
-            eventId: event.uid,
-            laneId: expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index],
-            isPinned: event.uid === activeEntityId || event.uid === hoveredEntityId,
-            color:
-              event.uid === activeEntityId || event.uid === hoveredEntityId ? selectedColor : colorByColumnFn(event),
-            startTimeMillis:
-              viewByColumn.type === 'date'
-                ? stringToMillis(event.values[viewByColumn.index])
-                : +event.values[viewByColumn.index],
-          })) as ReadonlyArray<TimelineEvent<EntityId, any>>)
-        : []
+  (eventMap, hoveredEntity) => (selectedColor: string) => {
+    const event = eventMap(selectedColor).get(hoveredEntity)
+
+    return event ? { ...event, color: selectedColor } : undefined
+  }
 )
 
 export const selectFilteredActiveDataAsLanes = createSelector(

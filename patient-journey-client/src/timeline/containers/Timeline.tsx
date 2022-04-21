@@ -17,12 +17,10 @@ import { useActiveDataAsEvents, useActiveDataAsLanes, useTimelineState } from '.
 import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/useColor'
 import { useColorByColumn } from '../../color/useColorByColumn'
-import { useTheme } from '@mui/material'
 
 export const Timeline = () => {
-  const theme = useTheme()
   const [colorByColumnFn, colorByCategoryFn] = useColor()
-  const events = useActiveDataAsEvents(colorByColumnFn, theme.entityColors.selected)
+  const events = useActiveDataAsEvents(colorByColumnFn)
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
   const { cluster, viewByColumn, expandByColumn } = useTimelineState()
   const activeColumns = useActiveDataColumns()

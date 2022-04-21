@@ -15,6 +15,7 @@ import { TimelineCanvasMarks } from './TimelineCanvasMarks'
 import { TimelineCanvasMarksInteraction } from '../containers/TimelineCanvasMarksInteraction'
 import { MouseAwareSvg } from './MouseAwareSvg'
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
+import { TimelineActiveMarks } from '../containers/TimelineActiveMarks'
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, any>>
@@ -70,7 +71,14 @@ export const TimelineView = ({
                 onEventUnhover={() => {
                   onHover(EntityIdNone)
                 }}
-                layers={['grid', 'axes', TimelineCanvasMarks, 'interaction', TimelineCanvasMarksInteraction]}
+                layers={[
+                  'grid',
+                  'axes',
+                  TimelineCanvasMarks,
+                  'interaction',
+                  TimelineCanvasMarksInteraction,
+                  TimelineActiveMarks,
+                ]}
                 onCursorMove={() => {}}
               />
             </MouseAwareSvg>
