@@ -45,17 +45,14 @@ const convertEntityToTimelineEvent = (
     : []
 }
 
-// TODO: Fix parametrization in other selectors
 export const selectFilteredActiveDataAsEvents = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
   selectActiveDataColumns,
   selectFilteredActiveData,
   selectColorByColumnFn,
-  (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) => {
-    console.log('Executin')
-    return convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
-  }
+  (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) =>
+    convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
 )
 
 export const selectFilteredActiveDataAsEventsWithoutColor = createSelector(
@@ -63,10 +60,8 @@ export const selectFilteredActiveDataAsEventsWithoutColor = createSelector(
   selectExpandByColumn,
   selectActiveDataColumns,
   selectFilteredActiveData,
-  (viewByColumn, expandByColumn, activeColumns, activeData) => {
-    console.log('Executin no colores')
-    return convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData)
-  }
+  (viewByColumn, expandByColumn, activeColumns, activeData) =>
+    convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData)
 )
 
 const selectFilteredActiveEventsAsMap = createSelector(selectFilteredActiveDataAsEventsWithoutColor, (events) => {

@@ -15,7 +15,7 @@ export const DataTable = () => {
   const activeTableState = useActiveTableState()
   const [colorByColumnFn, , , colorByColumn] = useColor()
 
-  const { onEntityClick, onEntityHover, selectedEntity, hoveredEntity } = useEntityInteraction()
+  const { onEntityClick, onEntityHover } = useEntityInteraction()
 
   const dispatch = useAppDispatch()
 
@@ -28,8 +28,6 @@ export const DataTable = () => {
     <DataTableComponent
       rows={activeData}
       columns={activeColumns}
-      selectedEntity={selectedEntity}
-      hoveredEntity={hoveredEntity}
       sorting={activeTableState.sorting}
       onEntityClick={onEntityClick}
       onEntityHover={onEntityHover}

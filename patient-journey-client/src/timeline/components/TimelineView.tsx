@@ -79,7 +79,6 @@ export const TimelineView = ({
                   TimelineCanvasMarksInteraction,
                   TimelineActiveMarks,
                 ]}
-                onCursorMove={() => {}}
               />
             </MouseAwareSvg>
           )
