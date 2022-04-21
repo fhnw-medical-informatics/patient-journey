@@ -6,18 +6,22 @@ import { useHoveredActiveEntityAsEvent, useSelectedActiveEntityAsEvent } from '.
 
 import { TimelineActiveMarks as TimelineActiveMarksComponent } from '../components/TimelineActiveMarks'
 import { useTheme } from '@mui/material'
+import { useColor } from '../../color/useColor'
 
 export const TimelineActiveMarks: CustomLayer = (props) => {
   const theme = useTheme()
 
-  const selectedEvent = useSelectedActiveEntityAsEvent(theme.entityColors.selected)
-  const hoveredEvent = useHoveredActiveEntityAsEvent(theme.entityColors.selected)
+  const [colorByColumnFn] = useColor()
+
+  const selectedEvent = useSelectedActiveEntityAsEvent(colorByColumnFn)
+  const hoveredEvent = useHoveredActiveEntityAsEvent(colorByColumnFn)
 
   return (
     <TimelineActiveMarksComponent
       {...props}
       selectedEvent={selectedEvent as TimelineEvent<any, any>}
       hoveredEvent={hoveredEvent as TimelineEvent<any, any>}
+      selectedColor={theme.entityColors.selected}
     />
   )
 }

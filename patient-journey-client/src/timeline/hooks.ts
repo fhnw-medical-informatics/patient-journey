@@ -15,13 +15,13 @@ export const useTimelineState = () => useAppSelector(selectTimelineState)
 export const useTimlineCursorPosition = () => useAppSelector(selectCursorPosition)
 
 export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn) =>
-  useAppSelector(selectFilteredActiveDataAsEvents)(colorByColumnFn)
+  useAppSelector((state) => selectFilteredActiveDataAsEvents(state, colorByColumnFn))
 
-export const useSelectedActiveEntityAsEvent = (selectedColor: string) =>
-  useAppSelector(selectSelectedActiveEntityAsEvent)(selectedColor)
+export const useSelectedActiveEntityAsEvent = (colorByColumnFn: ColorByColumnFn) =>
+  useAppSelector((state) => selectSelectedActiveEntityAsEvent(state, colorByColumnFn))
 
-export const useHoveredActiveEntityAsEvent = (selectedColor: string) =>
-  useAppSelector(selectHoveredActiveEntityAsEvent)(selectedColor)
+export const useHoveredActiveEntityAsEvent = (colorByColumnFn: ColorByColumnFn) =>
+  useAppSelector((state) => selectHoveredActiveEntityAsEvent(state, colorByColumnFn))
 
 export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
   useAppSelector(selectFilteredActiveDataAsLanes)(colorByCategoryFn)

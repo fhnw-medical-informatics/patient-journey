@@ -19,14 +19,20 @@ const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.viewByCo
 
 const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expandByColumn
 
+// https://redux.js.org/usage/deriving-data-selectors#createselector-behavior
+const selectColorByColumnFn = (s: RootState, colorByColumnFn: ColorByColumnFn): ColorByColumnFn => colorByColumnFn
+
 export const selectFilteredActiveDataAsEvents = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
   selectActiveDataColumns,
   selectFilteredActiveData,
-  (viewByColumn, expandByColumn, activeColumns, activeData) => (colorByColumnFn: ColorByColumnFn) =>
-    viewByColumn !== TimelineColumnNone &&
-    activeColumns.findIndex((column) => column.name === viewByColumn.name && column.index === viewByColumn.index) !== -1
+  selectColorByColumnFn,
+  (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) => {
+    console.log('Executin')
+    return viewByColumn !== TimelineColumnNone &&
+      activeColumns.findIndex((column) => column.name === viewByColumn.name && column.index === viewByColumn.index) !==
+        -1
       ? (activeData.map((event) => ({
           eventId: event.uid,
           laneId: expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index],
@@ -38,39 +44,29 @@ export const selectFilteredActiveDataAsEvents = createSelector(
               : +event.values[viewByColumn.index],
         })) as ReadonlyArray<TimelineEvent<EntityId, any>>)
       : []
-)
-
-const selectFilteredActiveEventsAsMap = createSelector(
-  selectFilteredActiveDataAsEvents,
-  (events) => (selectedColor: string) => {
-    const eventMap = new Map<EntityId, TimelineEvent<EntityId, any>>()
-
-    events(() => selectedColor).forEach((event) => {
-      eventMap.set(event.eventId, event)
-    })
-
-    return eventMap
   }
 )
+
+const selectFilteredActiveEventsAsMap = createSelector(selectFilteredActiveDataAsEvents, (events) => {
+  const eventMap = new Map<EntityId, TimelineEvent<EntityId, any>>()
+
+  events.forEach((event) => {
+    eventMap.set(event.eventId, event)
+  })
+
+  return eventMap
+})
 
 export const selectSelectedActiveEntityAsEvent = createSelector(
   selectFilteredActiveEventsAsMap,
   selectSelectedActiveEntity,
-  (eventMap, selectedEntity) => (selectedColor: string) => {
-    const event = eventMap(selectedColor).get(selectedEntity)
-
-    return event ? { ...event, color: selectedColor } : undefined
-  }
+  (eventMap, selectedEntity) => eventMap.get(selectedEntity)
 )
 
 export const selectHoveredActiveEntityAsEvent = createSelector(
   selectFilteredActiveEventsAsMap,
   selectHoveredActiveEntity,
-  (eventMap, hoveredEntity) => (selectedColor: string) => {
-    const event = eventMap(selectedColor).get(hoveredEntity)
-
-    return event ? { ...event, color: selectedColor } : undefined
-  }
+  (eventMap, hoveredEntity) => eventMap.get(hoveredEntity)
 )
 
 export const selectFilteredActiveDataAsLanes = createSelector(

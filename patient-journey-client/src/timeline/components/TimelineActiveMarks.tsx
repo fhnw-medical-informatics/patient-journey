@@ -7,6 +7,7 @@ interface TimelineActiveMarksProps<EID extends string, LID extends string, E ext
   extends CustomLayerProps<EID, LID, E> {
   selectedEvent: TimelineEvent<EID, LID> | undefined
   hoveredEvent: TimelineEvent<EID, LID> | undefined
+  selectedColor: string
 }
 
 export const TimelineActiveMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>({
@@ -16,9 +17,11 @@ export const TimelineActiveMarks = <EID extends string, LID extends string, E ex
   height,
   selectedEvent,
   hoveredEvent,
+  selectedColor,
 }: TimelineActiveMarksProps<EID, LID, E>) => {
   const theme = useTheme()
 
+  // TODO: Share circle logic across all components
   const createCirce = (event: TimelineEvent<EID, LID>) => {
     const x = Math.round(xScale(event.startTimeMillis))
     const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId) ?? height / 2)
@@ -28,7 +31,7 @@ export const TimelineActiveMarks = <EID extends string, LID extends string, E ex
         cx={x}
         cy={y}
         r={10}
-        fill={event.color}
+        fill={selectedColor}
         stroke={theme.palette.text.primary}
         strokeWidth={2}
         //   onClick={onClick}
