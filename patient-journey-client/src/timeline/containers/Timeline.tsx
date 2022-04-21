@@ -11,7 +11,7 @@ import {
   TimelineColumn,
   TimelineColumnNone,
 } from '../timelineSlice'
-import { useActiveDataColumns, useEntityInteraction } from '../../data/hooks'
+import { useActiveDataColumns } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import { useActiveDataAsEvents, useActiveDataAsLanes, useTimelineState } from '../hooks'
 import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
@@ -24,7 +24,6 @@ export const Timeline = () => {
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
   const { cluster, viewByColumn, expandByColumn } = useTimelineState()
   const activeColumns = useActiveDataColumns()
-  const { onEntityClick, onEntityHover } = useEntityInteraction()
   const colorByColumn = useColorByColumn()
 
   const dispatch = useAppDispatch()
@@ -61,8 +60,6 @@ export const Timeline = () => {
       onSetTimelineCluster={onSetTimelineCluster}
       colorByColumn={colorByColumn}
       onChangeColorByColumn={onChangeColorByColumn}
-      onEventHover={onEntityHover}
-      onEventSelect={onEntityClick}
       onCursorPositionChange={onCursorPositionChange}
     />
   )

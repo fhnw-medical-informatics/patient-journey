@@ -2,12 +2,15 @@ import React from 'react'
 import { useTheme } from '@mui/material'
 
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
+import { EntityId, EntityIdNone } from '../../data/entities'
 
 interface TimelineActiveMarksProps<EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>
   extends CustomLayerProps<EID, LID, E> {
   selectedEvent: TimelineEvent<EID, LID> | undefined
   hoveredEvent: TimelineEvent<EID, LID> | undefined
   selectedColor: string
+  onHover: (eventId: EntityId) => void
+  onSelect: (eventId: EntityId) => void
 }
 
 export const TimelineActiveMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>({
@@ -18,6 +21,8 @@ export const TimelineActiveMarks = <EID extends string, LID extends string, E ex
   selectedEvent,
   hoveredEvent,
   selectedColor,
+  onHover,
+  onSelect,
 }: TimelineActiveMarksProps<EID, LID, E>) => {
   const theme = useTheme()
 
@@ -34,9 +39,9 @@ export const TimelineActiveMarks = <EID extends string, LID extends string, E ex
         fill={selectedColor}
         stroke={theme.palette.text.primary}
         strokeWidth={2}
-        //   onClick={onClick}
-        //   onMouseEnter={onMouseEnter}
-        //   onMouseLeave={onMouseLeave}
+        onClick={() => onSelect(event.eventId as EntityId)}
+        onMouseEnter={() => onHover(event.eventId as EntityId)}
+        onMouseLeave={() => onHover(EntityIdNone)}
       ></circle>
     )
   }

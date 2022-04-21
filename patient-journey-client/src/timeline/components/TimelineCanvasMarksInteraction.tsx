@@ -1,8 +1,10 @@
-import { useTheme } from '@mui/material'
-import { least } from 'd3-array'
 import React from 'react'
 
+import { useTheme } from '@mui/material'
+import { least } from 'd3-array'
+
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
+import { EntityId, EntityIdNone } from '../../data/entities'
 import { diff } from '../../utils'
 
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
@@ -17,6 +19,8 @@ const getNearestPoint = <EID extends string, LID extends string>(
 interface TimelineCanvasMarksInteractionProps<EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>
   extends CustomLayerProps<EID, LID, E> {
   cursorPosition: CursorPosition
+  onHover: (eventId: EntityId) => void
+  onSelect: (eventId: EntityId) => void
 }
 
 export const TimelineCanvasMarksInteraction = <
@@ -31,13 +35,13 @@ export const TimelineCanvasMarksInteraction = <
   xScale,
   laneDisplayMode,
   height,
+  onHover,
+  onSelect,
 }: TimelineCanvasMarksInteractionProps<EID, LID, E>) => {
   const theme = useTheme()
 
   // TODO: Performance (throttling and faster point/lane lookup with sorted events)
-  // TODO: Adjust selectors so that acive events and hovered/selected are decoupled and hovered/selected are always on top,
-  // this way we can sort the events in the selector because it doesn't recalc when hovered/selected changes
-  // TODO: Hover and selection
+  // TODO: Hover and selection --> Hover the nearest automatically (not the one under the cursor)
 
   if (cursorPosition !== CursorPositionNone) {
     const cursorPositionMillisX = xScale.invert(cursorPosition.x)
@@ -66,9 +70,9 @@ export const TimelineCanvasMarksInteraction = <
           fill={nearestPoint.color}
           stroke={theme.palette.text.primary}
           strokeWidth={2}
-          //   onClick={onClick}
-          //   onMouseEnter={onMouseEnter}
-          //   onMouseLeave={onMouseLeave}
+          onClick={() => onSelect(nearestPoint.eventId as EntityId)}
+          onMouseEnter={() => onHover(nearestPoint.eventId as EntityId)}
+          onMouseLeave={() => onHover(EntityIdNone)}
         ></circle>
       )
     }

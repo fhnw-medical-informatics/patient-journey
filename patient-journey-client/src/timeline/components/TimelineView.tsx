@@ -8,7 +8,6 @@ import {
   deriveTimelineTheme,
 } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
-import { EntityId, EntityIdNone } from '../../data/entities'
 import { useTheme } from '@mui/material'
 
 import { TimelineCanvasMarks } from './TimelineCanvasMarks'
@@ -23,8 +22,6 @@ interface TimelineProps {
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   enableClustering: boolean
-  onHover: (eventId: EntityId) => void
-  onSelect: (eventId: EntityId) => void
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
 }
 
@@ -34,8 +31,6 @@ export const TimelineView = ({
   dateFormat,
   laneDisplayMode,
   enableClustering,
-  onSelect,
-  onHover,
   onCursorPositionChange,
 }: TimelineProps) => {
   const muiTheme = useTheme()
@@ -66,11 +61,6 @@ export const TimelineView = ({
                 laneDisplayMode={laneDisplayMode}
                 enableEventClustering={enableClustering}
                 theme={timelineTheme}
-                onEventClick={onSelect}
-                onEventHover={onHover}
-                onEventUnhover={() => {
-                  onHover(EntityIdNone)
-                }}
                 layers={[
                   'grid',
                   'axes',
