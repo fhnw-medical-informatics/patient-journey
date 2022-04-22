@@ -4,13 +4,19 @@ import { useAppSelector } from '../store'
 import {
   selectFilteredActiveDataAsEvents,
   selectFilteredActiveDataAsLanes,
-  selectTimelineState,
+  selectExpandByColumn,
+  selectViewByColumn,
+  selectTimelineCluster,
   selectCursorPosition,
   selectSelectedActiveEntityAsEvent,
   selectHoveredActiveEntityAsEvent,
 } from './selectors'
 
-export const useTimelineState = () => useAppSelector(selectTimelineState)
+export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
+
+export const useViewByColumn = () => useAppSelector(selectViewByColumn)
+
+export const useExpandByColumn = () => useAppSelector(selectExpandByColumn)
 
 export const useTimlineCursorPosition = () => useAppSelector(selectCursorPosition)
 

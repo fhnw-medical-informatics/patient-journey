@@ -12,13 +12,13 @@ import {
   selectSelectedActiveEntity,
 } from '../data/selectors'
 import { RootState } from '../store'
-import { CursorPosition, TimelineColumn, TimelineColumnNone, TimelineState } from './timelineSlice'
+import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
 
-export const selectTimelineState = (s: RootState): TimelineState => s.timeline
+export const selectTimelineCluster = (s: RootState): boolean => s.timeline.cluster
 
-const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.viewByColumn
+export const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.viewByColumn
 
-const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expandByColumn
+export const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expandByColumn
 
 // https://redux.js.org/usage/deriving-data-selectors#createselector-behavior
 const selectColorByColumnFn = (s: RootState, colorByColumnFn: ColorByColumnFn): ColorByColumnFn => colorByColumnFn
