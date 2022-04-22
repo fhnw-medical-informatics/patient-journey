@@ -31,6 +31,7 @@ const useStyles = makeStyles()((theme) => ({
 interface Props {
   readonly rows: ReadonlyArray<Entity>
   readonly columns: ReadonlyArray<DataColumn<any>>
+  readonly selectedEntity: EntityId
   readonly onEntityClick: (id: EntityId) => void
   readonly onEntityHover: (id: EntityId) => void
   readonly colorByColumn: ColorByColumnOption
@@ -43,6 +44,7 @@ export const DataTable = ({
   rows,
   columns,
   sorting,
+  selectedEntity,
   onEntityClick,
   onEntityHover,
   onSortingChange,
@@ -126,6 +128,7 @@ export const DataTable = ({
           disableColumnFilter
           disableColumnMenu
           density="compact"
+          selectionModel={selectedEntity !== EntityIdNone ? [selectedEntity] : []}
           onSelectionModelChange={(newSelectionModel) => {
             onEntityClick(newSelectionModel[0] as EntityId)
           }}
