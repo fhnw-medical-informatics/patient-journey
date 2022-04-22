@@ -85,7 +85,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
         <CategoryDataFilter
           column={column as DataColumn<'category'>}
           type={type}
-          value={(filter as Filter<'category'> | undefined)?.value ?? { text: '' }}
+          value={(filter as Filter<'category'> | undefined)?.value ?? { categories: [] }}
           onChange={onAddFilter}
           onRemove={onRemoveFilter}
         />

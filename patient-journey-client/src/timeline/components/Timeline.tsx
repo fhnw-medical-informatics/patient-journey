@@ -3,11 +3,10 @@ import { makeStyles } from '../../utils'
 import { LaneDisplayMode, TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { Paper } from '@mui/material'
 import { TimelineView } from './TimelineView'
-import { TimelineColumn } from '../timelineSlice'
+import { CursorPosition, TimelineColumn } from '../timelineSlice'
 import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
-import { EntityId } from '../../data/entities'
 import { ColorByColumnOption } from '../../color/colorSlice'
 
 const useStyles = makeStyles()((theme) => ({
@@ -32,10 +31,9 @@ interface TimelineProps {
   cluster: boolean
   onSetTimelineCluster: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
-  onEventHover: (eventId: EntityId) => void
-  onEventSelect: (eventId: EntityId) => void
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
+  onCursorPositionChange: (cursorPosition: CursorPosition) => void
 }
 
 export const Timeline = ({
@@ -50,10 +48,9 @@ export const Timeline = ({
   cluster,
   onSetTimelineCluster,
   availableColumns,
-  onEventHover,
-  onEventSelect,
   colorByColumn,
   onChangeColorByColumn,
+  onCursorPositionChange,
 }: TimelineProps) => {
   const { classes } = useStyles()
 
@@ -76,8 +73,7 @@ export const Timeline = ({
         dateFormat={dateFormat}
         laneDisplayMode={laneDisplayMode}
         enableClustering={cluster}
-        onHover={onEventHover}
-        onSelect={onEventSelect}
+        onCursorPositionChange={onCursorPositionChange}
       />
     </Paper>
   )

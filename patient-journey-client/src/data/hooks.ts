@@ -10,11 +10,13 @@ import {
   selectCurrentColorColumnNumberRange,
   selectDataLoadingState,
   selectDataLoadingErrorMessage,
-  selectAllActiveDataQualities,
+  selectAllActiveDataCategories,
+  selectUniqueActiveDataCategories,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
 import { DataColumn } from './columns'
+import { useCallback } from 'react'
 
 export const useDataLoadingState = () => useAppSelector(selectDataLoadingState)
 export const useDataLoadingErrorMessage = () => useAppSelector(selectDataLoadingErrorMessage)
@@ -31,29 +33,28 @@ export const useActiveSelectedEntity = () => useAppSelector(selectSelectedActive
 export const useActiveHoveredEntity = () => useAppSelector(selectHoveredActiveEntity)
 
 export interface EntityInteraction {
-  readonly selectedEntity: EntityId
-  readonly hoveredEntity: EntityId
   readonly onEntityClick: (id: EntityId) => void
   readonly onEntityHover: (id: EntityId) => void
 }
 
 export const useEntityInteraction = (): EntityInteraction => {
-  const selectedEntity = useActiveSelectedEntity()
-  const hoveredEntity = useActiveHoveredEntity()
-
   const dispatch = useAppDispatch()
 
-  const onEntityClick = (id: EntityId) => {
-    dispatch(setSelectedEntity(id))
-  }
+  const onEntityClick = useCallback(
+    (id: EntityId) => {
+      dispatch(setSelectedEntity(id))
+    },
+    [dispatch]
+  )
 
-  const onEntityHover = (id: EntityId) => {
-    dispatch(setHoveredEntity(id))
-  }
+  const onEntityHover = useCallback(
+    (id: EntityId) => {
+      dispatch(setHoveredEntity(id))
+    },
+    [dispatch]
+  )
 
   return {
-    selectedEntity,
-    hoveredEntity,
     onEntityClick,
     onEntityHover,
   }
@@ -61,8 +62,8 @@ export const useEntityInteraction = (): EntityInteraction => {
 
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
 
-export const useAllActiveDataQualities = (column: DataColumn<'category'>) =>
-  useAppSelector((state) => selectAllActiveDataQualities(state, column))
+export const useAllActiveDataCategories = (column: DataColumn<'category'>) =>
+  useAppSelector((state) => selectAllActiveDataCategories(state, column))
 
-export const useUniqueActiveDataQualities = (column: DataColumn<'category'>) =>
-  Array.from(new Set(useAppSelector((state) => selectAllActiveDataQualities(state, column))))
+export const useUniqueActiveDataCategories = (column: DataColumn<'category'>) =>
+  useAppSelector((state) => selectUniqueActiveDataCategories(state, column))

@@ -7,11 +7,10 @@ import { scaleSqrt } from 'd3-scale'
 
 import { makeStyles } from '../../utils'
 
-import { CustomLayer, TimelineEvent } from 'react-svg-timeline'
+import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
+import { TIMELINE_MARK_SIZE } from './SvgMark'
 
 type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
-
-const defaultSingleEventMarkHeight = 20
 
 const useStyles = makeStyles()((theme) => ({
   layer: {
@@ -20,7 +19,7 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-export const TimelineCanvasMarks: CustomLayer = ({
+const TimelineCanvasMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>({
   height,
   width,
   events,
@@ -28,7 +27,7 @@ export const TimelineCanvasMarks: CustomLayer = ({
   laneDisplayMode,
   yScale,
   eventClusters,
-}) => {
+}: CustomLayerProps<EID, LID, E>) => {
   const { classes } = useStyles()
   const theme = useTheme()
 
@@ -63,12 +62,10 @@ export const TimelineCanvasMarks: CustomLayer = ({
 
       // Draw Clusters
       const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))
-      const clusterRadiusMin = defaultSingleEventMarkHeight / 2
+      const clusterRadiusMin = TIMELINE_MARK_SIZE / 2
 
       const clusterRadiusMax =
-        laneDisplayMode === 'expanded'
-          ? yScale.bandwidth() / 1.2
-          : Math.min(height / 2, 2 * defaultSingleEventMarkHeight)
+        laneDisplayMode === 'expanded' ? yScale.bandwidth() / 1.2 : Math.min(height / 2, 2 * TIMELINE_MARK_SIZE)
 
       const clusterScale = scaleSqrt()
         .domain([clusterSizeDomainMin ?? 0, clusterSizeDomainMax ?? 0])
@@ -99,7 +96,7 @@ export const TimelineCanvasMarks: CustomLayer = ({
         // grouping events by color and then beginPath()ing
         // and filling/stroking only once per color.
         ctx.beginPath()
-        ctx.arc(x, y, defaultSingleEventMarkHeight / 2, 0, 360)
+        ctx.arc(x, y, TIMELINE_MARK_SIZE / 2, 0, 360)
         ctx.fill()
         ctx.stroke()
         // ctx.closePath() - ctx.fill() automatically closes the path
@@ -117,6 +114,12 @@ export const TimelineCanvasMarks: CustomLayer = ({
       <canvas ref={canvasRef} width={width} height={height} className={classes.layer}></canvas>
     </foreignObject>
   )
+}
+
+// A passthrough component is needed to prevent the whole timeline from re-rendering
+// when the components hooks change.
+export const TimelineCanvasMarksLayer: CustomLayer = (props) => {
+  return <TimelineCanvasMarks {...props} />
 }
 
 export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {

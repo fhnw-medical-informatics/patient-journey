@@ -32,7 +32,6 @@ interface Props {
   readonly rows: ReadonlyArray<Entity>
   readonly columns: ReadonlyArray<DataColumn<any>>
   readonly selectedEntity: EntityId
-  readonly hoveredEntity: EntityId
   readonly onEntityClick: (id: EntityId) => void
   readonly onEntityHover: (id: EntityId) => void
   readonly colorByColumn: ColorByColumnOption
@@ -44,9 +43,8 @@ interface Props {
 export const DataTable = ({
   rows,
   columns,
-  selectedEntity,
-  hoveredEntity,
   sorting,
+  selectedEntity,
   onEntityClick,
   onEntityHover,
   onSortingChange,
@@ -172,14 +170,8 @@ export const DataTable = ({
                   backgroundColor:
                     colorByColumn !== ColorByColumnNone
                       ? theme.palette.mode === 'dark'
-                        ? darken(
-                            colorByColumnFn(props.row),
-                            selectedEntity === props.row.uid || hoveredEntity === props.row.uid ? 0.2 : 0.6
-                          )
-                        : lighten(
-                            colorByColumnFn(props.row),
-                            selectedEntity === props.row.uid || hoveredEntity === props.row.uid ? 0.4 : 0.8
-                          )
+                        ? darken(colorByColumnFn(props.row), 0.6)
+                        : lighten(colorByColumnFn(props.row), 0.8)
                       : '',
                 }}
               />
@@ -187,16 +179,17 @@ export const DataTable = ({
           }}
           sx={{
             '& .MuiDataGrid-row.Mui-selected': {
-              backgroundColor: theme.entityColors.selected,
+              backgroundColor: `${theme.entityColors.selected} !important`, // override colored background from row
             },
             '& .MuiDataGrid-row.Mui-selected:hover': {
-              backgroundColor: theme.entityColors.selected,
+              backgroundColor: `${theme.entityColors.selected} !important`,
             },
             '& .MuiDataGrid-row:hover': {
-              backgroundColor:
+              backgroundColor: `${
                 theme.palette.mode === 'dark'
                   ? darken(theme.entityColors.selected, 0.6)
-                  : lighten(theme.entityColors.selected, 0.8),
+                  : lighten(theme.entityColors.selected, 0.8)
+              } !important`,
             },
             '& .MuiDataGrid-cell:focus, .MuiDataGrid-columnHeader:focus, .MuiDataGrid-columnHeader:focus-within': {
               outline: 'none',

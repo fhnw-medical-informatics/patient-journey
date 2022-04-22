@@ -265,11 +265,11 @@ describe('Filter Reducer', () => {
     expect(filteredData[0].uid).toBe('1')
   })
 
-  it('should handle a qualitative filter', () => {
+  it('should handle a categorical filter', () => {
     const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
       type: 'category',
-      value: { text: 'A' },
+      value: { categories: ['A'] },
     }
 
     const filteredData = filterReducer(mockData, categoryFilter)
@@ -277,22 +277,22 @@ describe('Filter Reducer', () => {
     expect(filteredData[0].uid).toBe('1')
   })
 
-  it('should handle a qualitative filter with a non-existing category', () => {
+  it('should handle a categorical filter with a non-existing category', () => {
     const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
       type: 'category',
-      value: { text: 'O−' },
+      value: { categories: ['O−'] },
     }
 
     const filteredData = filterReducer(mockData, categoryFilter)
     expect(filteredData.length).toBe(0)
   })
 
-  it('should handle a qualitative filter with an empty value', () => {
+  it('should handle a categorical filter with multiple values', () => {
     const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
       type: 'category',
-      value: { text: '' },
+      value: { categories: ['A', 'B'] },
     }
 
     const filteredData = filterReducer(mockData, categoryFilter)

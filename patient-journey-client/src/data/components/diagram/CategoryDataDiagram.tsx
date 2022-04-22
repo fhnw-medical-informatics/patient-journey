@@ -5,7 +5,7 @@ import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { extractCategoryValueSafe } from '../../columns'
-import { useAllActiveDataQualities, useUniqueActiveDataQualities } from '../../hooks'
+import { useAllActiveDataCategories, useUniqueActiveDataCategories } from '../../hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -45,20 +45,20 @@ export const CategoryDataDiagram = ({
     }
   }
 
-  const filteredQualities = useMemo(() => {
+  const filteredCategories = useMemo(() => {
     const extractValue = extractCategoryValueSafe(column)
     return filteredActiveData.flatMap(extractValue)
   }, [filteredActiveData, column])
 
-  const allQualities = useAllActiveDataQualities(column)
-  const uniqueQualities = useUniqueActiveDataQualities(column)
+  const allCategories = useAllActiveDataCategories(column)
+  const uniqueCategories = useUniqueActiveDataCategories(column)
 
   const data = useMemo(() => {
-    return uniqueQualities.map<BinDatum>((category: string, binIndex: number) => {
+    return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {
       const predicate = (t: string) => t === category
 
-      const allCount = allQualities.filter(predicate).length
-      const filteredCount = filteredQualities.filter(predicate).length
+      const allCount = allCategories.filter(predicate).length
+      const filteredCount = filteredCategories.filter(predicate).length
       const filteredIn = filteredCount
       const filteredOut = allCount - filteredCount
       return {
@@ -68,7 +68,7 @@ export const CategoryDataDiagram = ({
         category,
       }
     })
-  }, [allQualities, filteredQualities, uniqueQualities])
+  }, [allCategories, filteredCategories, uniqueCategories])
 
   const tooltip = useCallback(
     ({ index }) => {
