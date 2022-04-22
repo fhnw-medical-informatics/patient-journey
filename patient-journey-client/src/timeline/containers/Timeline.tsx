@@ -1,5 +1,7 @@
 import React, { useCallback } from 'react'
 
+import { throttle } from 'lodash'
+
 import { Timeline as TimelineComponent } from '../components/Timeline'
 import { useAppDispatch } from '../../store'
 import {
@@ -38,11 +40,17 @@ export const Timeline = () => {
     [dispatch]
   )
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledDispatch = useCallback(
+    throttle((arg: any) => dispatch(arg), 16, { trailing: false }),
+    [dispatch]
+  )
+
   const onCursorPositionChange = useCallback(
     (cursorPosition: CursorPosition) => {
-      dispatch(setCursorPosition(cursorPosition))
+      throttledDispatch(setCursorPosition(cursorPosition))
     },
-    [dispatch]
+    [throttledDispatch]
   )
 
   return (

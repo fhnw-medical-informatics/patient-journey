@@ -1,8 +1,9 @@
 import React from 'react'
-import { useTheme } from '@mui/material'
+import { darken, lighten, useTheme } from '@mui/material'
 
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { EntityId, EntityIdNone } from '../../data/entities'
+import { SvgMark } from './SvgMark'
 
 interface TimelineActiveMarksProps<EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>
   extends CustomLayerProps<EID, LID, E> {
@@ -26,30 +27,31 @@ export const TimelineActiveMarks = <EID extends string, LID extends string, E ex
 }: TimelineActiveMarksProps<EID, LID, E>) => {
   const theme = useTheme()
 
-  // TODO: Share circle logic across all components
-  const createCirce = (event: TimelineEvent<EID, LID>) => {
+  const createCirce = (event: TimelineEvent<EID, LID>, color: string) => {
     const x = Math.round(xScale(event.startTimeMillis))
     const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId) ?? height / 2)
 
     return (
-      <circle
-        cx={x}
-        cy={y}
-        r={10}
-        fill={selectedColor}
-        stroke={theme.palette.text.primary}
-        strokeWidth={2}
-        onClick={() => onSelect(event.eventId as EntityId)}
-        onMouseEnter={() => onHover(event.eventId as EntityId)}
-        onMouseLeave={() => onHover(EntityIdNone)}
-      ></circle>
+      <g transform={`translate(${x}, ${y})`}>
+        <SvgMark
+          color={color}
+          stroke={theme.palette.text.primary}
+          onClick={() => onSelect(event.eventId as EntityId)}
+          onMouseEnter={() => onHover(event.eventId as EntityId)}
+          onMouseLeave={() => onHover(EntityIdNone)}
+        />
+      </g>
     )
   }
 
   return (
     <>
-      {hoveredEvent && createCirce(hoveredEvent)}
-      {selectedEvent && createCirce(selectedEvent)}
+      {hoveredEvent &&
+        createCirce(
+          hoveredEvent,
+          theme.palette.mode === 'dark' ? darken(selectedColor, 0.6) : lighten(selectedColor, 0.8)
+        )}
+      {selectedEvent && createCirce(selectedEvent, selectedColor)}
     </>
   )
 }

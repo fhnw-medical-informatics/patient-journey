@@ -1,10 +1,9 @@
-import React from 'react'
+import { useEffect } from 'react'
 
-import { useTheme } from '@mui/material'
 import { least } from 'd3-array'
 
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
-import { EntityId, EntityIdNone } from '../../data/entities'
+import { EntityId } from '../../data/entities'
 import { diff } from '../../utils'
 
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
@@ -23,6 +22,7 @@ interface TimelineCanvasMarksInteractionProps<EID extends string, LID extends st
   onSelect: (eventId: EntityId) => void
 }
 
+// TODO: This doesn't have to be a custom layer. Redux mittleware?
 export const TimelineCanvasMarksInteraction = <
   EID extends string,
   LID extends string,
@@ -38,45 +38,29 @@ export const TimelineCanvasMarksInteraction = <
   onHover,
   onSelect,
 }: TimelineCanvasMarksInteractionProps<EID, LID, E>) => {
-  const theme = useTheme()
+  useEffect(() => {
+    if (cursorPosition !== CursorPositionNone) {
+      const cursorPositionMillisX = xScale.invert(cursorPosition.x)
+
+      const nearestLane =
+        laneDisplayMode === 'expanded'
+          ? least(lanes, (lane) => diff(yScale(lane.laneId) ?? height / 2, cursorPosition.y))
+          : null
+
+      const nearestPoint = getNearestPoint(
+        laneDisplayMode === 'expanded' && nearestLane !== null
+          ? events.filter((event) => event.laneId === nearestLane?.laneId)
+          : events,
+        cursorPositionMillisX
+      )
+
+      if (nearestPoint) {
+        onHover(nearestPoint.eventId as EntityId)
+      }
+    }
+  }, [cursorPosition, events, laneDisplayMode, lanes, onHover, yScale, height, xScale])
 
   // TODO: Performance (throttling and faster point/lane lookup with sorted events)
-  // TODO: Hover and selection --> Hover the nearest automatically (not the one under the cursor)
-
-  if (cursorPosition !== CursorPositionNone) {
-    const cursorPositionMillisX = xScale.invert(cursorPosition.x)
-
-    const nearestLane =
-      laneDisplayMode === 'expanded'
-        ? least(lanes, (lane) => diff(yScale(lane.laneId) ?? height / 2, cursorPosition.y))
-        : null
-
-    const nearestPoint = getNearestPoint(
-      laneDisplayMode === 'expanded' && nearestLane !== null
-        ? events.filter((event) => event.laneId === nearestLane?.laneId)
-        : events,
-      cursorPositionMillisX
-    )
-
-    if (nearestPoint) {
-      const x = Math.round(xScale(nearestPoint.startTimeMillis))
-      const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(nearestPoint.laneId) ?? height / 2)
-
-      return (
-        <circle
-          cx={x}
-          cy={y}
-          r={10}
-          fill={nearestPoint.color}
-          stroke={theme.palette.text.primary}
-          strokeWidth={2}
-          onClick={() => onSelect(nearestPoint.eventId as EntityId)}
-          onMouseEnter={() => onHover(nearestPoint.eventId as EntityId)}
-          onMouseLeave={() => onHover(EntityIdNone)}
-        ></circle>
-      )
-    }
-  }
 
   return null
 }
