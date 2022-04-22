@@ -10,11 +10,11 @@ import {
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { useTheme } from '@mui/material'
 
-import { TimelineCanvasMarks } from './TimelineCanvasMarks'
-import { TimelineCanvasMarksInteraction } from '../containers/TimelineCanvasMarksInteraction'
+import { TimelineCanvasMarksLayer } from './TimelineCanvasMarks'
+import { TimelineCanvasMarksInteractionLayer } from '../containers/TimelineCanvasMarksInteraction'
 import { MouseAwareSvg } from './MouseAwareSvg'
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
-import { TimelineActiveMarks } from '../containers/TimelineActiveMarks'
+import { TimelineActiveMarksLayer } from '../containers/TimelineActiveMarks'
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, any>>
@@ -64,10 +64,10 @@ export const TimelineView = ({
                 layers={[
                   'grid',
                   'axes',
-                  TimelineCanvasMarks,
+                  TimelineCanvasMarksLayer,
                   'interaction',
-                  TimelineCanvasMarksInteraction,
-                  TimelineActiveMarks,
+                  TimelineCanvasMarksInteractionLayer,
+                  TimelineActiveMarksLayer,
                 ]}
               />
             </MouseAwareSvg>

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { CustomLayer, TimelineEvent } from 'react-svg-timeline'
+import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 
 import { useHoveredActiveEntityAsEvent, useSelectedActiveEntityAsEvent } from '../hooks'
 
@@ -8,7 +8,9 @@ import { TimelineActiveMarks as TimelineActiveMarksComponent } from '../componen
 import { useTheme } from '@mui/material'
 import { useEntityInteraction } from '../../data/hooks'
 
-export const TimelineActiveMarks: CustomLayer = (props) => {
+const TimelineActiveMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>(
+  props: CustomLayerProps<EID, LID, E>
+) => {
   const theme = useTheme()
 
   const { onEntityClick, onEntityHover } = useEntityInteraction()
@@ -26,4 +28,10 @@ export const TimelineActiveMarks: CustomLayer = (props) => {
       onSelect={onEntityClick}
     />
   )
+}
+
+// A passthrough component is needed to prevent the whole timeline from re-rendering
+// when the container hooks change.
+export const TimelineActiveMarksLayer: CustomLayer = (props) => {
+  return <TimelineActiveMarks {...props} />
 }

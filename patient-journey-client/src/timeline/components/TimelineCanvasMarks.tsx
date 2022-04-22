@@ -7,7 +7,7 @@ import { scaleSqrt } from 'd3-scale'
 
 import { makeStyles } from '../../utils'
 
-import { CustomLayer, TimelineEvent } from 'react-svg-timeline'
+import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { TIMELINE_MARK_SIZE } from './SvgMark'
 
 type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
@@ -19,7 +19,7 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-export const TimelineCanvasMarks: CustomLayer = ({
+const TimelineCanvasMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>({
   height,
   width,
   events,
@@ -27,7 +27,7 @@ export const TimelineCanvasMarks: CustomLayer = ({
   laneDisplayMode,
   yScale,
   eventClusters,
-}) => {
+}: CustomLayerProps<EID, LID, E>) => {
   const { classes } = useStyles()
   const theme = useTheme()
 
@@ -114,6 +114,12 @@ export const TimelineCanvasMarks: CustomLayer = ({
       <canvas ref={canvasRef} width={width} height={height} className={classes.layer}></canvas>
     </foreignObject>
   )
+}
+
+// A passthrough component is needed to prevent the whole timeline from re-rendering
+// when the components hooks change.
+export const TimelineCanvasMarksLayer: CustomLayer = (props) => {
+  return <TimelineCanvasMarks {...props} />
 }
 
 export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {

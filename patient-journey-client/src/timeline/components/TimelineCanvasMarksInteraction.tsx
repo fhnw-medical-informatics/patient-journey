@@ -47,6 +47,7 @@ export const TimelineCanvasMarksInteraction = <
           ? least(lanes, (lane) => diff(yScale(lane.laneId) ?? height / 2, cursorPosition.y))
           : null
 
+      // NOTE: We could use d3.bisect with sorted events here, if this is a performance issue in the future.
       const nearestPoint = getNearestPoint(
         laneDisplayMode === 'expanded' && nearestLane !== null
           ? events.filter((event) => event.laneId === nearestLane?.laneId)
@@ -59,8 +60,6 @@ export const TimelineCanvasMarksInteraction = <
       }
     }
   }, [cursorPosition, events, laneDisplayMode, lanes, onHover, yScale, height, xScale])
-
-  // TODO: Performance (throttling and faster point/lane lookup with sorted events)
 
   return null
 }
