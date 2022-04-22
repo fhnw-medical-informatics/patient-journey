@@ -7,7 +7,7 @@ export interface DataColumn<T> {
   readonly index: number
 }
 
-export const GENERIC_COLUMN_TYPES = ['string', 'boolean', 'number', 'date', 'timestamp', 'quality'] as const
+export const GENERIC_COLUMN_TYPES = ['string', 'boolean', 'number', 'date', 'timestamp', 'category'] as const
 
 const isEmpty = (s: string) => s.trim().length === 0
 
@@ -70,8 +70,8 @@ export const extractDateValueSafe =
     }
   }
 
-export const extractQualityValueSafe =
-  (column: DataColumn<'quality'>) =>
+export const extractCategoryValueSafe =
+  (column: DataColumn<'category'>) =>
   (entity: Entity): [string] | [] => {
     const value = entity.values[column.index] ?? ''
     if (value === undefined || value.trim().length === 0) {

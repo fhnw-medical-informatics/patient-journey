@@ -102,7 +102,7 @@ export const useColor = (): ColorByFn => {
           return getColorByNumber(+getFieldValue(entity, colorByColumn))
         case 'boolean':
         case 'string':
-        case 'quality':
+        case 'category':
           return getColorByCategory(getFieldValue(entity, colorByColumn))
         default:
           return defaultColor

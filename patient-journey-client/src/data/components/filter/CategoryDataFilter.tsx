@@ -5,21 +5,21 @@ import MenuItem from '@mui/material/MenuItem'
 
 import { createFilter, Filter } from '../../filtering'
 import { DataColumn } from '../../columns'
-import { useUniqueActiveDataQualities } from '../../hooks'
+import { useUniqueActiveDataCategories } from '../../hooks'
 import { Checkbox, FormControl, InputLabel, ListItemText } from '@mui/material'
 
-export interface QualityDataFilterProps extends Filter<'quality'> {
-  column: DataColumn<'quality'>
-  onChange: (filter: Filter<'quality'>) => void
-  onRemove: (filter: Filter<'quality'>) => void
+export interface CategoryDataFilterProps extends Filter<'category'> {
+  column: DataColumn<'category'>
+  onChange: (filter: Filter<'category'>) => void
+  onRemove: (filter: Filter<'category'>) => void
 }
 
-export const QualityDataFilter = ({ column, type, value, onChange, onRemove }: QualityDataFilterProps) => {
-  const uniqueQualities = useUniqueActiveDataQualities(column)
+export const CategoryDataFilter = ({ column, type, value, onChange, onRemove }: CategoryDataFilterProps) => {
+  const uniqueCategories = useUniqueActiveDataCategories(column)
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
     const selected = event.target.value as unknown as string[]
-    const filter = createFilter(column, type, { qualities: selected })
+    const filter = createFilter(column, type, { categories: selected })
 
     if (selected.length > 0) {
       onChange(filter)
@@ -29,17 +29,17 @@ export const QualityDataFilter = ({ column, type, value, onChange, onRemove }: Q
   }
 
   const renderValue = () => {
-    switch (value.qualities.length) {
+    switch (value.categories.length) {
       case 0:
         return null
       case 1:
-        return value.qualities[0]
+        return value.categories[0]
       default:
         return <i>{`${activeFilterCategories.length} Selected`}</i>
     }
   }
 
-  const activeFilterCategories = value.qualities !== [''] ? value.qualities : []
+  const activeFilterCategories = value.categories !== [''] ? value.categories : []
 
   return (
     <FormControl sx={{ width: '100%' }}>
@@ -54,12 +54,12 @@ export const QualityDataFilter = ({ column, type, value, onChange, onRemove }: Q
         variant="outlined"
         displayEmpty={true}
       >
-        {uniqueQualities.map((q) => {
-          const checked = activeFilterCategories.indexOf(q) > -1
+        {uniqueCategories.map((c) => {
+          const checked = activeFilterCategories.indexOf(c) > -1
           return (
-            <MenuItem key={q} value={q}>
+            <MenuItem key={c} value={c}>
               <Checkbox checked={checked} />
-              <ListItemText primary={q} />
+              <ListItemText primary={c} />
             </MenuItem>
           )
         })}
