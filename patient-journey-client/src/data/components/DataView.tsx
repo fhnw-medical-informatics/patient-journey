@@ -6,24 +6,31 @@ import SplitPane from 'react-split-pane'
 import { DataFilters } from '../containers/filter/DataFilters'
 import { Timeline } from '../../timeline/containers/Timeline'
 import { DataTable } from '../../table/containers/DataTable'
+import { InfoPanel } from '../containers/info/InfoPanel'
 
-const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '15%'
-const DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE = '60%'
+const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '20%'
+const DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE = '60%'
+const DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE = '80%'
 
 const useStyles = makeStyles()((theme) => ({
-  left: {
+  filters: {
     padding: theme.spacing(1),
     width: '100%',
     height: '100%',
     overflowY: 'auto',
     overflowX: 'hidden',
   },
-  top: {
+  info: {
     padding: theme.spacing(1),
     width: '100%',
     height: '100%',
   },
-  bottom: {
+  table: {
+    padding: theme.spacing(1),
+    width: '100%',
+    height: '100%',
+  },
+  timeline: {
     padding: theme.spacing(1),
     width: '100%',
     height: '100%',
@@ -42,8 +49,9 @@ const useStyles = makeStyles()((theme) => ({
 export const DataView = () => {
   const { classes } = useStyles()
   const theme = useTheme()
-  const [splitPaneHorizontalSize, setSplitPaneHorizontalSize] = useState<'default' | number>('default')
   const [splitPaneVerticalSize, setSplitPaneVerticalSize] = useState<'default' | number>('default')
+  const [splitPaneRightHorizontalSize, setSplitPaneRightHorizontalSize] = useState<'default' | number>('default')
+  const [splitPaneLeftHorizontalSize, setSplitPaneLeftHorizontalSize] = useState<'default' | number>('default')
 
   return (
     <SplitPane
@@ -55,14 +63,35 @@ export const DataView = () => {
         cursor: 'ew-resize',
       }}
     >
-      <div className={classes.left}>
-        <DataFilters />
-      </div>
       <SplitPane
         split={'horizontal'}
         resizerClassName={classes.resizer}
-        size={splitPaneHorizontalSize === 'default' ? DEFAULT_SPLIT_PANE_HORIZONTAL_SIZE : splitPaneHorizontalSize}
-        onChange={setSplitPaneHorizontalSize}
+        size={
+          splitPaneLeftHorizontalSize === 'default'
+            ? DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE
+            : splitPaneLeftHorizontalSize
+        }
+        onChange={setSplitPaneLeftHorizontalSize}
+        resizerStyle={{
+          cursor: 'ns-resize',
+        }}
+      >
+        <div className={classes.filters}>
+          <DataFilters />
+        </div>
+        <div className={classes.info}>
+          <InfoPanel />
+        </div>
+      </SplitPane>
+      <SplitPane
+        split={'horizontal'}
+        resizerClassName={classes.resizer}
+        size={
+          splitPaneRightHorizontalSize === 'default'
+            ? DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE
+            : splitPaneRightHorizontalSize
+        }
+        onChange={setSplitPaneRightHorizontalSize}
         resizerStyle={{
           cursor: 'ns-resize',
         }}
@@ -73,10 +102,10 @@ export const DataView = () => {
           backgroundColor: theme.palette.background.paper,
         }}
       >
-        <div className={classes.top}>
+        <div className={classes.table}>
           <DataTable />
         </div>
-        <div className={classes.bottom}>
+        <div className={classes.timeline}>
           <Timeline />
         </div>
       </SplitPane>
