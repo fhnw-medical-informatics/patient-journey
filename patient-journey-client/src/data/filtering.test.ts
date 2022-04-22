@@ -269,7 +269,7 @@ describe('Filter Reducer', () => {
     const qualityFilter: Filter<'quality'> = {
       column: mockColumns[5],
       type: 'quality',
-      value: { text: 'A' },
+      value: { qualities: ['A'] },
     }
 
     const filteredData = filterReducer(mockData, qualityFilter)
@@ -281,18 +281,18 @@ describe('Filter Reducer', () => {
     const qualityFilter: Filter<'quality'> = {
       column: mockColumns[5],
       type: 'quality',
-      value: { text: 'O−' },
+      value: { qualities: ['O−'] },
     }
 
     const filteredData = filterReducer(mockData, qualityFilter)
     expect(filteredData.length).toBe(0)
   })
 
-  it('should handle a qualitative filter with an empty value', () => {
+  it('should handle a qualitative filter with multiple values', () => {
     const qualityFilter: Filter<'quality'> = {
       column: mockColumns[5],
       type: 'quality',
-      value: { text: '' },
+      value: { qualities: ['A', 'B'] },
     }
 
     const filteredData = filterReducer(mockData, qualityFilter)

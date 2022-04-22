@@ -85,7 +85,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
         <QualityDataFilter
           column={column as DataColumn<'quality'>}
           type={type}
-          value={(filter as Filter<'quality'> | undefined)?.value ?? { text: '' }}
+          value={(filter as Filter<'quality'> | undefined)?.value ?? { qualities: [] }}
           onChange={onAddFilter}
           onRemove={onRemoveFilter}
         />
