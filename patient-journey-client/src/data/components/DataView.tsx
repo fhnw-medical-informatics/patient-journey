@@ -49,7 +49,7 @@ export const DataView = () => {
     <SplitPane
       split={'vertical'}
       resizerClassName={classes.resizer}
-      size={splitPaneHorizontalSize === 'default' ? DEFAULT_SPLIT_PANE_VERTICAL_SIZE : splitPaneVerticalSize}
+      size={splitPaneVerticalSize === 'default' ? DEFAULT_SPLIT_PANE_VERTICAL_SIZE : splitPaneVerticalSize}
       onChange={setSplitPaneVerticalSize}
       resizerStyle={{
         cursor: 'ew-resize',
