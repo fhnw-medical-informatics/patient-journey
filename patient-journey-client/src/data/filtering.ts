@@ -24,7 +24,7 @@ type FilterValue = {
   pid: TextFilterValue
   date: TimestampFilterValue
   timestamp: TimestampFilterValue
-  quality: TextFilterValue
+  quality: QualityFilterValue
 }
 
 interface TextFilterValue {
@@ -54,6 +54,10 @@ interface BooleanFilterValue {
 }
 
 export const QualityFilterNone = ''
+
+interface QualityFilterValue {
+  qualities: string[]
+}
 
 export const createFilter = <T extends FilterColumn['type']>(
   column: FilterColumn,
@@ -145,11 +149,9 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
     case 'quality':
       return data.filter((row) => {
         const fieldValue = getFieldValue(row, filter)
+        const categories = new Set((filter as Filter<'quality'>).value.qualities)
 
-        return (
-          fieldValue.isValid &&
-          fieldValue.value.toLowerCase().includes((filter as Filter<'quality'>).value.text.toLowerCase())
-        )
+        return fieldValue.isValid && categories.has(fieldValue.value)
       })
     default:
       throw new Error(`Filter for type '${filter.type}' is not yet implemented`)
