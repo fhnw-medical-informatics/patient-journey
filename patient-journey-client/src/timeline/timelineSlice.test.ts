@@ -2,8 +2,12 @@ import {
   setViewByColumn,
   setExpandByColumn,
   setTimelineCluster,
+  setCursorPosition,
+  resetCursorPosition,
   TimelineColumnNone,
   TimelineColumn,
+  CursorPositionNone,
+  CursorPosition,
 } from './timelineSlice'
 
 import { createStore } from '../store'
@@ -52,5 +56,40 @@ describe('Timeline Slice', () => {
 
     store.dispatch(setTimelineCluster())
     expect(getCluster()).toEqual(false)
+  })
+
+  it('handles setCursorPosition action', async () => {
+    const store = createStore()
+
+    const getCursorPosition = () => store.getState().timeline.cursorPosition
+
+    expect(getCursorPosition()).toEqual(CursorPositionNone)
+
+    const testPosition: CursorPosition = {
+      x: 1,
+      y: 2,
+    }
+
+    store.dispatch(setCursorPosition(testPosition))
+    expect(getCursorPosition()).toEqual(testPosition)
+  })
+
+  it('handles resetCursorPosition action', async () => {
+    const store = createStore()
+
+    const getCursorPosition = () => store.getState().timeline.cursorPosition
+
+    expect(getCursorPosition()).toEqual(CursorPositionNone)
+
+    const testPosition: CursorPosition = {
+      x: 1,
+      y: 2,
+    }
+
+    store.dispatch(setCursorPosition(testPosition))
+    expect(getCursorPosition()).toEqual(testPosition)
+
+    store.dispatch(resetCursorPosition())
+    expect(getCursorPosition()).toEqual(CursorPositionNone)
   })
 })

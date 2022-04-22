@@ -8,10 +8,13 @@ import {
   deriveTimelineTheme,
 } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
-import { EntityId, EntityIdNone } from '../../data/entities'
 import { useTheme } from '@mui/material'
 
-import { TimelineCanvasMarks } from './TimelineCanvasMarks'
+import { TimelineCanvasMarksLayer } from './TimelineCanvasMarks'
+import { TimelineCanvasMarksInteractionLayer } from '../containers/TimelineCanvasMarksInteraction'
+import { MouseAwareSvg } from './MouseAwareSvg'
+import { CursorPosition, CursorPositionNone } from '../timelineSlice'
+import { TimelineActiveMarksLayer } from '../containers/TimelineActiveMarks'
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, any>>
@@ -19,8 +22,7 @@ interface TimelineProps {
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   enableClustering: boolean
-  onHover: (eventId: EntityId) => void
-  onSelect: (eventId: EntityId) => void
+  onCursorPositionChange: (cursorPosition: CursorPosition) => void
 }
 
 export const TimelineView = ({
@@ -29,8 +31,7 @@ export const TimelineView = ({
   dateFormat,
   laneDisplayMode,
   enableClustering,
-  onSelect,
-  onHover,
+  onCursorPositionChange,
 }: TimelineProps) => {
   const muiTheme = useTheme()
   const timelineTheme = deriveTimelineTheme(muiTheme.palette.mode, muiTheme)
@@ -44,22 +45,32 @@ export const TimelineView = ({
       <AutoSizer>
         {({ width, height }: Size) => {
           return (
-            <SVGTimeline
-              width={width}
+            <MouseAwareSvg
               height={height}
-              events={events}
-              lanes={lanes}
-              dateFormat={dateFormat}
-              laneDisplayMode={laneDisplayMode}
-              enableEventClustering={enableClustering}
-              theme={timelineTheme}
-              onEventClick={onSelect}
-              onEventHover={onHover}
-              onEventUnhover={() => {
-                onHover(EntityIdNone)
+              width={width}
+              onMouseMove={({ x, y }) => {
+                onCursorPositionChange(!isNaN(x) && !isNaN(y) ? { x, y } : CursorPositionNone)
               }}
-              layers={['grid', 'axes', TimelineCanvasMarks, 'interaction']}
-            />
+            >
+              <SVGTimeline
+                width={width}
+                height={height}
+                events={events}
+                lanes={lanes}
+                dateFormat={dateFormat}
+                laneDisplayMode={laneDisplayMode}
+                enableEventClustering={enableClustering}
+                theme={timelineTheme}
+                layers={[
+                  'grid',
+                  'axes',
+                  TimelineCanvasMarksLayer,
+                  'interaction',
+                  TimelineCanvasMarksInteractionLayer,
+                  TimelineActiveMarksLayer,
+                ]}
+              />
+            </MouseAwareSvg>
           )
         }}
       </AutoSizer>
