@@ -88,9 +88,6 @@ If no `eid` column exists, the row index is used as a fallback.
 
 The first column of type `pid` is used to link events to patients.
 
-&copy; FHNW Medical Decision Support Systems Group 2022 – link:LICENSE[MIT License]
-
-
 == Deployment
 
 To deploy the application, follow these steps:
@@ -99,3 +96,5 @@ To deploy the application, follow these steps:
 2. Run `yarn deploy`
 3. Follow the instructions to deploy the application
 4. Access the application via https://pub.ima.lifesciences.fhnw.ch/pj/app/[https://pub.ima.lifesciences.fhnw.ch/pj/app/]
+
+&copy; FHNW Medical Decision Support Systems Group 2022 – link:LICENSE[MIT License]
