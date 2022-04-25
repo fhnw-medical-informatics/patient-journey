@@ -1,16 +1,19 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
-  selectDataView,
-  selectSelectedActiveEntity,
-  selectHoveredActiveEntity,
-  selectFilteredActiveData,
-  selectActiveDataColumns,
   selectActiveData,
+  selectActiveDataColumns,
+  selectActiveEntity,
+  selectAllActiveDataQualities,
   selectAllFilters,
   selectCurrentColorColumnNumberRange,
-  selectDataLoadingState,
   selectDataLoadingErrorMessage,
-  selectAllActiveDataQualities,
+  selectDataLoadingState,
+  selectDataView,
+  selectEidColumnName,
+  selectFilteredActiveData,
+  selectHoveredActiveEntity,
+  selectPidColumnName,
+  selectSelectedActiveEntity,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
@@ -29,6 +32,10 @@ export const useAllFilters = () => useAppSelector(selectAllFilters)
 
 export const useActiveSelectedEntity = () => useAppSelector(selectSelectedActiveEntity)
 export const useActiveHoveredEntity = () => useAppSelector(selectHoveredActiveEntity)
+export const useActiveEntity = () => useAppSelector(selectActiveEntity)
+
+export const usePidColumnName = () => useAppSelector(selectPidColumnName)
+export const useEidColumnName = () => useAppSelector(selectEidColumnName)
 
 export interface EntityInteraction {
   readonly selectedEntity: EntityId

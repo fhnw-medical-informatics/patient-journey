@@ -86,6 +86,30 @@ export const selectHoveredActiveEntity = (s: RootState): EntityId => {
   }
 }
 
+export const selectActiveEntity = createSelector(
+  selectSelectedActiveEntity,
+  selectHoveredActiveEntity,
+  (selected, hovered) => {
+    return hovered !== EntityIdNone ? hovered : selected
+  }
+)
+
+export const selectPidColumnName = (s: RootState): string => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.patientData.columns.find((c) => c.type === 'pid')!.name
+  } else {
+    return 'Patient ID'
+  }
+}
+
+export const selectEidColumnName = (s: RootState): string => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.eventData.columns.find((c) => c.type === 'eid')!.name
+  } else {
+    return 'Event ID'
+  }
+}
+
 export const selectDataView = (s: RootState): ActiveDataViewType => {
   if (s.data.type === 'loading-complete') {
     return s.data.view
