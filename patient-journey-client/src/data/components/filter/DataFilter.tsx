@@ -6,7 +6,7 @@ import { BooleanDataFilter } from './BooleanDataFilter'
 import { DateDataFilter } from './DateDataFilter'
 import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
-import { QualityDataFilter } from './QualityDataFilter'
+import { CategoryDataFilter } from './CategoryDataFilter'
 import { DataColumn } from '../../columns'
 
 export interface DataFilterProps<T extends FilterColumn['type']> {
@@ -80,12 +80,12 @@ export const DataFilter = <T extends FilterColumn['type']>({
           onRemove={onRemoveFilter}
         />
       )
-    case 'quality':
+    case 'category':
       return (
-        <QualityDataFilter
-          column={column as DataColumn<'quality'>}
+        <CategoryDataFilter
+          column={column as DataColumn<'category'>}
           type={type}
-          value={(filter as Filter<'quality'> | undefined)?.value ?? { text: '' }}
+          value={(filter as Filter<'category'> | undefined)?.value ?? { categories: [] }}
           onChange={onAddFilter}
           onRemove={onRemoveFilter}
         />

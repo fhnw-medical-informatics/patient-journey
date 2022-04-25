@@ -1,7 +1,12 @@
 import React, { useCallback } from 'react'
 import { useColor } from '../../color/useColor'
 import { DataTable as DataTableComponent } from '../components/DataTable'
-import { useActiveDataColumns, useEntityInteraction, useFilteredActiveData } from '../../data/hooks'
+import {
+  useActiveDataColumns,
+  useActiveSelectedEntity,
+  useEntityInteraction,
+  useFilteredActiveData,
+} from '../../data/hooks'
 import { useActiveTableState } from '../hooks'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { setSorting } from '../tableSlice'
@@ -15,7 +20,8 @@ export const DataTable = () => {
   const activeTableState = useActiveTableState()
   const [colorByColumnFn, , , colorByColumn] = useColor()
 
-  const { onEntityClick, onEntityHover, selectedEntity, hoveredEntity } = useEntityInteraction()
+  const { onEntityClick, onEntityHover } = useEntityInteraction()
+  const selectedEntityId = useActiveSelectedEntity()
 
   const dispatch = useAppDispatch()
 
@@ -28,9 +34,8 @@ export const DataTable = () => {
     <DataTableComponent
       rows={activeData}
       columns={activeColumns}
-      selectedEntity={selectedEntity}
-      hoveredEntity={hoveredEntity}
       sorting={activeTableState.sorting}
+      selectedEntity={selectedEntityId}
       onEntityClick={onEntityClick}
       onEntityHover={onEntityHover}
       onSortingChange={onSortingChange}

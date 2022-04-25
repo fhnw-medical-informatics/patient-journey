@@ -42,7 +42,7 @@ const mockColumns: ReadonlyArray<PatientDataColumn> = [
   },
   {
     name: 'Blood Type',
-    type: 'quality',
+    type: 'category',
     index: 5,
   },
 ]
@@ -265,37 +265,37 @@ describe('Filter Reducer', () => {
     expect(filteredData[0].uid).toBe('1')
   })
 
-  it('should handle a qualitative filter', () => {
-    const qualityFilter: Filter<'quality'> = {
+  it('should handle a categorical filter', () => {
+    const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
-      type: 'quality',
-      value: { text: 'A' },
+      type: 'category',
+      value: { categories: ['A'] },
     }
 
-    const filteredData = filterReducer(mockData, qualityFilter)
+    const filteredData = filterReducer(mockData, categoryFilter)
     expect(filteredData.length).toBe(1)
     expect(filteredData[0].uid).toBe('1')
   })
 
-  it('should handle a qualitative filter with a non-existing quality', () => {
-    const qualityFilter: Filter<'quality'> = {
+  it('should handle a categorical filter with a non-existing category', () => {
+    const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
-      type: 'quality',
-      value: { text: 'O−' },
+      type: 'category',
+      value: { categories: ['O−'] },
     }
 
-    const filteredData = filterReducer(mockData, qualityFilter)
+    const filteredData = filterReducer(mockData, categoryFilter)
     expect(filteredData.length).toBe(0)
   })
 
-  it('should handle a qualitative filter with an empty value', () => {
-    const qualityFilter: Filter<'quality'> = {
+  it('should handle a categorical filter with multiple values', () => {
+    const categoryFilter: Filter<'category'> = {
       column: mockColumns[5],
-      type: 'quality',
-      value: { text: '' },
+      type: 'category',
+      value: { categories: ['A', 'B'] },
     }
 
-    const filteredData = filterReducer(mockData, qualityFilter)
+    const filteredData = filterReducer(mockData, categoryFilter)
     expect(filteredData.length).toBe(2)
     expect(filteredData[0].uid).toBe('1')
     expect(filteredData[1].uid).toBe('2')

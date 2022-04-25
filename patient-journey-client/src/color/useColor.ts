@@ -67,40 +67,51 @@ export const useColor = (): ColorByFn => {
     [theme.palette.mode]
   )
 
-  const getColorByCategory = (category?: string) => (category ? colorScaleCategory(category) : defaultColor)
+  const getColorByCategory = useCallback(
+    (category?: string) => (category ? colorScaleCategory(category) : defaultColor),
+    [colorScaleCategory, defaultColor]
+  )
 
-  const getColorByNumber = (value?: number) =>
-    value && numberRange ? colorScaleNumber((value - numberRange[0]) / (numberRange[1] - numberRange[0])) : defaultColor
+  const getColorByNumber = useCallback(
+    (value?: number) =>
+      value && numberRange
+        ? colorScaleNumber((value - numberRange[0]) / (numberRange[1] - numberRange[0]))
+        : defaultColor,
+    [colorScaleNumber, defaultColor, numberRange]
+  )
 
-  const getColorByColumn = (entity?: Entity) => {
-    if (!entity || colorByColumn === ColorByColumnNone) {
-      return defaultColor
-    }
-
-    switch (colorByColumn.type) {
-      // case 'boolean':
-      //   return priorityColorScale(getTicketFieldValue(colorByField, ticket) as Priority, theme)
-      // case 'status':
-      //   return statusColorScale(getTicketFieldValue(colorByField, ticket) as Status, theme)
-      // case 'assignee':
-      // case 'creator':
-      // case 'title':
-      //   return getColorByCategory(getTicketFieldValue(colorByField, ticket) as string)
-      case 'date':
-        return getColorByNumber(stringToMillis(getFieldValue(entity, colorByColumn)))
-      case 'timestamp':
-      case 'number':
-        return getColorByNumber(+getFieldValue(entity, colorByColumn))
-      case 'boolean':
-      case 'string':
-      case 'quality':
-        return getColorByCategory(getFieldValue(entity, colorByColumn))
-      default:
+  const getColorByColumn = useCallback(
+    (entity?: Entity) => {
+      if (!entity || colorByColumn === ColorByColumnNone) {
         return defaultColor
-    }
-  }
+      }
 
-  return [(entity?: Entity) => getColorByColumn(entity), getColorByCategory, getColorByNumber, colorByColumn]
+      switch (colorByColumn.type) {
+        // case 'boolean':
+        //   return priorityColorScale(getTicketFieldValue(colorByField, ticket) as Priority, theme)
+        // case 'status':
+        //   return statusColorScale(getTicketFieldValue(colorByField, ticket) as Status, theme)
+        // case 'assignee':
+        // case 'creator':
+        // case 'title':
+        //   return getColorByCategory(getTicketFieldValue(colorByField, ticket) as string)
+        case 'date':
+          return getColorByNumber(stringToMillis(getFieldValue(entity, colorByColumn)))
+        case 'timestamp':
+        case 'number':
+          return getColorByNumber(+getFieldValue(entity, colorByColumn))
+        case 'boolean':
+        case 'string':
+        case 'category':
+          return getColorByCategory(getFieldValue(entity, colorByColumn))
+        default:
+          return defaultColor
+      }
+    },
+    [colorByColumn, defaultColor, getColorByCategory, getColorByNumber]
+  )
+
+  return [getColorByColumn, getColorByCategory, getColorByNumber, colorByColumn]
 }
 
 const getFieldValue = (entity: Entity, column: FilterColumn): string => {

@@ -136,7 +136,7 @@ export const ControlPanel = ({
                     <i>{'Collapsed'}</i>
                   </MenuItem>
                   {availableColumns
-                    .filter((column) => ['pid', 'boolean', 'string', 'quality'].includes(column.type))
+                    .filter((column) => ['pid', 'boolean', 'string', 'category'].includes(column.type))
                     .map((column) => (
                       <MenuItem key={column.name} value={column.name}>
                         {column.name}
@@ -160,7 +160,7 @@ export const ControlPanel = ({
                   </MenuItem>
                   {availableColumns
                     .filter((column) =>
-                      ['timestamp', 'date', 'number', 'boolean', 'string', 'quality'].includes(column.type)
+                      ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
                     )
                     .map((column) => (
                       <MenuItem key={column.name} value={column.name}>

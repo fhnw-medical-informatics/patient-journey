@@ -4,8 +4,8 @@ import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
-import { extractQualityValueSafe } from '../../columns'
-import { useAllActiveDataQualities, useUniqueActiveDataQualities } from '../../hooks'
+import { extractCategoryValueSafe } from '../../columns'
+import { useAllActiveDataCategories, useUniqueActiveDataCategories } from '../../hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -20,20 +20,20 @@ const useStyles = makeStyles()((theme) => ({
 
 interface BinDatum {
   readonly binIndex: number
-  readonly quality: string
+  readonly category: string
   readonly filteredIn: number
   readonly filteredOut: number
 }
 
-export type QualityDiagramProps = DataDiagramsProps<'quality'>
+export type CategoryDiagramProps = DataDiagramsProps<'category'>
 
-export const QualityDataDiagram = ({
+export const CategoryDataDiagram = ({
   allActiveData,
   filteredActiveData,
   column,
   colorByColumn,
   colorByCategoryFn,
-}: QualityDiagramProps) => {
+}: CategoryDiagramProps) => {
   const { classes } = useStyles()
   const theme = useTheme()
 
@@ -41,39 +41,39 @@ export const QualityDataDiagram = ({
     if (node.id === 'filteredOut') {
       return greyColor(theme)
     } else {
-      return colorByCategoryFn(node?.data?.quality.valueOf())
+      return colorByCategoryFn(node?.data?.category.valueOf())
     }
   }
 
-  const filteredQualities = useMemo(() => {
-    const extractValue = extractQualityValueSafe(column)
+  const filteredCategories = useMemo(() => {
+    const extractValue = extractCategoryValueSafe(column)
     return filteredActiveData.flatMap(extractValue)
   }, [filteredActiveData, column])
 
-  const allQualities = useAllActiveDataQualities(column)
-  const uniqueQualities = useUniqueActiveDataQualities(column)
+  const allCategories = useAllActiveDataCategories(column)
+  const uniqueCategories = useUniqueActiveDataCategories(column)
 
   const data = useMemo(() => {
-    return uniqueQualities.map<BinDatum>((quality: string, binIndex: number) => {
-      const predicate = (t: string) => t === quality
+    return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {
+      const predicate = (t: string) => t === category
 
-      const allCount = allQualities.filter(predicate).length
-      const filteredCount = filteredQualities.filter(predicate).length
+      const allCount = allCategories.filter(predicate).length
+      const filteredCount = filteredCategories.filter(predicate).length
       const filteredIn = filteredCount
       const filteredOut = allCount - filteredCount
       return {
         binIndex,
         filteredIn,
         filteredOut,
-        quality,
+        category,
       }
     })
-  }, [allQualities, filteredQualities, uniqueQualities])
+  }, [allCategories, filteredCategories, uniqueCategories])
 
   const tooltip = useCallback(
     ({ index }) => {
       const d = data[index]
-      const title = `${d.quality}`
+      const title = `${d.category}`
       return <div className={classes.tooltipText}>{title}</div>
     },
     [data, classes]
