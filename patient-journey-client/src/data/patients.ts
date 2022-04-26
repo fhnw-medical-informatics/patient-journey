@@ -1,6 +1,6 @@
 import { DataColumn, GENERIC_COLUMN_TYPES } from './columns'
 import { ParseResult } from 'papaparse'
-import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
+import { DataEntity, Entity, EntityId } from './entities'
 import { noOp } from '../utils'
 
 export const PATIENT_ID_COLUMN_TYPE = 'pid' as const
@@ -24,8 +24,6 @@ export interface PatientData extends DataEntity<Patient, PatientDataColumn> {}
 export const EMPTY_PATIENT_DATA: PatientData = {
   columns: [],
   allEntities: [],
-  selectedEntity: EntityIdNone,
-  hoveredEntity: EntityIdNone,
 }
 
 export const createPatientData = (

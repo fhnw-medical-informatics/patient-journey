@@ -1,10 +1,9 @@
 import { AnyAction, createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { GenericFilter } from './filtering'
-import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
+import { EntityId, EntityIdNone } from './entities'
 import { EVENT_DATA_FILE_URL, loadData as loadDataImpl, LoadedData, PATIENT_DATA_FILE_URL } from './loading'
 import { addAlerts } from '../alert/alertSlice'
 import { Dispatch } from 'redux'
-import { DataColumn } from './columns'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -24,7 +23,9 @@ export type DataStateLoadingComplete = Readonly<{
 }> &
   LoadedData &
   ActiveDataView &
-  Filters
+  Filters &
+  Hovering &
+  Selection
 
 export const ACTIVE_DATA_VIEWS = ['patients', 'events'] as const
 export type ActiveDataViewType = typeof ACTIVE_DATA_VIEWS[number]
@@ -35,6 +36,21 @@ interface ActiveDataView {
 
 interface Filters {
   readonly filters: ReadonlyArray<GenericFilter>
+}
+
+export interface FocusEntity {
+  readonly type: 'patient' | 'event' | 'none'
+  readonly uid: EntityId
+}
+
+const FOCUS_ENTITY_NONE: FocusEntity = { type: 'none', uid: EntityIdNone }
+
+interface Hovering {
+  readonly hovered: FocusEntity
+}
+
+interface Selection {
+  readonly selected: FocusEntity
 }
 
 export type DataState =
@@ -58,17 +74,23 @@ const dataSlice = createSlice({
       type: 'loading-complete',
       filters: [],
       view: 'patients',
+      hovered: FOCUS_ENTITY_NONE,
+      selected: FOCUS_ENTITY_NONE,
       ...action.payload,
     }),
-    setSelectedEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
-      mutateActiveEntityData(
-        state,
-        (data) =>
-          (data.selectedEntity = data.selectedEntity === action.payload ? EntityIdNone : (action.payload as EntityId))
-      )
+    setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.hovered = action.payload
+      })
     },
-    setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<string>) => {
-      mutateActiveEntityData(state, (data) => (data.hoveredEntity = action.payload as EntityId))
+    setSelectedEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
+      mutateLoadedDataState(state, (s) => {
+        if (s.selected === action.payload) {
+          s.selected = FOCUS_ENTITY_NONE
+        } else {
+          s.selected = action.payload
+        }
+      })
     },
     addDataFilter: (state: Draft<DataState>, action: PayloadAction<GenericFilter>) => {
       mutateFilterData(state, (data) => {
@@ -95,23 +117,17 @@ const dataSlice = createSlice({
       filters: [],
     }),
     setDataView: (state: Draft<DataState>, action: PayloadAction<ActiveDataViewType>) => {
-      mutateDataViewData(state, (data) => {
+      mutateLoadedDataState(state, (data) => {
         data.view = action.payload
       })
     },
   },
 })
 
-const mutateActiveEntityData = (
+const mutateLoadedDataState = (
   state: Draft<DataState>,
-  applyMutation: (data: Draft<DataEntity<Entity, DataColumn<string>>>) => void
+  applyMutation: (data: Draft<DataStateLoadingComplete>) => void
 ) => {
-  if (state.type === 'loading-complete') {
-    applyMutation(state.view === 'patients' ? state.patientData : state.eventData)
-  }
-}
-
-const mutateDataViewData = (state: Draft<DataState>, applyMutation: (data: Draft<ActiveDataView>) => void) => {
   if (state.type === 'loading-complete') {
     applyMutation(state)
   }

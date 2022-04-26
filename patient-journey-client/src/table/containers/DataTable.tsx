@@ -3,9 +3,9 @@ import { useColor } from '../../color/useColor'
 import { DataTable as DataTableComponent } from '../components/DataTable'
 import {
   useActiveDataColumns,
-  useActiveSelectedEntity,
-  useEntityInteraction,
+  useActiveEntityInteraction,
   useFilteredActiveData,
+  useActiveSelectedEntity,
 } from '../../data/hooks'
 import { useActiveTableState } from '../hooks'
 import { useAppDispatch, useAppSelector } from '../../store'
@@ -20,7 +20,7 @@ export const DataTable = () => {
   const activeTableState = useActiveTableState()
   const [colorByColumnFn, , , colorByColumn] = useColor()
 
-  const { onEntityClick, onEntityHover } = useEntityInteraction()
+  const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
   const selectedEntityId = useActiveSelectedEntity()
 
   const dispatch = useAppDispatch()

@@ -4,14 +4,22 @@ import { ColorByColumnNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
 import { DataColumn, extractCategoryValueSafe, stringToMillis } from './columns'
-import { ActiveDataViewType } from './dataSlice'
-import { EntityId, EntityIdNone } from './entities'
+import { ActiveDataViewType, FocusEntity } from './dataSlice'
 import { EMPTY_EVENT_DATA, EventData, EventDataColumn, PatientJourneyEvent } from './events'
 import { filterReducer, GenericFilter } from './filtering'
 import { EMPTY_PATIENT_DATA, Patient, PatientData, PatientDataColumn } from './patients'
+import { EntityIdNone } from './entities'
 
 export const selectDataLoadingState = (s: RootState) => {
   return s.data.type
+}
+
+export const selectDataView = (s: RootState): ActiveDataViewType => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.view
+  } else {
+    return 'patients'
+  }
 }
 
 export const selectDataLoadingErrorMessage = (s: RootState): string => {
@@ -70,29 +78,32 @@ export const selectActiveDataColumns = (s: RootState): ReadonlyArray<PatientData
   }
 }
 
-export const selectSelectedActiveEntity = (s: RootState): EntityId => {
+export const selectHoveredEntity = (s: RootState): FocusEntity => {
   if (s.data.type === 'loading-complete') {
-    return (s.data.view === 'patients' ? s.data.patientData : s.data.eventData).selectedEntity
+    return s.data.hovered
+  } else {
+    throw new Error('Illegal State')
+  }
+}
+
+export const selectSelectedEntity = (s: RootState): FocusEntity => {
+  if (s.data.type === 'loading-complete') {
+    return s.data.selected
+  } else {
+    throw new Error('Illegal State')
+  }
+}
+
+const selectActiveEntity = (view: ActiveDataViewType, entity: FocusEntity) => {
+  if ((view === 'patients' && entity.type === 'patient') || (view === 'events' && entity.type === 'event')) {
+    return entity.uid
   } else {
     return EntityIdNone
   }
 }
 
-export const selectHoveredActiveEntity = (s: RootState): EntityId => {
-  if (s.data.type === 'loading-complete') {
-    return (s.data.view === 'patients' ? s.data.patientData : s.data.eventData).hoveredEntity
-  } else {
-    return EntityIdNone
-  }
-}
-
-export const selectDataView = (s: RootState): ActiveDataViewType => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.view
-  } else {
-    return 'patients'
-  }
-}
+export const selectActiveSelectedEntity = createSelector(selectDataView, selectSelectedEntity, selectActiveEntity)
+export const selectActiveHoveredEntity = createSelector(selectDataView, selectHoveredEntity, selectActiveEntity)
 
 export const selectAllFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
   if (s.data.type === 'loading-complete') {

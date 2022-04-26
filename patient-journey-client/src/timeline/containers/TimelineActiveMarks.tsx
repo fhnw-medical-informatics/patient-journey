@@ -6,14 +6,14 @@ import { useHoveredActiveEntityAsEvent, useSelectedActiveEntityAsEvent } from '.
 
 import { TimelineActiveMarks as TimelineActiveMarksComponent } from '../components/TimelineActiveMarks'
 import { useTheme } from '@mui/material'
-import { useEntityInteraction } from '../../data/hooks'
+import { useActiveEntityInteraction } from '../../data/hooks'
 
 const TimelineActiveMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>(
   props: CustomLayerProps<EID, LID, E>
 ) => {
   const theme = useTheme()
 
-  const { onEntityClick, onEntityHover } = useEntityInteraction()
+  const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
 
   const selectedEvent = useSelectedActiveEntityAsEvent()
   const hoveredEvent = useHoveredActiveEntityAsEvent()
