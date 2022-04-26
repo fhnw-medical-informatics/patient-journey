@@ -11,6 +11,4 @@ export interface Entity {
 export interface DataEntity<T extends Entity, C> {
   readonly columns: ReadonlyArray<C>
   readonly allEntities: ReadonlyArray<T>
-  readonly selectedEntity: EntityId
-  readonly hoveredEntity: EntityId
 }

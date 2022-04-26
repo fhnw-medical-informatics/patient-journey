@@ -8,8 +8,8 @@ import { Patient, PatientDataColumn, PatientId } from '../data/patients'
 import {
   selectActiveDataColumns,
   selectFilteredActiveData,
-  selectHoveredActiveEntity,
-  selectSelectedActiveEntity,
+  selectActiveHoveredEntity,
+  selectActiveSelectedEntity,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -76,13 +76,13 @@ const selectFilteredActiveEventsAsMap = createSelector(selectFilteredActiveDataA
 
 export const selectSelectedActiveEntityAsEvent = createSelector(
   selectFilteredActiveEventsAsMap,
-  selectSelectedActiveEntity,
+  selectActiveSelectedEntity,
   (eventMap, selectedEntity) => eventMap.get(selectedEntity)
 )
 
 export const selectHoveredActiveEntityAsEvent = createSelector(
   selectFilteredActiveEventsAsMap,
-  selectHoveredActiveEntity,
+  selectActiveHoveredEntity,
   (eventMap, hoveredEntity) => eventMap.get(hoveredEntity)
 )
 

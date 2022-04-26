@@ -1,16 +1,18 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
-  selectDataView,
-  selectSelectedActiveEntity,
-  selectHoveredActiveEntity,
-  selectFilteredActiveData,
-  selectActiveDataColumns,
   selectActiveData,
+  selectActiveDataColumns,
+  selectAllActiveDataCategories,
   selectAllFilters,
   selectCurrentColorColumnNumberRange,
-  selectDataLoadingState,
   selectDataLoadingErrorMessage,
-  selectAllActiveDataCategories,
+  selectDataLoadingState,
+  selectDataView,
+  selectFilteredActiveData,
+  selectActiveHoveredEntity,
+  selectHoveredEntity,
+  selectActiveSelectedEntity,
+  selectSelectedEntity,
   selectUniqueActiveDataCategories,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
@@ -29,29 +31,38 @@ export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveDa
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
 export const useAllFilters = () => useAppSelector(selectAllFilters)
 
-export const useActiveSelectedEntity = () => useAppSelector(selectSelectedActiveEntity)
-export const useActiveHoveredEntity = () => useAppSelector(selectHoveredActiveEntity)
+export const useHoveredEntity = () => useAppSelector(selectHoveredEntity)
+export const useSelectedEntity = () => useAppSelector(selectSelectedEntity)
+
+export const useActiveSelectedEntity = () => useAppSelector(selectActiveSelectedEntity)
+export const useActiveHoveredEntity = () => useAppSelector(selectActiveHoveredEntity)
 
 export interface EntityInteraction {
   readonly onEntityClick: (id: EntityId) => void
   readonly onEntityHover: (id: EntityId) => void
 }
 
-export const useEntityInteraction = (): EntityInteraction => {
+export const useActiveEntityInteraction = (): EntityInteraction => {
+  const activeView = useActiveDataView()
+  const type = activeView === 'patients' ? 'patient' : 'event'
+  return useEntityInteraction(type)
+}
+
+export const useEntityInteraction = (type: 'patient' | 'event'): EntityInteraction => {
   const dispatch = useAppDispatch()
 
   const onEntityClick = useCallback(
-    (id: EntityId) => {
-      dispatch(setSelectedEntity(id))
+    (uid: EntityId) => {
+      dispatch(setSelectedEntity({ type, uid }))
     },
-    [dispatch]
+    [type, dispatch]
   )
 
   const onEntityHover = useCallback(
-    (id: EntityId) => {
-      dispatch(setHoveredEntity(id))
+    (uid: EntityId) => {
+      dispatch(setHoveredEntity({ type, uid }))
     },
-    [dispatch]
+    [type, dispatch]
   )
 
   return {
