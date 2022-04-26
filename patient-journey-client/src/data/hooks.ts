@@ -5,11 +5,13 @@ import {
   selectActiveEntity,
   selectAllActiveDataCategories,
   selectAllFilters,
+  selectCrossFilteredEventData,
+  selectCrossFilteredPatientData,
   selectCurrentColorColumnNumberRange,
   selectDataLoadingErrorMessage,
   selectDataLoadingState,
   selectDataView,
-  selectEidColumnName,
+  selectEventColumn,
   selectFilteredActiveData,
   selectHoveredActiveEntity,
   selectPidColumnName,
@@ -28,6 +30,8 @@ export const useActiveDataView = () => useAppSelector(selectDataView)
 
 export const useActiveData = () => useAppSelector(selectActiveData)
 export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
+export const useCrossFilteredPatientData = () => useAppSelector(selectCrossFilteredPatientData)
+export const useCrossFilteredEventData = () => useAppSelector(selectCrossFilteredEventData)
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
 export const useAllFilters = () => useAppSelector(selectAllFilters)
@@ -37,7 +41,8 @@ export const useActiveHoveredEntity = () => useAppSelector(selectHoveredActiveEn
 export const useActiveEntity = () => useAppSelector(selectActiveEntity)
 
 export const usePidColumnName = () => useAppSelector(selectPidColumnName)
-export const useEidColumnName = () => useAppSelector(selectEidColumnName)
+export const useEidColumn = () => useAppSelector(selectEventColumn('eid'))
+export const useEventTimestampColumn = () => useAppSelector(selectEventColumn('timestamp'))
 
 export interface EntityInteraction {
   readonly onEntityClick: (id: EntityId) => void

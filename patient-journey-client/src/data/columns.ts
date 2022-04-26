@@ -80,3 +80,17 @@ export const extractCategoryValueSafe =
       return [value]
     }
   }
+
+export const formatColumnValue = (columnType: string) => (value: string) => {
+  if (value === null || value.trim().length === 0) {
+    return ''
+  }
+  switch (columnType) {
+    case 'boolean':
+      return stringToBoolean(value) ? 'X' : ''
+    case 'timestamp':
+      return formatMillis(+value)
+    default:
+      return value
+  }
+}

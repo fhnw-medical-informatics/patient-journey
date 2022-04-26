@@ -6,7 +6,7 @@ import { RootState } from '../store'
 import { DataColumn, extractCategoryValueSafe, stringToMillis } from './columns'
 import { ActiveDataViewType } from './dataSlice'
 import { EntityId, EntityIdNone } from './entities'
-import { EMPTY_EVENT_DATA, EventData, EventDataColumn, PatientJourneyEvent } from './events'
+import { EMPTY_EVENT_DATA, EventData, EventDataColumn, EventDataColumnType, PatientJourneyEvent } from './events'
 import { filterReducer, GenericFilter } from './filtering'
 import { EMPTY_PATIENT_DATA, Patient, PatientData, PatientDataColumn } from './patients'
 
@@ -102,13 +102,15 @@ export const selectPidColumnName = (s: RootState): string => {
   }
 }
 
-export const selectEidColumnName = (s: RootState): string => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.eventData.columns.find((c) => c.type === 'eid')!.name
-  } else {
-    return 'Event ID'
+export const selectEventColumn =
+  (columnType: EventDataColumnType) =>
+  (s: RootState): EventDataColumn => {
+    if (s.data.type === 'loading-complete') {
+      return s.data.eventData.columns.find((c) => c.type === columnType)!
+    } else {
+      throw new Error('Illegal state')
+    }
   }
-}
 
 export const selectDataView = (s: RootState): ActiveDataViewType => {
   if (s.data.type === 'loading-complete') {
@@ -159,7 +161,7 @@ const selectFilteredEventsPIDs = createSelector(
 )
 
 // Only select patients, that are references in the currently filtered events
-const selectCrossFilteredPatientData = createSelector(
+export const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
   selectFilteredEventsPIDs,
   (filteredPatientData, filteredEventPIDSet) =>
@@ -167,7 +169,7 @@ const selectCrossFilteredPatientData = createSelector(
 )
 
 // Only select events which referenced patients appear int the currently filtered patients
-const selectCrossFilteredEventData = createSelector(
+export const selectCrossFilteredEventData = createSelector(
   selectFilteredEventData,
   selectFilteredPatientsPIDs,
   (filteredEventData, filteredPatientPIDSet) =>

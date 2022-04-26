@@ -24,6 +24,8 @@ interface PatientInfo {
 interface EventInfo {
   readonly eid: EventId
   readonly eidColumnName: string
+  readonly timestampColumnName: string
+  readonly timestampValue: string
 }
 
 export type ActiveEntityInfo =
@@ -57,14 +59,24 @@ export const InfoPanel = ({ activeEntityInfo }: Props) => {
         />
       )}
       {activeEntityInfo.type === 'event-info' && (
-        <TextField
-          size={'small'}
-          label={activeEntityInfo.eventInfo.eidColumnName}
-          value={activeEntityInfo.eventInfo.eid}
-          InputProps={{
-            readOnly: true,
-          }}
-        />
+        <>
+          <TextField
+            size={'small'}
+            label={activeEntityInfo.eventInfo.eidColumnName}
+            value={activeEntityInfo.eventInfo.eid}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+          <TextField
+            size={'small'}
+            label={`Event ${activeEntityInfo.eventInfo.timestampColumnName}`}
+            value={activeEntityInfo.eventInfo.timestampValue}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+        </>
       )}
     </Card>
   )

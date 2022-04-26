@@ -2,12 +2,12 @@ import React, { useMemo } from 'react'
 
 import { darken, lighten, Paper, useTheme } from '@mui/material'
 
-import { DataGridPro, LicenseInfo, GridColumns, GridRow, GridRowProps } from '@mui/x-data-grid-pro'
+import { DataGridPro, GridColumns, GridRow, GridRowProps, LicenseInfo } from '@mui/x-data-grid-pro'
 
 import { makeStyles } from '../../utils'
 
 import { Entity, EntityId, EntityIdNone } from '../../data/entities'
-import { DataColumn, formatMillis, stringToBoolean } from '../../data/columns'
+import { DataColumn, formatColumnValue } from '../../data/columns'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
 import { ColorByColumnFn } from '../../color/useColor'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
@@ -60,19 +60,7 @@ export const DataTable = ({
       headerName: column.name,
       flex: 1,
       valueGetter: (params) => params.row.values[column.index],
-      valueFormatter: (params) => {
-        if (params.value === null || params.value.trim().length === 0) {
-          return ''
-        }
-        switch (column.type) {
-          case 'boolean':
-            return stringToBoolean(params.value) ? 'X' : ''
-          case 'timestamp':
-            return formatMillis(+params.value)
-          default:
-            return params.value
-        }
-      },
+      valueFormatter: (params) => formatColumnValue(column.type)(params.value),
     }))
 
     if (colorByColumn !== ColorByColumnNone) {
