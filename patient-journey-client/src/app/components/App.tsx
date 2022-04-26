@@ -48,7 +48,11 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-export const App = () => {
+interface Props {
+  readonly isLoadingComplete: boolean
+}
+
+export const App = ({ isLoadingComplete }: Props) => {
   const { classes } = useStyles()
 
   return (
@@ -56,7 +60,7 @@ export const App = () => {
       <AppBar className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
           <img className={classes.logo} src={logo} alt={'Fachhochschule Nordwestschweiz'} />
-          <DataViewSelector />
+          {isLoadingComplete ? <DataViewSelector /> : <div />}
           <Typography className={classes.title}>{`Patient Journey – v${import.meta.env.VITE_APP_VERSION}`}</Typography>
           <Alerts />
           <ThemeSwitch />
