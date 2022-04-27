@@ -7,7 +7,7 @@ import { DataColumn, extractCategoryValueSafe, formatColumnValue, stringToMillis
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { filterReducer } from './filtering'
-import { Patient, PatientDataColumnType } from './patients'
+import { Patient, PatientDataColumnType, PatientId } from './patients'
 import { EntityIdNone } from './entities'
 
 const selectData = (s: RootState): DataStateLoadingComplete => {
@@ -98,7 +98,17 @@ const selectEventDataByIdMap = createSelector(
   }
 )
 
-export const selectEventDataTimestampValueFormatted = createSelector(
+export const selectEventDataPidValues = createSelector(
+  selectEventDataByIdMap,
+  selectEventDataPidColumn,
+  (eventByIdMap, column) => {
+    return (eid: EventId) => {
+      return eventByIdMap.get(eid)!.values[column.index] as PatientId
+    }
+  }
+)
+
+export const selectEventDataTimestampValuesFormatted = createSelector(
   selectEventDataByIdMap,
   selectEventDataTimestampColumn,
   (eventByIdMap, column) => {
@@ -149,7 +159,7 @@ const selectFilteredEventsPIDs = createSelector(
 )
 
 // Only select patients, that are references in the currently filtered events
-export const selectCrossFilteredPatientData = createSelector(
+const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
   selectFilteredEventsPIDs,
   (filteredPatientData, filteredEventPIDSet) =>
@@ -157,7 +167,7 @@ export const selectCrossFilteredPatientData = createSelector(
 )
 
 // Only select events which referenced patients appear int the currently filtered patients
-export const selectCrossFilteredEventData = createSelector(
+const selectCrossFilteredEventData = createSelector(
   selectFilteredEventData,
   selectFilteredPatientsPIDs,
   (filteredEventData, filteredPatientPIDSet) =>
