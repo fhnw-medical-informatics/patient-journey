@@ -11,6 +11,7 @@ import { DataColumn, formatColumnValue } from '../../data/columns'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
 import { ColorByColumnFn } from '../../color/hooks'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
+import { ColoredCircle } from '../../color/components/ColoredCircle'
 
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
@@ -70,38 +71,14 @@ export const DataTable = ({
           headerName: '',
           sortable: false,
           width: 30,
-          renderCell: ({ row }) => {
-            const color = colorByColumnFn(row)
-
-            return (
-              <div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <div
-                  style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    backgroundColor: color,
-                    border: `1px solid ${theme.palette.text.primary}`,
-                  }}
-                />
-              </div>
-            )
-          },
+          renderCell: ({ row }) => <ColoredCircle color={colorByColumnFn(row)} />,
         },
         ...cols,
       ]
     }
 
     return cols
-  }, [columns, colorByColumn, colorByColumnFn, theme])
+  }, [columns, colorByColumn, colorByColumnFn])
 
   // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
   // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773

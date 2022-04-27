@@ -64,15 +64,10 @@ export const selectFilteredActiveDataAsEventsWithoutColor = createSelector(
     convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData)
 )
 
-const selectFilteredActiveEventsAsMap = createSelector(selectFilteredActiveDataAsEventsWithoutColor, (events) => {
-  const eventMap = new Map<EntityId, TimelineEvent<EntityId, any>>()
-
-  events.forEach((event) => {
-    eventMap.set(event.eventId, event)
-  })
-
-  return eventMap
-})
+const selectFilteredActiveEventsAsMap = createSelector(
+  selectFilteredActiveDataAsEventsWithoutColor,
+  (events): ReadonlyMap<EntityId, TimelineEvent<EntityId, any>> => new Map(events.map((e) => [e.eventId, e]))
+)
 
 export const selectSelectedActiveEntityAsEvent = createSelector(
   selectFilteredActiveEventsAsMap,

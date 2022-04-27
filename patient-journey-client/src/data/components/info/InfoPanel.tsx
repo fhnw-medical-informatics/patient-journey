@@ -3,6 +3,8 @@ import { Card, TextField } from '@mui/material'
 import { makeStyles } from '../../../utils'
 import { PatientId } from '../../patients'
 import { EventId } from '../../events'
+import { ColorByInfoField } from './ColorByInfoField'
+import { ColorByInfo } from '../../../color/hooks'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -42,9 +44,10 @@ export type FocusEntityInfo =
 
 interface Props {
   readonly focusEntityInfo: FocusEntityInfo
+  readonly colorByInfo: ColorByInfo
 }
 
-export const InfoPanel = ({ focusEntityInfo }: Props) => {
+export const InfoPanel = ({ focusEntityInfo, colorByInfo }: Props) => {
   const { classes } = useStyles()
   return (
     <Card className={classes.root}>
@@ -70,7 +73,7 @@ export const InfoPanel = ({ focusEntityInfo }: Props) => {
           />
           <TextField
             size={'small'}
-            label={`Event ${focusEntityInfo.eventInfo.timestampColumnName}`}
+            label={focusEntityInfo.eventInfo.timestampColumnName}
             value={focusEntityInfo.eventInfo.timestampValue}
             InputProps={{
               readOnly: true,
@@ -78,6 +81,7 @@ export const InfoPanel = ({ focusEntityInfo }: Props) => {
           />
         </>
       )}
+      <ColorByInfoField colorByInfo={colorByInfo} />
     </Card>
   )
 }

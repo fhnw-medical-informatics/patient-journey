@@ -4,9 +4,9 @@ import { scaleOrdinal } from 'd3-scale'
 import { interpolatePlasma, schemeSet1, schemeSet2 } from 'd3-scale-chromatic'
 import { ColorByColumnNone, ColorByColumnOption } from './colorSlice'
 import { FilterColumn } from '../data/filtering'
-import { Entity } from '../data/entities'
-import { useCurrentColorColumnNumberRange } from '../data/hooks'
-import { stringToMillis } from '../data/columns'
+import { Entity, EntityId, EntityIdNone } from '../data/entities'
+import { useActiveDataByEntityIdMap, useCurrentColorColumnNumberRange } from '../data/hooks'
+import { formatColumnValue, stringToMillis } from '../data/columns'
 import { useAppSelector } from '../store'
 import { selectColorByColumn } from './selectors'
 
@@ -88,3 +88,33 @@ const getFieldValue = (entity: Entity, column: FilterColumn): string => {
 }
 
 export const useColorByColumn = () => useAppSelector<ColorByColumnOption>(selectColorByColumn)
+
+export const ColorByInfoNone = 'none'
+export type ColorByInfo =
+  | typeof ColorByInfoNone
+  | Readonly<{
+      readonly color: string
+      readonly columnName: string
+      readonly formattedValue: string
+    }>
+
+export const useColorByInfo = () => {
+  // TODO: Adjust data lookup once colorBy no longer relies on active view (https://github.com/fhnw-medical-informatics/patient-journey/issues/90)
+  const dataByEntityId = useActiveDataByEntityIdMap()
+  const { colorByColumn, colorByColumnFn } = useColor()
+  return (uid: EntityId): ColorByInfo => {
+    if (uid === EntityIdNone || colorByColumn === ColorByColumnNone) {
+      return 'none'
+    } else {
+      const data = dataByEntityId.get(uid)!
+      const value = data.values[colorByColumn.index]
+      const formattedValue = formatColumnValue(colorByColumn.type)(value)
+      const color = colorByColumnFn(data)
+      return {
+        color,
+        columnName: colorByColumn.name,
+        formattedValue,
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
   selectActiveData,
+  selectActiveDataByEntityIdMap,
   selectActiveDataColumns,
   selectActiveHoveredEntity,
   selectActiveSelectedEntity,
@@ -33,6 +34,7 @@ export const useDataLoadingErrorMessage = () => useAppSelector(selectDataLoading
 export const useActiveDataView = () => useAppSelector(selectDataView)
 
 export const useActiveData = () => useAppSelector(selectActiveData)
+export const useActiveDataByEntityIdMap = () => useAppSelector(selectActiveDataByEntityIdMap)
 export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
