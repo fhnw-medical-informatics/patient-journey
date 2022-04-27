@@ -20,7 +20,7 @@ export const DataFilters = () => {
   const filters = useAllFilters()
   const activeColums = useActiveDataColumns()
 
-  const [, colorByCategoryFn, colorByNumberFn, colorByColumn] = useColor()
+  const { colorByCategoryFn, colorByNumberFn, colorByColumn } = useColor()
 
   const dispatch = useAppDispatch()
 

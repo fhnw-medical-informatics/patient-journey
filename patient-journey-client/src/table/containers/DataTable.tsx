@@ -18,7 +18,7 @@ export const DataTable = () => {
   const activeData = useFilteredActiveData()
   const activeColumns = useActiveDataColumns()
   const activeTableState = useActiveTableState()
-  const [colorByColumnFn, , , colorByColumn] = useColor()
+  const { colorByColumnFn, colorByColumn } = useColor()
 
   const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
   const selectedEntityId = useActiveSelectedEntity()

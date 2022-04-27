@@ -13,7 +13,12 @@ export type ColorByColumnFn = (entity?: Entity) => string
 export type ColorByCategoryFn = (category?: string) => string
 export type ColorByNumberFn = (number?: number) => string
 
-export type ColorByFn = [ColorByColumnFn, ColorByCategoryFn, ColorByNumberFn, ColorByColumnOption]
+export interface ColorBy {
+  colorByColumnFn: ColorByColumnFn
+  colorByCategoryFn: ColorByCategoryFn
+  colorByNumberFn: ColorByNumberFn
+  colorByColumn: ColorByColumnOption
+}
 
 const lightCategoryFn = scaleOrdinal(schemeSet1)
 const darkCategoryFn = scaleOrdinal(schemeSet2)
@@ -21,36 +26,7 @@ const darkCategoryFn = scaleOrdinal(schemeSet2)
 const lightNumberFn = interpolatePlasma
 const darkNumberFn = interpolatePlasma
 
-// Inspired by Revizto (see TicketStatusChip)
-// export const statusColorScale = (status: Status, theme: Theme) => {
-//   switch (status) {
-//     case 'Open':
-//       return theme.palette.secondary.main
-//     case 'In Progress':
-//       return theme.palette.warning.main
-//     case 'Closed':
-//     case 'Resolved':
-//       return theme.palette.success.main
-//     default:
-//       return theme.palette.primary.main
-//   }
-// }
-
-// Inspired by Revizto (see TicketPriorityChip)
-// export const priorityColorScale = (priority: Priority, theme: Theme) => {
-//   switch (priority) {
-//     case 'None':
-//       return theme.palette.success.main
-//     case 'Major':
-//       return theme.palette.warning.main
-//     case 'Critical':
-//       return theme.palette.error.main
-//     default:
-//       return theme.palette.primary.main
-//   }
-// }
-
-export const useColor = (): ColorByFn => {
+export const useColor = (): ColorBy => {
   const theme = useTheme()
   const numberRange = useCurrentColorColumnNumberRange()
   const colorByColumn: ColorByColumnOption = useColorByColumn()
@@ -67,12 +43,12 @@ export const useColor = (): ColorByFn => {
     [theme.palette.mode]
   )
 
-  const getColorByCategory = useCallback(
+  const colorByCategoryFn = useCallback(
     (category?: string) => (category ? colorScaleCategory(category) : defaultColor),
     [colorScaleCategory, defaultColor]
   )
 
-  const getColorByNumber = useCallback(
+  const colorByNumberFn = useCallback(
     (value?: number) =>
       value && numberRange
         ? colorScaleNumber((value - numberRange[0]) / (numberRange[1] - numberRange[0]))
@@ -80,38 +56,30 @@ export const useColor = (): ColorByFn => {
     [colorScaleNumber, defaultColor, numberRange]
   )
 
-  const getColorByColumn = useCallback(
+  const colorByColumnFn = useCallback(
     (entity?: Entity) => {
       if (!entity || colorByColumn === ColorByColumnNone) {
         return defaultColor
       }
 
       switch (colorByColumn.type) {
-        // case 'boolean':
-        //   return priorityColorScale(getTicketFieldValue(colorByField, ticket) as Priority, theme)
-        // case 'status':
-        //   return statusColorScale(getTicketFieldValue(colorByField, ticket) as Status, theme)
-        // case 'assignee':
-        // case 'creator':
-        // case 'title':
-        //   return getColorByCategory(getTicketFieldValue(colorByField, ticket) as string)
         case 'date':
-          return getColorByNumber(stringToMillis(getFieldValue(entity, colorByColumn)))
+          return colorByNumberFn(stringToMillis(getFieldValue(entity, colorByColumn)))
         case 'timestamp':
         case 'number':
-          return getColorByNumber(+getFieldValue(entity, colorByColumn))
+          return colorByNumberFn(+getFieldValue(entity, colorByColumn))
         case 'boolean':
         case 'string':
         case 'category':
-          return getColorByCategory(getFieldValue(entity, colorByColumn))
+          return colorByCategoryFn(getFieldValue(entity, colorByColumn))
         default:
           return defaultColor
       }
     },
-    [colorByColumn, defaultColor, getColorByCategory, getColorByNumber]
+    [colorByColumn, defaultColor, colorByCategoryFn, colorByNumberFn]
   )
 
-  return [getColorByColumn, getColorByCategory, getColorByNumber, colorByColumn]
+  return { colorByColumnFn, colorByCategoryFn, colorByNumberFn, colorByColumn }
 }
 
 const getFieldValue = (entity: Entity, column: FilterColumn): string => {
