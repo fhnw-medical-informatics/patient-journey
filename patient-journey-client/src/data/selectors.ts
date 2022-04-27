@@ -3,9 +3,9 @@ import { max, min } from 'd3-array'
 import { ColorByColumnNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
-import { DataColumn, extractCategoryValueSafe, stringToMillis } from './columns'
+import { DataColumn, extractCategoryValueSafe, formatColumnValue, stringToMillis } from './columns'
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
-import { EventDataColumnType, PatientJourneyEvent } from './events'
+import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { filterReducer } from './filtering'
 import { Patient, PatientDataColumnType } from './patients'
 import { EntityIdNone } from './entities'
@@ -79,7 +79,7 @@ export const selectPatientDataPidColumn = (s: RootState) => selectPatientDataCol
 
 const selectEventDataColumnType = (s: RootState, columnType: EventDataColumnType) => columnType
 
-export const selectEventDataColumn = createSelector(
+const selectEventDataColumn = createSelector(
   selectEventDataColumns,
   selectEventDataColumnType,
   (columns, columnType) => columns.find((c) => c.type === columnType)!
@@ -88,6 +88,31 @@ export const selectEventDataColumn = createSelector(
 export const selectEventDataEidColumn = (s: RootState) => selectEventDataColumn(s, 'eid')
 export const selectEventDataPidColumn = (s: RootState) => selectEventDataColumn(s, 'pid')
 export const selectEventDataTimestampColumn = (s: RootState) => selectEventDataColumn(s, 'timestamp')
+
+const selectEventDataByIdMap = createSelector(
+  selectEventDataRows,
+  (events): ReadonlyMap<EventId, PatientJourneyEvent> => {
+    const map = new Map<EventId, PatientJourneyEvent>()
+    events.forEach((event) => map.set(event.eid, event))
+    return map
+  }
+)
+
+export const selectEventDataTimestampValueFormatted = createSelector(
+  selectEventDataByIdMap,
+  selectEventDataTimestampColumn,
+  (eventByIdMap, column) => {
+    return (eid: EventId) => {
+      const event = eventByIdMap.get(eid)
+      if (event) {
+        const value = event.values[column.index]
+        return formatColumnValue(column.type)(value)
+      } else {
+        return ''
+      }
+    }
+  }
+)
 
 export const selectAllFilters = createSelector(selectData, (data) => data.filters)
 

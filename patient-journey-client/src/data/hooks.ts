@@ -15,6 +15,7 @@ import {
   selectEventDataEidColumn,
   selectEventDataPidColumn,
   selectEventDataTimestampColumn,
+  selectEventDataTimestampValueFormatted,
   selectFilteredActiveData,
   selectFocusEntity,
   selectHoveredEntity,
@@ -85,6 +86,7 @@ export const usePatientDataPidColumn = () => useAppSelector(selectPatientDataPid
 export const useEventDataEidColumn = () => useAppSelector(selectEventDataEidColumn)
 export const useEventDataPidColumn = () => useAppSelector(selectEventDataPidColumn)
 export const useEventDataTimestampColumn = () => useAppSelector(selectEventDataTimestampColumn)
+export const useEventDataTimestampValuesFormatted = () => useAppSelector(selectEventDataTimestampValueFormatted)
 
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
 

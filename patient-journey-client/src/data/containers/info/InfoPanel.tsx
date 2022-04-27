@@ -5,12 +5,12 @@ import {
   useEventDataEidColumn,
   useEventDataPidColumn,
   useEventDataTimestampColumn,
+  useEventDataTimestampValuesFormatted,
   useFocusEntity,
   usePatientDataPidColumn,
 } from '../../hooks'
 import { PatientId } from '../../patients'
 import { EventId } from '../../events'
-import { formatColumnValue } from '../../columns'
 
 export const InfoPanel = () => {
   const patientDataPidColumn = usePatientDataPidColumn()
@@ -18,10 +18,10 @@ export const InfoPanel = () => {
   const eventData = useCrossFilteredEventData()
   const eventDataEidColumn = useEventDataEidColumn()
   const eventDataPidColumn = useEventDataPidColumn()
-  const eventTimestampColumn = useEventDataTimestampColumn()
+  const eventDataTimestampColumnName = useEventDataTimestampColumn().name
+  const eventDataTimestampValueFn = useEventDataTimestampValuesFormatted()
 
   const focusEntity = useFocusEntity()
-  const formatTimestamp = formatColumnValue(eventTimestampColumn!.type)
   const focusEntityInfo: FocusEntityInfo = useMemo(() => {
     switch (focusEntity.type) {
       case 'none':
@@ -44,22 +44,20 @@ export const InfoPanel = () => {
           eventInfo: {
             eid: focusEntity.uid as EventId,
             eidColumnName: eventDataEidColumn.name,
-            timestampColumnName: eventTimestampColumn.name,
-            timestampValue: formatTimestamp(
-              eventData.find((e) => e.uid === focusEntity.uid)!.values[eventTimestampColumn.index]
-            ),
+            timestampColumnName: eventDataTimestampColumnName,
+            timestampValue: eventDataTimestampValueFn(focusEntity.uid),
           },
         }
     }
   }, [
-    focusEntity,
+    focusEntity.type,
+    focusEntity.uid,
     patientDataPidColumn.name,
     eventData,
     eventDataPidColumn.name,
     eventDataEidColumn.name,
-    eventTimestampColumn.name,
-    eventTimestampColumn.index,
-    formatTimestamp,
+    eventDataTimestampColumnName,
+    eventDataTimestampValueFn,
   ])
   return <InfoPanelComponent focusEntityInfo={focusEntityInfo} />
 }
