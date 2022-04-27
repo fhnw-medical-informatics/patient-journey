@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { FocusEntityInfo, InfoPanel as InfoPanelComponent } from '../../components/info/InfoPanel'
 import {
-  useCrossFilteredEventData,
   useEventDataEidColumn,
   useEventDataPidColumn,
+  useEventDataPidValues,
   useEventDataTimestampColumn,
   useEventDataTimestampValuesFormatted,
   useFocusEntity,
@@ -13,13 +13,13 @@ import { PatientId } from '../../patients'
 import { EventId } from '../../events'
 
 export const InfoPanel = () => {
-  const patientDataPidColumn = usePatientDataPidColumn()
+  const patientDataPidColumnName = usePatientDataPidColumn().name
 
-  const eventData = useCrossFilteredEventData()
-  const eventDataEidColumn = useEventDataEidColumn()
-  const eventDataPidColumn = useEventDataPidColumn()
+  const eventDataEidColumnName = useEventDataEidColumn().name
+  const eventDataPidColumnName = useEventDataPidColumn().name
   const eventDataTimestampColumnName = useEventDataTimestampColumn().name
   const eventDataTimestampValueFn = useEventDataTimestampValuesFormatted()
+  const eventDataPidValueFn = useEventDataPidValues()
 
   const focusEntity = useFocusEntity()
   const focusEntityInfo: FocusEntityInfo = useMemo(() => {
@@ -31,19 +31,19 @@ export const InfoPanel = () => {
           type: 'patient-info',
           patientInfo: {
             pid: focusEntity.uid as PatientId,
-            pidColumnName: patientDataPidColumn.name,
+            pidColumnName: patientDataPidColumnName,
           },
         }
       case 'event':
         return {
           type: 'event-info',
           patientInfo: {
-            pid: eventData.find((e) => e.uid === focusEntity.uid)!['pid'] as PatientId,
-            pidColumnName: eventDataPidColumn.name,
+            pid: eventDataPidValueFn(focusEntity.uid),
+            pidColumnName: eventDataPidColumnName,
           },
           eventInfo: {
             eid: focusEntity.uid as EventId,
-            eidColumnName: eventDataEidColumn.name,
+            eidColumnName: eventDataEidColumnName,
             timestampColumnName: eventDataTimestampColumnName,
             timestampValue: eventDataTimestampValueFn(focusEntity.uid),
           },
@@ -52,10 +52,10 @@ export const InfoPanel = () => {
   }, [
     focusEntity.type,
     focusEntity.uid,
-    patientDataPidColumn.name,
-    eventData,
-    eventDataPidColumn.name,
-    eventDataEidColumn.name,
+    patientDataPidColumnName,
+    eventDataPidValueFn,
+    eventDataPidColumnName,
+    eventDataEidColumnName,
     eventDataTimestampColumnName,
     eventDataTimestampValueFn,
   ])
