@@ -7,6 +7,7 @@ import { CssBaseline } from '@mui/material'
 import { useAppDispatch } from '../../store'
 import { useEffect } from 'react'
 import { loadData } from '../../data/dataSlice'
+import { useDataLoadingState } from '../../data/hooks'
 
 export const muiCache = createCache({
   key: 'mui',
@@ -24,11 +25,13 @@ export const App = () => {
     dispatch(loadData())
   }, [dispatch])
 
+  const loadingState = useDataLoadingState()
+
   return (
     <CacheProvider value={muiCache}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <AppComponent />
+        <AppComponent isLoadingComplete={loadingState === 'loading-complete'} />
       </ThemeProvider>
     </CacheProvider>
   )

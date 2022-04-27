@@ -1,7 +1,7 @@
 import { DataColumn, GENERIC_COLUMN_TYPES } from './columns'
 import { PATIENT_ID_COLUMN_TYPE, PatientId } from './patients'
 import { ParseResult } from 'papaparse'
-import { DataEntity, Entity, EntityId, EntityIdNone } from './entities'
+import { DataEntity, Entity, EntityId } from './entities'
 import { noOp } from '../utils'
 
 export const EVENT_ID_COLUMN_TYPE = 'eid' as const
@@ -25,8 +25,6 @@ export interface EventData extends DataEntity<PatientJourneyEvent, EventDataColu
 export const EMPTY_EVENT_DATA: EventData = {
   columns: [],
   allEntities: [],
-  selectedEntity: EntityIdNone,
-  hoveredEntity: EntityIdNone,
 }
 
 export const createEventData = (

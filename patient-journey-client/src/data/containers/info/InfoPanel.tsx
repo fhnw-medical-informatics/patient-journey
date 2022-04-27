@@ -1,55 +1,65 @@
-import React from 'react'
-import { ActiveEntityInfo, InfoPanel as InfoPanelComponent } from '../../components/info/InfoPanel'
+import React, { useMemo } from 'react'
+import { FocusEntityInfo, InfoPanel as InfoPanelComponent } from '../../components/info/InfoPanel'
 import {
-  useActiveDataView,
-  useActiveEntity,
   useCrossFilteredEventData,
-  useCrossFilteredPatientData,
-  useEidColumn,
-  useEventTimestampColumn,
-  usePidColumnName,
+  useEventDataEidColumn,
+  useEventDataPidColumn,
+  useEventDataTimestampColumn,
+  useFocusEntity,
+  usePatientDataPidColumn,
 } from '../../hooks'
 import { PatientId } from '../../patients'
 import { EventId } from '../../events'
-import { EntityIdNone } from '../../entities'
 import { formatColumnValue } from '../../columns'
 
 export const InfoPanel = () => {
-  const patientData = useCrossFilteredPatientData()
-  const pidColumnName = usePidColumnName()
+  const patientDataPidColumn = usePatientDataPidColumn()
 
   const eventData = useCrossFilteredEventData()
-  const eidColumn = useEidColumn()
-  const eventTimestampColumn = useEventTimestampColumn()
+  const eventDataEidColumn = useEventDataEidColumn()
+  const eventDataPidColumn = useEventDataPidColumn()
+  const eventTimestampColumn = useEventDataTimestampColumn()
 
-  const view = useActiveDataView()
-  const activeEntity = useActiveEntity()
-  const formatTimestamp = formatColumnValue(eventTimestampColumn.type)
-  const activeEntityInfo: ActiveEntityInfo =
-    activeEntity === EntityIdNone
-      ? { type: 'no-info' }
-      : view === 'patients'
-      ? {
+  const focusEntity = useFocusEntity()
+  const formatTimestamp = formatColumnValue(eventTimestampColumn!.type)
+  const focusEntityInfo: FocusEntityInfo = useMemo(() => {
+    switch (focusEntity.type) {
+      case 'none':
+        return { type: 'no-info' }
+      case 'patient':
+        return {
           type: 'patient-info',
           patientInfo: {
-            pid: activeEntity as PatientId,
-            pidColumnName,
+            pid: focusEntity.uid as PatientId,
+            pidColumnName: patientDataPidColumn.name,
           },
         }
-      : {
+      case 'event':
+        return {
           type: 'event-info',
           patientInfo: {
-            pid: patientData.find((e) => e.uid === activeEntity)!['pid'] as PatientId,
-            pidColumnName,
+            pid: eventData.find((e) => e.uid === focusEntity.uid)!['pid'] as PatientId,
+            pidColumnName: eventDataPidColumn.name,
           },
           eventInfo: {
-            eid: activeEntity as EventId,
-            eidColumnName: eidColumn?.name ?? 'Event ID',
+            eid: focusEntity.uid as EventId,
+            eidColumnName: eventDataEidColumn.name,
             timestampColumnName: eventTimestampColumn.name,
             timestampValue: formatTimestamp(
-              eventData.find((e) => e.uid === activeEntity)!.values[eventTimestampColumn.index]
+              eventData.find((e) => e.uid === focusEntity.uid)!.values[eventTimestampColumn.index]
             ),
           },
         }
-  return <InfoPanelComponent activeEntityInfo={activeEntityInfo} />
+    }
+  }, [
+    focusEntity,
+    patientDataPidColumn.name,
+    eventData,
+    eventDataPidColumn.name,
+    eventDataEidColumn.name,
+    eventTimestampColumn.name,
+    eventTimestampColumn.index,
+    formatTimestamp,
+  ])
+  return <InfoPanelComponent focusEntityInfo={focusEntityInfo} />
 }

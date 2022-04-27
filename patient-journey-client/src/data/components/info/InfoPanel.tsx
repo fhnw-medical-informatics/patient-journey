@@ -28,7 +28,7 @@ interface EventInfo {
   readonly timestampValue: string
 }
 
-export type ActiveEntityInfo =
+export type FocusEntityInfo =
   | Readonly<{ type: 'no-info' }>
   | Readonly<{
       type: 'patient-info'
@@ -41,37 +41,37 @@ export type ActiveEntityInfo =
     }>
 
 interface Props {
-  readonly activeEntityInfo: ActiveEntityInfo
+  readonly focusEntityInfo: FocusEntityInfo
 }
 
-export const InfoPanel = ({ activeEntityInfo }: Props) => {
+export const InfoPanel = ({ focusEntityInfo }: Props) => {
   const { classes } = useStyles()
   return (
     <Card className={classes.root}>
-      {activeEntityInfo.type !== 'no-info' && (
+      {focusEntityInfo.type !== 'no-info' && (
         <TextField
           size={'small'}
-          label={activeEntityInfo.patientInfo.pidColumnName}
-          value={activeEntityInfo.patientInfo.pid}
+          label={focusEntityInfo.patientInfo.pidColumnName}
+          value={focusEntityInfo.patientInfo.pid}
           InputProps={{
             readOnly: true,
           }}
         />
       )}
-      {activeEntityInfo.type === 'event-info' && (
+      {focusEntityInfo.type === 'event-info' && (
         <>
           <TextField
             size={'small'}
-            label={activeEntityInfo.eventInfo.eidColumnName}
-            value={activeEntityInfo.eventInfo.eid}
+            label={focusEntityInfo.eventInfo.eidColumnName}
+            value={focusEntityInfo.eventInfo.eid}
             InputProps={{
               readOnly: true,
             }}
           />
           <TextField
             size={'small'}
-            label={`Event ${activeEntityInfo.eventInfo.timestampColumnName}`}
-            value={activeEntityInfo.eventInfo.timestampValue}
+            label={`Event ${focusEntityInfo.eventInfo.timestampColumnName}`}
+            value={focusEntityInfo.eventInfo.timestampValue}
             InputProps={{
               readOnly: true,
             }}

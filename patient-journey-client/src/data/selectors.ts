@@ -4,15 +4,23 @@ import { ColorByColumnNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
 import { DataColumn, extractCategoryValueSafe, stringToMillis } from './columns'
-import { ActiveDataViewType } from './dataSlice'
-import { EntityId, EntityIdNone } from './entities'
-import { EMPTY_EVENT_DATA, EventData, EventDataColumn, EventDataColumnType, PatientJourneyEvent } from './events'
-import { filterReducer, GenericFilter } from './filtering'
-import { EMPTY_PATIENT_DATA, Patient, PatientData, PatientDataColumn } from './patients'
+import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
+import { EventDataColumnType, PatientJourneyEvent } from './events'
+import { filterReducer } from './filtering'
+import { Patient, PatientDataColumnType } from './patients'
+import { EntityIdNone } from './entities'
 
-export const selectDataLoadingState = (s: RootState) => {
-  return s.data.type
+const selectData = (s: RootState): DataStateLoadingComplete => {
+  if (s.data.type === 'loading-complete') {
+    return s.data
+  } else {
+    throw new Error('Illegal state')
+  }
 }
+
+export const selectDataLoadingState = (s: RootState) => s.data.type
+
+export const selectDataView = createSelector(selectData, (data) => data.view)
 
 export const selectDataLoadingErrorMessage = (s: RootState): string => {
   if (s.data.type === 'loading-failed') {
@@ -22,111 +30,66 @@ export const selectDataLoadingErrorMessage = (s: RootState): string => {
   }
 }
 
-const selectPatientDataRows = (s: RootState): PatientData['allEntities'] => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.patientData.allEntities
-  } else {
-    return EMPTY_PATIENT_DATA.allEntities
-  }
-}
+const selectPatientDataRows = createSelector(selectData, (data) => data.patientData.allEntities)
+const selectEventDataRows = createSelector(selectData, (data) => data.eventData.allEntities)
 
-const selectEventDataRows = (s: RootState): EventData['allEntities'] => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.eventData.allEntities
-  } else {
-    return EMPTY_EVENT_DATA.allEntities
-  }
-}
-
-export const selectActiveData = (s: RootState): PatientData['allEntities'] | EventData['allEntities'] => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.view === 'patients' ? s.data.patientData.allEntities : s.data.eventData.allEntities
-  } else {
-    return EMPTY_PATIENT_DATA.allEntities
-  }
-}
-
-const selectPatientDataColumns = (s: RootState): ReadonlyArray<PatientDataColumn> => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.patientData.columns
-  } else {
-    return EMPTY_PATIENT_DATA.columns
-  }
-}
-
-const selectEventDataColumns = (s: RootState): ReadonlyArray<EventDataColumn> => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.eventData.columns
-  } else {
-    return EMPTY_EVENT_DATA.columns
-  }
-}
-
-export const selectActiveDataColumns = (s: RootState): ReadonlyArray<PatientDataColumn | EventDataColumn> => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.view === 'patients' ? s.data.patientData.columns : s.data.eventData.columns
-  } else {
-    return EMPTY_PATIENT_DATA.columns
-  }
-}
-
-export const selectSelectedActiveEntity = (s: RootState): EntityId => {
-  if (s.data.type === 'loading-complete') {
-    return (s.data.view === 'patients' ? s.data.patientData : s.data.eventData).selectedEntity
-  } else {
-    return EntityIdNone
-  }
-}
-
-export const selectHoveredActiveEntity = (s: RootState): EntityId => {
-  if (s.data.type === 'loading-complete') {
-    return (s.data.view === 'patients' ? s.data.patientData : s.data.eventData).hoveredEntity
-  } else {
-    return EntityIdNone
-  }
-}
-
-export const selectActiveEntity = createSelector(
-  selectSelectedActiveEntity,
-  selectHoveredActiveEntity,
-  (selected, hovered) => {
-    return hovered !== EntityIdNone ? hovered : selected
-  }
+export const selectActiveData = createSelector(
+  selectDataView,
+  selectPatientDataRows,
+  selectEventDataRows,
+  (view, patients, events) => (view === 'patients' ? patients : events)
 )
 
-export const selectPidColumnName = (s: RootState): string => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.patientData.columns.find((c) => c.type === 'pid')!.name
+const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
+const selectEventDataColumns = createSelector(selectData, (data) => data.eventData.columns)
+
+export const selectActiveDataColumns = createSelector(
+  selectDataView,
+  selectPatientDataColumns,
+  selectEventDataColumns,
+  (view, patientDataColumns, eventDataColumns) => (view === 'patients' ? patientDataColumns : eventDataColumns)
+)
+
+export const selectHoveredEntity = createSelector(selectData, (data) => data.hovered)
+export const selectSelectedEntity = createSelector(selectData, (data) => data.selected)
+export const selectFocusEntity = createSelector(selectHoveredEntity, selectSelectedEntity, (hovered, selected) =>
+  hovered.type !== 'none' ? hovered : selected
+)
+
+const selectActiveEntity = (view: ActiveDataViewType, entity: FocusEntity) => {
+  if ((view === 'patients' && entity.type === 'patient') || (view === 'events' && entity.type === 'event')) {
+    return entity.uid
   } else {
-    return 'Patient ID'
+    return EntityIdNone
   }
 }
 
-export const selectEventColumn =
-  (columnType: EventDataColumnType) =>
-  (s: RootState): EventDataColumn => {
-    if (s.data.type === 'loading-complete') {
-      return s.data.eventData.columns.find((c) => c.type === columnType)!
-    } else {
-      throw new Error('Illegal state')
-    }
-  }
+export const selectActiveSelectedEntity = createSelector(selectDataView, selectSelectedEntity, selectActiveEntity)
+export const selectActiveHoveredEntity = createSelector(selectDataView, selectHoveredEntity, selectActiveEntity)
 
-export const selectDataView = (s: RootState): ActiveDataViewType => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.view
-  } else {
-    return 'patients'
-  }
-}
+const selectPatientDataColumnType = (s: RootState, columnType: PatientDataColumnType) => columnType
 
-export const selectAllFilters = (s: RootState): ReadonlyArray<GenericFilter> => {
-  if (s.data.type === 'loading-complete') {
-    return s.data.filters
-  } else {
-    return []
-  }
-}
+export const selectPatientDataColumn = createSelector(
+  selectPatientDataColumns,
+  selectPatientDataColumnType,
+  (columns, columnType) => columns.find((c) => c.type === columnType)!
+)
+
+export const selectPatientDataPidColumn = (s: RootState) => selectPatientDataColumn(s, 'pid')
+
+const selectEventDataColumnType = (s: RootState, columnType: EventDataColumnType) => columnType
+
+export const selectEventDataColumn = createSelector(
+  selectEventDataColumns,
+  selectEventDataColumnType,
+  (columns, columnType) => columns.find((c) => c.type === columnType)!
+)
+
+export const selectEventDataEidColumn = (s: RootState) => selectEventDataColumn(s, 'eid')
+export const selectEventDataPidColumn = (s: RootState) => selectEventDataColumn(s, 'pid')
+export const selectEventDataTimestampColumn = (s: RootState) => selectEventDataColumn(s, 'timestamp')
+
+export const selectAllFilters = createSelector(selectData, (data) => data.filters)
 
 const selectPatientFilters = createSelector(selectPatientDataColumns, selectAllFilters, (patientDataColumns, filters) =>
   filters.filter((filter) => patientDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
