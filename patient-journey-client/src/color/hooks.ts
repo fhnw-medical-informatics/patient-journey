@@ -3,11 +3,12 @@ import { useTheme } from '@mui/material'
 import { scaleOrdinal } from 'd3-scale'
 import { interpolatePlasma, schemeSet1, schemeSet2 } from 'd3-scale-chromatic'
 import { ColorByColumnNone, ColorByColumnOption } from './colorSlice'
-import { useColorByColumn } from './useColorByColumn'
 import { FilterColumn } from '../data/filtering'
 import { Entity } from '../data/entities'
 import { useCurrentColorColumnNumberRange } from '../data/hooks'
 import { stringToMillis } from '../data/columns'
+import { useAppSelector } from '../store'
+import { selectColorByColumn } from './selectors'
 
 export type ColorByColumnFn = (entity?: Entity) => string
 export type ColorByCategoryFn = (category?: string) => string
@@ -85,3 +86,5 @@ export const useColor = (): ColorBy => {
 const getFieldValue = (entity: Entity, column: FilterColumn): string => {
   return entity.values[column.index]
 }
+
+export const useColorByColumn = () => useAppSelector<ColorByColumnOption>(selectColorByColumn)

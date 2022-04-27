@@ -9,13 +9,13 @@ import { makeStyles } from '../../utils'
 import { Entity, EntityId, EntityIdNone } from '../../data/entities'
 import { DataColumn, formatColumnValue } from '../../data/columns'
 import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
-import { ColorByColumnFn } from '../../color/useColor'
+import { ColorByColumnFn } from '../../color/hooks'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
 
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()({
   root: {
     display: 'grid',
     width: '100%',
@@ -26,7 +26,7 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     height: '100%',
   },
-}))
+})
 
 interface Props {
   readonly rows: ReadonlyArray<Entity>

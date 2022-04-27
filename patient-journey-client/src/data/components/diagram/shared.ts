@@ -2,7 +2,7 @@ import { Theme } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { Entity } from '../../entities'
 import { ColorByColumnOption } from '../../../color/colorSlice'
-import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/useColor'
+import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
 import { DataColumn } from '../../columns'
 
 export interface DataDiagramsProps<T> {

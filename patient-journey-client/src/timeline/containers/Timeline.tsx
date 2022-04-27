@@ -23,8 +23,8 @@ import {
   useExpandByColumn,
 } from '../hooks'
 import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
-import { useColor } from '../../color/useColor'
-import { useColorByColumn } from '../../color/useColorByColumn'
+import { useColor } from '../../color/hooks'
+import { useColorByColumn } from '../../color/hooks'
 
 export const Timeline = () => {
   const { colorByColumnFn, colorByCategoryFn } = useColor()

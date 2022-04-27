@@ -9,7 +9,7 @@ import { DataFilter } from './DataFilter'
 import { FilterCard } from './FilterCard'
 import { ActiveDataViewType } from '../../dataSlice'
 import { ColorByColumnOption } from '../../../color/colorSlice'
-import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/useColor'
+import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
 
 const useStyles = makeStyles()((theme) => ({
   title: {

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useColor } from '../../color/useColor'
+import { useColor } from '../../color/hooks'
 import { DataTable as DataTableComponent } from '../components/DataTable'
 import {
   useActiveDataColumns,
