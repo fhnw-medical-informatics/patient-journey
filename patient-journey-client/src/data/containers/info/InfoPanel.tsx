@@ -13,7 +13,7 @@ import { PatientId } from '../../patients'
 import { EventId } from '../../events'
 import { useColorByInfo } from '../../../color/hooks'
 
-export const InfoPanel = () => {
+export const InfoPanel = React.memo(() => {
   const patientDataPidColumnName = usePatientDataPidColumn().name
 
   const eventDataEidColumnName = useEventDataEidColumn().name
@@ -63,4 +63,4 @@ export const InfoPanel = () => {
     eventDataTimestampValueFn,
   ])
   return <InfoPanelComponent focusEntityInfo={focusEntityInfo} colorByInfo={colorByInfo(focusEntity.uid)} />
-}
+})

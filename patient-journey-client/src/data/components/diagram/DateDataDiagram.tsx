@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import { bin, extent } from 'd3-array'
 import { ScaleTime, scaleTime } from 'd3-scale'
-import { BarDatum, ResponsiveBar } from '@nivo/bar'
+import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { extractDateValueSafe, format } from '../../columns'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
@@ -46,13 +46,16 @@ export const DateDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const colors = (node: any) => {
-    if (node.id === 'filteredOut') {
-      return greyColor(theme)
-    } else {
-      return colorByNumberFn(node?.data?.binEnd?.valueOf())
-    }
-  }
+  const colors = useCallback(
+    (node: any) => {
+      if (node.id === 'filteredOut') {
+        return greyColor(theme)
+      } else {
+        return colorByNumberFn(node?.data?.binEnd?.valueOf())
+      }
+    },
+    [colorByNumberFn, theme]
+  )
 
   const extractValueSafe = useMemo(() => extractDateValueSafe(column), [column])
 
@@ -114,7 +117,7 @@ export const DateDataDiagram = ({
 
   return (
     <div className={classes.container}>
-      <ResponsiveBar
+      <ResponsiveBarCanvas
         data={data as unknown as BarDatum[]}
         indexBy={'binIndex'}
         keys={['filteredIn', 'filteredOut']}

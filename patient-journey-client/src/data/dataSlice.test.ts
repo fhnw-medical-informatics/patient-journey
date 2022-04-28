@@ -24,6 +24,7 @@ import {
   selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
 } from './selectors'
+import { EntityIdNone } from './entities'
 
 const PID_1 = 'PID_1' as PatientId
 const TEST_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
@@ -281,6 +282,16 @@ describe('dataSlice', () => {
     expect(getSelected()).toEqual(PID_1)
     store.dispatch(setSelectedEntity(PatientIdNone))
     expect(getSelected()).toEqual(PatientIdNone)
+  })
+
+  it(`sets the selected entity uid to ${EntityIdNone} when the same entity gets set again`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getSelected = () => selectActiveSelectedEntity(store.getState())
+    expect(getSelected()).toEqual(EntityIdNone)
+    store.dispatch(setSelectedEntity({ uid: PID_1, type: 'patient' }))
+    expect(getSelected()).toEqual(PID_1)
+    store.dispatch(setSelectedEntity({ uid: PID_1, type: 'patient' }))
+    expect(getSelected()).toEqual(EntityIdNone)
   })
 
   it(`handles ${setHoveredEntity.type} action`, async () => {

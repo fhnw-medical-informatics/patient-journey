@@ -13,7 +13,7 @@ import { setSorting } from '../tableSlice'
 import { selectDataView } from '../../data/selectors'
 import { ColumnSortingState } from '../../data/sorting'
 
-export const DataTable = () => {
+export const DataTable = React.memo(() => {
   const view = useAppSelector(selectDataView)
   const activeData = useFilteredActiveData()
   const activeColumns = useActiveDataColumns()
@@ -43,4 +43,4 @@ export const DataTable = () => {
       colorByColumnFn={colorByColumnFn}
     />
   )
-}
+})

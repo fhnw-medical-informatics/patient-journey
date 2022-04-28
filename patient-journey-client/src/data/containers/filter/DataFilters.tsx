@@ -12,7 +12,7 @@ import { GenericFilter } from '../../filtering'
 import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlice'
 import { useColor } from '../../../color/hooks'
 
-export const DataFilters = () => {
+export const DataFilters = React.memo(() => {
   const activeView = useActiveDataView()
   const allActiveData = useActiveData()
   const filteredActiveData = useFilteredActiveData()
@@ -51,4 +51,4 @@ export const DataFilters = () => {
       colorByCategoryFn={colorByCategoryFn}
     />
   )
-}
+})

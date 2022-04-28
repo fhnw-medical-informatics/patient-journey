@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react'
-import { BarDatum, ResponsiveBar } from '@nivo/bar'
+import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { extractCategoryValueSafe } from '../../columns'
-import { useAllActiveDataCategories, useUniqueActiveDataCategories } from '../../hooks'
+import { useCategories } from './hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -37,21 +37,25 @@ export const CategoryDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const colors = (node: any) => {
-    if (node.id === 'filteredOut') {
-      return greyColor(theme)
-    } else {
-      return colorByCategoryFn(node?.data?.category.valueOf())
-    }
-  }
+  const colors = useCallback(
+    (node: any) => {
+      if (node.id === 'filteredOut') {
+        return greyColor(theme)
+      } else {
+        return colorByCategoryFn(node?.data?.category.valueOf())
+      }
+    },
+    [colorByCategoryFn, theme]
+  )
 
-  const filteredCategories = useMemo(() => {
-    const extractValue = extractCategoryValueSafe(column)
-    return filteredActiveData.flatMap(extractValue)
-  }, [filteredActiveData, column])
+  const extractValueSafe = useMemo(() => extractCategoryValueSafe(column), [column])
 
-  const allCategories = useAllActiveDataCategories(column)
-  const uniqueCategories = useUniqueActiveDataCategories(column)
+  const filteredCategories = useMemo(
+    () => filteredActiveData.flatMap(extractValueSafe),
+    [filteredActiveData, extractValueSafe]
+  )
+
+  const { allCategories, uniqueCategories } = useCategories(allActiveData, column)
 
   const data = useMemo(() => {
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {
@@ -81,7 +85,7 @@ export const CategoryDataDiagram = ({
 
   return (
     <div className={classes.container}>
-      <ResponsiveBar
+      <ResponsiveBarCanvas
         data={data as unknown as BarDatum[]}
         indexBy={'binIndex'}
         keys={['filteredIn', 'filteredOut']}

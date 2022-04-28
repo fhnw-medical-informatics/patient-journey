@@ -85,7 +85,7 @@ const dataSlice = createSlice({
     },
     setSelectedEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
       mutateLoadedDataState(state, (s) => {
-        if (s.selected === action.payload) {
+        if (s.selected.uid === action.payload.uid && s.selected.type === action.payload.type) {
           s.selected = FOCUS_ENTITY_NONE
         } else {
           s.selected = action.payload.uid === EntityIdNone ? FOCUS_ENTITY_NONE : action.payload
