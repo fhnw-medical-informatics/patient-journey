@@ -91,13 +91,14 @@ export const selectPatientDataPidColumn = (s: RootState) => selectPatientDataCol
 
 const selectEventDataColumnType = (s: RootState, columnType: EventDataColumnType) => columnType
 
+// TODO: Altough it doesn't seem to be an issue right now, this selectors memoization
+// is not effective as it is called multiple times with different columnType (overwriting the memoized value each time)
 const selectEventDataColumn = createSelector(
   selectEventDataColumns,
   selectEventDataColumnType,
   (columns, columnType) => columns.find((c) => c.type === columnType)!
 )
 
-// TODO: Check this in terms of performance
 export const selectEventDataEidColumn = (s: RootState) => selectEventDataColumn(s, 'eid')
 export const selectEventDataPidColumn = (s: RootState) => selectEventDataColumn(s, 'pid')
 export const selectEventDataTimestampColumn = (s: RootState) => selectEventDataColumn(s, 'timestamp')

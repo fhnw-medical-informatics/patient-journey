@@ -51,8 +51,6 @@ export interface EntityInteraction {
 
 export const useActiveEntityInteraction = (): EntityInteraction => {
   const activeView = useActiveDataView()
-
-  // TODO: Check this in terms of performance
   const type = activeView === 'patients' ? 'patient' : 'event'
   return useEntityInteraction(type)
 }
