@@ -26,7 +26,7 @@ import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
 import { useColorByColumn } from '../../color/hooks'
 
-export const Timeline = () => {
+export const Timeline = React.memo(() => {
   const { colorByColumnFn, colorByCategoryFn } = useColor()
   const events = useActiveDataAsEvents(colorByColumnFn)
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
@@ -79,4 +79,4 @@ export const Timeline = () => {
       onCursorPositionChange={onCursorPositionChange}
     />
   )
-}
+})
