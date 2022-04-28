@@ -18,7 +18,12 @@ import { Patient, PatientId, PatientIdNone } from './patients'
 import { EventId, PatientJourneyEvent } from './events'
 import { DATA_LOADING_ERROR } from './loading'
 import { createStoreWithMockData } from '../test/createStoreWithMockData'
-import { selectAllFilters, selectDataView, selectActiveHoveredEntity, selectActiveSelectedEntity } from './selectors'
+import {
+  selectAllFilters,
+  selectDataView,
+  selectActiveHoveredEventEntity,
+  selectActiveSelectedEntity,
+} from './selectors'
 
 const PID_1 = 'PID_1' as PatientId
 const TEST_PATIENT_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
@@ -280,7 +285,7 @@ describe('dataSlice', () => {
 
   it(`handles ${setHoveredEntity.type} action`, async () => {
     const { store } = await createStoreWithMockData()
-    const getHovered = () => selectActiveHoveredEntity(store.getState())
+    const getHovered = () => selectActiveHoveredEventEntity(store.getState())
     expect(getHovered()).toEqual(PatientIdNone)
     store.dispatch(setHoveredEntity({ uid: PID_1, type: 'patient' }))
     expect(getHovered()).toEqual(PID_1)
