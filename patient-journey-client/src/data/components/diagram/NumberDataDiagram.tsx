@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
 import { bin, extent } from 'd3-array'
 import { ScaleLinear, scaleLinear } from 'd3-scale'
-import { BarDatum, ResponsiveBar } from '@nivo/bar'
+import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
@@ -47,13 +47,16 @@ export const NumberDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const colors = (node: any) => {
-    if (node.id === 'filteredOut') {
-      return greyColor(theme)
-    } else {
-      return colorByNumberFn(node?.data?.binEnd?.valueOf())
-    }
-  }
+  const colors = useCallback(
+    (node: any) => {
+      if (node.id === 'filteredOut') {
+        return greyColor(theme)
+      } else {
+        return colorByNumberFn(node?.data?.binEnd?.valueOf())
+      }
+    },
+    [colorByNumberFn, theme]
+  )
 
   const extractValueSafe = useMemo(() => extractNumberValueSafe(column), [column])
 
@@ -112,7 +115,7 @@ export const NumberDataDiagram = ({
 
   return (
     <div className={classes.container}>
-      <ResponsiveBar
+      <ResponsiveBarCanvas
         data={data as unknown as BarDatum[]}
         indexBy={'binIndex'}
         keys={['filteredIn', 'filteredOut']}

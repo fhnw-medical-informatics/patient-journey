@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react'
-import { BarDatum, ResponsiveBar } from '@nivo/bar'
+import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
@@ -37,13 +37,16 @@ export const CategoryDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const colors = (node: any) => {
-    if (node.id === 'filteredOut') {
-      return greyColor(theme)
-    } else {
-      return colorByCategoryFn(node?.data?.category.valueOf())
-    }
-  }
+  const colors = useCallback(
+    (node: any) => {
+      if (node.id === 'filteredOut') {
+        return greyColor(theme)
+      } else {
+        return colorByCategoryFn(node?.data?.category.valueOf())
+      }
+    },
+    [colorByCategoryFn, theme]
+  )
 
   const extractValueSafe = useMemo(() => extractCategoryValueSafe(column), [column])
 
@@ -82,7 +85,7 @@ export const CategoryDataDiagram = ({
 
   return (
     <div className={classes.container}>
-      <ResponsiveBar
+      <ResponsiveBarCanvas
         data={data as unknown as BarDatum[]}
         indexBy={'binIndex'}
         keys={['filteredIn', 'filteredOut']}

@@ -110,7 +110,7 @@ const TimelineCanvasMarks = <EID extends string, LID extends string, E extends T
 
   return (
     <foreignObject x="0" y="0" width={width} height={height}>
-      <canvas ref={canvasRef} width={width} height={height} className={classes.layer}></canvas>
+      <canvas ref={canvasRef} className={classes.layer}></canvas>
     </foreignObject>
   )
 }
