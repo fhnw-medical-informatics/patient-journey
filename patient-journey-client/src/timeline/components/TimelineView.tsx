@@ -1,11 +1,11 @@
 import React from 'react'
 import { PatientId } from '../../data/patients'
 import {
-  Timeline as SVGTimeline,
+  deriveTimelineTheme,
   LaneDisplayMode,
+  Timeline as SVGTimeline,
   TimelineEvent,
   TimelineLane,
-  deriveTimelineTheme,
 } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { useTheme } from '@mui/material'
@@ -15,6 +15,7 @@ import { TimelineCanvasMarksInteractionLayer } from '../containers/TimelineCanva
 import { MouseAwareSvg } from './MouseAwareSvg'
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
 import { TimelineActiveMarksLayer } from '../containers/TimelineActiveMarks'
+import { TimelineAxesLayer } from './TimelineAxesLayer'
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, any>>
@@ -63,7 +64,7 @@ export const TimelineView = ({
                 theme={timelineTheme}
                 layers={[
                   'grid',
-                  'axes',
+                  TimelineAxesLayer,
                   TimelineCanvasMarksLayer,
                   'interaction',
                   TimelineCanvasMarksInteractionLayer,
