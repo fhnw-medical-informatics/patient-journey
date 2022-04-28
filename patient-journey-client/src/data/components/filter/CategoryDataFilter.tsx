@@ -5,17 +5,26 @@ import MenuItem from '@mui/material/MenuItem'
 
 import { createFilter, Filter } from '../../filtering'
 import { DataColumn } from '../../columns'
-import { useUniqueActiveDataCategories } from '../../hooks'
 import { Checkbox, FormControl, InputLabel, ListItemText } from '@mui/material'
+import { useCategories } from '../diagram/hooks'
+import { Entity } from '../../entities'
 
 export interface CategoryDataFilterProps extends Filter<'category'> {
+  allActiveData: ReadonlyArray<Entity>
   column: DataColumn<'category'>
   onChange: (filter: Filter<'category'>) => void
   onRemove: (filter: Filter<'category'>) => void
 }
 
-export const CategoryDataFilter = ({ column, type, value, onChange, onRemove }: CategoryDataFilterProps) => {
-  const uniqueCategories = useUniqueActiveDataCategories(column)
+export const CategoryDataFilter = ({
+  allActiveData,
+  column,
+  type,
+  value,
+  onChange,
+  onRemove,
+}: CategoryDataFilterProps) => {
+  const { uniqueCategories } = useCategories(allActiveData, column)
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
     const selected = event.target.value as unknown as string[]

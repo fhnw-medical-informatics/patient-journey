@@ -3,7 +3,7 @@ import { max, min } from 'd3-array'
 import { ColorByColumnNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
-import { DataColumn, extractCategoryValueSafe, formatColumnValue, stringToMillis } from './columns'
+import { formatColumnValue, stringToMillis } from './columns'
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { filterReducer } from './filtering'
@@ -91,6 +91,8 @@ export const selectPatientDataPidColumn = (s: RootState) => selectPatientDataCol
 
 const selectEventDataColumnType = (s: RootState, columnType: EventDataColumnType) => columnType
 
+// TODO: Altough it doesn't seem to be an issue right now, this selectors memoization
+// is not effective as it is called multiple times with different columnType (overwriting the memoized value each time)
 const selectEventDataColumn = createSelector(
   selectEventDataColumns,
   selectEventDataColumnType,
@@ -212,23 +214,5 @@ export const selectCurrentColorColumnNumberRange = createSelector(
       default:
         return null
     }
-  }
-)
-
-const selectDataCategoryColumn = (s: RootState, column: DataColumn<'category'>) => column
-
-export const selectAllActiveDataCategories = createSelector(
-  selectActiveData,
-  selectDataCategoryColumn,
-  (activeData, column) => {
-    const valueExtractor = extractCategoryValueSafe(column)
-    return activeData.flatMap(valueExtractor)
-  }
-)
-
-export const selectUniqueActiveDataCategories = createSelector(
-  selectAllActiveDataCategories,
-  (allActiveDataCategories) => {
-    return Array.from(new Set(allActiveDataCategories))
   }
 )
