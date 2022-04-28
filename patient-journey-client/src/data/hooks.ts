@@ -21,6 +21,7 @@ import {
   selectHoveredEntity,
   selectPatientDataPidColumn,
   selectSelectedEntity,
+  selectTimelineDataColumns,
   selectUniqueActiveDataCategories,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
@@ -39,6 +40,8 @@ export const useCrossFilteredPatientData = () => useAppSelector(selectCrossFilte
 export const useCrossFilteredEventData = () => useAppSelector(selectCrossFilteredEventData)
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
+export const useTimelineDataColumns = () => useAppSelector(selectTimelineDataColumns)
+
 export const useAllFilters = () => useAppSelector(selectAllFilters)
 
 export const useHoveredEntity = () => useAppSelector(selectHoveredEntity)

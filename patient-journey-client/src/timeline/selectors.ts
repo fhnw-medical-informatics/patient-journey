@@ -4,12 +4,12 @@ import { ColorByCategoryFn, ColorByColumnFn } from '../color/useColor'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
 import { EventDataColumn, PatientJourneyEvent } from '../data/events'
-import { Patient, PatientDataColumn, PatientId } from '../data/patients'
+import { PatientId } from '../data/patients'
 import {
-  selectActiveDataColumns,
-  selectFilteredActiveData,
   selectActiveHoveredEntity,
   selectActiveSelectedEntity,
+  selectEventDataColumns,
+  selectCrossFilteredEventData,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -26,8 +26,8 @@ const selectColorByColumnFn = (s: RootState, colorByColumnFn: ColorByColumnFn): 
 const convertEntityToTimelineEvent = (
   viewByColumn: TimelineColumn,
   expandByColumn: TimelineColumn,
-  activeColumns: ReadonlyArray<PatientDataColumn | EventDataColumn>,
-  activeData: ReadonlyArray<Patient | PatientJourneyEvent>,
+  activeColumns: ReadonlyArray<EventDataColumn>,
+  activeData: ReadonlyArray<PatientJourneyEvent>,
   colorByColumnFn?: ColorByColumnFn
 ) => {
   return viewByColumn !== TimelineColumnNone &&
@@ -48,8 +48,8 @@ const convertEntityToTimelineEvent = (
 export const selectFilteredActiveDataAsEvents = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
-  selectActiveDataColumns,
-  selectFilteredActiveData,
+  selectEventDataColumns,
+  selectCrossFilteredEventData,
   selectColorByColumnFn,
   (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) =>
     convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
@@ -58,8 +58,8 @@ export const selectFilteredActiveDataAsEvents = createSelector(
 export const selectFilteredActiveDataAsEventsWithoutColor = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
-  selectActiveDataColumns,
-  selectFilteredActiveData,
+  selectEventDataColumns,
+  selectCrossFilteredEventData,
   (viewByColumn, expandByColumn, activeColumns, activeData) =>
     convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData)
 )
@@ -91,7 +91,7 @@ const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategor
 
 export const selectFilteredActiveDataAsLanes = createSelector(
   selectExpandByColumn,
-  selectFilteredActiveData,
+  selectCrossFilteredEventData,
   selectColorByCategoryFn,
   (expandByColumn, activeData, colorByCategoryFn) =>
     Array.from(

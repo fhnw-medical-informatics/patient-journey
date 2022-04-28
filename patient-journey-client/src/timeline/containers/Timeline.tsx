@@ -13,7 +13,7 @@ import {
   TimelineColumn,
   TimelineColumnNone,
 } from '../timelineSlice'
-import { useActiveDataColumns } from '../../data/hooks'
+import { useTimelineDataColumns } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import {
   useActiveDataAsEvents,
@@ -33,8 +33,10 @@ export const Timeline = () => {
   const cluster = useTimelineCluster()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
-  const activeColumns = useActiveDataColumns()
+  const activeColumns = useTimelineDataColumns()
   const colorByColumn = useColorByColumn()
+
+  console.log(events)
 
   const dispatch = useAppDispatch()
 
