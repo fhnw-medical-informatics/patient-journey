@@ -3,7 +3,7 @@ import { max, min } from 'd3-array'
 import { ColorByColumnNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
-import { DataColumn, extractCategoryValueSafe, formatColumnValue, stringToMillis } from './columns'
+import { formatColumnValue, stringToMillis } from './columns'
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { filterReducer } from './filtering'
@@ -97,6 +97,7 @@ const selectEventDataColumn = createSelector(
   (columns, columnType) => columns.find((c) => c.type === columnType)!
 )
 
+// TODO: Check this in terms of performance
 export const selectEventDataEidColumn = (s: RootState) => selectEventDataColumn(s, 'eid')
 export const selectEventDataPidColumn = (s: RootState) => selectEventDataColumn(s, 'pid')
 export const selectEventDataTimestampColumn = (s: RootState) => selectEventDataColumn(s, 'timestamp')
@@ -212,23 +213,5 @@ export const selectCurrentColorColumnNumberRange = createSelector(
       default:
         return null
     }
-  }
-)
-
-const selectDataCategoryColumn = (s: RootState, column: DataColumn<'category'>) => column
-
-export const selectAllActiveDataCategories = createSelector(
-  selectActiveData,
-  selectDataCategoryColumn,
-  (activeData, column) => {
-    const valueExtractor = extractCategoryValueSafe(column)
-    return activeData.flatMap(valueExtractor)
-  }
-)
-
-export const selectUniqueActiveDataCategories = createSelector(
-  selectAllActiveDataCategories,
-  (allActiveDataCategories) => {
-    return Array.from(new Set(allActiveDataCategories))
   }
 )

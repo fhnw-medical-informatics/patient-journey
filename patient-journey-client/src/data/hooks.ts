@@ -5,7 +5,6 @@ import {
   selectActiveDataColumns,
   selectActiveHoveredEntity,
   selectActiveSelectedEntity,
-  selectAllActiveDataCategories,
   selectAllFilters,
   selectCurrentColorColumnNumberRange,
   selectDataLoadingErrorMessage,
@@ -21,11 +20,9 @@ import {
   selectHoveredEntity,
   selectPatientDataPidColumn,
   selectSelectedEntity,
-  selectUniqueActiveDataCategories,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
-import { DataColumn } from './columns'
 import { useCallback } from 'react'
 
 export const useDataLoadingState = () => useAppSelector(selectDataLoadingState)
@@ -54,6 +51,8 @@ export interface EntityInteraction {
 
 export const useActiveEntityInteraction = (): EntityInteraction => {
   const activeView = useActiveDataView()
+
+  // TODO: Check this in terms of performance
   const type = activeView === 'patients' ? 'patient' : 'event'
   return useEntityInteraction(type)
 }
@@ -89,9 +88,3 @@ export const useEventDataPidValues = () => useAppSelector(selectEventDataPidValu
 export const useEventDataTimestampValuesFormatted = () => useAppSelector(selectEventDataTimestampValuesFormatted)
 
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
-
-export const useAllActiveDataCategories = (column: DataColumn<'category'>) =>
-  useAppSelector((state) => selectAllActiveDataCategories(state, column))
-
-export const useUniqueActiveDataCategories = (column: DataColumn<'category'>) =>
-  useAppSelector((state) => selectUniqueActiveDataCategories(state, column))

@@ -8,8 +8,10 @@ import { NumberDataFilter } from './NumberDataFilter'
 import { TextDataFilter } from './TextDataFilter'
 import { CategoryDataFilter } from './CategoryDataFilter'
 import { DataColumn } from '../../columns'
+import { Entity } from '../../entities'
 
 export interface DataFilterProps<T extends FilterColumn['type']> {
+  allActiveData: ReadonlyArray<Entity>
   column: FilterColumn
   type: T
   filter?: Filter<T>
@@ -18,6 +20,7 @@ export interface DataFilterProps<T extends FilterColumn['type']> {
 }
 
 export const DataFilter = <T extends FilterColumn['type']>({
+  allActiveData,
   column,
   type,
   filter,
@@ -83,6 +86,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
     case 'category':
       return (
         <CategoryDataFilter
+          allActiveData={allActiveData}
           column={column as DataColumn<'category'>}
           type={type}
           value={(filter as Filter<'category'> | undefined)?.value ?? { categories: [] }}

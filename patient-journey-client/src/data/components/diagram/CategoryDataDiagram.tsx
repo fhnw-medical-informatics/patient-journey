@@ -5,7 +5,7 @@ import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { extractCategoryValueSafe } from '../../columns'
-import { useAllActiveDataCategories, useUniqueActiveDataCategories } from '../../hooks'
+import { useCategories } from './hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -45,13 +45,14 @@ export const CategoryDataDiagram = ({
     }
   }
 
-  const filteredCategories = useMemo(() => {
-    const extractValue = extractCategoryValueSafe(column)
-    return filteredActiveData.flatMap(extractValue)
-  }, [filteredActiveData, column])
+  const extractValueSafe = useMemo(() => extractCategoryValueSafe(column), [column])
 
-  const allCategories = useAllActiveDataCategories(column)
-  const uniqueCategories = useUniqueActiveDataCategories(column)
+  const filteredCategories = useMemo(
+    () => filteredActiveData.flatMap(extractValueSafe),
+    [filteredActiveData, extractValueSafe]
+  )
+
+  const { allCategories, uniqueCategories } = useCategories(allActiveData, column)
 
   const data = useMemo(() => {
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {
