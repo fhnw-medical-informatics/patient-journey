@@ -8,16 +8,16 @@ import { scaleSqrt } from 'd3-scale'
 import { makeStyles } from '../../utils'
 
 import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
-import { TIMELINE_MARK_SIZE } from './SvgMark'
+import { calcMarkSize } from './SvgMark'
 
 type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()({
   layer: {
     width: '100%',
     height: '100%',
   },
-}))
+})
 
 const TimelineCanvasMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>({
   height,
@@ -62,10 +62,9 @@ const TimelineCanvasMarks = <EID extends string, LID extends string, E extends T
 
       // Draw Clusters
       const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))
-      const clusterRadiusMin = TIMELINE_MARK_SIZE / 2
-
-      const clusterRadiusMax =
-        laneDisplayMode === 'expanded' ? yScale.bandwidth() / 1.2 : Math.min(height / 2, 2 * TIMELINE_MARK_SIZE)
+      const markSize = calcMarkSize(laneDisplayMode, yScale.bandwidth())
+      const clusterRadiusMin = markSize / 2
+      const clusterRadiusMax = laneDisplayMode === 'expanded' ? markSize : Math.min(height / 2, 2 * markSize)
 
       const clusterScale = scaleSqrt()
         .domain([clusterSizeDomainMin ?? 0, clusterSizeDomainMax ?? 0])
@@ -96,7 +95,7 @@ const TimelineCanvasMarks = <EID extends string, LID extends string, E extends T
         // grouping events by color and then beginPath()ing
         // and filling/stroking only once per color.
         ctx.beginPath()
-        ctx.arc(x, y, TIMELINE_MARK_SIZE / 2, 0, 360)
+        ctx.arc(x, y, markSize / 2, 0, 360)
         ctx.fill()
         ctx.stroke()
         // ctx.closePath() - ctx.fill() automatically closes the path
