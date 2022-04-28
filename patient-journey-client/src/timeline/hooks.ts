@@ -1,4 +1,4 @@
-import { ColorByCategoryFn, ColorByColumnFn } from '../color/useColor'
+import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { useAppSelector } from '../store'
 
 import {

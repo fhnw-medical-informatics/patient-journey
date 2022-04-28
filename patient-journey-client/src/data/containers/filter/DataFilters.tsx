@@ -10,7 +10,7 @@ import {
 import { DataFilters as DataFiltersComponent } from '../../components/filter/DataFilters'
 import { GenericFilter } from '../../filtering'
 import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlice'
-import { useColor } from '../../../color/useColor'
+import { useColor } from '../../../color/hooks'
 
 export const DataFilters = () => {
   const activeView = useActiveDataView()
@@ -20,7 +20,7 @@ export const DataFilters = () => {
   const filters = useAllFilters()
   const activeColums = useActiveDataColumns()
 
-  const [, colorByCategoryFn, colorByNumberFn, colorByColumn] = useColor()
+  const { colorByCategoryFn, colorByNumberFn, colorByColumn } = useColor()
 
   const dispatch = useAppDispatch()
 

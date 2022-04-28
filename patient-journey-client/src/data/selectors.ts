@@ -7,8 +7,8 @@ import { DataColumn, extractCategoryValueSafe, formatColumnValue, stringToMillis
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { filterReducer } from './filtering'
-import { Patient, PatientDataColumnType } from './patients'
-import { EntityIdNone } from './entities'
+import { Patient, PatientDataColumnType, PatientId } from './patients'
+import { Entity, EntityId, EntityIdNone } from './entities'
 
 const selectData = (s: RootState): DataStateLoadingComplete => {
   if (s.data.type === 'loading-complete') {
@@ -30,14 +30,26 @@ export const selectDataLoadingErrorMessage = (s: RootState): string => {
   }
 }
 
+const entitiesToMap = (entities: ReadonlyArray<Entity>) => new Map(entities.map((e) => [e.uid, e]))
+
 const selectPatientDataRows = createSelector(selectData, (data) => data.patientData.allEntities)
+const selectPatientDataRowMap = createSelector(selectPatientDataRows, entitiesToMap)
+
 const selectEventDataRows = createSelector(selectData, (data) => data.eventData.allEntities)
+const selectEventDataRowMap = createSelector(selectEventDataRows, entitiesToMap)
 
 export const selectActiveData = createSelector(
   selectDataView,
   selectPatientDataRows,
   selectEventDataRows,
   (view, patients, events) => (view === 'patients' ? patients : events)
+)
+
+export const selectActiveDataByEntityIdMap = createSelector(
+  selectDataView,
+  selectPatientDataRowMap,
+  selectEventDataRowMap,
+  (view, patientMap, eventMap): ReadonlyMap<EntityId, Entity> => (view === 'patients' ? patientMap : eventMap)
 )
 
 const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
@@ -93,14 +105,20 @@ export const selectEventDataTimestampColumn = (s: RootState) => selectEventDataC
 
 const selectEventDataByIdMap = createSelector(
   selectEventDataRows,
-  (events): ReadonlyMap<EventId, PatientJourneyEvent> => {
-    const map = new Map<EventId, PatientJourneyEvent>()
-    events.forEach((event) => map.set(event.eid, event))
-    return map
+  (events): ReadonlyMap<EventId, PatientJourneyEvent> => new Map(events.map((e) => [e.eid, e]))
+)
+
+export const selectEventDataPidValues = createSelector(
+  selectEventDataByIdMap,
+  selectEventDataPidColumn,
+  (eventByIdMap, column) => {
+    return (eid: EventId) => {
+      return eventByIdMap.get(eid)!.values[column.index] as PatientId
+    }
   }
 )
 
-export const selectEventDataTimestampValueFormatted = createSelector(
+export const selectEventDataTimestampValuesFormatted = createSelector(
   selectEventDataByIdMap,
   selectEventDataTimestampColumn,
   (eventByIdMap, column) => {
@@ -151,7 +169,7 @@ const selectFilteredEventsPIDs = createSelector(
 )
 
 // Only select patients, that are references in the currently filtered events
-export const selectCrossFilteredPatientData = createSelector(
+const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
   selectFilteredEventsPIDs,
   (filteredPatientData, filteredEventPIDSet) =>
@@ -159,7 +177,7 @@ export const selectCrossFilteredPatientData = createSelector(
 )
 
 // Only select events which referenced patients appear int the currently filtered patients
-export const selectCrossFilteredEventData = createSelector(
+const selectCrossFilteredEventData = createSelector(
   selectFilteredEventData,
   selectFilteredPatientsPIDs,
   (filteredEventData, filteredPatientPIDSet) =>

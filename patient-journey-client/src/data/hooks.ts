@@ -1,21 +1,21 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
   selectActiveData,
+  selectActiveDataByEntityIdMap,
   selectActiveDataColumns,
   selectActiveHoveredEntity,
   selectActiveSelectedEntity,
   selectAllActiveDataCategories,
   selectAllFilters,
-  selectCrossFilteredEventData,
-  selectCrossFilteredPatientData,
   selectCurrentColorColumnNumberRange,
   selectDataLoadingErrorMessage,
   selectDataLoadingState,
   selectDataView,
   selectEventDataEidColumn,
   selectEventDataPidColumn,
+  selectEventDataPidValues,
   selectEventDataTimestampColumn,
-  selectEventDataTimestampValueFormatted,
+  selectEventDataTimestampValuesFormatted,
   selectFilteredActiveData,
   selectFocusEntity,
   selectHoveredEntity,
@@ -35,9 +35,8 @@ export const useDataLoadingErrorMessage = () => useAppSelector(selectDataLoading
 export const useActiveDataView = () => useAppSelector(selectDataView)
 
 export const useActiveData = () => useAppSelector(selectActiveData)
+export const useActiveDataByEntityIdMap = () => useAppSelector(selectActiveDataByEntityIdMap)
 export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
-export const useCrossFilteredPatientData = () => useAppSelector(selectCrossFilteredPatientData)
-export const useCrossFilteredEventData = () => useAppSelector(selectCrossFilteredEventData)
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
 export const useTimelineDataColumns = () => useAppSelector(selectTimelineDataColumns)
@@ -89,7 +88,8 @@ export const usePatientDataPidColumn = () => useAppSelector(selectPatientDataPid
 export const useEventDataEidColumn = () => useAppSelector(selectEventDataEidColumn)
 export const useEventDataPidColumn = () => useAppSelector(selectEventDataPidColumn)
 export const useEventDataTimestampColumn = () => useAppSelector(selectEventDataTimestampColumn)
-export const useEventDataTimestampValuesFormatted = () => useAppSelector(selectEventDataTimestampValueFormatted)
+export const useEventDataPidValues = () => useAppSelector(selectEventDataPidValues)
+export const useEventDataTimestampValuesFormatted = () => useAppSelector(selectEventDataTimestampValuesFormatted)
 
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
 

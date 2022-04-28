@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useColor } from '../../color/useColor'
+import { useColor } from '../../color/hooks'
 import { DataTable as DataTableComponent } from '../components/DataTable'
 import {
   useActiveDataColumns,
@@ -18,7 +18,7 @@ export const DataTable = () => {
   const activeData = useFilteredActiveData()
   const activeColumns = useActiveDataColumns()
   const activeTableState = useActiveTableState()
-  const [colorByColumnFn, , , colorByColumn] = useColor()
+  const { colorByColumnFn, colorByColumn } = useColor()
 
   const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
   const selectedEntityId = useActiveSelectedEntity()
