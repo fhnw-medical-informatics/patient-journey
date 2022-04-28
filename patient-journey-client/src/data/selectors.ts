@@ -79,7 +79,12 @@ const selectActiveEntity = (view: ActiveDataViewType, entity: FocusEntity) => {
 }
 
 export const selectActiveSelectedEntity = createSelector(selectDataView, selectSelectedEntity, selectActiveEntity)
-export const selectActiveHoveredEntity = createSelector(selectDataView, selectHoveredEntity, selectActiveEntity)
+export const selectActiveSelectedEventEntity = createSelector(selectSelectedEntity, (entity) =>
+  selectActiveEntity('events', entity)
+)
+export const selectActiveHoveredEventEntity = createSelector(selectHoveredEntity, (entity) =>
+  selectActiveEntity('events', entity)
+)
 
 const selectPatientDataColumnType = (s: RootState, columnType: PatientDataColumnType) => columnType
 
@@ -177,7 +182,7 @@ const selectCrossFilteredPatientData = createSelector(
 )
 
 // Only select events which referenced patients appear int the currently filtered patients
-const selectCrossFilteredEventData = createSelector(
+export const selectCrossFilteredEventData = createSelector(
   selectFilteredEventData,
   selectFilteredPatientsPIDs,
   (filteredEventData, filteredPatientPIDSet) =>

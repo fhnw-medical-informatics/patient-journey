@@ -3,8 +3,9 @@ import {
   selectActiveData,
   selectActiveDataByEntityIdMap,
   selectActiveDataColumns,
-  selectActiveHoveredEntity,
+  selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
+  selectActiveSelectedEventEntity,
   selectAllActiveDataCategories,
   selectAllFilters,
   selectCurrentColorColumnNumberRange,
@@ -48,7 +49,8 @@ export const useSelectedEntity = () => useAppSelector(selectSelectedEntity)
 export const useFocusEntity = () => useAppSelector(selectFocusEntity)
 
 export const useActiveSelectedEntity = () => useAppSelector(selectActiveSelectedEntity)
-export const useActiveHoveredEntity = () => useAppSelector(selectActiveHoveredEntity)
+export const useActiveSelectedEventEntity = () => useAppSelector(selectActiveSelectedEventEntity)
+export const useActiveHoveredEventEntity = () => useAppSelector(selectActiveHoveredEventEntity)
 
 export interface EntityInteraction {
   readonly onEntityClick: (id: EntityId) => void

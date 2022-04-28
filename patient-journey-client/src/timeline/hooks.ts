@@ -8,8 +8,8 @@ import {
   selectViewByColumn,
   selectTimelineCluster,
   selectCursorPosition,
-  selectSelectedActiveEntityAsEvent,
-  selectHoveredActiveEntityAsEvent,
+  selectSelectedActiveEvent,
+  selectHoveredActiveEvent,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -23,9 +23,9 @@ export const useTimlineCursorPosition = () => useAppSelector(selectCursorPositio
 export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn) =>
   useAppSelector((state) => selectFilteredActiveDataAsEvents(state, colorByColumnFn))
 
-export const useSelectedActiveEntityAsEvent = () => useAppSelector(selectSelectedActiveEntityAsEvent)
+export const useSelectedActiveEvent = () => useAppSelector(selectSelectedActiveEvent)
 
-export const useHoveredActiveEntityAsEvent = () => useAppSelector(selectHoveredActiveEntityAsEvent)
+export const useHoveredActiveEvent = () => useAppSelector(selectHoveredActiveEvent)
 
 export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
   useAppSelector((state) => selectFilteredActiveDataAsLanes(state, colorByCategoryFn))

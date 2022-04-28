@@ -6,10 +6,11 @@ import { Entity, EntityId } from '../data/entities'
 import { EventDataColumn, PatientJourneyEvent } from '../data/events'
 import { PatientId } from '../data/patients'
 import {
-  selectActiveHoveredEntity,
   selectActiveSelectedEntity,
   selectEventDataColumns,
   selectCrossFilteredEventData,
+  selectActiveHoveredEventEntity,
+  selectActiveSelectedEventEntity,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -75,9 +76,15 @@ export const selectSelectedActiveEntityAsEvent = createSelector(
   (eventMap, selectedEntity) => eventMap.get(selectedEntity)
 )
 
-export const selectHoveredActiveEntityAsEvent = createSelector(
+export const selectSelectedActiveEvent = createSelector(
   selectFilteredActiveEventsAsMap,
-  selectActiveHoveredEntity,
+  selectActiveSelectedEventEntity,
+  (eventMap, selectedEntity) => eventMap.get(selectedEntity)
+)
+
+export const selectHoveredActiveEvent = createSelector(
+  selectFilteredActiveEventsAsMap,
+  selectActiveHoveredEventEntity,
   (eventMap, hoveredEntity) => eventMap.get(hoveredEntity)
 )
 
