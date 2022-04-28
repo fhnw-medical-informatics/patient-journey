@@ -108,6 +108,8 @@ const selectEventDataByIdMap = createSelector(
   (events): ReadonlyMap<EventId, PatientJourneyEvent> => new Map(events.map((e) => [e.eid, e]))
 )
 
+// TODO: This always leads to re-rendering a component because the selector
+// always returns a new function --> use the parameterized selector pattern instead
 export const selectEventDataPidValues = createSelector(
   selectEventDataByIdMap,
   selectEventDataPidColumn,

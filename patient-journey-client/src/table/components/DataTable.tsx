@@ -95,7 +95,9 @@ export const DataTable = ({
           density="compact"
           selectionModel={selectedEntity !== EntityIdNone ? [selectedEntity] : []}
           onSelectionModelChange={(newSelectionModel) => {
-            onEntityClick(newSelectionModel[0] as EntityId)
+            if (newSelectionModel && newSelectionModel.length > 0 && newSelectionModel[0] !== undefined) {
+              onEntityClick(newSelectionModel[0] as EntityId)
+            }
           }}
           sortingMode="server"
           sortModel={
