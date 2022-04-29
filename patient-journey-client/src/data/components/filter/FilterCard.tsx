@@ -32,7 +32,7 @@ export const FilterCard = ({ label, isActive, onRemove, children }: FilterCardPr
           </Grid>
         )}
       </Grid>
-      <CardContent sx={{ '> *:not(:last-child)': { marginBottom: theme.spacing(3) } }}>{children}</CardContent>
+      <CardContent>{children}</CardContent>
     </Card>
   )
 }

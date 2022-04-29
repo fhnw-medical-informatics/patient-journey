@@ -23,10 +23,12 @@ export const TextDataFilter = ({ column, type, value, onChange, onRemove }: Text
   return (
     <TextField
       label={column.name}
-      variant="outlined"
+      variant="filled"
+      size="small"
       value={value.text}
       onChange={handleChange}
       InputLabelProps={{ shrink: true }}
+      sx={{ width: '100%' }}
     />
   )
 }

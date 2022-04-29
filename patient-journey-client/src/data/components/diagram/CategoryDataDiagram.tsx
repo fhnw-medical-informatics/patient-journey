@@ -4,7 +4,6 @@ import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
-import { extractCategoryValueSafe } from '../../columns'
 import { useCategories } from './hooks'
 
 const useStyles = makeStyles()((theme) => ({
@@ -48,14 +47,12 @@ export const CategoryDataDiagram = ({
     [colorByCategoryFn, theme]
   )
 
-  const extractValueSafe = useMemo(() => extractCategoryValueSafe(column), [column])
+  const { allCategories, uniqueCategories, extractValueSafe } = useCategories(allActiveData, column)
 
   const filteredCategories = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
-
-  const { allCategories, uniqueCategories } = useCategories(allActiveData, column)
 
   const data = useMemo(() => {
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {

@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from 'react'
-import { bin, extent } from 'd3-array'
+import { bin } from 'd3-array'
 import { ScaleLinear, scaleLinear } from 'd3-scale'
 import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
-import { extractNumberValueSafe } from '../../columns'
+import { useNumbers } from './hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -21,7 +21,7 @@ const useStyles = makeStyles()((theme) => ({
 
 const histogramBinCount = 10
 
-function createBins(numbers: number[], timeScale: ScaleLinear<number, number>) {
+function createBins(numbers: ReadonlyArray<number>, timeScale: ScaleLinear<number, number>) {
   const [min, max] = timeScale.domain()
   return bin<number, number>().domain([min, max]).thresholds(timeScale.ticks(histogramBinCount))(numbers)
 }
@@ -58,16 +58,12 @@ export const NumberDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const extractValueSafe = useMemo(() => extractNumberValueSafe(column), [column])
-
-  const allNumbers = useMemo(() => allActiveData.flatMap(extractValueSafe), [allActiveData, extractValueSafe])
+  const { allNumbers, min, max, extractValueSafe } = useNumbers(allActiveData, column)
 
   const filteredNumbers = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
-
-  const [min, max] = useMemo(() => extent(allNumbers), [allNumbers])
 
   const timeScale = useMemo(() => scaleLinear<number, number>().domain([min!, max!]).nice(), [min, max])
 

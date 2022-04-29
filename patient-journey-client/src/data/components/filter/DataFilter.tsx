@@ -41,6 +41,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
     case 'number':
       return (
         <NumberDataFilter
+          allActiveData={allActiveData}
           column={column}
           type={type}
           value={
@@ -71,6 +72,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
     case 'timestamp':
       return (
         <DateDataFilter
+          allActiveData={allActiveData}
           column={column}
           type={type}
           value={

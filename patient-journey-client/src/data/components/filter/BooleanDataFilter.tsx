@@ -25,13 +25,11 @@ export const BooleanDataFilter = ({ column, type, value, onChange, onRemove }: B
   return (
     <FormGroup>
       <ToggleButtonGroup value={value.isTrue} exclusive onChange={handleChange} aria-label="device">
-        <ToggleButton value={TrilianNone} aria-label="laptop">
-          None
-        </ToggleButton>
-        <ToggleButton value={true} aria-label="tv">
+        <ToggleButton value={TrilianNone}>None</ToggleButton>
+        <ToggleButton value={true}>
           <Check />
         </ToggleButton>
-        <ToggleButton value={false} aria-label="phone">
+        <ToggleButton value={false}>
           <CheckBoxOutlineBlankIcon />
         </ToggleButton>
       </ToggleButtonGroup>

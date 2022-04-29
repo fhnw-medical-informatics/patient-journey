@@ -1,27 +1,31 @@
 import React from 'react'
 
-import { FormGroup, TextField } from '@mui/material'
+import { FormGroup, TextField, Grid } from '@mui/material'
 import { createFilter, Filter } from '../../filtering'
 import { makeStyles } from '../../../utils'
+import { DataColumn } from '../../columns'
+import { Entity } from '../../entities'
+import { useNumbers } from '../diagram/hooks'
+import { CustomSliderThumb } from './slider/CustomSliderThumb'
+import { CustomSlider } from './slider/CustomSlider'
 
-const useStyles = makeStyles()((theme) => ({
-  container: {
-    '> *:not(:last-child)': {
-      marginBottom: theme.spacing(2),
-    },
-  },
+const useStyles = makeStyles()(() => ({
   input: {
+    width: '100%',
     maxWidth: '100px',
   },
 }))
 
 export interface NumberDataFilterProps extends Filter<'number'> {
+  allActiveData: ReadonlyArray<Entity>
   onChange: (filter: Filter<'number'>) => void
   onRemove: (filter: Filter<'number'>) => void
 }
 
-export const NumberDataFilter = ({ column, type, value, onChange, onRemove }: NumberDataFilterProps) => {
+export const NumberDataFilter = ({ allActiveData, column, type, value, onChange, onRemove }: NumberDataFilterProps) => {
   const { classes } = useStyles()
+
+  const { min, max } = useNumbers(allActiveData, column as DataColumn<'number'>)
 
   const handleChange = (fromValue: number | null, toValue: number | null) => {
     const filter = createFilter(column, type, {
@@ -36,32 +40,61 @@ export const NumberDataFilter = ({ column, type, value, onChange, onRemove }: Nu
     }
   }
 
+  const handleSliderChange = (event: Event, newValue: number | number[]) => {
+    if (Array.isArray(newValue)) {
+      handleChange(newValue[0], newValue[1])
+    }
+  }
+
   return (
-    <FormGroup className={classes.container}>
-      <div className={classes.input}>
-        <TextField
-          label={'From'}
-          variant="outlined"
-          type={'number'}
-          value={!isNaN(value.from) ? value.from : 'NaN'}
-          onChange={(event) => {
-            handleChange(event.target.value ? +event.target.value : NaN, null)
-          }}
-          InputLabelProps={{ shrink: true }}
-        />
-      </div>
-      <div className={classes.input}>
-        <TextField
-          label={'To'}
-          variant="outlined"
-          type={'number'}
-          value={!isNaN(value.to) ? value.to : 'NaN'}
-          onChange={(event) => {
-            handleChange(null, event.target.value ? +event.target.value : NaN)
-          }}
-          InputLabelProps={{ shrink: true }}
-        />
-      </div>
+    <FormGroup>
+      <CustomSlider
+        value={[!isNaN(value.from) ? value.from : min!, !isNaN(value.to) ? value.to : max!]}
+        onChange={handleSliderChange}
+        valueLabelDisplay="auto"
+        min={min}
+        max={max}
+        size="small"
+        components={{
+          Thumb: CustomSliderThumb,
+        }}
+      />
+      <Grid container spacing={1} direction="row">
+        <Grid item xs={6}>
+          <Grid container justifyContent="flex-start">
+            <Grid item className={classes.input}>
+              <TextField
+                label={'From'}
+                variant="filled"
+                size="small"
+                type={'number'}
+                value={!isNaN(value.from) ? value.from : 'NaN'}
+                onChange={(event) => {
+                  handleChange(event.target.value ? +event.target.value : NaN, null)
+                }}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={6}>
+          <Grid container justifyContent="flex-end">
+            <Grid item className={classes.input}>
+              <TextField
+                label={'To'}
+                variant="filled"
+                size="small"
+                type={'number'}
+                value={!isNaN(value.to) ? value.to : 'NaN'}
+                onChange={(event) => {
+                  handleChange(null, event.target.value ? +event.target.value : NaN)
+                }}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
     </FormGroup>
   )
 }

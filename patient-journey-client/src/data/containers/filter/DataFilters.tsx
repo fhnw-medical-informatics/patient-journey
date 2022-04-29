@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useCallback } from 'react'
+
 import { useAppDispatch } from '../../../store'
+
 import {
   useActiveData,
   useActiveDataColumns,
@@ -7,6 +9,7 @@ import {
   useAllFilters,
   useFilteredActiveData,
 } from '../../hooks'
+
 import { DataFilters as DataFiltersComponent } from '../../components/filter/DataFilters'
 import { GenericFilter } from '../../filtering'
 import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlice'
@@ -24,17 +27,23 @@ export const DataFilters = React.memo(() => {
 
   const dispatch = useAppDispatch()
 
-  const handleAddFilter = (filter: GenericFilter) => {
-    dispatch(addDataFilter(filter))
-  }
+  const handleAddFilter = useCallback(
+    (filter: GenericFilter) => {
+      dispatch(addDataFilter(filter))
+    },
+    [dispatch]
+  )
 
-  const handleRemoveFilter = (filter: GenericFilter) => {
-    dispatch(removeDataFilter(filter))
-  }
+  const handleRemoveFilter = useCallback(
+    (filter: GenericFilter) => {
+      dispatch(removeDataFilter(filter))
+    },
+    [dispatch]
+  )
 
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     dispatch(resetDataFilter())
-  }
+  }, [dispatch])
 
   return (
     <DataFiltersComponent
