@@ -17,6 +17,8 @@ import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSl
 
 export const selectTimelineCluster = (s: RootState): boolean => s.timeline.cluster
 
+export const selectShowFilteredOut = (s: RootState): boolean => s.timeline.showFilteredOut
+
 export const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.viewByColumn
 
 export const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expandByColumn

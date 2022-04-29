@@ -8,6 +8,7 @@ import {
   CursorPosition,
   setCursorPosition,
   setExpandByColumn,
+  setShowFilteredOut,
   setTimelineCluster,
   setViewByColumn,
   TimelineColumn,
@@ -21,6 +22,7 @@ import {
   useTimelineCluster,
   useViewByColumn,
   useExpandByColumn,
+  useShowFilteredOut,
 } from '../hooks'
 import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
@@ -31,12 +33,11 @@ export const Timeline = React.memo(() => {
   const events = useActiveDataAsEvents(colorByColumnFn)
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
   const cluster = useTimelineCluster()
+  const showFilteredOut = useShowFilteredOut()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
   const activeColumns = useTimelineDataColumns()
   const colorByColumn = useColorByColumn()
-
-  console.log(events)
 
   const dispatch = useAppDispatch()
 
@@ -44,6 +45,7 @@ export const Timeline = React.memo(() => {
   const onSetExpandByColumn = useCallback((column: TimelineColumn) => dispatch(setExpandByColumn(column)), [dispatch])
 
   const onSetTimelineCluster = useCallback(() => dispatch(setTimelineCluster()), [dispatch])
+  const onSetShowFilteredOut = useCallback(() => dispatch(setShowFilteredOut()), [dispatch])
 
   const onChangeColorByColumn = useCallback(
     (column: ColorByColumnOption) => dispatch(setColorByColumn({ colorByColumn: column })),
@@ -76,6 +78,8 @@ export const Timeline = React.memo(() => {
       onSetExpandByColumn={onSetExpandByColumn}
       cluster={cluster}
       onSetTimelineCluster={onSetTimelineCluster}
+      showFilteredOut={showFilteredOut}
+      onSetShowFilteredOut={onSetShowFilteredOut}
       colorByColumn={colorByColumn}
       onChangeColorByColumn={onChangeColorByColumn}
       onCursorPositionChange={onCursorPositionChange}

@@ -33,6 +33,8 @@ interface ControlPanelProps {
   onSetExpandByColumn: (column: TimelineColumn) => void
   cluster: boolean
   onSetTimelineCluster: () => void
+  showFilteredOut: boolean
+  onSetShowFilteredOut: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
@@ -45,6 +47,8 @@ export const ControlPanel = ({
   onSetExpandByColumn,
   cluster,
   onSetTimelineCluster,
+  showFilteredOut,
+  onSetShowFilteredOut,
   availableColumns,
   colorByColumn,
   onChangeColorByColumn,
@@ -74,16 +78,6 @@ export const ControlPanel = ({
       }
     }
   }, [viewByColumn, onSetViewByColumn, availableColumns])
-
-  // Reset expandByColumn when availableColumns change
-  useEffect(() => {
-    onSetExpandByColumn(TimelineColumnNone)
-  }, [onSetExpandByColumn, availableColumns])
-
-  // Reset colorByColumn when availableColumns change
-  useEffect(() => {
-    onChangeColorByColumn('off')
-  }, [onChangeColorByColumn, availableColumns])
 
   const handleChangeViewByColumn = (event: SelectChangeEvent) => {
     onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
@@ -174,6 +168,12 @@ export const ControlPanel = ({
               <FormControlLabel
                 control={<Switch checked={cluster} onChange={onSetTimelineCluster} color="primary" />}
                 label="Cluster Events"
+              />
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                control={<Switch checked={showFilteredOut} onChange={onSetShowFilteredOut} color="primary" />}
+                label="Show Filtered Out Events"
               />
             </Grid>
           </Grid>

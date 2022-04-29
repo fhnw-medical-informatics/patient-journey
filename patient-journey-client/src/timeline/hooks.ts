@@ -6,6 +6,7 @@ import {
   selectFilteredActiveDataAsLanes,
   selectExpandByColumn,
   selectViewByColumn,
+  selectShowFilteredOut,
   selectTimelineCluster,
   selectCursorPosition,
   selectSelectedActiveEvent,
@@ -17,6 +18,8 @@ export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
 export const useViewByColumn = () => useAppSelector(selectViewByColumn)
 
 export const useExpandByColumn = () => useAppSelector(selectExpandByColumn)
+
+export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
 
 export const useTimlineCursorPosition = () => useAppSelector(selectCursorPosition)
 

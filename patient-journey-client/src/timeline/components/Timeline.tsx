@@ -30,6 +30,8 @@ interface TimelineProps {
   onSetExpandByColumn: (column: TimelineColumn) => void
   cluster: boolean
   onSetTimelineCluster: () => void
+  showFilteredOut: boolean
+  onSetShowFilteredOut: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
@@ -47,6 +49,8 @@ export const Timeline = ({
   onSetExpandByColumn,
   cluster,
   onSetTimelineCluster,
+  showFilteredOut,
+  onSetShowFilteredOut,
   availableColumns,
   colorByColumn,
   onChangeColorByColumn,
@@ -63,6 +67,8 @@ export const Timeline = ({
         onSetExpandByColumn={onSetExpandByColumn}
         cluster={cluster}
         onSetTimelineCluster={onSetTimelineCluster}
+        showFilteredOut={showFilteredOut}
+        onSetShowFilteredOut={onSetShowFilteredOut}
         availableColumns={availableColumns}
         colorByColumn={colorByColumn}
         onChangeColorByColumn={onChangeColorByColumn}
