@@ -15,7 +15,7 @@ import { TimelineCanvasMarksInteractionLayer } from '../containers/TimelineCanva
 import { MouseAwareSvg } from './MouseAwareSvg'
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
 import { TimelineActiveMarksLayer } from '../containers/TimelineActiveMarks'
-import { TimelineAxesLayer } from './TimelineAxesLayer'
+import { TimelineLanesLayer } from '../containers/TimelineLanes'
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, any>>
@@ -64,7 +64,7 @@ export const TimelineView = ({
                 theme={timelineTheme}
                 layers={[
                   'grid',
-                  TimelineAxesLayer,
+                  TimelineLanesLayer,
                   TimelineCanvasMarksLayer,
                   'interaction',
                   TimelineCanvasMarksInteractionLayer,

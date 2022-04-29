@@ -4,12 +4,13 @@ import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
 import { EventDataColumn, PatientJourneyEvent } from '../data/events'
-import { Patient, PatientDataColumn, PatientId } from '../data/patients'
+import { Patient, PatientDataColumn, PatientId, PatientIdNone } from '../data/patients'
 import {
   selectActiveDataColumns,
   selectFilteredActiveData,
   selectActiveHoveredEntity,
   selectActiveSelectedEntity,
+  selectFocusEntity,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -79,6 +80,21 @@ export const selectHoveredActiveEntityAsEvent = createSelector(
   selectFilteredActiveEventsAsMap,
   selectActiveHoveredEntity,
   (eventMap, hoveredEntity) => eventMap.get(hoveredEntity)
+)
+
+export const selectFocusLaneId = createSelector(
+  selectFilteredActiveEventsAsMap,
+  selectFocusEntity,
+  (eventMap, focusEntity): PatientId => {
+    switch (focusEntity.type) {
+      case 'patient':
+        return focusEntity.uid
+      case 'event':
+        return (eventMap.get(focusEntity.uid)?.laneId as PatientId) ?? PatientIdNone
+      default:
+        return PatientIdNone
+    }
+  }
 )
 
 const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategoryFn): ColorByCategoryFn =>

@@ -5,11 +5,12 @@ import { Axis } from './Axis'
 import { useTheme } from '@mui/material'
 
 export interface AxesProps<LID extends string> {
+  readonly focusLaneId: LID
   readonly lanes: ReadonlyArray<TimelineLane<LID>>
   readonly yScale: ScaleBand<LID>
 }
 
-export const Axes = <LID extends string>({ lanes, yScale }: AxesProps<LID>) => {
+export const Axes = <LID extends string>({ focusLaneId, lanes, yScale }: AxesProps<LID>) => {
   const isDarkMode = useTheme().palette.mode === 'dark'
   const theme = useTimelineTheme()
 
@@ -24,9 +25,12 @@ export const Axes = <LID extends string>({ lanes, yScale }: AxesProps<LID>) => {
     <>
       {lanes.map((lane: TimelineLane<LID>) => {
         const y = yScale(lane.laneId)!
+        const isFocused = lane.laneId === focusLaneId
+        const fontWeight = isFocused ? 800 : 600
+        const opacity = isFocused ? 0.8 : 0.4
         return (
           <g key={`axis-${lane.laneId}`}>
-            <Axis y={y} color={lane.color} />
+            <Axis y={y} color={lane.color} isFocused={isFocused} />
             <rect
               x={labelXOffset - 3}
               width={textBackgroundRectWidth}
@@ -37,8 +41,8 @@ export const Axes = <LID extends string>({ lanes, yScale }: AxesProps<LID>) => {
             <text
               style={{
                 fontFamily: theme.base.fontFamily,
-                fontWeight: 600,
-                opacity: 0.4,
+                fontWeight,
+                opacity,
                 dominantBaseline: 'central',
               }}
               fontSize={fontSize}

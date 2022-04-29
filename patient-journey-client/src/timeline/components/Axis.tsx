@@ -4,10 +4,13 @@ import { useTimelineTheme } from 'react-svg-timeline'
 interface Props {
   readonly y: number
   readonly color?: string
+  readonly isFocused?: boolean
 }
 
-export const Axis = ({ y, color }: Props) => {
+export const Axis = ({ y, color, isFocused }: Props) => {
   const theme = useTimelineTheme()
+  const defaultStrokeWidth = theme.lane.middleLineWidth
+  const strokeWidth = isFocused ? defaultStrokeWidth + 1 : defaultStrokeWidth
   return (
     <line
       x1={0}
@@ -16,7 +19,7 @@ export const Axis = ({ y, color }: Props) => {
       y2={y}
       style={{
         stroke: color ?? theme.lane.middleLineColor,
-        strokeWidth: theme.lane.middleLineWidth,
+        strokeWidth,
       }}
     />
   )
