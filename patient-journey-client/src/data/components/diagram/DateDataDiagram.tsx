@@ -1,12 +1,13 @@
 import React, { useCallback, useMemo } from 'react'
-import { bin, extent } from 'd3-array'
+import { bin } from 'd3-array'
 import { ScaleTime, scaleTime } from 'd3-scale'
 import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
-import { extractDateValueSafe, format } from '../../columns'
+import { format } from '../../columns'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
+import { useDates } from './hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -21,7 +22,7 @@ const useStyles = makeStyles()((theme) => ({
 
 const histogramBinCount = 10
 
-function createBins(dates: Date[], timeScale: ScaleTime<Date, Date>) {
+function createBins(dates: ReadonlyArray<Date>, timeScale: ScaleTime<Date, Date>) {
   const [min, max] = timeScale.domain()
   return bin<Date, Date>().domain([min, max]).thresholds(timeScale.ticks(histogramBinCount))(dates)
 }
@@ -57,16 +58,12 @@ export const DateDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const extractValueSafe = useMemo(() => extractDateValueSafe(column), [column])
-
-  const allDates = useMemo(() => allActiveData.flatMap(extractValueSafe), [allActiveData, extractValueSafe])
+  const { allDates, min, max, extractValueSafe } = useDates(allActiveData, column)
 
   const filteredDates = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
-
-  const [min, max] = useMemo(() => extent(allDates), [allDates])
 
   const timeScale = useMemo(() => scaleTime<Date, Date>().domain([min!, max!]).nice(), [min, max])
 
