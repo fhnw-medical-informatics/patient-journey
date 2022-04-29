@@ -7,15 +7,12 @@ import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { extractNumberValueSafe } from '../../columns'
+import { Tooltip } from './Tooltip'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
-  },
-  tooltipText: {
-    color: theme.palette.text.primary,
-    fontSize: '12px',
   },
 }))
 
@@ -104,15 +101,6 @@ export const NumberDataDiagram = ({
     )
   }, [allTicketBins, filteredNumbers, timeScale])
 
-  const tooltip = useCallback(
-    ({ index }) => {
-      const d = data[index]
-      const dateRange = `${d.binStart !== undefined ? d.binStart : ''} - ${d.binEnd !== undefined ? d.binEnd : ''}`
-      return <div className={classes.tooltipText}>{dateRange}</div>
-    },
-    [data, classes]
-  )
-
   return (
     <div className={classes.container}>
       <ResponsiveBarCanvas
@@ -121,7 +109,13 @@ export const NumberDataDiagram = ({
         keys={['filteredIn', 'filteredOut']}
         groupMode={'stacked'}
         colors={colorByColumn !== ColorByColumnNone && column.name === colorByColumn.name ? colors : barColors(theme)}
-        tooltip={tooltip}
+        tooltip={(props) => (
+          <Tooltip {...props}>
+            {(node) =>
+              `${node.binStart !== undefined ? node.binStart : ''} - ${node.binEnd !== undefined ? node.binEnd : ''}`
+            }
+          </Tooltip>
+        )}
         enableLabel={false}
         enableGridY={false}
       />

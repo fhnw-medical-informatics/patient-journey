@@ -6,15 +6,12 @@ import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { extractCategoryValueSafe } from '../../columns'
 import { useCategories } from './hooks'
+import { Tooltip } from './Tooltip'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
-  },
-  tooltipText: {
-    color: theme.palette.text.primary,
-    fontSize: '12px',
   },
 }))
 
@@ -74,15 +71,6 @@ export const CategoryDataDiagram = ({
     })
   }, [allCategories, filteredCategories, uniqueCategories])
 
-  const tooltip = useCallback(
-    ({ index }) => {
-      const d = data[index]
-      const title = `${d.category}`
-      return <div className={classes.tooltipText}>{title}</div>
-    },
-    [data, classes]
-  )
-
   return (
     <div className={classes.container}>
       <ResponsiveBarCanvas
@@ -91,7 +79,7 @@ export const CategoryDataDiagram = ({
         keys={['filteredIn', 'filteredOut']}
         groupMode={'stacked'}
         colors={colorByColumn !== ColorByColumnNone && column.name === colorByColumn.name ? colors : barColors(theme)}
-        tooltip={tooltip}
+        tooltip={(props) => <Tooltip {...props}>{(node) => `${node.category}`}</Tooltip>}
         enableLabel={false}
         enableGridY={false}
       />

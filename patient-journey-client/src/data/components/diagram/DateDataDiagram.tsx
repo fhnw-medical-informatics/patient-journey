@@ -7,15 +7,12 @@ import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
+import { Tooltip } from './Tooltip'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
-  },
-  tooltipText: {
-    color: theme.palette.text.primary,
-    fontSize: '12px',
   },
 }))
 
@@ -104,17 +101,6 @@ export const DateDataDiagram = ({
     )
   }, [allTicketBins, filteredDates, timeScale])
 
-  const tooltip = useCallback(
-    ({ index }) => {
-      const d = data[index]
-      const dateRange = `${
-        d.binStart !== undefined ? format(d.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
-      } - ${d.binEnd !== undefined ? format(d.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''}`
-      return <div className={classes.tooltipText}>{dateRange}</div>
-    },
-    [data, classes, column]
-  )
-
   return (
     <div className={classes.container}>
       <ResponsiveBarCanvas
@@ -123,7 +109,21 @@ export const DateDataDiagram = ({
         keys={['filteredIn', 'filteredOut']}
         groupMode={'stacked'}
         colors={colorByColumn !== ColorByColumnNone && column.name === colorByColumn.name ? colors : barColors(theme)}
-        tooltip={tooltip}
+        tooltip={(props) => (
+          <Tooltip {...props}>
+            {(node) =>
+              `${
+                node.binStart !== undefined
+                  ? format(node.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm')
+                  : ''
+              } - ${
+                node.binEnd !== undefined
+                  ? format(node.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm')
+                  : ''
+              }`
+            }
+          </Tooltip>
+        )}
         enableLabel={false}
         enableGridY={false}
       />
