@@ -12,6 +12,7 @@ import {
   selectActiveHoveredEventEntity,
   selectActiveSelectedEventEntity,
   selectFocusEntity,
+  selectEventDataRows,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -55,6 +56,16 @@ export const selectFilteredActiveDataAsEvents = createSelector(
   selectExpandByColumn,
   selectEventDataColumns,
   selectCrossFilteredEventData,
+  selectColorByColumnFn,
+  (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) =>
+    convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
+)
+
+export const selectActiveDataAsEvents = createSelector(
+  selectViewByColumn,
+  selectExpandByColumn,
+  selectEventDataColumns,
+  selectEventDataRows,
   selectColorByColumnFn,
   (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) =>
     convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
@@ -113,6 +124,24 @@ const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategor
 export const selectFilteredActiveDataAsLanes = createSelector(
   selectExpandByColumn,
   selectCrossFilteredEventData,
+  selectColorByCategoryFn,
+  (expandByColumn, activeData, colorByCategoryFn) =>
+    Array.from(
+      new Set(
+        (activeData as ReadonlyArray<Entity & { pid: PatientId }>).map((event) =>
+          expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index]
+        )
+      )
+    ).map((value) => ({
+      laneId: value,
+      label: value, // TODO: Proper label
+      color: expandByColumn !== TimelineColumnNone ? colorByCategoryFn(value) : undefined,
+    })) as ReadonlyArray<TimelineLane<any>>
+)
+
+export const selectActiveDataAsLanes = createSelector(
+  selectExpandByColumn,
+  selectEventDataRows,
   selectColorByCategoryFn,
   (expandByColumn, activeData, colorByCategoryFn) =>
     Array.from(

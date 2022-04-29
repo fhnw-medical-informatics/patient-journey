@@ -25,6 +25,8 @@ import {
   useExpandByColumn,
   useShowFilteredOut,
   useShowTimeGrid,
+  useFilteredActiveDataAsEvents,
+  useFilteredActiveDataAsLanes,
 } from '../hooks'
 import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
@@ -32,10 +34,14 @@ import { useColorByColumn } from '../../color/hooks'
 
 export const Timeline = React.memo(() => {
   const { colorByColumnFn, colorByCategoryFn } = useColor()
-  const events = useActiveDataAsEvents(colorByColumnFn)
-  const lanes = useActiveDataAsLanes(colorByCategoryFn)
-  const cluster = useTimelineCluster()
   const showFilteredOut = useShowFilteredOut()
+  const events = showFilteredOut
+    ? useActiveDataAsEvents(colorByColumnFn)
+    : useFilteredActiveDataAsEvents(colorByColumnFn)
+  const lanes = showFilteredOut
+    ? useActiveDataAsLanes(colorByCategoryFn)
+    : useFilteredActiveDataAsLanes(colorByCategoryFn)
+  const cluster = useTimelineCluster()
   const showTimeGrid = useShowTimeGrid()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()

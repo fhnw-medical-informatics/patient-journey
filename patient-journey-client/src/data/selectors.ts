@@ -35,7 +35,7 @@ const entitiesToMap = (entities: ReadonlyArray<Entity>) => new Map(entities.map(
 const selectPatientDataRows = createSelector(selectData, (data) => data.patientData.allEntities)
 const selectPatientDataRowMap = createSelector(selectPatientDataRows, entitiesToMap)
 
-const selectEventDataRows = createSelector(selectData, (data) => data.eventData.allEntities)
+export const selectEventDataRows = createSelector(selectData, (data) => data.eventData.allEntities)
 const selectEventDataRowMap = createSelector(selectEventDataRows, entitiesToMap)
 
 export const selectActiveData = createSelector(
