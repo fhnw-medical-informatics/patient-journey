@@ -174,58 +174,58 @@ export const ControlPanel = ({
                 label="Cluster Events"
               />
             </Grid>
-            <Grid item>
+            <Grid item ml={-2}>
               <FormControlLabel
                 control={<Switch checked={showFilteredOut} onChange={onSetShowFilteredOut} color="primary" />}
                 label="Show Filtered Out Events"
               />
-              <Grid item ml={-2}>
-                <FormControlLabel
-                  control={<Switch checked={showTimeGrid} onChange={onToggleTimeGrid} color="primary" />}
-                  label="Time Grid"
-                />
-              </Grid>
+            </Grid>
+            <Grid item ml={-2}>
+              <FormControlLabel
+                control={<Switch checked={showTimeGrid} onChange={onToggleTimeGrid} color="primary" />}
+                label="Time Grid"
+              />
             </Grid>
           </Grid>
-          <Grid item xs="auto">
-            <Grid container alignItems={'flex-start'} spacing={2}>
-              <Grid item>
-                <Tooltip
-                  title={
-                    <div>
-                      <Typography color="inherit">Timeline keyboard shortcuts</Typography>
-                      <table>
-                        <tbody>
-                          <tr>
-                            <td>Zoom In:</td>
-                            <td>Click</td>
-                          </tr>
-                          <tr>
-                            <td>Zoom Out:</td>
-                            <td>Alt + Click</td>
-                          </tr>
-                          <tr>
-                            <td>Zoom Custom:</td>
-                            <td>Shift + Click + Drag</td>
-                          </tr>
-                          <tr>
-                            <td>Pan:</td>
-                            <td>Click + Drag</td>
-                          </tr>
-                          <tr>
-                            <td>Reset:</td>
-                            <td>Esc</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  }
-                  placement="left"
-                  arrow
-                >
-                  <HelpIcon />
-                </Tooltip>
-              </Grid>
+        </Grid>
+        <Grid item xs="auto">
+          <Grid container alignItems={'flex-start'} spacing={2}>
+            <Grid item>
+              <Tooltip
+                title={
+                  <div>
+                    <Typography color="inherit">Timeline keyboard shortcuts</Typography>
+                    <table>
+                      <tbody>
+                        <tr>
+                          <td>Zoom In:</td>
+                          <td>Click</td>
+                        </tr>
+                        <tr>
+                          <td>Zoom Out:</td>
+                          <td>Alt + Click</td>
+                        </tr>
+                        <tr>
+                          <td>Zoom Custom:</td>
+                          <td>Shift + Click + Drag</td>
+                        </tr>
+                        <tr>
+                          <td>Pan:</td>
+                          <td>Click + Drag</td>
+                        </tr>
+                        <tr>
+                          <td>Reset:</td>
+                          <td>Esc</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                }
+                placement="left"
+                arrow
+              >
+                <HelpIcon />
+              </Tooltip>
             </Grid>
           </Grid>
         </Grid>

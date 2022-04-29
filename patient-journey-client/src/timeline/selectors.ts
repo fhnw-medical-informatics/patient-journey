@@ -4,7 +4,7 @@ import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
 import { EventDataColumn, PatientJourneyEvent } from '../data/events'
-import { Patient, PatientDataColumn, PatientId, PatientIdNone } from '../data/patients'
+import { PatientId, PatientIdNone } from '../data/patients'
 import {
   selectActiveSelectedEntity,
   selectEventDataColumns,
