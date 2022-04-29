@@ -48,7 +48,7 @@ export const CategoryDataFilter = ({
     }
   }
 
-  const activeFilterCategories = value.categories !== [''] ? value.categories : []
+  const activeFilterCategories = value.categories.length !== 0 ? value.categories : []
 
   return (
     <FormControl sx={{ width: '100%' }}>
