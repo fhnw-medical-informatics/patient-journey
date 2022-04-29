@@ -30,6 +30,8 @@ interface TimelineProps {
   onSetExpandByColumn: (column: TimelineColumn) => void
   cluster: boolean
   onSetTimelineCluster: () => void
+  showTimeGrid: boolean
+  onToggleTimeGrid: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
@@ -47,6 +49,8 @@ export const Timeline = ({
   onSetExpandByColumn,
   cluster,
   onSetTimelineCluster,
+  showTimeGrid,
+  onToggleTimeGrid,
   availableColumns,
   colorByColumn,
   onChangeColorByColumn,
@@ -62,6 +66,8 @@ export const Timeline = ({
         expandByColumn={expandByColumn}
         onSetExpandByColumn={onSetExpandByColumn}
         cluster={cluster}
+        showTimeGrid={showTimeGrid}
+        onToggleTimeGrid={onToggleTimeGrid}
         onSetTimelineCluster={onSetTimelineCluster}
         availableColumns={availableColumns}
         colorByColumn={colorByColumn}
@@ -73,6 +79,7 @@ export const Timeline = ({
         dateFormat={dateFormat}
         laneDisplayMode={laneDisplayMode}
         enableClustering={cluster}
+        showTimeGrid={showTimeGrid}
         onCursorPositionChange={onCursorPositionChange}
       />
     </Paper>

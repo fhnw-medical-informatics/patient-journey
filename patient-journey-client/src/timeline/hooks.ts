@@ -11,9 +11,12 @@ import {
   selectSelectedActiveEntityAsEvent,
   selectHoveredActiveEntityAsEvent,
   selectFocusLaneId,
+  selectShowTimeGrid,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
+
+export const useShowTimeGrid = () => useAppSelector(selectShowTimeGrid)
 
 export const useViewByColumn = () => useAppSelector(selectViewByColumn)
 

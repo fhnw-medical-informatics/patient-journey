@@ -17,12 +17,15 @@ import { CursorPosition, CursorPositionNone } from '../timelineSlice'
 import { TimelineActiveMarksLayer } from '../containers/TimelineActiveMarks'
 import { TimelineLanesLayer } from '../containers/TimelineLanes'
 
+const INVISIBLE_LAYER = () => null
+
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, any>>
   lanes: ReadonlyArray<TimelineLane<any>>
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   enableClustering: boolean
+  showTimeGrid: boolean
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
 }
 
@@ -32,6 +35,7 @@ export const TimelineView = ({
   dateFormat,
   laneDisplayMode,
   enableClustering,
+  showTimeGrid,
   onCursorPositionChange,
 }: TimelineProps) => {
   const muiTheme = useTheme()
@@ -63,7 +67,7 @@ export const TimelineView = ({
                 enableEventClustering={enableClustering}
                 theme={timelineTheme}
                 layers={[
-                  'grid',
+                  showTimeGrid ? 'grid' : INVISIBLE_LAYER,
                   TimelineLanesLayer,
                   TimelineCanvasMarksLayer,
                   'interaction',

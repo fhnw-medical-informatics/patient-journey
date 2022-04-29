@@ -33,6 +33,8 @@ interface ControlPanelProps {
   onSetExpandByColumn: (column: TimelineColumn) => void
   cluster: boolean
   onSetTimelineCluster: () => void
+  showTimeGrid: boolean
+  onToggleTimeGrid: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
@@ -44,6 +46,8 @@ export const ControlPanel = ({
   expandByColumn,
   onSetExpandByColumn,
   cluster,
+  showTimeGrid,
+  onToggleTimeGrid,
   onSetTimelineCluster,
   availableColumns,
   colorByColumn,
@@ -174,6 +178,12 @@ export const ControlPanel = ({
               <FormControlLabel
                 control={<Switch checked={cluster} onChange={onSetTimelineCluster} color="primary" />}
                 label="Cluster Events"
+              />
+            </Grid>
+            <Grid item ml={-2}>
+              <FormControlLabel
+                control={<Switch checked={showTimeGrid} onChange={onToggleTimeGrid} color="primary" />}
+                label="Time Grid"
               />
             </Grid>
           </Grid>

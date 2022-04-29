@@ -16,6 +16,7 @@ import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
 
 export const selectTimelineCluster = (s: RootState): boolean => s.timeline.cluster
+export const selectShowTimeGrid = (s: RootState) => s.timeline.showTimeGrid
 
 export const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.viewByColumn
 

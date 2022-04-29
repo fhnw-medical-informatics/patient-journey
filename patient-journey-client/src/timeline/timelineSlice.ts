@@ -16,11 +16,13 @@ export type TimelineState = {
   viewByColumn: TimelineColumn
   expandByColumn: TimelineColumn
   cluster: boolean
+  showTimeGrid: boolean
   cursorPosition: CursorPosition
 }
 
 export const initialTimelineState: TimelineState = {
   cluster: true,
+  showTimeGrid: true,
   viewByColumn: TimelineColumnNone,
   expandByColumn: TimelineColumnNone,
   cursorPosition: CursorPositionNone,
@@ -45,9 +47,18 @@ const timelineSlice = createSlice({
     resetCursorPosition: (state: Draft<TimelineState>) => {
       state.cursorPosition = CursorPositionNone
     },
+    toggleTimeGrid: (state: Draft<TimelineState>) => {
+      state.showTimeGrid = !state.showTimeGrid
+    },
   },
 })
 
 export const timelineReducer = timelineSlice.reducer
-export const { setViewByColumn, setExpandByColumn, setTimelineCluster, setCursorPosition, resetCursorPosition } =
-  timelineSlice.actions
+export const {
+  setViewByColumn,
+  setExpandByColumn,
+  setTimelineCluster,
+  setCursorPosition,
+  resetCursorPosition,
+  toggleTimeGrid,
+} = timelineSlice.actions

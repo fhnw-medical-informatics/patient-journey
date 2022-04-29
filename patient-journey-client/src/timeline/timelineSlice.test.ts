@@ -8,9 +8,11 @@ import {
   TimelineColumn,
   CursorPositionNone,
   CursorPosition,
+  toggleTimeGrid,
 } from './timelineSlice'
 
 import { createStore } from '../store'
+import { selectShowTimeGrid } from './selectors'
 
 describe('Timeline Slice', () => {
   it('handles setViewByColumn action', async () => {
@@ -56,6 +58,14 @@ describe('Timeline Slice', () => {
 
     store.dispatch(setTimelineCluster())
     expect(getCluster()).toEqual(false)
+  })
+
+  it(`handles ${toggleTimeGrid} action`, async () => {
+    const store = createStore()
+    const getShowTimeGrid = () => selectShowTimeGrid(store.getState())
+    expect(getShowTimeGrid()).toEqual(true)
+    store.dispatch(toggleTimeGrid())
+    expect(getShowTimeGrid()).toEqual(false)
   })
 
   it('handles setCursorPosition action', async () => {
