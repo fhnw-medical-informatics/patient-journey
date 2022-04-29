@@ -10,6 +10,7 @@ import {
   selectCursorPosition,
   selectSelectedActiveEntityAsEvent,
   selectHoveredActiveEntityAsEvent,
+  selectFocusLaneId,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -29,3 +30,5 @@ export const useHoveredActiveEntityAsEvent = () => useAppSelector(selectHoveredA
 
 export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
   useAppSelector((state) => selectFilteredActiveDataAsLanes(state, colorByCategoryFn))
+
+export const useFocusLaneId = () => useAppSelector(selectFocusLaneId)
