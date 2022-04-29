@@ -1,8 +1,11 @@
 import React from 'react'
 
-import { FormGroup, TextField } from '@mui/material'
+import { FormGroup, TextField, Slider } from '@mui/material'
 import { createFilter, Filter } from '../../filtering'
 import { makeStyles } from '../../../utils'
+import { DataColumn } from '../../columns'
+import { Entity } from '../../entities'
+import { useNumbers } from '../diagram/hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -16,12 +19,15 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 export interface NumberDataFilterProps extends Filter<'number'> {
+  allActiveData: ReadonlyArray<Entity>
   onChange: (filter: Filter<'number'>) => void
   onRemove: (filter: Filter<'number'>) => void
 }
 
-export const NumberDataFilter = ({ column, type, value, onChange, onRemove }: NumberDataFilterProps) => {
+export const NumberDataFilter = ({ allActiveData, column, type, value, onChange, onRemove }: NumberDataFilterProps) => {
   const { classes } = useStyles()
+
+  const { min, max } = useNumbers(allActiveData, column as DataColumn<'number'>)
 
   const handleChange = (fromValue: number | null, toValue: number | null) => {
     const filter = createFilter(column, type, {
@@ -36,8 +42,21 @@ export const NumberDataFilter = ({ column, type, value, onChange, onRemove }: Nu
     }
   }
 
+  const handleSliderChange = (event: Event, newValue: number | number[]) => {
+    if (Array.isArray(newValue)) {
+      handleChange(newValue[0], newValue[1])
+    }
+  }
+
   return (
     <FormGroup className={classes.container}>
+      <Slider
+        value={[!isNaN(value.from) ? value.from : min!, !isNaN(value.to) ? value.to : max!]}
+        onChange={handleSliderChange}
+        valueLabelDisplay="auto"
+        min={min}
+        max={max}
+      />
       <div className={classes.input}>
         <TextField
           label={'From'}

@@ -11,7 +11,6 @@ import { Entity } from '../../entities'
 
 export interface CategoryDataFilterProps extends Filter<'category'> {
   allActiveData: ReadonlyArray<Entity>
-  column: DataColumn<'category'>
   onChange: (filter: Filter<'category'>) => void
   onRemove: (filter: Filter<'category'>) => void
 }
@@ -24,7 +23,7 @@ export const CategoryDataFilter = ({
   onChange,
   onRemove,
 }: CategoryDataFilterProps) => {
-  const { uniqueCategories } = useCategories(allActiveData, column)
+  const { uniqueCategories } = useCategories(allActiveData, column as DataColumn<'category'>)
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
     const selected = event.target.value as unknown as string[]

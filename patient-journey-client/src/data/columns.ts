@@ -20,7 +20,8 @@ export const stringToBoolean = (s: string) => {
   return isEmpty(s) ? false : s.toLowerCase() === 'true'
 }
 
-const DATE_TIMESTAMP_FORMAT = 'dd.MM.yyyy HH:mm'
+export const DATE_TIMESTAMP_FORMAT = 'dd.MM.yyyy HH:mm'
+export const DATE_FORMAT = 'dd.MM.yyyy'
 
 // Parses a date string in the format "dd.MM.yyyy" to a Date object
 // We don't use date-fns parse, because it's performance is much slower
