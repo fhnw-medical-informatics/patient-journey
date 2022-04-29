@@ -59,7 +59,7 @@ export const CategoryDataFilter = ({
   const activeFilterCategories = value.categories.length !== 0 ? value.categories : []
 
   return (
-    <FormControl className={classes.container}>
+    <FormControl variant="filled" size="small" className={classes.container}>
       <InputLabel id={column.name}>{column.name}</InputLabel>
       <Select
         multiple
@@ -68,8 +68,6 @@ export const CategoryDataFilter = ({
         label={column.name}
         labelId={column.name}
         renderValue={renderValue}
-        variant="filled"
-        size="small"
         displayEmpty={true}
       >
         {uniqueCategories.map((c) => {
