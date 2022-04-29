@@ -4,18 +4,20 @@ import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
 import { EventDataColumn, PatientJourneyEvent } from '../data/events'
-import { PatientId } from '../data/patients'
+import { Patient, PatientDataColumn, PatientId, PatientIdNone } from '../data/patients'
 import {
   selectActiveSelectedEntity,
   selectEventDataColumns,
   selectCrossFilteredEventData,
   selectActiveHoveredEventEntity,
   selectActiveSelectedEventEntity,
+  selectFocusEntity,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
 
 export const selectTimelineCluster = (s: RootState): boolean => s.timeline.cluster
+export const selectShowTimeGrid = (s: RootState) => s.timeline.showTimeGrid
 
 export const selectShowFilteredOut = (s: RootState): boolean => s.timeline.showFilteredOut
 
@@ -88,6 +90,21 @@ export const selectHoveredActiveEvent = createSelector(
   selectFilteredActiveEventsAsMap,
   selectActiveHoveredEventEntity,
   (eventMap, hoveredEntity) => eventMap.get(hoveredEntity)
+)
+
+export const selectFocusLaneId = createSelector(
+  selectFilteredActiveEventsAsMap,
+  selectFocusEntity,
+  (eventMap, focusEntity): PatientId => {
+    switch (focusEntity.type) {
+      case 'patient':
+        return focusEntity.uid
+      case 'event':
+        return (eventMap.get(focusEntity.uid)?.laneId as PatientId) ?? PatientIdNone
+      default:
+        return PatientIdNone
+    }
+  }
 )
 
 const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategoryFn): ColorByCategoryFn =>

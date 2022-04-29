@@ -11,9 +11,13 @@ import {
   selectCursorPosition,
   selectSelectedActiveEvent,
   selectHoveredActiveEvent,
+  selectFocusLaneId,
+  selectShowTimeGrid,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
+
+export const useShowTimeGrid = () => useAppSelector(selectShowTimeGrid)
 
 export const useViewByColumn = () => useAppSelector(selectViewByColumn)
 
@@ -32,3 +36,5 @@ export const useHoveredActiveEvent = () => useAppSelector(selectHoveredActiveEve
 
 export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
   useAppSelector((state) => selectFilteredActiveDataAsLanes(state, colorByCategoryFn))
+
+export const useFocusLaneId = () => useAppSelector(selectFocusLaneId)

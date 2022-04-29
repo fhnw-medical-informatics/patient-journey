@@ -1,11 +1,11 @@
 import React from 'react'
 import { PatientId } from '../../data/patients'
 import {
-  Timeline as SVGTimeline,
+  deriveTimelineTheme,
   LaneDisplayMode,
+  Timeline as SVGTimeline,
   TimelineEvent,
   TimelineLane,
-  deriveTimelineTheme,
 } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { useTheme } from '@mui/material'
@@ -15,6 +15,9 @@ import { TimelineCanvasMarksInteractionLayer } from '../containers/TimelineCanva
 import { MouseAwareSvg } from './MouseAwareSvg'
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
 import { TimelineActiveMarksLayer } from '../containers/TimelineActiveMarks'
+import { TimelineLanesLayer } from '../containers/TimelineLanes'
+
+const INVISIBLE_LAYER = () => null
 
 interface TimelineProps {
   events: ReadonlyArray<TimelineEvent<PatientId, any>>
@@ -22,6 +25,7 @@ interface TimelineProps {
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   enableClustering: boolean
+  showTimeGrid: boolean
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
 }
 
@@ -31,6 +35,7 @@ export const TimelineView = ({
   dateFormat,
   laneDisplayMode,
   enableClustering,
+  showTimeGrid,
   onCursorPositionChange,
 }: TimelineProps) => {
   const muiTheme = useTheme()
@@ -62,8 +67,8 @@ export const TimelineView = ({
                 enableEventClustering={enableClustering}
                 theme={timelineTheme}
                 layers={[
-                  'grid',
-                  'axes',
+                  showTimeGrid ? 'grid' : INVISIBLE_LAYER,
+                  TimelineLanesLayer,
                   TimelineCanvasMarksLayer,
                   'interaction',
                   TimelineCanvasMarksInteractionLayer,

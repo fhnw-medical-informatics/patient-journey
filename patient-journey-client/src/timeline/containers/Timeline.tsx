@@ -13,6 +13,7 @@ import {
   setViewByColumn,
   TimelineColumn,
   TimelineColumnNone,
+  toggleTimeGrid,
 } from '../timelineSlice'
 import { useTimelineDataColumns } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
@@ -23,6 +24,7 @@ import {
   useViewByColumn,
   useExpandByColumn,
   useShowFilteredOut,
+  useShowTimeGrid,
 } from '../hooks'
 import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
@@ -34,6 +36,7 @@ export const Timeline = React.memo(() => {
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
   const cluster = useTimelineCluster()
   const showFilteredOut = useShowFilteredOut()
+  const showTimeGrid = useShowTimeGrid()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
   const activeColumns = useTimelineDataColumns()
@@ -46,6 +49,7 @@ export const Timeline = React.memo(() => {
 
   const onSetTimelineCluster = useCallback(() => dispatch(setTimelineCluster()), [dispatch])
   const onSetShowFilteredOut = useCallback(() => dispatch(setShowFilteredOut()), [dispatch])
+  const onToggleTimeGrid = useCallback(() => dispatch(toggleTimeGrid()), [dispatch])
 
   const onChangeColorByColumn = useCallback(
     (column: ColorByColumnOption) => dispatch(setColorByColumn({ colorByColumn: column })),
@@ -83,6 +87,8 @@ export const Timeline = React.memo(() => {
       colorByColumn={colorByColumn}
       onChangeColorByColumn={onChangeColorByColumn}
       onCursorPositionChange={onCursorPositionChange}
+      showTimeGrid={showTimeGrid}
+      onToggleTimeGrid={onToggleTimeGrid}
     />
   )
 })
