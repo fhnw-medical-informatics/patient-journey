@@ -8,6 +8,14 @@ import { DataColumn } from '../../columns'
 import { Checkbox, FormControl, InputLabel, ListItemText } from '@mui/material'
 import { useCategories } from '../diagram/hooks'
 import { Entity } from '../../entities'
+import { makeStyles } from '../../../utils'
+
+const useStyles = makeStyles()((theme) => ({
+  container: {
+    width: '100%',
+    marginTop: theme.spacing(2),
+  },
+}))
 
 export interface CategoryDataFilterProps extends Filter<'category'> {
   allActiveData: ReadonlyArray<Entity>
@@ -23,6 +31,7 @@ export const CategoryDataFilter = ({
   onChange,
   onRemove,
 }: CategoryDataFilterProps) => {
+  const { classes } = useStyles()
   const { uniqueCategories } = useCategories(allActiveData, column as DataColumn<'category'>)
 
   const handleChange = (event: SelectChangeEvent<unknown>) => {
@@ -50,7 +59,7 @@ export const CategoryDataFilter = ({
   const activeFilterCategories = value.categories !== [''] ? value.categories : []
 
   return (
-    <FormControl sx={{ width: '100%' }}>
+    <FormControl className={classes.container}>
       <InputLabel id={column.name}>{column.name}</InputLabel>
       <Select
         multiple

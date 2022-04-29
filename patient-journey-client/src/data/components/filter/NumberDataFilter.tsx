@@ -1,19 +1,17 @@
 import React from 'react'
 
-import { FormGroup, TextField, Slider, Grid } from '@mui/material'
+import { FormGroup, TextField, Grid } from '@mui/material'
 import { createFilter, Filter } from '../../filtering'
 import { makeStyles } from '../../../utils'
 import { DataColumn } from '../../columns'
 import { Entity } from '../../entities'
 import { useNumbers } from '../diagram/hooks'
+import { CustomSliderThumb } from './slider/CustomSliderThumb'
+import { CustomSlider } from './slider/CustomSlider'
 
-const useStyles = makeStyles()((theme) => ({
-  container: {
-    '> *:not(:last-child)': {
-      marginBottom: theme.spacing(2),
-    },
-  },
+const useStyles = makeStyles()(() => ({
   input: {
+    width: '100%',
     maxWidth: '100px',
   },
 }))
@@ -49,50 +47,50 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
   }
 
   return (
-    <FormGroup className={classes.container}>
-      <Slider
+    <FormGroup>
+      <CustomSlider
         value={[!isNaN(value.from) ? value.from : min!, !isNaN(value.to) ? value.to : max!]}
         onChange={handleSliderChange}
         valueLabelDisplay="auto"
         min={min}
         max={max}
+        size="small"
+        components={{
+          Thumb: CustomSliderThumb,
+        }}
       />
       <Grid container spacing={1} direction="row">
         <Grid item xs={6}>
           <Grid container justifyContent="flex-start">
-            <Grid item>
-              <div className={classes.input}>
-                <TextField
-                  label={'From'}
-                  variant="filled"
-                  size="small"
-                  type={'number'}
-                  value={!isNaN(value.from) ? value.from : 'NaN'}
-                  onChange={(event) => {
-                    handleChange(event.target.value ? +event.target.value : NaN, null)
-                  }}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </div>
+            <Grid item className={classes.input}>
+              <TextField
+                label={'From'}
+                variant="filled"
+                size="small"
+                type={'number'}
+                value={!isNaN(value.from) ? value.from : 'NaN'}
+                onChange={(event) => {
+                  handleChange(event.target.value ? +event.target.value : NaN, null)
+                }}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={6}>
           <Grid container justifyContent="flex-end">
-            <Grid item>
-              <div className={classes.input}>
-                <TextField
-                  label={'To'}
-                  variant="filled"
-                  size="small"
-                  type={'number'}
-                  value={!isNaN(value.to) ? value.to : 'NaN'}
-                  onChange={(event) => {
-                    handleChange(null, event.target.value ? +event.target.value : NaN)
-                  }}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </div>
+            <Grid item className={classes.input}>
+              <TextField
+                label={'To'}
+                variant="filled"
+                size="small"
+                type={'number'}
+                value={!isNaN(value.to) ? value.to : 'NaN'}
+                onChange={(event) => {
+                  handleChange(null, event.target.value ? +event.target.value : NaN)
+                }}
+                InputLabelProps={{ shrink: true }}
+              />
             </Grid>
           </Grid>
         </Grid>
