@@ -298,7 +298,7 @@ describe('dataSlice', () => {
     const { store } = await createStoreWithMockData()
     const getHovered = () => selectActiveHoveredEventEntity(store.getState())
     expect(getHovered()).toEqual(PatientIdNone)
-    store.dispatch(setHoveredEntity({ uid: PID_1, type: 'patient' }))
+    store.dispatch(setHoveredEntity({ uid: PID_1, type: 'event' }))
     expect(getHovered()).toEqual(PID_1)
     store.dispatch(setHoveredEntity(PatientIdNone))
     expect(getHovered()).toEqual(PatientIdNone)
