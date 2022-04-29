@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { FormGroup, TextField, Slider } from '@mui/material'
+import { FormGroup, TextField, Slider, Grid } from '@mui/material'
 import { createFilter, Filter, Millis, MillisNone } from '../../filtering'
 import { makeStyles } from '../../../utils'
 import { DataColumn, DATE_FORMAT, DATE_TIMESTAMP_FORMAT, format, isValidDate, parseHTMLDateInput } from '../../columns'
@@ -74,40 +74,56 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
         max={max!.valueOf()}
         valueLabelFormat={(value) => format(value, type === 'timestamp' ? DATE_TIMESTAMP_FORMAT : DATE_FORMAT)}
       />
-      <div className={classes.input}>
-        <TextField
-          label={'From'}
-          variant="outlined"
-          type={type === 'timestamp' ? 'datetime-local' : 'date'}
-          value={
-            value.millisFrom !== MillisNone
-              ? format(value.millisFrom, type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT)
-              : ''
-          }
-          onChange={(event) => {
-            handleChange(parseDateTextField(event.target.value), null)
-          }}
-          // Issue with shrink state: https://mui.com/components/text-fields/#shrink
-          InputLabelProps={{ shrink: true }}
-        />
-      </div>
-      <div className={classes.input}>
-        <TextField
-          label={'To'}
-          variant="outlined"
-          type={type === 'timestamp' ? 'datetime-local' : 'date'}
-          value={
-            value.millisTo !== MillisNone
-              ? format(value.millisTo, type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT)
-              : ''
-          }
-          onChange={(event) => {
-            handleChange(null, parseDateTextField(event.target.value))
-          }}
-          // Issue with shrink state https://mui.com/components/text-fields/#shrink
-          InputLabelProps={{ shrink: true }}
-        />
-      </div>
+      <Grid container spacing={1} direction="row">
+        <Grid item xs={6}>
+          <Grid container justifyContent="flex-start">
+            <Grid item>
+              <div className={classes.input}>
+                <TextField
+                  label={'From'}
+                  variant="filled"
+                  size="small"
+                  type={type === 'timestamp' ? 'datetime-local' : 'date'}
+                  value={
+                    value.millisFrom !== MillisNone
+                      ? format(value.millisFrom, type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT)
+                      : ''
+                  }
+                  onChange={(event) => {
+                    handleChange(parseDateTextField(event.target.value), null)
+                  }}
+                  // Issue with shrink state: https://mui.com/components/text-fields/#shrink
+                  InputLabelProps={{ shrink: true }}
+                />
+              </div>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={6}>
+          <Grid container justifyContent="flex-end">
+            <Grid item>
+              <div className={classes.input}>
+                <TextField
+                  label={'To'}
+                  variant="filled"
+                  size="small"
+                  type={type === 'timestamp' ? 'datetime-local' : 'date'}
+                  value={
+                    value.millisTo !== MillisNone
+                      ? format(value.millisTo, type === 'timestamp' ? CONTROL_TIMESTAMP_FORMAT : CONTROL_DATE_FORMAT)
+                      : ''
+                  }
+                  onChange={(event) => {
+                    handleChange(null, parseDateTextField(event.target.value))
+                  }}
+                  // Issue with shrink state https://mui.com/components/text-fields/#shrink
+                  InputLabelProps={{ shrink: true }}
+                />
+              </div>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
     </FormGroup>
   )
 }

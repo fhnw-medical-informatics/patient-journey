@@ -59,7 +59,8 @@ export const CategoryDataFilter = ({
         label={column.name}
         labelId={column.name}
         renderValue={renderValue}
-        variant="outlined"
+        variant="filled"
+        size="small"
         displayEmpty={true}
       >
         {uniqueCategories.map((c) => {
