@@ -51,21 +51,18 @@ const convertEntityToTimelineEvent = (
     : []
 }
 
-export const selectFilteredActiveDataAsEvents = createSelector(
-  selectViewByColumn,
-  selectExpandByColumn,
-  selectEventDataColumns,
+export const selectFilteredOutActiveDataAsEvents = createSelector(
+  selectShowFilteredOut,
+  selectEventDataRows,
   selectCrossFilteredEventData,
-  selectColorByColumnFn,
-  (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) =>
-    convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
+  (showFilteredOut, activeData, filteredActiveData) => (showFilteredOut ? activeData : filteredActiveData)
 )
 
 export const selectActiveDataAsEvents = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
   selectEventDataColumns,
-  selectEventDataRows,
+  selectFilteredOutActiveDataAsEvents,
   selectColorByColumnFn,
   (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) =>
     convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
@@ -121,27 +118,9 @@ export const selectFocusLaneId = createSelector(
 const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategoryFn): ColorByCategoryFn =>
   colorByCategoryFn
 
-export const selectFilteredActiveDataAsLanes = createSelector(
-  selectExpandByColumn,
-  selectCrossFilteredEventData,
-  selectColorByCategoryFn,
-  (expandByColumn, activeData, colorByCategoryFn) =>
-    Array.from(
-      new Set(
-        (activeData as ReadonlyArray<Entity & { pid: PatientId }>).map((event) =>
-          expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index]
-        )
-      )
-    ).map((value) => ({
-      laneId: value,
-      label: value, // TODO: Proper label
-      color: expandByColumn !== TimelineColumnNone ? colorByCategoryFn(value) : undefined,
-    })) as ReadonlyArray<TimelineLane<any>>
-)
-
 export const selectActiveDataAsLanes = createSelector(
   selectExpandByColumn,
-  selectEventDataRows,
+  selectFilteredOutActiveDataAsEvents,
   selectColorByCategoryFn,
   (expandByColumn, activeData, colorByCategoryFn) =>
     Array.from(

@@ -2,8 +2,6 @@ import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { useAppSelector } from '../store'
 
 import {
-  selectFilteredActiveDataAsEvents,
-  selectFilteredActiveDataAsLanes,
   selectExpandByColumn,
   selectViewByColumn,
   selectShowFilteredOut,
@@ -29,18 +27,12 @@ export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
 
 export const useTimlineCursorPosition = () => useAppSelector(selectCursorPosition)
 
-export const useFilteredActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn) =>
-  useAppSelector((state) => selectFilteredActiveDataAsEvents(state, colorByColumnFn))
-
 export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn) =>
   useAppSelector((state) => selectActiveDataAsEvents(state, colorByColumnFn))
 
 export const useSelectedActiveEvent = () => useAppSelector(selectSelectedActiveEvent)
 
 export const useHoveredActiveEvent = () => useAppSelector(selectHoveredActiveEvent)
-
-export const useFilteredActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
-  useAppSelector((state) => selectFilteredActiveDataAsLanes(state, colorByCategoryFn))
 
 export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
   useAppSelector((state) => selectActiveDataAsLanes(state, colorByCategoryFn))
