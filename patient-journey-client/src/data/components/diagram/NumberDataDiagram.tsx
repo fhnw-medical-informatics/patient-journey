@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react'
 import { bin } from 'd3-array'
-import { ScaleLinear, scaleLinear } from 'd3-scale'
 import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
@@ -18,9 +17,8 @@ const useStyles = makeStyles()((theme) => ({
 
 const histogramBinCount = 10
 
-function createBins(numbers: ReadonlyArray<number>, timeScale: ScaleLinear<number, number>) {
-  const [min, max] = timeScale.domain()
-  return bin<number, number>().domain([min, max]).thresholds(timeScale.ticks(histogramBinCount))(numbers)
+function createBins(numbers: ReadonlyArray<number>, min: number, max: number) {
+  return bin<number, number>().domain([min, max]).thresholds(histogramBinCount)(numbers)
 }
 
 interface BinDatum {
@@ -56,20 +54,18 @@ export const NumberDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const { allNumbers, min, max, extractValueSafe } = useNumbers(allActiveData, column)
+  const { allNumbers, niceMin, niceMax, extractValueSafe } = useNumbers(allActiveData, column)
 
   const filteredNumbers = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
 
-  const timeScale = useMemo(() => scaleLinear<number, number>().domain([min!, max!]).nice(), [min, max])
-
-  const allTicketBins = useMemo(() => createBins(allNumbers, timeScale), [allNumbers, timeScale])
+  const allTicketBins = useMemo(() => createBins(allNumbers, niceMin, niceMax), [allNumbers, niceMin, niceMax])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    const filteredTicketBins = createBins(filteredNumbers, timeScale)
+    const filteredTicketBins = createBins(filteredNumbers, niceMin, niceMax)
 
     return (
       allTicketBins
@@ -96,7 +92,7 @@ export const NumberDataDiagram = ({
           return [...acc, bin]
         }, [])
     )
-  }, [allTicketBins, filteredNumbers, timeScale])
+  }, [allTicketBins, filteredNumbers, niceMin, niceMax])
 
   const tooltip = useCallback(({ data, value, color }) => {
     const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${

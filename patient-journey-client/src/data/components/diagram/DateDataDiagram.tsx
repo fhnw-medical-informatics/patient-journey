@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { bin } from 'd3-array'
-import { ScaleTime, scaleTime } from 'd3-scale'
+import { ScaleTime } from 'd3-scale'
 import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { format } from '../../columns'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
@@ -56,14 +56,12 @@ export const DateDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const { allDates, min, max, extractValueSafe } = useDates(allActiveData, column)
+  const { allDates, timeScale, extractValueSafe } = useDates(allActiveData, column)
 
   const filteredDates = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
-
-  const timeScale = useMemo(() => scaleTime<Date, Date>().domain([min!, max!]).nice(), [min, max])
 
   const allTicketBins = useMemo(() => createBins(allDates, timeScale), [allDates, timeScale])
 

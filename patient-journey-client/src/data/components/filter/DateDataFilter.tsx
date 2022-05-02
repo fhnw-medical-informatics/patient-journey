@@ -28,7 +28,7 @@ export interface DateDataFilterProps extends Filter<'timestamp' | 'date'> {
 export const DateDataFilter = ({ allActiveData, column, type, value, onChange, onRemove }: DateDataFilterProps) => {
   const { classes } = useStyles()
 
-  const { min, max } = useDates(allActiveData, column as DataColumn<'timestamp' | 'date'>)
+  const { niceMin, niceMax } = useDates(allActiveData, column as DataColumn<'timestamp' | 'date'>)
 
   const handleChange = useCallback(
     (fromValue: Millis | null, toValue: Millis | null) => {
@@ -37,7 +37,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
       const filter = createFilter(column, type, {
         millisFrom: fromValue !== null ? fromValue : value.millisFrom,
         millisTo: _millisTo,
-        toInclusive: _millisTo === max!.valueOf(),
+        toInclusive: _millisTo === niceMax.valueOf(),
       })
 
       if (filter.value.millisFrom === MillisNone && filter.value.millisTo === MillisNone) {
@@ -46,7 +46,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
         onChange(filter)
       }
     },
-    [column, max, onChange, onRemove, type, value]
+    [column, niceMax, onChange, onRemove, type, value]
   )
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
@@ -69,13 +69,13 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
     <FormGroup>
       <CustomSlider
         value={[
-          value.millisFrom !== MillisNone ? value.millisFrom : min!.valueOf(),
-          value.millisTo !== MillisNone ? value.millisTo : max!.valueOf(),
+          value.millisFrom !== MillisNone ? value.millisFrom : niceMin.valueOf(),
+          value.millisTo !== MillisNone ? value.millisTo : niceMax.valueOf(),
         ]}
         onChange={handleSliderChange}
         valueLabelDisplay="auto"
-        min={min!.valueOf()}
-        max={max!.valueOf()}
+        min={niceMin.valueOf()}
+        max={niceMax.valueOf()}
         valueLabelFormat={(value) => format(value, type === 'timestamp' ? DATE_TIMESTAMP_FORMAT : DATE_FORMAT)}
         size="small"
         components={{

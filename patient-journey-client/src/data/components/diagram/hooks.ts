@@ -4,6 +4,7 @@ import { extent } from 'd3-array'
 
 import { DataColumn, extractCategoryValueSafe, extractDateValueSafe, extractNumberValueSafe } from '../../columns'
 import { Entity } from '../../entities'
+import { scaleLinear, ScaleTime, scaleTime } from 'd3-scale'
 
 export const useCategories = (
   allData: ReadonlyArray<Entity>,
@@ -29,6 +30,8 @@ export const useNumbers = (
   allNumbers: ReadonlyArray<number>
   min: number | undefined
   max: number | undefined
+  niceMin: number
+  niceMax: number
   extractValueSafe: (entity: Entity) => [number] | []
 } => {
   const extractValueSafe = useMemo(() => extractNumberValueSafe(column), [column])
@@ -37,7 +40,12 @@ export const useNumbers = (
 
   const [min, max] = useMemo(() => extent(allNumbers), [allNumbers])
 
-  return { allNumbers, min, max, extractValueSafe }
+  const [niceMin, niceMax] = useMemo(
+    () => scaleLinear<number, number>().domain([min!, max!]).nice().domain(),
+    [min, max]
+  )
+
+  return { allNumbers, min, max, niceMin, niceMax, extractValueSafe }
 }
 
 export const useDates = (
@@ -47,6 +55,9 @@ export const useDates = (
   allDates: ReadonlyArray<Date>
   min: Date | undefined
   max: Date | undefined
+  niceMin: Date
+  niceMax: Date
+  timeScale: ScaleTime<Date, Date>
   extractValueSafe: (entity: Entity) => [Date] | []
 } => {
   const extractValueSafe = useMemo(() => extractDateValueSafe(column), [column])
@@ -55,5 +66,9 @@ export const useDates = (
 
   const [min, max] = useMemo(() => extent(allDates), [allDates])
 
-  return { allDates, min, max, extractValueSafe }
+  const timeScale = useMemo(() => scaleTime<Date, Date>().domain([min!, max!]).nice(), [min, max])
+
+  const [niceMin, niceMax] = useMemo(() => timeScale.domain(), [timeScale])
+
+  return { allDates, min, max, niceMin, niceMax, timeScale, extractValueSafe }
 }
