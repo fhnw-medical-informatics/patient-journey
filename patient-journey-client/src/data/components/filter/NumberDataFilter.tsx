@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { FormGroup, TextField, Grid } from '@mui/material'
 import { createFilter, Filter } from '../../filtering'
@@ -27,18 +27,24 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
 
   const { min, max } = useNumbers(allActiveData, column as DataColumn<'number'>)
 
-  const handleChange = (fromValue: number | null, toValue: number | null) => {
-    const filter = createFilter(column, type, {
-      from: fromValue !== null ? fromValue : value.from,
-      to: toValue !== null ? toValue : value.to,
-    })
+  const handleChange = useCallback(
+    (fromValue: number | null, toValue: number | null) => {
+      const _toValue = toValue !== null ? toValue : value.to
 
-    if (isNaN(filter.value.from) && isNaN(filter.value.to)) {
-      onRemove(filter)
-    } else {
-      onChange(filter)
-    }
-  }
+      const filter = createFilter(column, type, {
+        from: fromValue !== null ? fromValue : value.from,
+        to: _toValue,
+        toInclusive: _toValue === max,
+      })
+
+      if (isNaN(filter.value.from) && isNaN(filter.value.to)) {
+        onRemove(filter)
+      } else {
+        onChange(filter)
+      }
+    },
+    [column, max, onChange, onRemove, type, value]
+  )
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     if (Array.isArray(newValue)) {

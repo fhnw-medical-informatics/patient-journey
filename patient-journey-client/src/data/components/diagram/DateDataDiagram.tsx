@@ -120,11 +120,12 @@ export const DateDataDiagram = ({
         type: column.type,
         value: {
           millisFrom: +bin.data.binStart,
-          millisTo: +bin.data.binEnd, // TODO: Exclusiveness
+          millisTo: +bin.data.binEnd,
+          toInclusive: +bin.data.binIndex >= allTicketBins.length - 1, // Only last bin is inclusive
         },
       })
     },
-    [column, onDataClick]
+    [column, onDataClick, allTicketBins]
   )
 
   return (

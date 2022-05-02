@@ -26,6 +26,7 @@ const NUMBER_FILTER: Filter<'number'> = {
   value: {
     from: 0,
     to: 100,
+    toInclusive: true,
   },
 }
 
@@ -51,6 +52,7 @@ const DATE_FILTER: Filter<'date'> = {
   value: {
     millisFrom: MillisNone,
     millisTo: MillisNone,
+    toInclusive: true,
   },
 }
 
@@ -64,6 +66,7 @@ const TIMESTAMP_FILTER: Filter<'timestamp'> = {
   value: {
     millisFrom: MillisNone,
     millisTo: MillisNone,
+    toInclusive: true,
   },
 }
 

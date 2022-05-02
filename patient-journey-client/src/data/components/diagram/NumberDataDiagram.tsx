@@ -112,11 +112,12 @@ export const NumberDataDiagram = ({
         type: column.type,
         value: {
           from: +bin.data.binStart,
-          to: +bin.data.binEnd, // TODO: Exclusiveness
+          to: +bin.data.binEnd,
+          toInclusive: +bin.data.binIndex >= allTicketBins.length - 1, // Only last bin is inclusive
         },
       })
     },
-    [column, onDataClick]
+    [column, onDataClick, allTicketBins]
   )
 
   return (

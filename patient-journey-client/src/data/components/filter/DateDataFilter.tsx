@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { FormGroup, TextField, Grid } from '@mui/material'
 import { createFilter, Filter, Millis, MillisNone } from '../../filtering'
@@ -30,18 +30,24 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
 
   const { min, max } = useDates(allActiveData, column as DataColumn<'timestamp' | 'date'>)
 
-  const handleChange = (fromValue: Millis | null, toValue: Millis | null) => {
-    const filter = createFilter(column, type, {
-      millisFrom: fromValue !== null ? fromValue : value.millisFrom,
-      millisTo: toValue !== null ? toValue : value.millisTo,
-    })
+  const handleChange = useCallback(
+    (fromValue: Millis | null, toValue: Millis | null) => {
+      const _millisTo = toValue !== null ? toValue : value.millisTo
 
-    if (filter.value.millisFrom === MillisNone && filter.value.millisTo === MillisNone) {
-      onRemove(filter)
-    } else {
-      onChange(filter)
-    }
-  }
+      const filter = createFilter(column, type, {
+        millisFrom: fromValue !== null ? fromValue : value.millisFrom,
+        millisTo: _millisTo,
+        toInclusive: _millisTo === max!.valueOf(),
+      })
+
+      if (filter.value.millisFrom === MillisNone && filter.value.millisTo === MillisNone) {
+        onRemove(filter)
+      } else {
+        onChange(filter)
+      }
+    },
+    [column, max, onChange, onRemove, type, value]
+  )
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     if (Array.isArray(newValue)) {
