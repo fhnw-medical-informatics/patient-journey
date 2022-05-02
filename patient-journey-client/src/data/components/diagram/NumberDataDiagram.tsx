@@ -7,15 +7,12 @@ import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { useNumbers } from './hooks'
+import Tooltip from './Tooltip'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
-  },
-  tooltipText: {
-    color: theme.palette.text.primary,
-    fontSize: '12px',
   },
 }))
 
@@ -40,6 +37,7 @@ export type NumberDiagramProps = DataDiagramsProps<'number'>
 export const NumberDataDiagram = ({
   allActiveData,
   filteredActiveData,
+  onDataClick,
   column,
   colorByColumn,
   colorByNumberFn,
@@ -100,13 +98,26 @@ export const NumberDataDiagram = ({
     )
   }, [allTicketBins, filteredNumbers, timeScale])
 
-  const tooltip = useCallback(
-    ({ index }) => {
-      const d = data[index]
-      const dateRange = `${d.binStart !== undefined ? d.binStart : ''} - ${d.binEnd !== undefined ? d.binEnd : ''}`
-      return <div className={classes.tooltipText}>{dateRange}</div>
+  const tooltip = useCallback(({ data, value, color }) => {
+    const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${
+      data.binEnd !== undefined ? data.binEnd : ''
+    }  (${value})`
+    return <Tooltip text={dateRange} color={color} />
+  }, [])
+
+  const handleBinClick = useCallback(
+    (bin) => {
+      onDataClick({
+        column,
+        type: column.type,
+        value: {
+          from: +bin.data.binStart,
+          to: +bin.data.binEnd,
+          toInclusive: +bin.data.binIndex >= allTicketBins.length - 1, // Only last bin is inclusive
+        },
+      })
     },
-    [data, classes]
+    [column, onDataClick, allTicketBins]
   )
 
   return (
@@ -120,6 +131,7 @@ export const NumberDataDiagram = ({
         tooltip={tooltip}
         enableLabel={false}
         enableGridY={false}
+        onClick={handleBinClick}
       />
     </div>
   )

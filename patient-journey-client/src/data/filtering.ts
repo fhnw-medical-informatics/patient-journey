@@ -36,6 +36,7 @@ export const NumberNone = NaN
 interface NumberFilterValue {
   from: number
   to: number
+  toInclusive: boolean
 }
 
 export type Millis = number
@@ -44,6 +45,7 @@ export const MillisNone = -1 as Millis
 interface TimestampFilterValue {
   millisFrom: Millis
   millisTo: Millis
+  toInclusive: boolean
 }
 
 export type Trilian = boolean | 'None'
@@ -82,9 +84,11 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
           fieldValue.value.toLowerCase().includes((filter as Filter<'string'>).value.text.toLowerCase())
         )
       })
-    case 'number':
+    case 'number': {
       const openFrom = isNaN((filter as Filter<'number'>).value.from)
       const openTo = isNaN((filter as Filter<'number'>).value.to)
+
+      const isToInclusive = (filter as Filter<'number'>).value.toInclusive
 
       if (openFrom && openTo) {
         return data
@@ -95,10 +99,14 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
           return (
             fieldValue.isValid &&
             (openFrom || +fieldValue.value >= (filter as Filter<'number'>).value.from) &&
-            (openTo || +fieldValue.value <= (filter as Filter<'number'>).value.to)
+            (openTo ||
+              (isToInclusive
+                ? +fieldValue.value <= (filter as Filter<'number'>).value.to
+                : +fieldValue.value < (filter as Filter<'number'>).value.to))
           )
         })
       }
+    }
     case 'boolean':
       const openBool = (filter as Filter<'boolean'>).value.isTrue === TrilianNone
 
@@ -111,9 +119,11 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
         )
       })
     case 'date':
-    case 'timestamp':
+    case 'timestamp': {
       const openFromDate = (filter as Filter<'timestamp'>).value.millisFrom === MillisNone
       const openToDate = (filter as Filter<'timestamp'>).value.millisTo === MillisNone
+
+      const isToInclusive = (filter as Filter<'timestamp'>).value.toInclusive
 
       if (openFromDate && openToDate) {
         return data
@@ -143,9 +153,13 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
             dateTo.setUTCHours(23, 59, 59, 999)
           }
 
-          return (openFromDate || dateValue >= dateFrom) && (openToDate || dateValue <= dateTo)
+          return (
+            (openFromDate || dateValue >= dateFrom) &&
+            (openToDate || (isToInclusive ? dateValue <= dateTo : dateValue < dateTo))
+          )
         })
       }
+    }
     case 'category':
       return data.filter((row) => {
         const fieldValue = getFieldValue(row, filter)

@@ -48,6 +48,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
             (filter as Filter<'number'> | undefined)?.value ?? {
               from: NumberNone,
               to: NumberNone,
+              toInclusive: true,
             }
           }
           onChange={onAddFilter}
@@ -79,6 +80,7 @@ export const DataFilter = <T extends FilterColumn['type']>({
             (filter as Filter<'date'> | Filter<'timestamp'> | undefined)?.value ?? {
               millisFrom: MillisNone,
               millisTo: MillisNone,
+              toInclusive: true,
             }
           }
           onChange={onAddFilter}

@@ -121,6 +121,7 @@ export const DataFilters = ({
                   column={availableColumn}
                   allActiveData={allActiveData}
                   filteredActiveData={filteredActiveData}
+                  onDataClick={onAddFilter}
                   colorByColumn={colorByColumn}
                   colorByNumberFn={colorByNumberFn}
                   colorByCategoryFn={colorByCategoryFn}

@@ -5,15 +5,12 @@ import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { useCategories } from './hooks'
+import Tooltip from './Tooltip'
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   container: {
     width: '100%',
     height: '100px',
-  },
-  tooltipText: {
-    color: theme.palette.text.primary,
-    fontSize: '12px',
   },
 }))
 
@@ -30,6 +27,7 @@ export const CategoryDataDiagram = ({
   allActiveData,
   filteredActiveData,
   column,
+  onDataClick,
   colorByColumn,
   colorByCategoryFn,
 }: CategoryDiagramProps) => {
@@ -49,6 +47,14 @@ export const CategoryDataDiagram = ({
 
   const { allCategories, uniqueCategories, extractValueSafe } = useCategories(allActiveData, column)
 
+  const allCategoryCount: Map<string, number> = useMemo(
+    () =>
+      new Map<string, number>(
+        uniqueCategories.map((category) => [category, allCategories.filter((c) => c === category).length])
+      ),
+    [allCategories, uniqueCategories]
+  )
+
   const filteredCategories = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
@@ -58,7 +64,7 @@ export const CategoryDataDiagram = ({
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {
       const predicate = (t: string) => t === category
 
-      const allCount = allCategories.filter(predicate).length
+      const allCount = allCategoryCount.get(category) ?? 0
       const filteredCount = filteredCategories.filter(predicate).length
       const filteredIn = filteredCount
       const filteredOut = allCount - filteredCount
@@ -69,15 +75,24 @@ export const CategoryDataDiagram = ({
         category,
       }
     })
-  }, [allCategories, filteredCategories, uniqueCategories])
+  }, [filteredCategories, uniqueCategories, allCategoryCount])
 
-  const tooltip = useCallback(
-    ({ index }) => {
-      const d = data[index]
-      const title = `${d.category}`
-      return <div className={classes.tooltipText}>{title}</div>
+  const tooltip = useCallback(({ data, value, color }) => {
+    const title = `${data.category} (${value})`
+    return <Tooltip text={title} color={color} />
+  }, [])
+
+  const handleBinClick = useCallback(
+    (bin) => {
+      onDataClick({
+        column,
+        type: column.type,
+        value: {
+          categories: [bin.data.category],
+        },
+      })
     },
-    [data, classes]
+    [column, onDataClick]
   )
 
   return (
@@ -91,6 +106,7 @@ export const CategoryDataDiagram = ({
         tooltip={tooltip}
         enableLabel={false}
         enableGridY={false}
+        onClick={handleBinClick}
       />
     </div>
   )
