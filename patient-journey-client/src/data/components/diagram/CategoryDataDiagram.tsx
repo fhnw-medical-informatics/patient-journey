@@ -49,6 +49,14 @@ export const CategoryDataDiagram = ({
 
   const { allCategories, uniqueCategories, extractValueSafe } = useCategories(allActiveData, column)
 
+  const allCategoryCount: Map<string, number> = useMemo(
+    () =>
+      new Map<string, number>(
+        uniqueCategories.map((category) => [category, allCategories.filter((c) => c === category).length])
+      ),
+    [allCategories, uniqueCategories]
+  )
+
   const filteredCategories = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
@@ -58,7 +66,7 @@ export const CategoryDataDiagram = ({
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {
       const predicate = (t: string) => t === category
 
-      const allCount = allCategories.filter(predicate).length
+      const allCount = allCategoryCount.get(category) ?? 0
       const filteredCount = filteredCategories.filter(predicate).length
       const filteredIn = filteredCount
       const filteredOut = allCount - filteredCount
@@ -69,7 +77,7 @@ export const CategoryDataDiagram = ({
         category,
       }
     })
-  }, [allCategories, filteredCategories, uniqueCategories])
+  }, [filteredCategories, uniqueCategories, allCategoryCount])
 
   const tooltip = useCallback(
     ({ index }) => {
