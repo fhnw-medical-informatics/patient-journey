@@ -5,15 +5,12 @@ import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { useCategories } from './hooks'
+import Tooltip from './Tooltip'
 
-const useStyles = makeStyles()((theme) => ({
+const useStyles = makeStyles()(() => ({
   container: {
     width: '100%',
     height: '100px',
-  },
-  tooltipText: {
-    color: theme.palette.text.primary,
-    fontSize: '12px',
   },
 }))
 
@@ -30,6 +27,7 @@ export const CategoryDataDiagram = ({
   allActiveData,
   filteredActiveData,
   column,
+  onDataClick,
   colorByColumn,
   colorByCategoryFn,
 }: CategoryDiagramProps) => {
@@ -79,13 +77,22 @@ export const CategoryDataDiagram = ({
     })
   }, [filteredCategories, uniqueCategories, allCategoryCount])
 
-  const tooltip = useCallback(
-    ({ index }) => {
-      const d = data[index]
-      const title = `${d.category}`
-      return <div className={classes.tooltipText}>{title}</div>
+  const tooltip = useCallback(({ data, value, color }) => {
+    const title = `${data.category} (${value})`
+    return <Tooltip text={title} color={color} />
+  }, [])
+
+  const handleBinClick = useCallback(
+    (bin) => {
+      onDataClick({
+        column,
+        type: column.type,
+        value: {
+          categories: [bin.data.category],
+        },
+      })
     },
-    [data, classes]
+    [column, onDataClick]
   )
 
   return (
@@ -99,6 +106,7 @@ export const CategoryDataDiagram = ({
         tooltip={tooltip}
         enableLabel={false}
         enableGridY={false}
+        onClick={handleBinClick}
       />
     </div>
   )
