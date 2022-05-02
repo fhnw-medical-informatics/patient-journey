@@ -83,7 +83,7 @@ export const extractCategoryValueSafe =
   }
 
 export const formatColumnValue = (columnType: string) => (value: string) => {
-  if (value === null || value.trim().length === 0) {
+  if (value === undefined || value === null || value.trim().length === 0) {
     return ''
   }
   switch (columnType) {
