@@ -3,6 +3,7 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  ListSubheader,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -38,6 +39,8 @@ interface ControlPanelProps {
   showTimeGrid: boolean
   onToggleTimeGrid: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
+  eventDataColumns: ReadonlyArray<EventDataColumn>
+  patientDataColumns: ReadonlyArray<PatientDataColumn>
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
 }
@@ -54,6 +57,8 @@ export const ControlPanel = ({
   showFilteredOut,
   onSetShowFilteredOut,
   availableColumns,
+  eventDataColumns,
+  patientDataColumns,
   colorByColumn,
   onChangeColorByColumn,
 }: ControlPanelProps) => {
@@ -166,7 +171,18 @@ export const ControlPanel = ({
                   <MenuItem value={ColorByColumnNone}>
                     <i>{'Off'}</i>
                   </MenuItem>
-                  {availableColumns
+                  <ListSubheader>Patient Columns</ListSubheader>
+                  {patientDataColumns
+                    .filter((column) =>
+                      ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
+                    )
+                    .map((column) => (
+                      <MenuItem key={column.name} value={column.name}>
+                        {column.name}
+                      </MenuItem>
+                    ))}
+                  <ListSubheader>Event Columns</ListSubheader>
+                  {eventDataColumns
                     .filter((column) =>
                       ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
                     )
