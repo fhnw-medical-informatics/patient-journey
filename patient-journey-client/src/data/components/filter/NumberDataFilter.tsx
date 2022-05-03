@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { FormGroup, TextField, Grid } from '@mui/material'
 import { createFilter, Filter } from '../../filtering'
@@ -25,20 +25,26 @@ export interface NumberDataFilterProps extends Filter<'number'> {
 export const NumberDataFilter = ({ allActiveData, column, type, value, onChange, onRemove }: NumberDataFilterProps) => {
   const { classes } = useStyles()
 
-  const { min, max } = useNumbers(allActiveData, column as DataColumn<'number'>)
+  const { niceMin, niceMax } = useNumbers(allActiveData, column as DataColumn<'number'>)
 
-  const handleChange = (fromValue: number | null, toValue: number | null) => {
-    const filter = createFilter(column, type, {
-      from: fromValue !== null ? fromValue : value.from,
-      to: toValue !== null ? toValue : value.to,
-    })
+  const handleChange = useCallback(
+    (fromValue: number | null, toValue: number | null) => {
+      const _toValue = toValue !== null ? toValue : value.to
 
-    if (isNaN(filter.value.from) && isNaN(filter.value.to)) {
-      onRemove(filter)
-    } else {
-      onChange(filter)
-    }
-  }
+      const filter = createFilter(column, type, {
+        from: fromValue !== null ? fromValue : value.from,
+        to: _toValue,
+        toInclusive: _toValue === niceMax,
+      })
+
+      if (isNaN(filter.value.from) && isNaN(filter.value.to)) {
+        onRemove(filter)
+      } else {
+        onChange(filter)
+      }
+    },
+    [column, niceMax, onChange, onRemove, type, value]
+  )
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     if (Array.isArray(newValue)) {
@@ -49,11 +55,11 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
   return (
     <FormGroup>
       <CustomSlider
-        value={[!isNaN(value.from) ? value.from : min!, !isNaN(value.to) ? value.to : max!]}
+        value={[!isNaN(value.from) ? value.from : niceMin, !isNaN(value.to) ? value.to : niceMax]}
         onChange={handleSliderChange}
         valueLabelDisplay="auto"
-        min={min}
-        max={max}
+        min={niceMin}
+        max={niceMax}
         size="small"
         components={{
           Thumb: CustomSliderThumb,

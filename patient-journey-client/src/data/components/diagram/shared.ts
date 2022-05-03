@@ -4,11 +4,13 @@ import { Entity } from '../../entities'
 import { ColorByColumnOption } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
 import { DataColumn } from '../../columns'
+import { Filter, FilterColumn } from '../../filtering'
 
-export interface DataDiagramsProps<T> {
+export interface DataDiagramsProps<T extends FilterColumn['type']> {
   allActiveData: ReadonlyArray<Entity>
   filteredActiveData: ReadonlyArray<Entity>
   column: DataColumn<T>
+  onDataClick: (filter: Filter<T>) => void
   colorByColumn: ColorByColumnOption
   colorByNumberFn: ColorByNumberFn
   colorByCategoryFn: ColorByCategoryFn

@@ -326,6 +326,7 @@ describe('dataSlice', () => {
       value: {
         from: 1,
         to: 2,
+        toInclusive: true,
       },
     }
 
@@ -403,6 +404,7 @@ describe('dataSlice', () => {
       value: {
         from: 1,
         to: 2,
+        toInclusive: true,
       },
     }
 

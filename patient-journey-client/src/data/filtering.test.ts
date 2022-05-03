@@ -89,7 +89,7 @@ describe('Filter Reducer', () => {
     const numberFilter: Filter<'number'> = {
       column: mockColumns[1],
       type: 'number',
-      value: { from: 23, to: 30 },
+      value: { from: 23, to: 30, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, numberFilter)
@@ -101,7 +101,7 @@ describe('Filter Reducer', () => {
     const numberFilter: Filter<'number'> = {
       column: mockColumns[1],
       type: 'number',
-      value: { from: 25, to: 30 },
+      value: { from: 25, to: 30, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, numberFilter)
@@ -113,12 +113,23 @@ describe('Filter Reducer', () => {
     const numberFilter: Filter<'number'> = {
       column: mockColumns[1],
       type: 'number',
-      value: { from: 23, to: 25 },
+      value: { from: 23, to: 25, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, numberFilter)
     expect(filteredData.length).toBe(1)
     expect(filteredData[0].uid).toBe('1')
+  })
+
+  it('should handle number filter from (inclusive) and to values exclusive', () => {
+    const numberFilter: Filter<'number'> = {
+      column: mockColumns[1],
+      type: 'number',
+      value: { from: 23, to: 25, toInclusive: false },
+    }
+
+    const filteredData = filterReducer(mockData, numberFilter)
+    expect(filteredData.length).toBe(0)
   })
 
   it('should handle a boolean filter when true', () => {
@@ -149,7 +160,7 @@ describe('Filter Reducer', () => {
     const dateFilter: Filter<'date'> = {
       column: mockColumns[3],
       type: 'date',
-      value: { millisFrom: 1577660400000, millisTo: 1580511600000 },
+      value: { millisFrom: 1577660400000, millisTo: 1580511600000, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, dateFilter)
@@ -161,7 +172,7 @@ describe('Filter Reducer', () => {
     const dateFilter: Filter<'date'> = {
       column: mockColumns[3],
       type: 'date',
-      value: { millisFrom: 1577660400000, millisTo: MillisNone },
+      value: { millisFrom: 1577660400000, millisTo: MillisNone, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, dateFilter)
@@ -173,7 +184,7 @@ describe('Filter Reducer', () => {
     const dateFilter: Filter<'date'> = {
       column: mockColumns[3],
       type: 'date',
-      value: { millisFrom: MillisNone, millisTo: 1577660400000 },
+      value: { millisFrom: MillisNone, millisTo: 1577660400000, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, dateFilter)
@@ -185,7 +196,7 @@ describe('Filter Reducer', () => {
     const dateFilter: Filter<'date'> = {
       column: mockColumns[3],
       type: 'date',
-      value: { millisFrom: 1577750400000, millisTo: 1580511600000 },
+      value: { millisFrom: 1577750400000, millisTo: 1580511600000, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, dateFilter)
@@ -197,7 +208,7 @@ describe('Filter Reducer', () => {
     const dateFilter: Filter<'date'> = {
       column: mockColumns[3],
       type: 'date',
-      value: { millisFrom: 1577660400000, millisTo: 1577750400000 },
+      value: { millisFrom: 1577660400000, millisTo: 1577750400000, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, dateFilter)
@@ -205,11 +216,22 @@ describe('Filter Reducer', () => {
     expect(filteredData[0].uid).toBe('1')
   })
 
+  it('should handle date filter millisFrom (inclusive) and millisTo values exclusive', () => {
+    const dateFilter: Filter<'date'> = {
+      column: mockColumns[3],
+      type: 'date',
+      value: { millisFrom: 1546041600000, millisTo: 1546124399999, toInclusive: false },
+    }
+
+    const filteredData = filterReducer(mockData, dateFilter)
+    expect(filteredData.length).toBe(0)
+  })
+
   it('should handle a timestamp filter', () => {
     const timestampFilter: Filter<'timestamp'> = {
       column: mockColumns[4],
       type: 'timestamp',
-      value: { millisFrom: 1648555453168, millisTo: 1648555453170 },
+      value: { millisFrom: 1648555453168, millisTo: 1648555453170, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, timestampFilter)
@@ -221,7 +243,7 @@ describe('Filter Reducer', () => {
     const timestampFilter: Filter<'timestamp'> = {
       column: mockColumns[4],
       type: 'timestamp',
-      value: { millisFrom: 1648555453168, millisTo: MillisNone },
+      value: { millisFrom: 1648555453168, millisTo: MillisNone, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, timestampFilter)
@@ -233,7 +255,7 @@ describe('Filter Reducer', () => {
     const timestampFilter: Filter<'timestamp'> = {
       column: mockColumns[4],
       type: 'timestamp',
-      value: { millisFrom: MillisNone, millisTo: 1648555453168 },
+      value: { millisFrom: MillisNone, millisTo: 1648555453168, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, timestampFilter)
@@ -245,7 +267,7 @@ describe('Filter Reducer', () => {
     const timestampFilter: Filter<'timestamp'> = {
       column: mockColumns[4],
       type: 'timestamp',
-      value: { millisFrom: 1648555453169, millisTo: 1648555453172 },
+      value: { millisFrom: 1648555453169, millisTo: 1648555453172, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, timestampFilter)
@@ -257,7 +279,7 @@ describe('Filter Reducer', () => {
     const timestampFilter: Filter<'timestamp'> = {
       column: mockColumns[4],
       type: 'timestamp',
-      value: { millisFrom: 1648555453168, millisTo: 1648555453169 },
+      value: { millisFrom: 1648555453168, millisTo: 1648555453169, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, timestampFilter)

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { bin } from 'd3-array'
-import { ScaleTime, scaleTime } from 'd3-scale'
+import { ScaleTime } from 'd3-scale'
 import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { format } from '../../columns'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
@@ -8,15 +8,12 @@ import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { useDates } from './hooks'
+import Tooltip from './Tooltip'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
-  },
-  tooltipText: {
-    color: theme.palette.text.primary,
-    fontSize: '12px',
   },
 }))
 
@@ -41,6 +38,7 @@ export const DateDataDiagram = ({
   allActiveData,
   filteredActiveData,
   column,
+  onDataClick,
   colorByColumn,
   colorByNumberFn,
 }: DateDataDiagramProps) => {
@@ -58,14 +56,12 @@ export const DateDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const { allDates, min, max, extractValueSafe } = useDates(allActiveData, column)
+  const { allDates, timeScale, extractValueSafe } = useDates(allActiveData, column)
 
   const filteredDates = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
-
-  const timeScale = useMemo(() => scaleTime<Date, Date>().domain([min!, max!]).nice(), [min, max])
 
   const allTicketBins = useMemo(() => createBins(allDates, timeScale), [allDates, timeScale])
 
@@ -102,14 +98,32 @@ export const DateDataDiagram = ({
   }, [allTicketBins, filteredDates, timeScale])
 
   const tooltip = useCallback(
-    ({ index }) => {
-      const d = data[index]
+    ({ data, value, color }) => {
       const dateRange = `${
-        d.binStart !== undefined ? format(d.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
-      } - ${d.binEnd !== undefined ? format(d.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''}`
-      return <div className={classes.tooltipText}>{dateRange}</div>
+        data.binStart !== undefined
+          ? format(data.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm')
+          : ''
+      } - ${
+        data.binEnd !== undefined ? format(data.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
+      } (${value})`
+      return <Tooltip text={dateRange} color={color} />
     },
-    [data, classes, column]
+    [column]
+  )
+
+  const handleBinClick = useCallback(
+    (bin) => {
+      onDataClick({
+        column,
+        type: column.type,
+        value: {
+          millisFrom: +bin.data.binStart,
+          millisTo: +bin.data.binEnd,
+          toInclusive: +bin.data.binIndex >= allTicketBins.length - 1, // Only last bin is inclusive
+        },
+      })
+    },
+    [column, onDataClick, allTicketBins]
   )
 
   return (
@@ -123,6 +137,7 @@ export const DateDataDiagram = ({
         tooltip={tooltip}
         enableLabel={false}
         enableGridY={false}
+        onClick={handleBinClick}
       />
     </div>
   )

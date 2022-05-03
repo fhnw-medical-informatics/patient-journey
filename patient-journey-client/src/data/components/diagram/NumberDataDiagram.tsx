@@ -1,29 +1,24 @@
 import React, { useCallback, useMemo } from 'react'
 import { bin } from 'd3-array'
-import { ScaleLinear, scaleLinear } from 'd3-scale'
 import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
 import { ColorByColumnNone } from '../../../color/colorSlice'
 import { useNumbers } from './hooks'
+import Tooltip from './Tooltip'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
   },
-  tooltipText: {
-    color: theme.palette.text.primary,
-    fontSize: '12px',
-  },
 }))
 
 const histogramBinCount = 10
 
-function createBins(numbers: ReadonlyArray<number>, timeScale: ScaleLinear<number, number>) {
-  const [min, max] = timeScale.domain()
-  return bin<number, number>().domain([min, max]).thresholds(timeScale.ticks(histogramBinCount))(numbers)
+function createBins(numbers: ReadonlyArray<number>, min: number, max: number) {
+  return bin<number, number>().domain([min, max]).thresholds(histogramBinCount)(numbers)
 }
 
 interface BinDatum {
@@ -40,6 +35,7 @@ export type NumberDiagramProps = DataDiagramsProps<'number'>
 export const NumberDataDiagram = ({
   allActiveData,
   filteredActiveData,
+  onDataClick,
   column,
   colorByColumn,
   colorByNumberFn,
@@ -58,20 +54,18 @@ export const NumberDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const { allNumbers, min, max, extractValueSafe } = useNumbers(allActiveData, column)
+  const { allNumbers, niceMin, niceMax, extractValueSafe } = useNumbers(allActiveData, column)
 
   const filteredNumbers = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
 
-  const timeScale = useMemo(() => scaleLinear<number, number>().domain([min!, max!]).nice(), [min, max])
-
-  const allTicketBins = useMemo(() => createBins(allNumbers, timeScale), [allNumbers, timeScale])
+  const allTicketBins = useMemo(() => createBins(allNumbers, niceMin, niceMax), [allNumbers, niceMin, niceMax])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    const filteredTicketBins = createBins(filteredNumbers, timeScale)
+    const filteredTicketBins = createBins(filteredNumbers, niceMin, niceMax)
 
     return (
       allTicketBins
@@ -98,15 +92,28 @@ export const NumberDataDiagram = ({
           return [...acc, bin]
         }, [])
     )
-  }, [allTicketBins, filteredNumbers, timeScale])
+  }, [allTicketBins, filteredNumbers, niceMin, niceMax])
 
-  const tooltip = useCallback(
-    ({ index }) => {
-      const d = data[index]
-      const dateRange = `${d.binStart !== undefined ? d.binStart : ''} - ${d.binEnd !== undefined ? d.binEnd : ''}`
-      return <div className={classes.tooltipText}>{dateRange}</div>
+  const tooltip = useCallback(({ data, value, color }) => {
+    const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${
+      data.binEnd !== undefined ? data.binEnd : ''
+    }  (${value})`
+    return <Tooltip text={dateRange} color={color} />
+  }, [])
+
+  const handleBinClick = useCallback(
+    (bin) => {
+      onDataClick({
+        column,
+        type: column.type,
+        value: {
+          from: +bin.data.binStart,
+          to: +bin.data.binEnd,
+          toInclusive: +bin.data.binIndex >= allTicketBins.length - 1, // Only last bin is inclusive
+        },
+      })
     },
-    [data, classes]
+    [column, onDataClick, allTicketBins]
   )
 
   return (
@@ -120,6 +127,7 @@ export const NumberDataDiagram = ({
         tooltip={tooltip}
         enableLabel={false}
         enableGridY={false}
+        onClick={handleBinClick}
       />
     </div>
   )
