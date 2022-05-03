@@ -9,6 +9,7 @@ import {
   CursorPositionNone,
   CursorPosition,
   toggleTimeGrid,
+  setShowFilteredOut,
 } from './timelineSlice'
 
 import { createStore } from '../store'
@@ -58,6 +59,17 @@ describe('Timeline Slice', () => {
 
     store.dispatch(setTimelineCluster())
     expect(getCluster()).toEqual(false)
+  })
+
+  it('handles setShowFilteredOut action', async () => {
+    const store = createStore()
+
+    const selectShowFilteredOut = () => store.getState().timeline.showFilteredOut
+
+    expect(selectShowFilteredOut()).toEqual(false)
+
+    store.dispatch(setShowFilteredOut())
+    expect(selectShowFilteredOut()).toEqual(true)
   })
 
   it(`handles ${toggleTimeGrid} action`, async () => {
