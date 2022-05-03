@@ -62,6 +62,8 @@ export const DataView = () => {
       resizerStyle={{
         cursor: 'ew-resize',
       }}
+      maxSize={-12}
+      minSize={12}
     >
       <SplitPane
         split={'horizontal'}
@@ -75,6 +77,8 @@ export const DataView = () => {
         resizerStyle={{
           cursor: 'ns-resize',
         }}
+        minSize={12}
+        maxSize={-12}
       >
         <div className={classes.filters}>
           <DataFilters />
@@ -101,6 +105,8 @@ export const DataView = () => {
           height: '100%',
           backgroundColor: theme.palette.background.paper,
         }}
+        minSize={144}
+        maxSize={-12}
       >
         <div className={classes.table}>
           <DataTable />
