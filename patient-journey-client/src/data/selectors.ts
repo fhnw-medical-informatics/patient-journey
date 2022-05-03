@@ -177,6 +177,13 @@ const selectFilteredEventsPIDs = createSelector(
   (filteredEventData) => new Set(filteredEventData.map((event) => event.pid))
 )
 
+//Only select events, that are references in the currently filtered patients
+const selectPatientFilteredEventData = createSelector(
+  selectEventDataRows,
+  selectFilteredEventsPIDs,
+  (eventData, filteredEventPIDSet) => eventData.filter((event) => filteredEventPIDSet.has(event.pid))
+)
+
 // Only select patients, that are references in the currently filtered events
 const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
@@ -185,12 +192,19 @@ const selectCrossFilteredPatientData = createSelector(
     filteredPatientData.filter((patient) => filteredEventPIDSet.has(patient.pid))
 )
 
-// Only select events which referenced patients appear int the currently filtered patients
+// Only select filtered events which referenced patients appear in the currently filtered patients
 export const selectCrossFilteredEventData = createSelector(
   selectFilteredEventData,
   selectFilteredPatientsPIDs,
   (filteredEventData, filteredPatientPIDSet) =>
     filteredEventData.filter((event) => filteredPatientPIDSet.has(event.pid))
+)
+
+// Only select events which referenced patients appear in the currently filtered patients
+export const selectCrossFilteredEventDataWithFilteredOutEvents = createSelector(
+  selectPatientFilteredEventData,
+  selectFilteredPatientsPIDs,
+  (EventData, filteredPatientPIDSet) => EventData.filter((event) => filteredPatientPIDSet.has(event.pid))
 )
 
 export const selectFilteredActiveData = createSelector(

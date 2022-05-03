@@ -12,12 +12,13 @@ import {
   selectActiveHoveredEventEntity,
   selectActiveSelectedEventEntity,
   selectFocusEntity,
-  selectEventDataRows,
+  selectCrossFilteredEventDataWithFilteredOutEvents,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
 
 export const selectTimelineCluster = (s: RootState): boolean => s.timeline.cluster
+
 export const selectShowTimeGrid = (s: RootState) => s.timeline.showTimeGrid
 
 export const selectShowFilteredOut = (s: RootState): boolean => s.timeline.showFilteredOut
@@ -53,9 +54,10 @@ const convertEntityToTimelineEvent = (
 
 export const selectFilteredOutActiveDataAsEvents = createSelector(
   selectShowFilteredOut,
-  selectEventDataRows,
   selectCrossFilteredEventData,
-  (showFilteredOut, activeData, filteredActiveData) => (showFilteredOut ? activeData : filteredActiveData)
+  selectCrossFilteredEventDataWithFilteredOutEvents,
+  (showFilteredOut, filteredEventData, filteredEventDataWithFilteredOut) =>
+    showFilteredOut ? filteredEventDataWithFilteredOut : filteredEventData
 )
 
 export const selectActiveDataAsEvents = createSelector(
@@ -120,7 +122,7 @@ const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategor
 
 export const selectActiveDataAsLanes = createSelector(
   selectExpandByColumn,
-  selectFilteredOutActiveDataAsEvents,
+  selectCrossFilteredEventDataWithFilteredOutEvents,
   selectColorByCategoryFn,
   (expandByColumn, activeData, colorByCategoryFn) =>
     Array.from(
