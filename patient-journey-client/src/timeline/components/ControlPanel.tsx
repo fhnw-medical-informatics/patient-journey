@@ -83,6 +83,16 @@ export const ControlPanel = ({
     }
   }, [viewByColumn, onSetViewByColumn, availableColumns])
 
+  // Reset expandByColumn when availableColumns change
+  useEffect(() => {
+    onSetExpandByColumn(TimelineColumnNone)
+  }, [onSetExpandByColumn, availableColumns])
+
+  // Reset colorByColumn when availableColumns change
+  useEffect(() => {
+    onChangeColorByColumn('off')
+  }, [onChangeColorByColumn, availableColumns])
+
   const handleChangeViewByColumn = (event: SelectChangeEvent) => {
     onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
