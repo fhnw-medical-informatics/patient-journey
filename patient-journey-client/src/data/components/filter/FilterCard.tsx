@@ -13,24 +13,29 @@ export const FilterCard = ({ label, isActive, onRemove, children }: FilterCardPr
   const theme = useTheme()
 
   return (
-    <Card>
+    <Card raised={theme.palette.mode === 'dark' ? !isActive : isActive} sx={{ overflow: 'visible' }}>
       <Grid container direction={'row'} alignItems={'center'} padding={1}>
         <Grid item xs>
-          <Typography
-            color={isActive ? theme.palette.text.primary : theme.palette.text.disabled}
-            variant="overline"
-            padding={1}
-          >
-            {label}
-          </Typography>
+          <div>
+            <Typography
+              color={isActive ? theme.palette.text.primary : theme.palette.text.disabled}
+              variant="button"
+              padding={theme.spacing(1)}
+              sx={{
+                display: 'flex',
+              }}
+            >
+              {label}
+            </Typography>
+          </div>
         </Grid>
-        {isActive && (
-          <Grid item>
+        <Grid item>
+          {isActive && (
             <Button variant="text" onClick={onRemove} disabled={!isActive}>
               Clear
             </Button>
-          </Grid>
-        )}
+          )}
+        </Grid>
       </Grid>
       <CardContent>{children}</CardContent>
     </Card>

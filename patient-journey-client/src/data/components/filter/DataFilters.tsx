@@ -65,7 +65,7 @@ export const DataFilters = ({
   )
 
   return (
-    <Grid container spacing={1} alignContent="flex-start">
+    <Grid container spacing={2} alignContent="flex-start">
       <Grid item xs={12}>
         <Grid container direction={'row'} alignItems={'center'}>
           <Grid className={classes.gridItem} item xs="auto">
