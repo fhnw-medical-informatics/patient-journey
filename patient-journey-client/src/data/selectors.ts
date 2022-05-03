@@ -35,7 +35,7 @@ const entitiesToMap = (entities: ReadonlyArray<Entity>) => new Map(entities.map(
 const selectPatientDataRows = createSelector(selectData, (data) => data.patientData.allEntities)
 const selectPatientDataRowMap = createSelector(selectPatientDataRows, entitiesToMap)
 
-const selectEventDataRows = createSelector(selectData, (data) => data.eventData.allEntities)
+export const selectEventDataRows = createSelector(selectData, (data) => data.eventData.allEntities)
 const selectEventDataRowMap = createSelector(selectEventDataRows, entitiesToMap)
 
 export const selectActiveData = createSelector(
@@ -53,7 +53,7 @@ export const selectActiveDataByEntityIdMap = createSelector(
 )
 
 const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
-const selectEventDataColumns = createSelector(selectData, (data) => data.eventData.columns)
+export const selectEventDataColumns = createSelector(selectData, (data) => data.eventData.columns)
 
 export const selectActiveDataColumns = createSelector(
   selectDataView,
@@ -61,6 +61,8 @@ export const selectActiveDataColumns = createSelector(
   selectEventDataColumns,
   (view, patientDataColumns, eventDataColumns) => (view === 'patients' ? patientDataColumns : eventDataColumns)
 )
+
+export const selectTimelineDataColumns = createSelector(selectEventDataColumns, (eventDataColumns) => eventDataColumns)
 
 export const selectHoveredEntity = createSelector(selectData, (data) => data.hovered)
 export const selectSelectedEntity = createSelector(selectData, (data) => data.selected)
@@ -77,7 +79,12 @@ const selectActiveEntity = (view: ActiveDataViewType, entity: FocusEntity) => {
 }
 
 export const selectActiveSelectedEntity = createSelector(selectDataView, selectSelectedEntity, selectActiveEntity)
-export const selectActiveHoveredEntity = createSelector(selectDataView, selectHoveredEntity, selectActiveEntity)
+export const selectActiveSelectedEventEntity = createSelector(selectSelectedEntity, (entity) =>
+  selectActiveEntity('events', entity)
+)
+export const selectActiveHoveredEventEntity = createSelector(selectHoveredEntity, (entity) =>
+  selectActiveEntity('events', entity)
+)
 
 const selectPatientDataColumnType = (s: RootState, columnType: PatientDataColumnType) => columnType
 
@@ -170,6 +177,13 @@ const selectFilteredEventsPIDs = createSelector(
   (filteredEventData) => new Set(filteredEventData.map((event) => event.pid))
 )
 
+//Only select events, that are references in the currently filtered patients
+const selectPatientFilteredEventData = createSelector(
+  selectEventDataRows,
+  selectFilteredEventsPIDs,
+  (eventData, filteredEventPIDSet) => eventData.filter((event) => filteredEventPIDSet.has(event.pid))
+)
+
 // Only select patients, that are references in the currently filtered events
 const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
@@ -178,12 +192,19 @@ const selectCrossFilteredPatientData = createSelector(
     filteredPatientData.filter((patient) => filteredEventPIDSet.has(patient.pid))
 )
 
-// Only select events which referenced patients appear int the currently filtered patients
-const selectCrossFilteredEventData = createSelector(
+// Only select filtered events which referenced patients appear in the currently filtered patients
+export const selectCrossFilteredEventData = createSelector(
   selectFilteredEventData,
   selectFilteredPatientsPIDs,
   (filteredEventData, filteredPatientPIDSet) =>
     filteredEventData.filter((event) => filteredPatientPIDSet.has(event.pid))
+)
+
+// Only select events which referenced patients appear in the currently filtered patients
+export const selectCrossFilteredEventDataWithFilteredOutEvents = createSelector(
+  selectPatientFilteredEventData,
+  selectFilteredPatientsPIDs,
+  (EventData, filteredPatientPIDSet) => EventData.filter((event) => filteredPatientPIDSet.has(event.pid))
 )
 
 export const selectFilteredActiveData = createSelector(

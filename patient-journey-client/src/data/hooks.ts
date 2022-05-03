@@ -3,8 +3,9 @@ import {
   selectActiveData,
   selectActiveDataByEntityIdMap,
   selectActiveDataColumns,
-  selectActiveHoveredEntity,
+  selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
+  selectActiveSelectedEventEntity,
   selectAllFilters,
   selectCurrentColorColumnNumberRange,
   selectDataLoadingErrorMessage,
@@ -20,6 +21,7 @@ import {
   selectHoveredEntity,
   selectPatientDataPidColumn,
   selectSelectedEntity,
+  selectTimelineDataColumns,
 } from './selectors'
 import { setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
@@ -35,6 +37,8 @@ export const useActiveDataByEntityIdMap = () => useAppSelector(selectActiveDataB
 export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
+export const useTimelineDataColumns = () => useAppSelector(selectTimelineDataColumns)
+
 export const useAllFilters = () => useAppSelector(selectAllFilters)
 
 export const useHoveredEntity = () => useAppSelector(selectHoveredEntity)
@@ -42,7 +46,8 @@ export const useSelectedEntity = () => useAppSelector(selectSelectedEntity)
 export const useFocusEntity = () => useAppSelector(selectFocusEntity)
 
 export const useActiveSelectedEntity = () => useAppSelector(selectActiveSelectedEntity)
-export const useActiveHoveredEntity = () => useAppSelector(selectActiveHoveredEntity)
+export const useActiveSelectedEventEntity = () => useAppSelector(selectActiveSelectedEventEntity)
+export const useActiveHoveredEventEntity = () => useAppSelector(selectActiveHoveredEventEntity)
 
 export interface EntityInteraction {
   readonly onEntityClick: (id: EntityId) => void

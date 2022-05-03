@@ -2,21 +2,21 @@ import React from 'react'
 
 import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 
-import { useHoveredActiveEntityAsEvent, useSelectedActiveEntityAsEvent } from '../hooks'
+import { useHoveredActiveEvent, useSelectedActiveEvent } from '../hooks'
 
 import { TimelineActiveMarks as TimelineActiveMarksComponent } from '../components/TimelineActiveMarks'
 import { useTheme } from '@mui/material'
-import { useActiveEntityInteraction } from '../../data/hooks'
+import { useEntityInteraction } from '../../data/hooks'
 
 const TimelineActiveMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>(
   props: CustomLayerProps<EID, LID, E>
 ) => {
   const theme = useTheme()
 
-  const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
+  const { onEntityClick, onEntityHover } = useEntityInteraction('event')
 
-  const selectedEvent = useSelectedActiveEntityAsEvent()
-  const hoveredEvent = useHoveredActiveEntityAsEvent()
+  const selectedEvent = useSelectedActiveEvent()
+  const hoveredEvent = useHoveredActiveEvent()
 
   return (
     <TimelineActiveMarksComponent

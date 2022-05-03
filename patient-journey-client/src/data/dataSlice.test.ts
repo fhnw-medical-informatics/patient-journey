@@ -18,7 +18,12 @@ import { Patient, PatientId, PatientIdNone } from './patients'
 import { EventId, PatientJourneyEvent } from './events'
 import { DATA_LOADING_ERROR } from './loading'
 import { createStoreWithMockData } from '../test/createStoreWithMockData'
-import { selectAllFilters, selectDataView, selectActiveHoveredEntity, selectActiveSelectedEntity } from './selectors'
+import {
+  selectAllFilters,
+  selectDataView,
+  selectActiveHoveredEventEntity,
+  selectActiveSelectedEntity,
+} from './selectors'
 import { EntityIdNone } from './entities'
 
 const PID_1 = 'PID_1' as PatientId
@@ -291,9 +296,9 @@ describe('dataSlice', () => {
 
   it(`handles ${setHoveredEntity.type} action`, async () => {
     const { store } = await createStoreWithMockData()
-    const getHovered = () => selectActiveHoveredEntity(store.getState())
+    const getHovered = () => selectActiveHoveredEventEntity(store.getState())
     expect(getHovered()).toEqual(PatientIdNone)
-    store.dispatch(setHoveredEntity({ uid: PID_1, type: 'patient' }))
+    store.dispatch(setHoveredEntity({ uid: PID_1, type: 'event' }))
     expect(getHovered()).toEqual(PID_1)
     store.dispatch(setHoveredEntity(PatientIdNone))
     expect(getHovered()).toEqual(PatientIdNone)

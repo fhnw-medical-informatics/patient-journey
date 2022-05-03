@@ -4,19 +4,24 @@ import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
 import { EventDataColumn, PatientJourneyEvent } from '../data/events'
-import { Patient, PatientDataColumn, PatientId, PatientIdNone } from '../data/patients'
+import { PatientId, PatientIdNone } from '../data/patients'
 import {
-  selectActiveDataColumns,
-  selectFilteredActiveData,
-  selectActiveHoveredEntity,
   selectActiveSelectedEntity,
+  selectEventDataColumns,
+  selectCrossFilteredEventData,
+  selectActiveHoveredEventEntity,
+  selectActiveSelectedEventEntity,
   selectFocusEntity,
+  selectCrossFilteredEventDataWithFilteredOutEvents,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
 
 export const selectTimelineCluster = (s: RootState): boolean => s.timeline.cluster
+
 export const selectShowTimeGrid = (s: RootState) => s.timeline.showTimeGrid
+
+export const selectShowFilteredOut = (s: RootState): boolean => s.timeline.showFilteredOut
 
 export const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.viewByColumn
 
@@ -28,8 +33,8 @@ const selectColorByColumnFn = (s: RootState, colorByColumnFn: ColorByColumnFn): 
 const convertEntityToTimelineEvent = (
   viewByColumn: TimelineColumn,
   expandByColumn: TimelineColumn,
-  activeColumns: ReadonlyArray<PatientDataColumn | EventDataColumn>,
-  activeData: ReadonlyArray<Patient | PatientJourneyEvent>,
+  activeColumns: ReadonlyArray<EventDataColumn>,
+  activeData: ReadonlyArray<PatientJourneyEvent>,
   colorByColumnFn?: ColorByColumnFn
 ) => {
   return viewByColumn !== TimelineColumnNone &&
@@ -47,11 +52,19 @@ const convertEntityToTimelineEvent = (
     : []
 }
 
-export const selectFilteredActiveDataAsEvents = createSelector(
+export const selectFilteredOutActiveDataAsEvents = createSelector(
+  selectShowFilteredOut,
+  selectCrossFilteredEventData,
+  selectCrossFilteredEventDataWithFilteredOutEvents,
+  (showFilteredOut, filteredEventData, filteredEventDataWithFilteredOut) =>
+    showFilteredOut ? filteredEventDataWithFilteredOut : filteredEventData
+)
+
+export const selectActiveDataAsEvents = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
-  selectActiveDataColumns,
-  selectFilteredActiveData,
+  selectEventDataColumns,
+  selectFilteredOutActiveDataAsEvents,
   selectColorByColumnFn,
   (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) =>
     convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
@@ -60,8 +73,8 @@ export const selectFilteredActiveDataAsEvents = createSelector(
 export const selectFilteredActiveDataAsEventsWithoutColor = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
-  selectActiveDataColumns,
-  selectFilteredActiveData,
+  selectEventDataColumns,
+  selectCrossFilteredEventData,
   (viewByColumn, expandByColumn, activeColumns, activeData) =>
     convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData)
 )
@@ -77,9 +90,15 @@ export const selectSelectedActiveEntityAsEvent = createSelector(
   (eventMap, selectedEntity) => eventMap.get(selectedEntity)
 )
 
-export const selectHoveredActiveEntityAsEvent = createSelector(
+export const selectSelectedActiveEvent = createSelector(
   selectFilteredActiveEventsAsMap,
-  selectActiveHoveredEntity,
+  selectActiveSelectedEventEntity,
+  (eventMap, selectedEntity) => eventMap.get(selectedEntity)
+)
+
+export const selectHoveredActiveEvent = createSelector(
+  selectFilteredActiveEventsAsMap,
+  selectActiveHoveredEventEntity,
   (eventMap, hoveredEntity) => eventMap.get(hoveredEntity)
 )
 
@@ -101,9 +120,9 @@ export const selectFocusLaneId = createSelector(
 const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategoryFn): ColorByCategoryFn =>
   colorByCategoryFn
 
-export const selectFilteredActiveDataAsLanes = createSelector(
+export const selectActiveDataAsLanes = createSelector(
   selectExpandByColumn,
-  selectFilteredActiveData,
+  selectCrossFilteredEventDataWithFilteredOutEvents,
   selectColorByCategoryFn,
   (expandByColumn, activeData, colorByCategoryFn) =>
     Array.from(

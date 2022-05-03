@@ -2,16 +2,17 @@ import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { useAppSelector } from '../store'
 
 import {
-  selectFilteredActiveDataAsEvents,
-  selectFilteredActiveDataAsLanes,
   selectExpandByColumn,
   selectViewByColumn,
+  selectShowFilteredOut,
   selectTimelineCluster,
   selectCursorPosition,
-  selectSelectedActiveEntityAsEvent,
-  selectHoveredActiveEntityAsEvent,
+  selectSelectedActiveEvent,
+  selectHoveredActiveEvent,
   selectFocusLaneId,
   selectShowTimeGrid,
+  selectActiveDataAsEvents,
+  selectActiveDataAsLanes,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -22,16 +23,18 @@ export const useViewByColumn = () => useAppSelector(selectViewByColumn)
 
 export const useExpandByColumn = () => useAppSelector(selectExpandByColumn)
 
+export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
+
 export const useTimlineCursorPosition = () => useAppSelector(selectCursorPosition)
 
 export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn) =>
-  useAppSelector((state) => selectFilteredActiveDataAsEvents(state, colorByColumnFn))
+  useAppSelector((state) => selectActiveDataAsEvents(state, colorByColumnFn))
 
-export const useSelectedActiveEntityAsEvent = () => useAppSelector(selectSelectedActiveEntityAsEvent)
+export const useSelectedActiveEvent = () => useAppSelector(selectSelectedActiveEvent)
 
-export const useHoveredActiveEntityAsEvent = () => useAppSelector(selectHoveredActiveEntityAsEvent)
+export const useHoveredActiveEvent = () => useAppSelector(selectHoveredActiveEvent)
 
 export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
-  useAppSelector((state) => selectFilteredActiveDataAsLanes(state, colorByCategoryFn))
+  useAppSelector((state) => selectActiveDataAsLanes(state, colorByCategoryFn))
 
 export const useFocusLaneId = () => useAppSelector(selectFocusLaneId)

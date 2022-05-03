@@ -16,12 +16,14 @@ export type TimelineState = {
   viewByColumn: TimelineColumn
   expandByColumn: TimelineColumn
   cluster: boolean
+  showFilteredOut: boolean
   showTimeGrid: boolean
   cursorPosition: CursorPosition
 }
 
 export const initialTimelineState: TimelineState = {
   cluster: true,
+  showFilteredOut: false,
   showTimeGrid: true,
   viewByColumn: TimelineColumnNone,
   expandByColumn: TimelineColumnNone,
@@ -41,6 +43,9 @@ const timelineSlice = createSlice({
     setTimelineCluster: (state: Draft<TimelineState>) => {
       state.cluster = !state.cluster
     },
+    setShowFilteredOut: (state: Draft<TimelineState>) => {
+      state.showFilteredOut = !state.showFilteredOut
+    },
     setCursorPosition: (state: Draft<TimelineState>, action: PayloadAction<CursorPosition>) => {
       state.cursorPosition = action.payload
     },
@@ -57,6 +62,7 @@ export const timelineReducer = timelineSlice.reducer
 export const {
   setViewByColumn,
   setExpandByColumn,
+  setShowFilteredOut,
   setTimelineCluster,
   setCursorPosition,
   resetCursorPosition,

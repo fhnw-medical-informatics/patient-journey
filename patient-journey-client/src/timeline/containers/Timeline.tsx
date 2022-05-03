@@ -8,13 +8,14 @@ import {
   CursorPosition,
   setCursorPosition,
   setExpandByColumn,
+  setShowFilteredOut,
   setTimelineCluster,
   setViewByColumn,
   TimelineColumn,
   TimelineColumnNone,
   toggleTimeGrid,
 } from '../timelineSlice'
-import { useActiveDataColumns } from '../../data/hooks'
+import { useTimelineDataColumns } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import {
   useActiveDataAsEvents,
@@ -22,6 +23,7 @@ import {
   useTimelineCluster,
   useViewByColumn,
   useExpandByColumn,
+  useShowFilteredOut,
   useShowTimeGrid,
 } from '../hooks'
 import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
@@ -30,13 +32,14 @@ import { useColorByColumn } from '../../color/hooks'
 
 export const Timeline = React.memo(() => {
   const { colorByColumnFn, colorByCategoryFn } = useColor()
+  const showFilteredOut = useShowFilteredOut()
   const events = useActiveDataAsEvents(colorByColumnFn)
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
   const cluster = useTimelineCluster()
   const showTimeGrid = useShowTimeGrid()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
-  const activeColumns = useActiveDataColumns()
+  const activeColumns = useTimelineDataColumns()
   const colorByColumn = useColorByColumn()
 
   const dispatch = useAppDispatch()
@@ -45,6 +48,7 @@ export const Timeline = React.memo(() => {
   const onSetExpandByColumn = useCallback((column: TimelineColumn) => dispatch(setExpandByColumn(column)), [dispatch])
 
   const onSetTimelineCluster = useCallback(() => dispatch(setTimelineCluster()), [dispatch])
+  const onSetShowFilteredOut = useCallback(() => dispatch(setShowFilteredOut()), [dispatch])
   const onToggleTimeGrid = useCallback(() => dispatch(toggleTimeGrid()), [dispatch])
 
   const onChangeColorByColumn = useCallback(
@@ -78,6 +82,8 @@ export const Timeline = React.memo(() => {
       onSetExpandByColumn={onSetExpandByColumn}
       cluster={cluster}
       onSetTimelineCluster={onSetTimelineCluster}
+      showFilteredOut={showFilteredOut}
+      onSetShowFilteredOut={onSetShowFilteredOut}
       colorByColumn={colorByColumn}
       onChangeColorByColumn={onChangeColorByColumn}
       onCursorPositionChange={onCursorPositionChange}
