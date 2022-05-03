@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 
-import { useTheme } from '@mui/material'
 import { makeStyles } from '../../utils'
 import SplitPane from 'react-split-pane'
 import { DataFilters } from '../containers/filter/DataFilters'
@@ -14,7 +13,7 @@ const DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE = '70%'
 
 const useStyles = makeStyles()((theme) => ({
   filters: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
     width: '100%',
     height: '100%',
     overflowY: 'auto',
@@ -48,7 +47,7 @@ const useStyles = makeStyles()((theme) => ({
 
 export const DataView = () => {
   const { classes } = useStyles()
-  const theme = useTheme()
+
   const [splitPaneVerticalSize, setSplitPaneVerticalSize] = useState<'default' | number>('default')
   const [splitPaneRightHorizontalSize, setSplitPaneRightHorizontalSize] = useState<'default' | number>('default')
   const [splitPaneLeftHorizontalSize, setSplitPaneLeftHorizontalSize] = useState<'default' | number>('default')
@@ -103,7 +102,6 @@ export const DataView = () => {
           display: 'grid',
           width: '100%',
           height: '100%',
-          backgroundColor: theme.palette.background.paper,
         }}
         minSize={144}
         maxSize={-12}

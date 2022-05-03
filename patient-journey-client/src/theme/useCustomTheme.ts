@@ -25,6 +25,9 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
   createTheme({
     palette: {
       mode,
+      background: {
+        default: mode === 'light' ? grey[100] : grey[800],
+      },
     },
     entityColors: {
       default: defaultColor,
