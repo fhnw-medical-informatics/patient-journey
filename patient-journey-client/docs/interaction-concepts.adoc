@@ -1,0 +1,36 @@
+== Patients
+
+=== Filter
+
+- filtered-out patients can not be interacted with
+- they possibly remain visible as ghosts
+- events of filtered-out patients are also filtered-out
+
+=== Selection
+
+- selected patients are marked (e.g. with the selection color)
+- if only single selection: patient can be set as index patient
+- if more than one selected: patients can be added to group
+
+=== Hovering
+
+- hovered patients are highlighted
+- detail information about the patient is shown
+
+== Events
+
+=== Filter
+
+- filtered-out events can not be interacted with
+- patients whose events are all filtered-out will also be filtered-out
+
+=== Selection
+
+- selected events are marked
+- single selection: selected event can be input to operations (e.g. align journeys on first occurrence of)
+
+=== Hovering
+
+- hovered events are highlighted
+- the patient that belongs to this event is highlighted
+- detail information about the event is shown
