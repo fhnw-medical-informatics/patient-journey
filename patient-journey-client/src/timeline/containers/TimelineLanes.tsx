@@ -4,11 +4,11 @@ import { useFocusLaneId } from '../hooks'
 
 const HIDE_LANE_DETAILS_HEIGHT_THRESHOLD = 10
 
-interface Props<EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>
-  extends CustomLayerProps<EID, LID, E> {}
+interface Props<EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>
+  extends CustomLayerProps<EID, PatientId, E> {}
 
-export const TimelineLanes = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>(
-  props: Props<EID, LID, E>
+export const TimelineLanes = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>(
+  props: Props<EID, PatientId, E>
 ) => {
   const focusLaneId = useFocusLaneId()
   const isHideLaneDetails = props.yScale.bandwidth() < HIDE_LANE_DETAILS_HEIGHT_THRESHOLD

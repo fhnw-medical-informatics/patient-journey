@@ -19,7 +19,7 @@ const useStyles = makeStyles()({
   },
 })
 
-const TimelineCanvasMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>({
+const TimelineCanvasMarks = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>({
   height,
   width,
   events,
@@ -27,7 +27,7 @@ const TimelineCanvasMarks = <EID extends string, LID extends string, E extends T
   laneDisplayMode,
   yScale,
   eventClusters,
-}: CustomLayerProps<EID, LID, E>) => {
+}: CustomLayerProps<EID, PatientId, E>) => {
   const { classes } = useStyles()
   const theme = useTheme()
 

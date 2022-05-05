@@ -8,16 +8,23 @@ import { calcMarkSize, SvgMark } from './SvgMark'
 // drawing active mark slightly bigger, to pronounce interactivity (micro-animate the size-up?)
 const TIMELINE_MARK_INTERACTIVITY_GROWTH_FACTOR = 1.2
 
-interface TimelineActiveMarksProps<EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>
-  extends CustomLayerProps<EID, LID, E> {
-  selectedEvent: TimelineEvent<EID, LID> | undefined
-  hoveredEvent: TimelineEvent<EID, LID> | undefined
+interface TimelineActiveMarksProps<
+  EID extends string,
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
+> extends CustomLayerProps<EID, PatientId, E> {
+  selectedEvent: TimelineEvent<EID, PatientId> | undefined
+  hoveredEvent: TimelineEvent<EID, PatientId> | undefined
   selectedColor: string
   onHover: (eventId: EntityId) => void
   onSelect: (eventId: EntityId) => void
 }
 
-export const TimelineActiveMarks = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>({
+export const TimelineActiveMarks = <
+  EID extends string,
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
+>({
   yScale,
   xScale,
   laneDisplayMode,
@@ -27,7 +34,7 @@ export const TimelineActiveMarks = <EID extends string, LID extends string, E ex
   selectedColor,
   onHover,
   onSelect,
-}: TimelineActiveMarksProps<EID, LID, E>) => {
+}: TimelineActiveMarksProps<EID, PatientId, E>) => {
   const theme = useTheme()
 
   const laneHeight = yScale.bandwidth()
@@ -36,7 +43,7 @@ export const TimelineActiveMarks = <EID extends string, LID extends string, E ex
     [laneDisplayMode, laneHeight]
   )
 
-  const createCirce = (event: TimelineEvent<EID, LID>, color: string) => {
+  const createCirce = (event: TimelineEvent<EID, PatientId>, color: string) => {
     const x = Math.round(xScale(event.startTimeMillis))
     const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId) ?? height / 2)
 

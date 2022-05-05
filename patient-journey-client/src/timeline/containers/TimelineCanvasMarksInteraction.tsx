@@ -7,8 +7,12 @@ import { useTimlineCursorPosition } from '../hooks'
 import { TimelineCanvasMarksInteraction as TimelineCanvasMarksInteractionComponent } from '../components/TimelineCanvasMarksInteraction'
 import { useActiveEntityInteraction } from '../../data/hooks'
 
-const TimelineCanvasMarksInteraction = <EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>(
-  props: CustomLayerProps<EID, LID, E>
+const TimelineCanvasMarksInteraction = <
+  EID extends string,
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
+>(
+  props: CustomLayerProps<EID, PatientId, E>
 ) => {
   const cursorPosition = useTimlineCursorPosition()
 
