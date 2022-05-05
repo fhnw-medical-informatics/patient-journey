@@ -8,7 +8,7 @@ import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dat
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { filterReducer } from './filtering'
 import { Patient, PatientDataColumnType, PatientId } from './patients'
-import { Entity, EntityId, EntityIdNone } from './entities'
+import { Entity, EntityIdNone } from './entities'
 
 const selectData = (s: RootState): DataStateLoadingComplete => {
   if (s.data.type === 'loading-complete') {
@@ -45,11 +45,13 @@ export const selectActiveData = createSelector(
   (view, patients, events) => (view === 'patients' ? patients : events)
 )
 
-export const selectActiveDataByEntityIdMap = createSelector(
-  selectDataView,
+const selectFocusEntityType = (s: RootState, type: FocusEntity['type']) => type
+
+export const selectDataByEntityIdMap = createSelector(
+  selectFocusEntityType,
   selectPatientDataRowMap,
   selectEventDataRowMap,
-  (view, patientMap, eventMap): ReadonlyMap<EntityId, Entity> => (view === 'patients' ? patientMap : eventMap)
+  (type, patientMap, eventMap) => (type === 'none' ? new Map() : type === 'patient' ? patientMap : eventMap)
 )
 
 const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
