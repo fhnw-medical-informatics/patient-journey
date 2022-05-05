@@ -8,15 +8,18 @@ import { diff } from '../../utils'
 
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
 
-const getNearestPoint = <EID extends string, LID extends string>(
-  events: ReadonlyArray<TimelineEvent<EID, LID>>,
+const getNearestPoint = <EID extends string, PatientId extends string>(
+  events: ReadonlyArray<TimelineEvent<EID, PatientId>>,
   cursorPosition: number
-): TimelineEvent<EID, LID> | null => {
+): TimelineEvent<EID, PatientId> | null => {
   return least(events, (event) => diff(event.startTimeMillis, cursorPosition)) ?? null
 }
 
-interface TimelineCanvasMarksInteractionProps<EID extends string, LID extends string, E extends TimelineEvent<EID, LID>>
-  extends CustomLayerProps<EID, LID, E> {
+interface TimelineCanvasMarksInteractionProps<
+  EID extends string,
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
+> extends CustomLayerProps<EID, PatientId, E> {
   cursorPosition: CursorPosition
   onHover: (eventId: EntityId) => void
   onSelect: (eventId: EntityId) => void
@@ -25,8 +28,8 @@ interface TimelineCanvasMarksInteractionProps<EID extends string, LID extends st
 // TODO: This doesn't have to be a custom layer. Redux mittleware?
 export const TimelineCanvasMarksInteraction = <
   EID extends string,
-  LID extends string,
-  E extends TimelineEvent<EID, LID>
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
 >({
   events,
   cursorPosition,
@@ -37,7 +40,7 @@ export const TimelineCanvasMarksInteraction = <
   height,
   onHover,
   onSelect,
-}: TimelineCanvasMarksInteractionProps<EID, LID, E>) => {
+}: TimelineCanvasMarksInteractionProps<EID, PatientId, E>) => {
   useEffect(() => {
     if (cursorPosition !== CursorPositionNone) {
       const cursorPositionMillisX = xScale.invert(cursorPosition.x)

@@ -3,6 +3,7 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  ListSubheader,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -38,6 +39,8 @@ interface ControlPanelProps {
   showTimeGrid: boolean
   onToggleTimeGrid: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
+  eventDataColumns: ReadonlyArray<EventDataColumn>
+  patientDataColumns: ReadonlyArray<PatientDataColumn>
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
 }
@@ -54,6 +57,8 @@ export const ControlPanel = ({
   showFilteredOut,
   onSetShowFilteredOut,
   availableColumns,
+  eventDataColumns,
+  patientDataColumns,
   colorByColumn,
   onChangeColorByColumn,
 }: ControlPanelProps) => {
@@ -102,7 +107,16 @@ export const ControlPanel = ({
   }
 
   const handleChangeColorByColumn = (event: SelectChangeEvent) => {
-    onChangeColorByColumn(availableColumns.find((column) => column.name === event.target.value) ?? ColorByColumnNone)
+    if (event.target.value.startsWith('patient_')) {
+      onChangeColorByColumn(
+        patientDataColumns.find((column) => column.name === event.target.value.replace('patient_', '')) ??
+          ColorByColumnNone
+      )
+    } else {
+      onChangeColorByColumn(
+        eventDataColumns.find((column) => column.name === event.target.value.replace('event_', '')) ?? ColorByColumnNone
+      )
+    }
   }
 
   return (
@@ -159,19 +173,36 @@ export const ControlPanel = ({
               </Typography>
               <FormControl>
                 <Select
-                  value={colorByColumn !== ColorByColumnNone ? colorByColumn.name : ColorByColumnNone}
+                  value={
+                    colorByColumn !== ColorByColumnNone
+                      ? patientDataColumns.find((column) => column.name === colorByColumn.name)
+                        ? 'patient_' + colorByColumn.name
+                        : 'event_' + colorByColumn.name
+                      : ColorByColumnNone
+                  }
                   onChange={handleChangeColorByColumn}
                   size="small"
                 >
                   <MenuItem value={ColorByColumnNone}>
                     <i>{'Off'}</i>
                   </MenuItem>
-                  {availableColumns
+                  <ListSubheader>Patient Columns</ListSubheader>
+                  {patientDataColumns
                     .filter((column) =>
                       ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
                     )
                     .map((column) => (
-                      <MenuItem key={column.name} value={column.name}>
+                      <MenuItem key={column.name} value={'patient_' + column.name}>
+                        {column.name}
+                      </MenuItem>
+                    ))}
+                  <ListSubheader>Event Columns</ListSubheader>
+                  {eventDataColumns
+                    .filter((column) =>
+                      ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
+                    )
+                    .map((column) => (
+                      <MenuItem key={column.name} value={'event_' + column.name}>
                         {column.name}
                       </MenuItem>
                     ))}

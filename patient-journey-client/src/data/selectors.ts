@@ -54,7 +54,7 @@ export const selectDataByEntityIdMap = createSelector(
   (type, patientMap, eventMap) => (type === 'none' ? new Map() : type === 'patient' ? patientMap : eventMap)
 )
 
-const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
+export const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
 export const selectEventDataColumns = createSelector(selectData, (data) => data.eventData.columns)
 
 export const selectActiveDataColumns = createSelector(

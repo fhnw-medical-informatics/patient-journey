@@ -11,6 +11,7 @@ import {
   selectDataLoadingErrorMessage,
   selectDataLoadingState,
   selectDataView,
+  selectEventDataColumns,
   selectEventDataEidColumn,
   selectEventDataPidColumn,
   selectEventDataPidValues,
@@ -19,6 +20,7 @@ import {
   selectFilteredActiveData,
   selectFocusEntity,
   selectHoveredEntity,
+  selectPatientDataColumns,
   selectPatientDataPidColumn,
   selectSelectedEntity,
   selectTimelineDataColumns,
@@ -39,6 +41,9 @@ export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveDa
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
 export const useTimelineDataColumns = () => useAppSelector(selectTimelineDataColumns)
+
+export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
+export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
 
 export const useAllFilters = () => useAppSelector(selectAllFilters)
 

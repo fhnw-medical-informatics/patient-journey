@@ -35,6 +35,8 @@ interface TimelineProps {
   showTimeGrid: boolean
   onToggleTimeGrid: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
+  eventDataColumns: ReadonlyArray<EventDataColumn>
+  patientDataColumns: ReadonlyArray<PatientDataColumn>
   colorByColumn: ColorByColumnOption
   onChangeColorByColumn: (column: ColorByColumnOption) => void
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
@@ -56,6 +58,8 @@ export const Timeline = ({
   showTimeGrid,
   onToggleTimeGrid,
   availableColumns,
+  eventDataColumns,
+  patientDataColumns,
   colorByColumn,
   onChangeColorByColumn,
   onCursorPositionChange,
@@ -76,6 +80,8 @@ export const Timeline = ({
         showFilteredOut={showFilteredOut}
         onSetShowFilteredOut={onSetShowFilteredOut}
         availableColumns={availableColumns}
+        eventDataColumns={eventDataColumns}
+        patientDataColumns={patientDataColumns}
         colorByColumn={colorByColumn}
         onChangeColorByColumn={onChangeColorByColumn}
       />
