@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
   selectActiveData,
-  selectActiveDataByEntityIdMap,
+  selectDataByEntityIdMap,
   selectActiveDataColumns,
   selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
@@ -23,7 +23,7 @@ import {
   selectSelectedEntity,
   selectTimelineDataColumns,
 } from './selectors'
-import { setHoveredEntity, setSelectedEntity } from './dataSlice'
+import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId } from './entities'
 import { useCallback } from 'react'
 
@@ -33,7 +33,8 @@ export const useDataLoadingErrorMessage = () => useAppSelector(selectDataLoading
 export const useActiveDataView = () => useAppSelector(selectDataView)
 
 export const useActiveData = () => useAppSelector(selectActiveData)
-export const useActiveDataByEntityIdMap = () => useAppSelector(selectActiveDataByEntityIdMap)
+export const useDataByEntityIdMap = (type: FocusEntity['type']) =>
+  useAppSelector((state) => selectDataByEntityIdMap(state, type))
 export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
