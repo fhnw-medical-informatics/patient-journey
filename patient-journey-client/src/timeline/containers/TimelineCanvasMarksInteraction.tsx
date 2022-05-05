@@ -16,7 +16,6 @@ const TimelineCanvasMarksInteraction = <
 ) => {
   const cursorPosition = useTimlineCursorPosition()
 
-  // TODO: useEntityInteraction('event') once timeline is fully independent
   const { onEntityClick, onEntityHover } = useEntityInteraction('event')
 
   return (

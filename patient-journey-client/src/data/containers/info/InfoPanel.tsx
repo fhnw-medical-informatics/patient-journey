@@ -22,9 +22,10 @@ export const InfoPanel = React.memo(() => {
   const eventDataTimestampValueFn = useEventDataTimestampValuesFormatted()
   const eventDataPidValueFn = useEventDataPidValues()
 
-  const colorByInfo = useColorByInfo()
-
   const focusEntity = useFocusEntity()
+
+  const colorByInfo = useColorByInfo(focusEntity.type)
+
   const focusEntityInfo: FocusEntityInfo = useMemo(() => {
     switch (focusEntity.type) {
       case 'none':
