@@ -13,7 +13,7 @@ const TimelineActiveMarks = <EID extends string, PatientId extends string, E ext
 ) => {
   const theme = useTheme()
 
-  const { onEntityClick, onEntityHover } = useEntityInteraction('event')
+  const { onEntityClick, onEntityHover } = useEntityInteraction('events')
 
   const selectedEvent = useSelectedActiveEvent()
   const hoveredEvent = useHoveredActiveEvent()

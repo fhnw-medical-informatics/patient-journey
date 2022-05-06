@@ -30,7 +30,7 @@ export const InfoPanel = React.memo(() => {
     switch (focusEntity.type) {
       case 'none':
         return { type: 'no-info' }
-      case 'patient':
+      case 'patients':
         return {
           type: 'patient-info',
           patientInfo: {
@@ -38,7 +38,7 @@ export const InfoPanel = React.memo(() => {
             pidColumnName: patientDataPidColumnName,
           },
         }
-      case 'event':
+      case 'events':
         return {
           type: 'event-info',
           patientInfo: {

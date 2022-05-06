@@ -7,7 +7,7 @@ import { CursorPosition, TimelineColumn } from '../timelineSlice'
 import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
-import { ColorByColumnOption } from '../../color/colorSlice'
+import { ColorByColumn } from '../../color/colorSlice'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -37,8 +37,8 @@ interface TimelineProps {
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   eventDataColumns: ReadonlyArray<EventDataColumn>
   patientDataColumns: ReadonlyArray<PatientDataColumn>
-  colorByColumn: ColorByColumnOption
-  onChangeColorByColumn: (column: ColorByColumnOption) => void
+  colorByColumn: ColorByColumn
+  onChangeColorByColumn: (colorByColumn: ColorByColumn) => void
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
 }
 

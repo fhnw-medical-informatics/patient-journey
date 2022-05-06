@@ -107,9 +107,9 @@ export const selectFocusLaneId = createSelector(
   selectFocusEntity,
   (eventMap, focusEntity): PatientId => {
     switch (focusEntity.type) {
-      case 'patient':
+      case 'patients':
         return focusEntity.uid
-      case 'event':
+      case 'events':
         return (eventMap.get(focusEntity.uid)?.laneId as PatientId) ?? PatientIdNone
       default:
         return PatientIdNone

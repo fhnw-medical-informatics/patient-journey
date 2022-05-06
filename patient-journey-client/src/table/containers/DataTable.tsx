@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from '../../store'
 import { setSorting } from '../tableSlice'
 import { selectDataView } from '../../data/selectors'
 import { ColumnSortingState } from '../../data/sorting'
+import { ColorByColumnNone } from '../../color/colorSlice'
 
 export const DataTable = React.memo(() => {
   const view = useAppSelector(selectDataView)
@@ -39,7 +40,7 @@ export const DataTable = React.memo(() => {
       onEntityClick={onEntityClick}
       onEntityHover={onEntityHover}
       onSortingChange={onSortingChange}
-      colorByColumn={colorByColumn}
+      colorByColumn={view === colorByColumn.type ? colorByColumn : ColorByColumnNone}
       colorByColumnFn={colorByColumnFn}
     />
   )

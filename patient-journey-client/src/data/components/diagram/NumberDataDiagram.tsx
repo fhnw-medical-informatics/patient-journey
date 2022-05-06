@@ -4,9 +4,9 @@ import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
-import { ColorByColumnNone } from '../../../color/colorSlice'
 import { useNumbers } from './hooks'
 import Tooltip from './Tooltip'
+import { FilterColumn } from '../../filtering'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -123,7 +123,11 @@ export const NumberDataDiagram = ({
         indexBy={'binIndex'}
         keys={['filteredIn', 'filteredOut']}
         groupMode={'stacked'}
-        colors={colorByColumn !== ColorByColumnNone && column.name === colorByColumn.name ? colors : barColors(theme)}
+        colors={
+          colorByColumn.type !== 'none' && column.name === (colorByColumn.column as FilterColumn).name
+            ? colors
+            : barColors(theme)
+        }
         tooltip={tooltip}
         enableLabel={false}
         enableGridY={false}

@@ -4,11 +4,12 @@ describe('colorSlice', () => {
   it(`should handle ${setColorByColumn.type} action`, () => {
     expect(
       colorReducer(
-        { colorByColumn: 'off' },
-        setColorByColumn({ colorByColumn: { name: 'Test', type: 'number', index: 0 } })
+        { column: 'off', type: 'none' },
+        setColorByColumn({ column: { name: 'Test', type: 'number', index: 0 }, type: 'patients' })
       )
     ).toEqual({
-      colorByColumn: { name: 'Test', type: 'number', index: 0 },
+      type: 'patient',
+      column: { name: 'Test', type: 'number', index: 0 },
     })
   })
 })
