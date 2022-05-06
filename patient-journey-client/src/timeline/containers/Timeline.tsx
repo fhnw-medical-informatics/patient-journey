@@ -26,12 +26,12 @@ import {
   useShowFilteredOut,
   useShowTimeGrid,
 } from '../hooks'
-import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
+import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
 import { useColorByColumn } from '../../color/hooks'
 
 export const Timeline = React.memo(() => {
-  const { colorByColumnFn, colorByCategoryFn } = useColor()
+  const { colorByColumnFn, colorByCategoryFn } = useColor('events')
   const showFilteredOut = useShowFilteredOut()
   const events = useActiveDataAsEvents(colorByColumnFn)
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
@@ -54,7 +54,7 @@ export const Timeline = React.memo(() => {
   const onToggleTimeGrid = useCallback(() => dispatch(toggleTimeGrid()), [dispatch])
 
   const onChangeColorByColumn = useCallback(
-    (column: ColorByColumnOption) => dispatch(setColorByColumn({ colorByColumn: column })),
+    (colorByColumn: ColorByColumn) => dispatch(setColorByColumn(colorByColumn)),
     [dispatch]
   )
 

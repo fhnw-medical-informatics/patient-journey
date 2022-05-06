@@ -16,7 +16,7 @@ const TimelineCanvasMarksInteraction = <
 ) => {
   const cursorPosition = useTimlineCursorPosition()
 
-  const { onEntityClick, onEntityHover } = useEntityInteraction('event')
+  const { onEntityClick, onEntityHover } = useEntityInteraction('events')
 
   return (
     <TimelineCanvasMarksInteractionComponent

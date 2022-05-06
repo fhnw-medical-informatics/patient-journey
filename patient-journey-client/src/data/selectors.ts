@@ -1,12 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { max, min } from 'd3-array'
-import { ColorByColumnNone } from '../color/colorSlice'
+import { ColorByColumnOptionNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
 import { formatColumnValue, stringToMillis } from './columns'
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
-import { filterReducer } from './filtering'
+import { FilterColumn, filterReducer } from './filtering'
 import { Patient, PatientDataColumnType, PatientId } from './patients'
 import { Entity, EntityIdNone } from './entities'
 
@@ -51,7 +51,7 @@ export const selectDataByEntityIdMap = createSelector(
   selectFocusEntityType,
   selectPatientDataRowMap,
   selectEventDataRowMap,
-  (type, patientMap, eventMap) => (type === 'none' ? new Map() : type === 'patient' ? patientMap : eventMap)
+  (type, patientMap, eventMap) => (type === 'none' ? new Map() : type === 'patients' ? patientMap : eventMap)
 )
 
 export const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
@@ -73,7 +73,7 @@ export const selectFocusEntity = createSelector(selectHoveredEntity, selectSelec
 )
 
 const selectActiveEntity = (view: ActiveDataViewType, entity: FocusEntity) => {
-  if ((view === 'patients' && entity.type === 'patient') || (view === 'events' && entity.type === 'event')) {
+  if ((view === 'patients' && entity.type === 'patients') || (view === 'events' && entity.type === 'events')) {
     return entity.uid
   } else {
     return EntityIdNone
@@ -219,21 +219,26 @@ export const selectFilteredActiveData = createSelector(
 )
 
 export const selectCurrentColorColumnNumberRange = createSelector(
-  selectActiveData,
+  selectPatientDataRows,
+  selectEventDataRows,
   selectColorByColumn,
-  (activeData, colorByColumn) => {
-    if (colorByColumn === ColorByColumnNone) {
+  (patients, events, colorByColumn) => {
+    if (colorByColumn.type === 'none' || colorByColumn.column === ColorByColumnOptionNone) {
       return null
     }
 
-    switch (colorByColumn.type) {
+    const activeData = colorByColumn.type === 'patients' ? patients : events
+
+    switch (colorByColumn.column.type) {
       case 'timestamp':
       case 'number': {
-        const dataInNumbers = activeData.map((data) => +data.values[colorByColumn.index])
+        const dataInNumbers = activeData.map((data) => +data.values[(colorByColumn.column as FilterColumn).index])
         return [min(dataInNumbers) ?? 0, max(dataInNumbers) ?? 0]
       }
       case 'date': {
-        const dataInNumbers = activeData.map((data) => stringToMillis(data.values[colorByColumn.index]))
+        const dataInNumbers = activeData.map((data) =>
+          stringToMillis(data.values[(colorByColumn.column as FilterColumn).index])
+        )
         return [min(dataInNumbers) ?? 0, max(dataInNumbers) ?? 0]
       }
       default:

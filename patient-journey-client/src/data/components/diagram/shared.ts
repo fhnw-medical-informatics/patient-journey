@@ -1,7 +1,7 @@
 import { Theme } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { Entity } from '../../entities'
-import { ColorByColumnOption } from '../../../color/colorSlice'
+import { ColorByColumn } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
 import { DataColumn } from '../../columns'
 import { Filter, FilterColumn } from '../../filtering'
@@ -11,7 +11,7 @@ export interface DataDiagramsProps<T extends FilterColumn['type']> {
   filteredActiveData: ReadonlyArray<Entity>
   column: DataColumn<T>
   onDataClick: (filter: Filter<T>) => void
-  colorByColumn: ColorByColumnOption
+  colorByColumn: ColorByColumn
   colorByNumberFn: ColorByNumberFn
   colorByCategoryFn: ColorByCategoryFn
 }

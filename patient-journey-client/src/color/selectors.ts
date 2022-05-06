@@ -1,5 +1,5 @@
 import { RootState } from '../store'
 
-import { ColorByColumnOption } from './colorSlice'
+import { ColorByColumn } from './colorSlice'
 
-export const selectColorByColumn = (s: RootState): ColorByColumnOption => s.color.colorByColumn
+export const selectColorByColumn = (s: RootState): ColorByColumn => s.color

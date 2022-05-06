@@ -26,7 +26,7 @@ import {
   selectTimelineDataColumns,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
-import { EntityId } from './entities'
+import { EntityId, EntityType } from './entities'
 import { useCallback } from 'react'
 
 export const useDataLoadingState = () => useAppSelector(selectDataLoadingState)
@@ -62,11 +62,11 @@ export interface EntityInteraction {
 
 export const useActiveEntityInteraction = (): EntityInteraction => {
   const activeView = useActiveDataView()
-  const type = activeView === 'patients' ? 'patient' : 'event'
+  const type = activeView === 'patients' ? 'patients' : 'events'
   return useEntityInteraction(type)
 }
 
-export const useEntityInteraction = (type: 'patient' | 'event'): EntityInteraction => {
+export const useEntityInteraction = (type: EntityType): EntityInteraction => {
   const dispatch = useAppDispatch()
 
   const onEntityClick = useCallback(

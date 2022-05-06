@@ -16,7 +16,7 @@ import HelpIcon from '@mui/icons-material/Help'
 import { TimelineColumn, TimelineColumnNone } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
-import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
+import { ColorByColumn, ColorByColumnNone, ColorByColumnOptionNone } from '../../color/colorSlice'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -41,8 +41,8 @@ interface ControlPanelProps {
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   eventDataColumns: ReadonlyArray<EventDataColumn>
   patientDataColumns: ReadonlyArray<PatientDataColumn>
-  colorByColumn: ColorByColumnOption
-  onChangeColorByColumn: (column: ColorByColumnOption) => void
+  colorByColumn: ColorByColumn
+  onChangeColorByColumn: (colorByColumn: ColorByColumn) => void
 }
 
 export const ControlPanel = ({
@@ -93,10 +93,10 @@ export const ControlPanel = ({
     onSetExpandByColumn(TimelineColumnNone)
   }, [onSetExpandByColumn, availableColumns])
 
-  // Reset colorByColumn when availableColumns change
+  // Reset colorByColumn when event or patient data columns change
   useEffect(() => {
-    onChangeColorByColumn('off')
-  }, [onChangeColorByColumn, availableColumns])
+    onChangeColorByColumn(ColorByColumnNone)
+  }, [onChangeColorByColumn, eventDataColumns, patientDataColumns])
 
   const handleChangeViewByColumn = (event: SelectChangeEvent) => {
     onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
@@ -107,15 +107,14 @@ export const ControlPanel = ({
   }
 
   const handleChangeColorByColumn = (event: SelectChangeEvent) => {
-    if (event.target.value.startsWith('patient_')) {
-      onChangeColorByColumn(
-        patientDataColumns.find((column) => column.name === event.target.value.replace('patient_', '')) ??
-          ColorByColumnNone
-      )
+    if (event.target.value.startsWith('patients_')) {
+      const column = patientDataColumns.find((column) => column.name === event.target.value.replace('patients_', ''))
+      onChangeColorByColumn(column ? { type: 'patients', column } : ColorByColumnNone)
+    } else if (event.target.value.startsWith('events_')) {
+      const column = eventDataColumns.find((column) => column.name === event.target.value.replace('events_', ''))
+      onChangeColorByColumn(column ? { type: 'events', column } : ColorByColumnNone)
     } else {
-      onChangeColorByColumn(
-        eventDataColumns.find((column) => column.name === event.target.value.replace('event_', '')) ?? ColorByColumnNone
-      )
+      onChangeColorByColumn(ColorByColumnNone)
     }
   }
 
@@ -174,16 +173,14 @@ export const ControlPanel = ({
               <FormControl>
                 <Select
                   value={
-                    colorByColumn !== ColorByColumnNone
-                      ? patientDataColumns.find((column) => column.name === colorByColumn.name)
-                        ? 'patient_' + colorByColumn.name
-                        : 'event_' + colorByColumn.name
-                      : ColorByColumnNone
+                    colorByColumn.type !== 'none' && colorByColumn.column !== ColorByColumnOptionNone
+                      ? `${colorByColumn.type}_${colorByColumn.column.name}`
+                      : `${ColorByColumnNone.type}_${ColorByColumnNone.column}`
                   }
                   onChange={handleChangeColorByColumn}
                   size="small"
                 >
-                  <MenuItem value={ColorByColumnNone}>
+                  <MenuItem value={`${ColorByColumnNone.type}_${ColorByColumnNone.column}`}>
                     <i>{'Off'}</i>
                   </MenuItem>
                   <ListSubheader>Patient Columns</ListSubheader>
@@ -192,7 +189,7 @@ export const ControlPanel = ({
                       ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
                     )
                     .map((column) => (
-                      <MenuItem key={column.name} value={'patient_' + column.name}>
+                      <MenuItem key={column.name} value={'patients_' + column.name}>
                         {column.name}
                       </MenuItem>
                     ))}
@@ -202,7 +199,7 @@ export const ControlPanel = ({
                       ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
                     )
                     .map((column) => (
-                      <MenuItem key={column.name} value={'event_' + column.name}>
+                      <MenuItem key={column.name} value={'events_' + column.name}>
                         {column.name}
                       </MenuItem>
                     ))}

@@ -8,7 +8,7 @@ import { makeStyles } from '../../utils'
 
 import { Entity, EntityId, EntityIdNone } from '../../data/entities'
 import { DataColumn, formatColumnValue } from '../../data/columns'
-import { ColorByColumnNone, ColorByColumnOption } from '../../color/colorSlice'
+import { ColorByColumn } from '../../color/colorSlice'
 import { ColorByColumnFn } from '../../color/hooks'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
 import { ColoredCircle } from '../../color/components/ColoredCircle'
@@ -35,7 +35,7 @@ interface Props {
   readonly selectedEntity: EntityId
   readonly onEntityClick: (id: EntityId) => void
   readonly onEntityHover: (id: EntityId) => void
-  readonly colorByColumn: ColorByColumnOption
+  readonly colorByColumn: ColorByColumn
   readonly colorByColumnFn: ColorByColumnFn
   readonly sorting: ColumnSortingState
   readonly onSortingChange: (sortingState: ColumnSortingState) => void
@@ -64,7 +64,7 @@ export const DataTable = ({
       valueFormatter: (params) => formatColumnValue(column.type)(params.value),
     }))
 
-    if (colorByColumn !== ColorByColumnNone) {
+    if (colorByColumn.type !== 'none') {
       cols = [
         {
           field: 'color',
@@ -78,7 +78,7 @@ export const DataTable = ({
     }
 
     return cols
-  }, [columns, colorByColumn, colorByColumnFn])
+  }, [columns, colorByColumn.type, colorByColumnFn])
 
   // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
   // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773
@@ -135,7 +135,7 @@ export const DataTable = ({
                 style={{
                   ...props.style,
                   backgroundColor:
-                    colorByColumn !== ColorByColumnNone
+                    colorByColumn.type !== 'none'
                       ? theme.palette.mode === 'dark'
                         ? darken(colorByColumnFn(props.row), 0.6)
                         : lighten(colorByColumnFn(props.row), 0.8)
