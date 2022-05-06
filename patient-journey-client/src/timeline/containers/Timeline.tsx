@@ -15,7 +15,7 @@ import {
   TimelineColumnNone,
   toggleTimeGrid,
 } from '../timelineSlice'
-import { useEventDataColumns, usePatientDataColumns, useTimelineDataColumns } from '../../data/hooks'
+import { useEventDataColumns, useEventFilters, usePatientDataColumns, useTimelineDataColumns } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import {
   useActiveDataAsEvents,
@@ -46,6 +46,7 @@ export const Timeline = React.memo(() => {
   const eventDataColumns = useEventDataColumns()
   const patientDataColumns = usePatientDataColumns()
   const colorByColumn = useColorByColumn()
+  const eventFilters = useEventFilters()
 
   const dispatch = useAppDispatch()
 
@@ -96,6 +97,7 @@ export const Timeline = React.memo(() => {
       onCursorPositionChange={onCursorPositionChange}
       showTimeGrid={showTimeGrid}
       onToggleTimeGrid={onToggleTimeGrid}
+      hasActiveEventFilters={eventFilters.length > 0}
     />
   )
 })

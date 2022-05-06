@@ -151,8 +151,11 @@ const selectPatientFilters = createSelector(selectPatientDataColumns, selectAllF
   filters.filter((filter) => patientDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
 )
 
-const selectEventFilters = createSelector(selectEventDataColumns, selectAllFilters, (eventDataColumns, filters) =>
-  filters.filter((filter) => eventDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
+export const selectEventFilters = createSelector(
+  selectEventDataColumns,
+  selectAllFilters,
+  (eventDataColumns, filters) =>
+    filters.filter((filter) => eventDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
 )
 
 const selectFilteredPatientData = createSelector(

@@ -40,6 +40,7 @@ interface TimelineProps {
   colorByColumn: ColorByColumn
   onChangeColorByColumn: (colorByColumn: ColorByColumn) => void
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
+  hasActiveEventFilters: boolean
 }
 
 export const Timeline = ({
@@ -63,6 +64,7 @@ export const Timeline = ({
   colorByColumn,
   onChangeColorByColumn,
   onCursorPositionChange,
+  hasActiveEventFilters,
 }: TimelineProps) => {
   const { classes } = useStyles()
 
@@ -84,6 +86,7 @@ export const Timeline = ({
         patientDataColumns={patientDataColumns}
         colorByColumn={colorByColumn}
         onChangeColorByColumn={onChangeColorByColumn}
+        hasActiveFilters={hasActiveEventFilters}
       />
       <TimelineView
         events={events}
