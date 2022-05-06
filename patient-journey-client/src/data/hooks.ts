@@ -24,6 +24,7 @@ import {
   selectPatientDataPidColumn,
   selectSelectedEntity,
   selectTimelineDataColumns,
+  selectEventFilters,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -46,6 +47,7 @@ export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
 export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
 
 export const useAllFilters = () => useAppSelector(selectAllFilters)
+export const useEventFilters = () => useAppSelector(selectEventFilters)
 
 export const useHoveredEntity = () => useAppSelector(selectHoveredEntity)
 export const useSelectedEntity = () => useAppSelector(selectSelectedEntity)

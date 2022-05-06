@@ -11,8 +11,8 @@ import {
   selectHoveredActiveEvent,
   selectFocusLaneId,
   selectShowTimeGrid,
-  selectActiveDataAsEvents,
-  selectActiveDataAsLanes,
+  selectFilteredEventDataAsTimelineEvents,
+  selectFilteredEventDataAsTimelineLanes,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -27,14 +27,14 @@ export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
 
 export const useTimlineCursorPosition = () => useAppSelector(selectCursorPosition)
 
-export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn) =>
-  useAppSelector((state) => selectActiveDataAsEvents(state, colorByColumnFn))
+export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn, filteredOutColor: string) =>
+  useAppSelector((state) => selectFilteredEventDataAsTimelineEvents(state, colorByColumnFn, filteredOutColor))
 
 export const useSelectedActiveEvent = () => useAppSelector(selectSelectedActiveEvent)
 
 export const useHoveredActiveEvent = () => useAppSelector(selectHoveredActiveEvent)
 
 export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
-  useAppSelector((state) => selectActiveDataAsLanes(state, colorByCategoryFn))
+  useAppSelector((state) => selectFilteredEventDataAsTimelineLanes(state, colorByCategoryFn))
 
 export const useFocusLaneId = () => useAppSelector(selectFocusLaneId)

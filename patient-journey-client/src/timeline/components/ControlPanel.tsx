@@ -43,6 +43,7 @@ interface ControlPanelProps {
   patientDataColumns: ReadonlyArray<PatientDataColumn>
   colorByColumn: ColorByColumn
   onChangeColorByColumn: (colorByColumn: ColorByColumn) => void
+  hasActiveFilters: boolean
 }
 
 export const ControlPanel = ({
@@ -61,6 +62,7 @@ export const ControlPanel = ({
   patientDataColumns,
   colorByColumn,
   onChangeColorByColumn,
+  hasActiveFilters,
 }: ControlPanelProps) => {
   const { classes } = useStyles()
 
@@ -212,16 +214,18 @@ export const ControlPanel = ({
                 label="Cluster Events"
               />
             </Grid>
-            <Grid item ml={-2}>
-              <FormControlLabel
-                control={<Switch checked={showFilteredOut} onChange={onSetShowFilteredOut} color="primary" />}
-                label="Show Filtered Out Events"
-              />
-            </Grid>
+            {hasActiveFilters && (
+              <Grid item ml={-2}>
+                <FormControlLabel
+                  control={<Switch checked={showFilteredOut} onChange={onSetShowFilteredOut} color="primary" />}
+                  label="Show Filtered Events"
+                />
+              </Grid>
+            )}
             <Grid item ml={-2}>
               <FormControlLabel
                 control={<Switch checked={showTimeGrid} onChange={onToggleTimeGrid} color="primary" />}
-                label="Time Grid"
+                label="Grid"
               />
             </Grid>
           </Grid>
