@@ -8,7 +8,7 @@ describe('colorSlice', () => {
         setColorByColumn({ column: { name: 'Test', type: 'number', index: 0 }, type: 'patients' })
       )
     ).toEqual({
-      type: 'patient',
+      type: 'patients',
       column: { name: 'Test', type: 'number', index: 0 },
     })
   })
