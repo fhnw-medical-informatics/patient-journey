@@ -7,6 +7,7 @@ declare module '@mui/material/styles' {
   interface Theme {
     entityColors: {
       default: string
+      filteredOut: string
       selected: string
     }
   }
@@ -16,6 +17,7 @@ declare module '@mui/material/styles' {
   interface ThemeOptions {
     entityColors?: {
       default?: string
+      filteredOut?: string
       selected?: string
     }
   }
@@ -31,6 +33,7 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
     },
     entityColors: {
       default: defaultColor,
+      filteredOut: mode === 'light' ? grey[100] : grey[900],
       selected: selectionColor,
     },
     components: {
