@@ -6,6 +6,7 @@ import {
   useActiveEntityInteraction,
   useFilteredActiveData,
   useActiveSelectedEntity,
+  useIndexPatientId,
 } from '../../data/hooks'
 import { useActiveTableState } from '../hooks'
 import { useAppDispatch, useAppSelector } from '../../store'
@@ -13,6 +14,8 @@ import { setSorting } from '../tableSlice'
 import { selectDataView } from '../../data/selectors'
 import { ColumnSortingState } from '../../data/sorting'
 import { ColorByColumnNone } from '../../color/colorSlice'
+import { PatientId } from '../../data/patients'
+import { setIndexPatient } from '../../data/dataSlice'
 
 export const DataTable = React.memo(() => {
   const view = useAppSelector(selectDataView)
@@ -23,12 +26,20 @@ export const DataTable = React.memo(() => {
 
   const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
   const selectedEntityId = useActiveSelectedEntity()
+  const indexPatientId = useIndexPatientId()
 
   const dispatch = useAppDispatch()
 
   const onSortingChange = useCallback(
     (sorting: ColumnSortingState) => dispatch(setSorting({ view, sorting })),
     [dispatch, view]
+  )
+
+  const onSetIndexPatient = useCallback(
+    (pid: PatientId) => {
+      dispatch(setIndexPatient(pid))
+    },
+    [dispatch]
   )
 
   return (
@@ -42,6 +53,9 @@ export const DataTable = React.memo(() => {
       onSortingChange={onSortingChange}
       colorByColumn={view === colorByColumn.type ? colorByColumn : ColorByColumnNone}
       colorByColumnFn={colorByColumnFn}
+      indexPatientId={indexPatientId}
+      onSetIndexPatient={onSetIndexPatient}
+      enableIndexPatientColumn={view === 'patients'}
     />
   )
 })

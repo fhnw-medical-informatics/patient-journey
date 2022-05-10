@@ -130,7 +130,8 @@ const dataSlice = createSlice({
     },
     setIndexPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutateLoadedDataState(state, (s) => {
-        s.indexPatientId = action.payload as PatientId
+        s.indexPatientId =
+          (action.payload as PatientId) === s.indexPatientId ? PatientIdNone : (action.payload as PatientId)
       })
     },
   },

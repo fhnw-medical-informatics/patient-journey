@@ -454,4 +454,14 @@ describe('dataSlice', () => {
     store.dispatch(setIndexPatient(PatientIdNone))
     expect(getIndexPatientId()).toEqual(PatientIdNone)
   })
+
+  it(`sets index patient to none when ${setIndexPatient.type} action is called with the same pid twice`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientId = () => selectIndexPatientId(store.getState())
+    expect(getIndexPatientId()).toEqual(PatientIdNone)
+    store.dispatch(setIndexPatient('PID_1'))
+    expect(getIndexPatientId()).toEqual('PID_1')
+    store.dispatch(setIndexPatient('PID_1'))
+    expect(getIndexPatientId()).toEqual(PatientIdNone)
+  })
 })
