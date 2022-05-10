@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { bin } from 'd3-array'
-import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
+import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
@@ -94,7 +94,7 @@ export const NumberDataDiagram = ({
     )
   }, [allTicketBins, filteredNumbers, niceMin, niceMax])
 
-  const tooltip = useCallback(({ data, value, color }) => {
+  const tooltip = useCallback<React.FC<BarTooltipProps<BarDatum>>>(({ data, value, color }) => {
     const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${
       data.binEnd !== undefined ? data.binEnd : ''
     }  (${value})`
@@ -102,7 +102,7 @@ export const NumberDataDiagram = ({
   }, [])
 
   const handleBinClick = useCallback(
-    (bin) => {
+    (bin: ComputedDatum<BarDatum>) => {
       onDataClick({
         column,
         type: column.type,
