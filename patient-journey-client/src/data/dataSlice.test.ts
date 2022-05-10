@@ -9,6 +9,7 @@ import {
   setDataView,
   setHoveredEntity,
   setSelectedEntity,
+  setIndexPatient,
 } from './dataSlice'
 
 import { createStore } from '../store'
@@ -23,6 +24,7 @@ import {
   selectDataView,
   selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
+  selectIndexPatientId,
 } from './selectors'
 import { EntityIdNone } from './entities'
 
@@ -441,5 +443,15 @@ describe('dataSlice', () => {
     expect(getView()).toEqual('patients')
     store.dispatch(setDataView('events' as ActiveDataViewType))
     expect(getView()).toEqual('events')
+  })
+
+  it(`handles ${setIndexPatient.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientId = () => selectIndexPatientId(store.getState())
+    expect(getIndexPatientId()).toEqual(PatientIdNone)
+    store.dispatch(setIndexPatient('PID_1'))
+    expect(getIndexPatientId()).toEqual('PID_1')
+    store.dispatch(setIndexPatient(PatientIdNone))
+    expect(getIndexPatientId()).toEqual(PatientIdNone)
   })
 })

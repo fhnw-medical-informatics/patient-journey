@@ -254,3 +254,5 @@ export const selectCurrentColorColumnNumberRange = createSelector(
     }
   }
 )
+
+export const selectIndexPatientId = createSelector(selectData, (data) => data.indexPatientId)

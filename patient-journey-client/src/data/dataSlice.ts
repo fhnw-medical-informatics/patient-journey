@@ -4,6 +4,7 @@ import { EntityId, EntityIdNone, EntityType } from './entities'
 import { EVENT_DATA_FILE_URL, loadData as loadDataImpl, LoadedData, PATIENT_DATA_FILE_URL } from './loading'
 import { addAlerts } from '../alert/alertSlice'
 import { Dispatch } from 'redux'
+import { PatientId, PatientIdNone } from './patients'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -25,7 +26,8 @@ export type DataStateLoadingComplete = Readonly<{
   ActiveDataView &
   Filters &
   Hovering &
-  Selection
+  Selection &
+  IndexPatient
 
 export const ACTIVE_DATA_VIEWS = ['patients', 'events'] as const
 export type ActiveDataViewType = typeof ACTIVE_DATA_VIEWS[number]
@@ -53,6 +55,10 @@ interface Selection {
   readonly selected: FocusEntity
 }
 
+interface IndexPatient {
+  readonly indexPatientId: PatientId
+}
+
 export type DataState =
   | DataStateLoadingPending
   | DataStateLoadingInProgress
@@ -76,6 +82,7 @@ const dataSlice = createSlice({
       view: 'patients',
       hovered: FOCUS_ENTITY_NONE,
       selected: FOCUS_ENTITY_NONE,
+      indexPatientId: PatientIdNone,
       ...action.payload,
     }),
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
@@ -121,6 +128,11 @@ const dataSlice = createSlice({
         data.view = action.payload
       })
     },
+    setIndexPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.indexPatientId = action.payload as PatientId
+      })
+    },
   },
 })
 
@@ -143,10 +155,18 @@ const mutateFilterData = (
 }
 
 export const dataReducer = dataSlice.reducer
-export const { setSelectedEntity, setHoveredEntity, addDataFilter, removeDataFilter, resetDataFilter, setDataView } =
-  dataSlice.actions
-
-export const { loadingDataInProgress, loadingDataFailed, loadingDataComplete } = dataSlice.actions
+export const {
+  loadingDataInProgress,
+  loadingDataFailed,
+  loadingDataComplete,
+  setSelectedEntity,
+  setHoveredEntity,
+  addDataFilter,
+  removeDataFilter,
+  resetDataFilter,
+  setDataView,
+  setIndexPatient,
+} = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
 export const loadData =
