@@ -10,7 +10,9 @@ export default {
 
 const Template: Story<Props> = (args) => (
   <div style={{ width: '100%', height: '200px' }}>
-    <Data {...args} />
+    <Data {...args}>
+      <div>Loading Complete</div>
+    </Data>
   </div>
 )
 

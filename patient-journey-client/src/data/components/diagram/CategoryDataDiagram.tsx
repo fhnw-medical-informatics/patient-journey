@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react'
-import { BarDatum, ResponsiveBarCanvas } from '@nivo/bar'
+import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
 import { useTheme } from '@mui/material'
@@ -77,13 +77,13 @@ export const CategoryDataDiagram = ({
     })
   }, [filteredCategories, uniqueCategories, allCategoryCount])
 
-  const tooltip = useCallback(({ data, value, color }) => {
+  const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(({ data, value, color }) => {
     const title = `${data.category} (${value})`
     return <Tooltip text={title} color={color} />
   }, [])
 
   const handleBinClick = useCallback(
-    (bin) => {
+    (bin: ComputedDatum<any>) => {
       onDataClick({
         column,
         type: column.type,

@@ -1,14 +1,10 @@
-import { createStore, RootState } from '../store'
+import { createStore } from '../store'
 import { LoadedData } from '../data/loading'
 import { loadingDataComplete } from '../data/dataSlice'
 import { PatientId } from '../data/patients'
 import { EventId } from '../data/events'
-import { EnhancedStore } from '@reduxjs/toolkit'
 
-export const createStoreWithMockData = async (): Promise<{
-  store: EnhancedStore<RootState>
-  loadedData: LoadedData
-}> => {
+export const createStoreWithMockData = async () => {
   const store = createStore()
 
   // TODO: Smarter mock data handling, e.g. via file
