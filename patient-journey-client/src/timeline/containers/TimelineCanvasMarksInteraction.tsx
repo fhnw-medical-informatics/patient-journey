@@ -2,7 +2,7 @@ import React from 'react'
 
 import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 
-import { useTimlineCursorPosition } from '../hooks'
+import { useTimelineCursorPosition } from '../hooks'
 
 import { TimelineCanvasMarksInteraction as TimelineCanvasMarksInteractionComponent } from '../components/TimelineCanvasMarksInteraction'
 import { useEntityInteraction } from '../../data/hooks'
@@ -14,7 +14,7 @@ const TimelineCanvasMarksInteraction = <
 >(
   props: CustomLayerProps<EID, PatientId, E>
 ) => {
-  const cursorPosition = useTimlineCursorPosition()
+  const cursorPosition = useTimelineCursorPosition()
 
   const { onEntityClick, onEntityHover } = useEntityInteraction('events')
 

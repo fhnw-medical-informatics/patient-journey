@@ -27,6 +27,7 @@ interface TimelineProps {
   enableClustering: boolean
   showTimeGrid: boolean
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
+  onInteractionEnd: () => void
 }
 
 export const TimelineView = ({
@@ -37,6 +38,7 @@ export const TimelineView = ({
   enableClustering,
   showTimeGrid,
   onCursorPositionChange,
+  onInteractionEnd,
 }: TimelineProps) => {
   const muiTheme = useTheme()
   const timelineTheme = deriveTimelineTheme(muiTheme.palette.mode, muiTheme)
@@ -74,6 +76,7 @@ export const TimelineView = ({
                   TimelineCanvasMarksInteractionLayer,
                   TimelineActiveMarksLayer,
                 ]}
+                onInteractionEnd={onInteractionEnd}
               />
             </MouseAwareSvg>
           )

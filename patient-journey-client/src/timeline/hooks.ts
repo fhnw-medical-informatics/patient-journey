@@ -25,7 +25,7 @@ export const useExpandByColumn = () => useAppSelector(selectExpandByColumn)
 
 export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
 
-export const useTimlineCursorPosition = () => useAppSelector(selectCursorPosition)
+export const useTimelineCursorPosition = () => useAppSelector(selectCursorPosition)
 
 export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn, filteredOutColor: string) =>
   useAppSelector((state) => selectFilteredEventDataAsTimelineEvents(state, colorByColumnFn, filteredOutColor))

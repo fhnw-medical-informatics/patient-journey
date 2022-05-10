@@ -15,7 +15,13 @@ import {
   TimelineColumnNone,
   toggleTimeGrid,
 } from '../timelineSlice'
-import { useEventDataColumns, useEventFilters, usePatientDataColumns, useTimelineDataColumns } from '../../data/hooks'
+import {
+  useEntityInteraction,
+  useEventDataColumns,
+  useEventFilters,
+  usePatientDataColumns,
+  useTimelineDataColumns,
+} from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import {
   useActiveDataAsEvents,
@@ -30,6 +36,7 @@ import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
 import { useColorByColumn } from '../../color/hooks'
 import { useTheme } from '@mui/material'
+import { EntityIdNone } from '../../data/entities'
 
 export const Timeline = React.memo(() => {
   const theme = useTheme()
@@ -75,6 +82,9 @@ export const Timeline = React.memo(() => {
     [throttledDispatch]
   )
 
+  const { onEntityHover } = useEntityInteraction('events')
+  const onInteractionEnd = useCallback(() => onEntityHover(EntityIdNone), [onEntityHover])
+
   return (
     <TimelineComponent
       dateFormat={formatMillis}
@@ -97,6 +107,7 @@ export const Timeline = React.memo(() => {
       onCursorPositionChange={onCursorPositionChange}
       showTimeGrid={showTimeGrid}
       onToggleTimeGrid={onToggleTimeGrid}
+      onInteractionEnd={onInteractionEnd}
       hasActiveEventFilters={eventFilters.length > 0}
     />
   )

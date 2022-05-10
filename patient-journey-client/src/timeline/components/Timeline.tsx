@@ -40,6 +40,7 @@ interface TimelineProps {
   colorByColumn: ColorByColumn
   onChangeColorByColumn: (colorByColumn: ColorByColumn) => void
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
+  onInteractionEnd: () => void
   hasActiveEventFilters: boolean
 }
 
@@ -64,6 +65,7 @@ export const Timeline = ({
   colorByColumn,
   onChangeColorByColumn,
   onCursorPositionChange,
+  onInteractionEnd,
   hasActiveEventFilters,
 }: TimelineProps) => {
   const { classes } = useStyles()
@@ -96,6 +98,7 @@ export const Timeline = ({
         enableClustering={cluster}
         showTimeGrid={showTimeGrid}
         onCursorPositionChange={onCursorPositionChange}
+        onInteractionEnd={onInteractionEnd}
       />
     </Paper>
   )
