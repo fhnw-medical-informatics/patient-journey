@@ -4,8 +4,8 @@ import { createEventData, EventData, EventDataColumn } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 
-export const PATIENT_DATA_FILE_URL = 'data/mock-patients.csv'
-export const EVENT_DATA_FILE_URL = 'data/mock-events.csv'
+export const PATIENT_DATA_FILE_URL = 'data/patients.csv'
+export const EVENT_DATA_FILE_URL = 'data/events.csv'
 
 export const DATA_LOADING_ERROR = 'Data Loading Error'
 export const DATA_LOADING_WARNING = 'Data Loading Warning'
