@@ -22,7 +22,6 @@ export default defineConfig({
   build: {
     outDir: 'build',
   },
-  base: '/pj/app/',
   test: {
     globals: true,
     environment: 'jsdom',

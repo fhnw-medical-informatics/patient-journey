@@ -1,14 +1,14 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { max, min } from 'd3-array'
-import { ColorByColumnNone } from '../color/colorSlice'
+import { ColorByColumnOptionNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
 import { formatColumnValue, stringToMillis } from './columns'
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
-import { filterReducer } from './filtering'
+import { FilterColumn, filterReducer } from './filtering'
 import { Patient, PatientDataColumnType, PatientId } from './patients'
-import { Entity, EntityId, EntityIdNone } from './entities'
+import { Entity, EntityIdNone } from './entities'
 
 const selectData = (s: RootState): DataStateLoadingComplete => {
   if (s.data.type === 'loading-complete') {
@@ -45,14 +45,16 @@ export const selectActiveData = createSelector(
   (view, patients, events) => (view === 'patients' ? patients : events)
 )
 
-export const selectActiveDataByEntityIdMap = createSelector(
-  selectDataView,
+const selectFocusEntityType = (s: RootState, type: FocusEntity['type']) => type
+
+export const selectDataByEntityIdMap = createSelector(
+  selectFocusEntityType,
   selectPatientDataRowMap,
   selectEventDataRowMap,
-  (view, patientMap, eventMap): ReadonlyMap<EntityId, Entity> => (view === 'patients' ? patientMap : eventMap)
+  (type, patientMap, eventMap) => (type === 'none' ? new Map() : type === 'patients' ? patientMap : eventMap)
 )
 
-const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
+export const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
 export const selectEventDataColumns = createSelector(selectData, (data) => data.eventData.columns)
 
 export const selectActiveDataColumns = createSelector(
@@ -71,7 +73,7 @@ export const selectFocusEntity = createSelector(selectHoveredEntity, selectSelec
 )
 
 const selectActiveEntity = (view: ActiveDataViewType, entity: FocusEntity) => {
-  if ((view === 'patients' && entity.type === 'patient') || (view === 'events' && entity.type === 'event')) {
+  if ((view === 'patients' && entity.type === 'patients') || (view === 'events' && entity.type === 'events')) {
     return entity.uid
   } else {
     return EntityIdNone
@@ -149,8 +151,11 @@ const selectPatientFilters = createSelector(selectPatientDataColumns, selectAllF
   filters.filter((filter) => patientDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
 )
 
-const selectEventFilters = createSelector(selectEventDataColumns, selectAllFilters, (eventDataColumns, filters) =>
-  filters.filter((filter) => eventDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
+export const selectEventFilters = createSelector(
+  selectEventDataColumns,
+  selectAllFilters,
+  (eventDataColumns, filters) =>
+    filters.filter((filter) => eventDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
 )
 
 const selectFilteredPatientData = createSelector(
@@ -177,19 +182,17 @@ const selectFilteredEventsPIDs = createSelector(
   (filteredEventData) => new Set(filteredEventData.map((event) => event.pid))
 )
 
-//Only select events, that are references in the currently filtered patients
-const selectPatientFilteredEventData = createSelector(
-  selectEventDataRows,
-  selectFilteredEventsPIDs,
-  (eventData, filteredEventPIDSet) => eventData.filter((event) => filteredEventPIDSet.has(event.pid))
-)
-
 // Only select patients, that are references in the currently filtered events
 const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
   selectFilteredEventsPIDs,
   (filteredPatientData, filteredEventPIDSet) =>
     filteredPatientData.filter((patient) => filteredEventPIDSet.has(patient.pid))
+)
+
+const selectCrossFilteredPatientsPIDs = createSelector(
+  selectCrossFilteredPatientData,
+  (crossFilteredPatientData) => new Set(crossFilteredPatientData.map((patient) => patient.pid))
 )
 
 // Only select filtered events which referenced patients appear in the currently filtered patients
@@ -200,11 +203,18 @@ export const selectCrossFilteredEventData = createSelector(
     filteredEventData.filter((event) => filteredPatientPIDSet.has(event.pid))
 )
 
-// Only select events which referenced patients appear in the currently filtered patients
-export const selectCrossFilteredEventDataWithFilteredOutEvents = createSelector(
-  selectPatientFilteredEventData,
-  selectFilteredPatientsPIDs,
-  (EventData, filteredPatientPIDSet) => EventData.filter((event) => filteredPatientPIDSet.has(event.pid))
+const selectCrossFilteredEventsUIDs = createSelector(
+  selectCrossFilteredEventData,
+  (crossFilteredEventData) => new Set(crossFilteredEventData.map((event) => event.uid))
+)
+
+// Select all events that are filtered OUT by applied event filters, but are referenced by filtered IN patients
+export const selectCrossFilteredEventDataOnlyFilteredOutEvents = createSelector(
+  selectEventDataRows,
+  selectCrossFilteredPatientsPIDs,
+  selectCrossFilteredEventsUIDs,
+  (allEvents, crossFilteredPatientsPIDs, crossFilteredEventsPIDs) =>
+    allEvents.filter((event) => crossFilteredPatientsPIDs.has(event.pid) && !crossFilteredEventsPIDs.has(event.uid))
 )
 
 export const selectFilteredActiveData = createSelector(
@@ -217,21 +227,26 @@ export const selectFilteredActiveData = createSelector(
 )
 
 export const selectCurrentColorColumnNumberRange = createSelector(
-  selectActiveData,
+  selectPatientDataRows,
+  selectEventDataRows,
   selectColorByColumn,
-  (activeData, colorByColumn) => {
-    if (colorByColumn === ColorByColumnNone) {
+  (patients, events, colorByColumn) => {
+    if (colorByColumn.type === 'none' || colorByColumn.column === ColorByColumnOptionNone) {
       return null
     }
 
-    switch (colorByColumn.type) {
+    const activeData = colorByColumn.type === 'patients' ? patients : events
+
+    switch (colorByColumn.column.type) {
       case 'timestamp':
       case 'number': {
-        const dataInNumbers = activeData.map((data) => +data.values[colorByColumn.index])
+        const dataInNumbers = activeData.map((data) => +data.values[(colorByColumn.column as FilterColumn).index])
         return [min(dataInNumbers) ?? 0, max(dataInNumbers) ?? 0]
       }
       case 'date': {
-        const dataInNumbers = activeData.map((data) => stringToMillis(data.values[colorByColumn.index]))
+        const dataInNumbers = activeData.map((data) =>
+          stringToMillis(data.values[(colorByColumn.column as FilterColumn).index])
+        )
         return [min(dataInNumbers) ?? 0, max(dataInNumbers) ?? 0]
       }
       default:

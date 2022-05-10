@@ -1,13 +1,13 @@
 {
   "name": "patient-journey-client",
-  "version": "0.1.1",
+  "version": "1.0.1",
   "private": true,
   "homepage": "/patient-journey",
   "scripts": {
     "build": "tsc && vite build",
     "build-storybook": "build-storybook",
     "coverage": "vitest run --coverage",
-    "predeploy": "yarn build",
+    "predeploy": "tsc && vite build --base=/pj/app/",
     "deploy": "./deploy.sh",
     "lint": "eslint --max-warnings 0 './src/**/*.{ts,tsx}'",
     "lint:fix": "eslint './src/**/*.{ts,tsx}' --fix",

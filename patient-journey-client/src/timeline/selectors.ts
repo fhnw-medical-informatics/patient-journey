@@ -12,7 +12,7 @@ import {
   selectActiveHoveredEventEntity,
   selectActiveSelectedEventEntity,
   selectFocusEntity,
-  selectCrossFilteredEventDataWithFilteredOutEvents,
+  selectCrossFilteredEventDataOnlyFilteredOutEvents,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -28,7 +28,14 @@ export const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.v
 export const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expandByColumn
 
 // https://redux.js.org/usage/deriving-data-selectors#createselector-behavior
-const selectColorByColumnFn = (s: RootState, colorByColumnFn: ColorByColumnFn): ColorByColumnFn => colorByColumnFn
+const selectColorByColumnFn = (
+  s: RootState,
+  colorByColumnFn: ColorByColumnFn,
+  filteredOutColor: string
+): ColorByColumnFn => colorByColumnFn
+
+const selectFilteredOutColor = (s: RootState, colorByColumnFn: ColorByColumnFn, filteredOutColor: string): string =>
+  filteredOutColor
 
 const convertEntityToTimelineEvent = (
   viewByColumn: TimelineColumn,
@@ -52,35 +59,81 @@ const convertEntityToTimelineEvent = (
     : []
 }
 
-export const selectFilteredOutActiveDataAsEvents = createSelector(
-  selectShowFilteredOut,
-  selectCrossFilteredEventData,
-  selectCrossFilteredEventDataWithFilteredOutEvents,
-  (showFilteredOut, filteredEventData, filteredEventDataWithFilteredOut) =>
-    showFilteredOut ? filteredEventDataWithFilteredOut : filteredEventData
-)
-
-export const selectActiveDataAsEvents = createSelector(
+export const selectFilteredEventDataAsTimelineEvents = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
   selectEventDataColumns,
-  selectFilteredOutActiveDataAsEvents,
+  selectCrossFilteredEventData,
   selectColorByColumnFn,
-  (viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn) =>
-    convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData, colorByColumnFn)
+  selectCrossFilteredEventDataOnlyFilteredOutEvents,
+  selectShowFilteredOut,
+  selectFilteredOutColor,
+  (
+    viewByColumn,
+    expandByColumn,
+    activeColumns,
+    filteredEventData,
+    colorByColumnFn,
+    filteredOutEventData,
+    showFilteredOut,
+    filteredOutColor
+  ) => {
+    const filteredEventDataAsTimelineEvents = convertEntityToTimelineEvent(
+      viewByColumn,
+      expandByColumn,
+      activeColumns,
+      filteredEventData,
+      colorByColumnFn
+    )
+
+    if (showFilteredOut) {
+      const filteredOutEventDataAsTimelineEvents = convertEntityToTimelineEvent(
+        viewByColumn,
+        expandByColumn,
+        activeColumns,
+        filteredOutEventData,
+        () => filteredOutColor
+      )
+
+      return [...filteredEventDataAsTimelineEvents, ...filteredOutEventDataAsTimelineEvents]
+    } else {
+      return filteredEventDataAsTimelineEvents
+    }
+  }
 )
 
-export const selectFilteredActiveDataAsEventsWithoutColor = createSelector(
+export const selectFilteredEventDataAsTimelineEventsWithoutColor = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
   selectEventDataColumns,
   selectCrossFilteredEventData,
-  (viewByColumn, expandByColumn, activeColumns, activeData) =>
-    convertEntityToTimelineEvent(viewByColumn, expandByColumn, activeColumns, activeData)
+  selectCrossFilteredEventDataOnlyFilteredOutEvents,
+  selectShowFilteredOut,
+  (viewByColumn, expandByColumn, activeColumns, filteredEventData, filteredOutEventData, showFilteredOut) => {
+    const filteredEventDataAsTimelineEvents = convertEntityToTimelineEvent(
+      viewByColumn,
+      expandByColumn,
+      activeColumns,
+      filteredEventData
+    )
+
+    if (showFilteredOut) {
+      const filteredOutEventDataAsTimelineEvents = convertEntityToTimelineEvent(
+        viewByColumn,
+        expandByColumn,
+        activeColumns,
+        filteredOutEventData
+      )
+
+      return [...filteredEventDataAsTimelineEvents, ...filteredOutEventDataAsTimelineEvents]
+    } else {
+      return filteredEventDataAsTimelineEvents
+    }
+  }
 )
 
 const selectFilteredActiveEventsAsMap = createSelector(
-  selectFilteredActiveDataAsEventsWithoutColor,
+  selectFilteredEventDataAsTimelineEventsWithoutColor,
   (events): ReadonlyMap<EntityId, TimelineEvent<EntityId, any>> => new Map(events.map((e) => [e.eventId, e]))
 )
 
@@ -107,9 +160,9 @@ export const selectFocusLaneId = createSelector(
   selectFocusEntity,
   (eventMap, focusEntity): PatientId => {
     switch (focusEntity.type) {
-      case 'patient':
+      case 'patients':
         return focusEntity.uid
-      case 'event':
+      case 'events':
         return (eventMap.get(focusEntity.uid)?.laneId as PatientId) ?? PatientIdNone
       default:
         return PatientIdNone
@@ -117,10 +170,23 @@ export const selectFocusLaneId = createSelector(
   }
 )
 
+const selectCrossFilteredEventDataWithFilteredOutEvents = createSelector(
+  selectCrossFilteredEventData,
+  selectCrossFilteredEventDataOnlyFilteredOutEvents,
+  selectShowFilteredOut,
+  (filteredEventData, filteredOutEventData, showFilteredOut) => {
+    if (showFilteredOut) {
+      return [...filteredEventData, ...filteredOutEventData]
+    } else {
+      return filteredEventData
+    }
+  }
+)
+
 const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategoryFn): ColorByCategoryFn =>
   colorByCategoryFn
 
-export const selectActiveDataAsLanes = createSelector(
+export const selectFilteredEventDataAsTimelineLanes = createSelector(
   selectExpandByColumn,
   selectCrossFilteredEventDataWithFilteredOutEvents,
   selectColorByCategoryFn,

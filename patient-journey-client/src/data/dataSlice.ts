@@ -1,6 +1,6 @@
 import { AnyAction, createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { GenericFilter } from './filtering'
-import { EntityId, EntityIdNone } from './entities'
+import { EntityId, EntityIdNone, EntityType } from './entities'
 import { EVENT_DATA_FILE_URL, loadData as loadDataImpl, LoadedData, PATIENT_DATA_FILE_URL } from './loading'
 import { addAlerts } from '../alert/alertSlice'
 import { Dispatch } from 'redux'
@@ -39,7 +39,7 @@ interface Filters {
 }
 
 export interface FocusEntity {
-  readonly type: 'patient' | 'event' | 'none'
+  readonly type: EntityType | 'none'
   readonly uid: EntityId
 }
 

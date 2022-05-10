@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../store'
 import {
   selectActiveData,
-  selectActiveDataByEntityIdMap,
+  selectDataByEntityIdMap,
   selectActiveDataColumns,
   selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
@@ -11,6 +11,7 @@ import {
   selectDataLoadingErrorMessage,
   selectDataLoadingState,
   selectDataView,
+  selectEventDataColumns,
   selectEventDataEidColumn,
   selectEventDataPidColumn,
   selectEventDataPidValues,
@@ -19,12 +20,14 @@ import {
   selectFilteredActiveData,
   selectFocusEntity,
   selectHoveredEntity,
+  selectPatientDataColumns,
   selectPatientDataPidColumn,
   selectSelectedEntity,
   selectTimelineDataColumns,
+  selectEventFilters,
 } from './selectors'
-import { setHoveredEntity, setSelectedEntity } from './dataSlice'
-import { EntityId } from './entities'
+import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
+import { EntityId, EntityType } from './entities'
 import { useCallback } from 'react'
 
 export const useDataLoadingState = () => useAppSelector(selectDataLoadingState)
@@ -33,13 +36,18 @@ export const useDataLoadingErrorMessage = () => useAppSelector(selectDataLoading
 export const useActiveDataView = () => useAppSelector(selectDataView)
 
 export const useActiveData = () => useAppSelector(selectActiveData)
-export const useActiveDataByEntityIdMap = () => useAppSelector(selectActiveDataByEntityIdMap)
+export const useDataByEntityIdMap = (type: FocusEntity['type']) =>
+  useAppSelector((state) => selectDataByEntityIdMap(state, type))
 export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
 export const useTimelineDataColumns = () => useAppSelector(selectTimelineDataColumns)
 
+export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
+export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
+
 export const useAllFilters = () => useAppSelector(selectAllFilters)
+export const useEventFilters = () => useAppSelector(selectEventFilters)
 
 export const useHoveredEntity = () => useAppSelector(selectHoveredEntity)
 export const useSelectedEntity = () => useAppSelector(selectSelectedEntity)
@@ -56,11 +64,11 @@ export interface EntityInteraction {
 
 export const useActiveEntityInteraction = (): EntityInteraction => {
   const activeView = useActiveDataView()
-  const type = activeView === 'patients' ? 'patient' : 'event'
+  const type = activeView === 'patients' ? 'patients' : 'events'
   return useEntityInteraction(type)
 }
 
-export const useEntityInteraction = (type: 'patient' | 'event'): EntityInteraction => {
+export const useEntityInteraction = (type: EntityType): EntityInteraction => {
   const dispatch = useAppDispatch()
 
   const onEntityClick = useCallback(

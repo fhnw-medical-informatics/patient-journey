@@ -7,7 +7,7 @@ import { CursorPosition, TimelineColumn } from '../timelineSlice'
 import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
-import { ColorByColumnOption } from '../../color/colorSlice'
+import { ColorByColumn } from '../../color/colorSlice'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -35,9 +35,12 @@ interface TimelineProps {
   showTimeGrid: boolean
   onToggleTimeGrid: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
-  colorByColumn: ColorByColumnOption
-  onChangeColorByColumn: (column: ColorByColumnOption) => void
+  eventDataColumns: ReadonlyArray<EventDataColumn>
+  patientDataColumns: ReadonlyArray<PatientDataColumn>
+  colorByColumn: ColorByColumn
+  onChangeColorByColumn: (colorByColumn: ColorByColumn) => void
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
+  hasActiveEventFilters: boolean
 }
 
 export const Timeline = ({
@@ -56,9 +59,12 @@ export const Timeline = ({
   showTimeGrid,
   onToggleTimeGrid,
   availableColumns,
+  eventDataColumns,
+  patientDataColumns,
   colorByColumn,
   onChangeColorByColumn,
   onCursorPositionChange,
+  hasActiveEventFilters,
 }: TimelineProps) => {
   const { classes } = useStyles()
 
@@ -76,8 +82,11 @@ export const Timeline = ({
         showFilteredOut={showFilteredOut}
         onSetShowFilteredOut={onSetShowFilteredOut}
         availableColumns={availableColumns}
+        eventDataColumns={eventDataColumns}
+        patientDataColumns={patientDataColumns}
         colorByColumn={colorByColumn}
         onChangeColorByColumn={onChangeColorByColumn}
+        hasActiveFilters={hasActiveEventFilters}
       />
       <TimelineView
         events={events}

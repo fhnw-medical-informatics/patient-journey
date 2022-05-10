@@ -8,7 +8,7 @@ import { Entity } from '../../entities'
 import { DataFilter } from './DataFilter'
 import { FilterCard } from './FilterCard'
 import { ActiveDataViewType } from '../../dataSlice'
-import { ColorByColumnOption } from '../../../color/colorSlice'
+import { ColorByColumn } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
 
 const useStyles = makeStyles()((theme) => ({
@@ -30,7 +30,7 @@ interface DataFiltersProps {
   onAddFilter: (filter: GenericFilter) => void
   onRemoveFilter: (filter: GenericFilter) => void
   onResetFilters: () => void
-  colorByColumn: ColorByColumnOption
+  colorByColumn: ColorByColumn
   colorByNumberFn: ColorByNumberFn
   colorByCategoryFn: ColorByCategoryFn
 }

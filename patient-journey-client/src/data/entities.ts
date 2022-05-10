@@ -12,3 +12,5 @@ export interface DataEntity<T extends Entity, C> {
   readonly columns: ReadonlyArray<C>
   readonly allEntities: ReadonlyArray<T>
 }
+
+export type EntityType = 'patients' | 'events'

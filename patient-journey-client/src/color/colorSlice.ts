@@ -1,18 +1,22 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
+import { EntityType } from '../data/entities'
 import { FilterColumn } from '../data/filtering'
 
-export type ColorByColumnOption = typeof ColorByColumnNone | FilterColumn
-export const ColorByColumnNone = 'off'
+export const ColorByColumnOptionNone = 'off'
+export type ColorByColumnOption = typeof ColorByColumnOptionNone | FilterColumn
+
+const ColorByColumnTypeNone = 'none'
 
 export interface ColorByColumn {
-  colorByColumn: ColorByColumnOption
+  readonly type: EntityType | typeof ColorByColumnTypeNone
+  readonly column: ColorByColumnOption
 }
+
+export const ColorByColumnNone: ColorByColumn = { type: 'none', column: ColorByColumnOptionNone }
 
 export type ColorState = ColorByColumn
 
-const initialState: ColorState = {
-  colorByColumn: ColorByColumnNone,
-}
+const initialState: ColorState = ColorByColumnNone
 
 const colorSlice = createSlice({
   name: 'theme',
@@ -20,7 +24,8 @@ const colorSlice = createSlice({
   reducers: {
     setColorByColumn: (state: Draft<ColorState>, action: PayloadAction<ColorByColumn>): ColorState => ({
       ...state,
-      colorByColumn: action.payload.colorByColumn,
+      column: action.payload.column,
+      type: action.payload.type,
     }),
   },
 })

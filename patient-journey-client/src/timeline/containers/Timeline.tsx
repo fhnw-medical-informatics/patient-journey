@@ -15,7 +15,7 @@ import {
   TimelineColumnNone,
   toggleTimeGrid,
 } from '../timelineSlice'
-import { useTimelineDataColumns } from '../../data/hooks'
+import { useEventDataColumns, useEventFilters, usePatientDataColumns, useTimelineDataColumns } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import {
   useActiveDataAsEvents,
@@ -26,21 +26,27 @@ import {
   useShowFilteredOut,
   useShowTimeGrid,
 } from '../hooks'
-import { ColorByColumnOption, setColorByColumn } from '../../color/colorSlice'
+import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
 import { useColorByColumn } from '../../color/hooks'
+import { useTheme } from '@mui/material'
 
 export const Timeline = React.memo(() => {
-  const { colorByColumnFn, colorByCategoryFn } = useColor()
+  const theme = useTheme()
+
+  const { colorByColumnFn, colorByCategoryFn } = useColor('events')
   const showFilteredOut = useShowFilteredOut()
-  const events = useActiveDataAsEvents(colorByColumnFn)
+  const events = useActiveDataAsEvents(colorByColumnFn, theme.entityColors.filteredOut)
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
   const cluster = useTimelineCluster()
   const showTimeGrid = useShowTimeGrid()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
   const activeColumns = useTimelineDataColumns()
+  const eventDataColumns = useEventDataColumns()
+  const patientDataColumns = usePatientDataColumns()
   const colorByColumn = useColorByColumn()
+  const eventFilters = useEventFilters()
 
   const dispatch = useAppDispatch()
 
@@ -52,7 +58,7 @@ export const Timeline = React.memo(() => {
   const onToggleTimeGrid = useCallback(() => dispatch(toggleTimeGrid()), [dispatch])
 
   const onChangeColorByColumn = useCallback(
-    (column: ColorByColumnOption) => dispatch(setColorByColumn({ colorByColumn: column })),
+    (colorByColumn: ColorByColumn) => dispatch(setColorByColumn(colorByColumn)),
     [dispatch]
   )
 
@@ -76,6 +82,8 @@ export const Timeline = React.memo(() => {
       events={events}
       lanes={lanes}
       availableColumns={activeColumns}
+      eventDataColumns={eventDataColumns}
+      patientDataColumns={patientDataColumns}
       viewByColumn={viewByColumn}
       onSetViewByColumn={onSetViewByColumn}
       expandByColumn={expandByColumn}
@@ -89,6 +97,7 @@ export const Timeline = React.memo(() => {
       onCursorPositionChange={onCursorPositionChange}
       showTimeGrid={showTimeGrid}
       onToggleTimeGrid={onToggleTimeGrid}
+      hasActiveEventFilters={eventFilters.length > 0}
     />
   )
 })

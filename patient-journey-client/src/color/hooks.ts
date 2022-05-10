@@ -2,13 +2,14 @@ import { useCallback } from 'react'
 import { useTheme } from '@mui/material'
 import { scaleOrdinal } from 'd3-scale'
 import { interpolatePlasma, schemeSet1, schemeSet2 } from 'd3-scale-chromatic'
-import { ColorByColumnNone, ColorByColumnOption } from './colorSlice'
+import { ColorByColumnOptionNone, ColorByColumn, ColorByColumnNone } from './colorSlice'
 import { FilterColumn } from '../data/filtering'
-import { Entity, EntityId, EntityIdNone } from '../data/entities'
-import { useActiveDataByEntityIdMap, useCurrentColorColumnNumberRange } from '../data/hooks'
+import { Entity, EntityId, EntityIdNone, EntityType } from '../data/entities'
+import { useDataByEntityIdMap, useCurrentColorColumnNumberRange } from '../data/hooks'
 import { formatColumnValue, stringToMillis } from '../data/columns'
 import { useAppSelector } from '../store'
 import { selectColorByColumn } from './selectors'
+import { FocusEntity } from '../data/dataSlice'
 
 export type ColorByColumnFn = (entity?: Entity) => string
 export type ColorByCategoryFn = (category?: string) => string
@@ -18,7 +19,7 @@ export interface ColorBy {
   colorByColumnFn: ColorByColumnFn
   colorByCategoryFn: ColorByCategoryFn
   colorByNumberFn: ColorByNumberFn
-  colorByColumn: ColorByColumnOption
+  colorByColumn: ColorByColumn
 }
 
 const lightCategoryFn = scaleOrdinal(schemeSet1)
@@ -27,10 +28,10 @@ const darkCategoryFn = scaleOrdinal(schemeSet2)
 const lightNumberFn = interpolatePlasma
 const darkNumberFn = interpolatePlasma
 
-export const useColor = (): ColorBy => {
+export const useColor = (type: 'all' | EntityType = 'all'): ColorBy => {
   const theme = useTheme()
   const numberRange = useCurrentColorColumnNumberRange()
-  const colorByColumn: ColorByColumnOption = useColorByColumn()
+  const colorByColumn: ColorByColumn = useColorByColumn()
 
   const defaultColor = theme.entityColors.default
 
@@ -59,25 +60,30 @@ export const useColor = (): ColorBy => {
 
   const colorByColumnFn = useCallback(
     (entity?: Entity) => {
-      if (!entity || colorByColumn === ColorByColumnNone) {
+      if (
+        !entity ||
+        colorByColumn.type === 'none' ||
+        colorByColumn.column === ColorByColumnOptionNone ||
+        (type !== 'all' && type !== colorByColumn.type)
+      ) {
         return defaultColor
       }
 
-      switch (colorByColumn.type) {
+      switch (colorByColumn.column.type) {
         case 'date':
-          return colorByNumberFn(stringToMillis(getFieldValue(entity, colorByColumn)))
+          return colorByNumberFn(stringToMillis(getFieldValue(entity, colorByColumn.column)))
         case 'timestamp':
         case 'number':
-          return colorByNumberFn(+getFieldValue(entity, colorByColumn))
+          return colorByNumberFn(+getFieldValue(entity, colorByColumn.column))
         case 'boolean':
         case 'string':
         case 'category':
-          return colorByCategoryFn(getFieldValue(entity, colorByColumn))
+          return colorByCategoryFn(getFieldValue(entity, colorByColumn.column))
         default:
           return defaultColor
       }
     },
-    [colorByColumn, defaultColor, colorByCategoryFn, colorByNumberFn]
+    [colorByColumn, defaultColor, colorByCategoryFn, colorByNumberFn, type]
   )
 
   return { colorByColumnFn, colorByCategoryFn, colorByNumberFn, colorByColumn }
@@ -87,7 +93,7 @@ const getFieldValue = (entity: Entity, column: FilterColumn): string => {
   return entity.values[column.index]
 }
 
-export const useColorByColumn = () => useAppSelector<ColorByColumnOption>(selectColorByColumn)
+export const useColorByColumn = () => useAppSelector(selectColorByColumn)
 
 export const ColorByInfoNone = 'none'
 export type ColorByInfo =
@@ -98,21 +104,26 @@ export type ColorByInfo =
       readonly formattedValue: string
     }>
 
-export const useColorByInfo = () => {
-  // TODO: Adjust data lookup once colorBy no longer relies on active view (https://github.com/fhnw-medical-informatics/patient-journey/issues/90)
-  const dataByEntityId = useActiveDataByEntityIdMap()
+export const useColorByInfo = (type: FocusEntity['type']) => {
+  const dataByEntityId = useDataByEntityIdMap(type)
   const { colorByColumn, colorByColumnFn } = useColor()
   return (uid: EntityId): ColorByInfo => {
-    if (uid === EntityIdNone || colorByColumn === ColorByColumnNone) {
+    if (
+      uid === EntityIdNone ||
+      colorByColumn === ColorByColumnNone ||
+      colorByColumn.column === ColorByColumnOptionNone ||
+      type === 'none' ||
+      type !== colorByColumn.type
+    ) {
       return 'none'
     } else {
       const data = dataByEntityId.get(uid)!
-      const value = data.values[colorByColumn.index]
+      const value = data.values[colorByColumn.column.index]
       const formattedValue = formatColumnValue(colorByColumn.type)(value)
       const color = colorByColumnFn(data)
       return {
         color,
-        columnName: colorByColumn.name,
+        columnName: colorByColumn.column.name,
         formattedValue,
       }
     }
