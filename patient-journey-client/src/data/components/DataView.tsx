@@ -53,6 +53,8 @@ export const DataView = () => {
   const [splitPaneLeftHorizontalSize, setSplitPaneLeftHorizontalSize] = useState<'default' | number>('default')
 
   return (
+    // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-typescript-definitions
+    // @ts-ignore
     <SplitPane
       split={'vertical'}
       resizerClassName={classes.resizer}
@@ -64,6 +66,7 @@ export const DataView = () => {
       maxSize={-12}
       minSize={12}
     >
+      {/* @ts-ignore */}
       <SplitPane
         split={'horizontal'}
         resizerClassName={classes.resizer}
@@ -86,6 +89,7 @@ export const DataView = () => {
           <InfoPanel />
         </div>
       </SplitPane>
+      {/* @ts-ignore */}
       <SplitPane
         split={'horizontal'}
         resizerClassName={classes.resizer}
