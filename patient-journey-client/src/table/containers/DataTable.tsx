@@ -8,7 +8,7 @@ import {
   useActiveSelectedEntity,
   useIndexPatientId,
 } from '../../data/hooks'
-import { useActiveTableState } from '../hooks'
+import { useActiveTableSorting } from '../hooks'
 import { useAppDispatch, useAppSelector } from '../../store'
 import { setSorting } from '../tableSlice'
 import { selectDataView } from '../../data/selectors'
@@ -21,7 +21,7 @@ export const DataTable = React.memo(() => {
   const view = useAppSelector(selectDataView)
   const activeData = useFilteredActiveData()
   const activeColumns = useActiveDataColumns()
-  const activeTableState = useActiveTableState()
+  const sorting = useActiveTableSorting()
   const { colorByColumnFn, colorByColumn } = useColor()
 
   const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
@@ -46,7 +46,7 @@ export const DataTable = React.memo(() => {
     <DataTableComponent
       rows={activeData}
       columns={activeColumns}
-      sorting={activeTableState.sorting}
+      sorting={sorting}
       selectedEntity={selectedEntityId}
       onEntityClick={onEntityClick}
       onEntityHover={onEntityHover}
