@@ -96,24 +96,15 @@ export const DataTable = ({
                 arrow
                 title={isIndexPatient ? 'Unset index patient' : 'Set as index patient'}
               >
-                <IconButton size="small" className={isIndexPatient ? '' : 'idx-patient'}>
-                  {isIndexPatient ? (
-                    <StarIcon
-                      fontSize="inherit"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onSetIndexPatient(row.uid)
-                      }}
-                    />
-                  ) : (
-                    <StarOutlinedIcon
-                      fontSize="inherit"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onSetIndexPatient(row.uid)
-                      }}
-                    />
-                  )}
+                <IconButton
+                  size="small"
+                  className={isIndexPatient ? '' : 'idx-patient'}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onSetIndexPatient(row.uid)
+                  }}
+                >
+                  {isIndexPatient ? <StarIcon fontSize="inherit" /> : <StarOutlinedIcon fontSize="inherit" />}
                 </IconButton>
               </Tooltip>
             )
