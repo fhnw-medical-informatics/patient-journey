@@ -230,6 +230,13 @@ export const selectCrossFilteredEventData = createSelector(
     filteredEventData.filter((event) => filteredPatientPIDSet.has(event.pid))
 )
 
+// Only select filtered events which reference to indexPatientId
+export const selectCrossFilteredEventDataForIndexPatient = createSelector(
+  selectFilteredEventData,
+  selectIndexPatientId,
+  (filteredEventData, indexPatientId) => filteredEventData.filter((event) => event.pid === indexPatientId)
+)
+
 const selectCrossFilteredEventsUIDs = createSelector(
   selectCrossFilteredEventData,
   (crossFilteredEventData) => new Set(crossFilteredEventData.map((event) => event.uid))
@@ -240,8 +247,17 @@ export const selectCrossFilteredEventDataOnlyFilteredOutEvents = createSelector(
   selectEventDataRows,
   selectCrossFilteredPatientsPIDs,
   selectCrossFilteredEventsUIDs,
-  (allEvents, crossFilteredPatientsPIDs, crossFilteredEventsPIDs) =>
-    allEvents.filter((event) => crossFilteredPatientsPIDs.has(event.pid) && !crossFilteredEventsPIDs.has(event.uid))
+  (allEvents, crossFilteredPatientsPIDs, crossFilteredEventsUIDs) =>
+    allEvents.filter((event) => crossFilteredPatientsPIDs.has(event.pid) && !crossFilteredEventsUIDs.has(event.uid))
+)
+
+// Select all events that are filtered OUT by applied event filters, but are referenced by indexPatientId
+export const selectCrossFilteredEventDataOnlyFilteredOutEventsForIndexPatient = createSelector(
+  selectEventDataRows,
+  selectIndexPatientId,
+  selectCrossFilteredEventsUIDs,
+  (allEvents, indexPatientId, crossFilteredEventsUIDs) =>
+    allEvents.filter((event) => event.pid === indexPatientId && !crossFilteredEventsUIDs.has(event.uid))
 )
 
 export const selectFilteredActiveData = createSelector(

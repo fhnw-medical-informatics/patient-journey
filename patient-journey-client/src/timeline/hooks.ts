@@ -13,6 +13,7 @@ import {
   selectShowTimeGrid,
   selectFilteredEventDataAsTimelineEvents,
   selectFilteredEventDataAsTimelineLanes,
+  selectFilteredEventDataAsTimelineEventsForIndexPatient,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -38,3 +39,8 @@ export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
   useAppSelector((state) => selectFilteredEventDataAsTimelineLanes(state, colorByCategoryFn))
 
 export const useFocusLaneId = () => useAppSelector(selectFocusLaneId)
+
+export const useIndexPatientDataAsEvents = (colorByColumnFn: ColorByColumnFn, filteredOutColor: string) =>
+  useAppSelector((state) =>
+    selectFilteredEventDataAsTimelineEventsForIndexPatient(state, colorByColumnFn, filteredOutColor)
+  )

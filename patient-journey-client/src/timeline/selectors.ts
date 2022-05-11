@@ -13,6 +13,8 @@ import {
   selectActiveSelectedEventEntity,
   selectFocusEntity,
   selectCrossFilteredEventDataOnlyFilteredOutEvents,
+  selectCrossFilteredEventDataForIndexPatient,
+  selectCrossFilteredEventDataOnlyFilteredOutEventsForIndexPatient,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -66,6 +68,50 @@ export const selectFilteredEventDataAsTimelineEvents = createSelector(
   selectCrossFilteredEventData,
   selectColorByColumnFn,
   selectCrossFilteredEventDataOnlyFilteredOutEvents,
+  selectShowFilteredOut,
+  selectFilteredOutColor,
+  (
+    viewByColumn,
+    expandByColumn,
+    activeColumns,
+    filteredEventData,
+    colorByColumnFn,
+    filteredOutEventData,
+    showFilteredOut,
+    filteredOutColor
+  ) => {
+    const filteredEventDataAsTimelineEvents = convertEntityToTimelineEvent(
+      viewByColumn,
+      expandByColumn,
+      activeColumns,
+      filteredEventData,
+      colorByColumnFn
+    )
+
+    if (showFilteredOut) {
+      const filteredOutEventDataAsTimelineEvents = convertEntityToTimelineEvent(
+        viewByColumn,
+        expandByColumn,
+        activeColumns,
+        filteredOutEventData,
+        () => filteredOutColor
+      )
+
+      return [...filteredEventDataAsTimelineEvents, ...filteredOutEventDataAsTimelineEvents]
+    } else {
+      return filteredEventDataAsTimelineEvents
+    }
+  }
+)
+
+// TODO: De-Duplicate with selectFilteredEventDataAsTimelineEvents
+export const selectFilteredEventDataAsTimelineEventsForIndexPatient = createSelector(
+  selectViewByColumn,
+  selectExpandByColumn,
+  selectEventDataColumns,
+  selectCrossFilteredEventDataForIndexPatient,
+  selectColorByColumnFn,
+  selectCrossFilteredEventDataOnlyFilteredOutEventsForIndexPatient,
   selectShowFilteredOut,
   selectFilteredOutColor,
   (
