@@ -96,6 +96,8 @@ export const ControlPanel = ({
   }, [onSetExpandByColumn, availableColumns])
 
   // Reset colorByColumn when event or patient data columns change
+  // TODO: Move this logic to extraReducer within colorSlice and
+  // react on dispatched actions that affect columns
   useEffect(() => {
     onChangeColorByColumn(ColorByColumnNone)
   }, [onChangeColorByColumn, eventDataColumns, patientDataColumns])
