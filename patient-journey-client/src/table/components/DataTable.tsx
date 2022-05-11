@@ -49,6 +49,7 @@ interface Props {
   readonly onSortingChange: (sortingState: ColumnSortingState) => void
   readonly indexPatientId: PatientId
   readonly onSetIndexPatient: (pid: PatientId) => void
+  readonly onResetIndexPatient: () => void
   readonly enableIndexPatientColumn: boolean
 }
 
@@ -64,6 +65,7 @@ export const DataTable = ({
   colorByColumnFn,
   indexPatientId,
   onSetIndexPatient,
+  onResetIndexPatient,
   enableIndexPatientColumn,
 }: Props) => {
   const theme = useTheme()
@@ -101,7 +103,12 @@ export const DataTable = ({
                   className={isIndexPatient ? '' : 'idx-patient'}
                   onClick={(e) => {
                     e.stopPropagation()
-                    onSetIndexPatient(row.uid)
+
+                    if (isIndexPatient) {
+                      onResetIndexPatient()
+                    } else {
+                      onSetIndexPatient(row.uid)
+                    }
                   }}
                 >
                   {isIndexPatient ? <StarIcon fontSize="inherit" /> : <StarOutlinedIcon fontSize="inherit" />}
@@ -128,7 +135,15 @@ export const DataTable = ({
     }
 
     return cols
-  }, [columns, colorByColumn.type, colorByColumnFn, onSetIndexPatient, indexPatientId, enableIndexPatientColumn])
+  }, [
+    columns,
+    colorByColumn.type,
+    colorByColumnFn,
+    onSetIndexPatient,
+    indexPatientId,
+    enableIndexPatientColumn,
+    onResetIndexPatient,
+  ])
 
   // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
   // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773
@@ -197,9 +212,7 @@ export const DataTable = ({
               <GridFooterContainer className={classes.footer}>
                 {indexPatientId !== PatientIdNone ? (
                   <Button
-                    onClick={() => {
-                      onSetIndexPatient(indexPatientId)
-                    }}
+                    onClick={onResetIndexPatient}
                     variant="text"
                     size="small"
                     color="inherit"

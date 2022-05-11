@@ -10,6 +10,7 @@ import {
   setHoveredEntity,
   setSelectedEntity,
   setIndexPatient,
+  resetIndexPatient,
 } from './dataSlice'
 
 import { createStore } from '../store'
@@ -455,13 +456,44 @@ describe('dataSlice', () => {
     expect(getIndexPatientId()).toEqual(PatientIdNone)
   })
 
-  it(`sets index patient to none when ${setIndexPatient.type} action is called with the same pid twice`, async () => {
+  it(`handles ${resetIndexPatient.type} action`, async () => {
     const { store } = await createStoreWithMockData()
     const getIndexPatientId = () => selectIndexPatientId(store.getState())
     expect(getIndexPatientId()).toEqual(PatientIdNone)
     store.dispatch(setIndexPatient('PID_1'))
     expect(getIndexPatientId()).toEqual('PID_1')
-    store.dispatch(setIndexPatient('PID_1'))
+    store.dispatch(resetIndexPatient())
     expect(getIndexPatientId()).toEqual(PatientIdNone)
+  })
+
+  it(`removes the filter on the Similarity column when resetting the index patient`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getFilters = () => selectAllFilters(store.getState())
+    expect(getFilters()).toEqual([])
+
+    const testFilter: Filter<'number'> = {
+      column: { index: 0, name: 'Similarity', type: 'number' },
+      type: 'number',
+      value: {
+        from: 0,
+        to: 0.5,
+        toInclusive: true,
+      },
+    }
+
+    const testFilter2: Filter<'string'> = {
+      column: { index: 1, name: 'Col_1', type: 'string' },
+      type: 'string',
+      value: {
+        text: 'test',
+      },
+    }
+
+    store.dispatch(addDataFilter(testFilter))
+    store.dispatch(addDataFilter(testFilter2))
+
+    expect(getFilters()).toEqual([testFilter, testFilter2])
+    store.dispatch(resetIndexPatient())
+    expect(getFilters()).toEqual([testFilter2])
   })
 })

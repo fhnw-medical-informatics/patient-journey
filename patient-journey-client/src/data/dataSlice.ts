@@ -130,8 +130,18 @@ const dataSlice = createSlice({
     },
     setIndexPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutateLoadedDataState(state, (s) => {
-        s.indexPatientId =
-          (action.payload as PatientId) === s.indexPatientId ? PatientIdNone : (action.payload as PatientId)
+        s.indexPatientId = action.payload as PatientId
+      })
+    },
+    resetIndexPatient: (state: Draft<DataState>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.indexPatientId = PatientIdNone
+
+        const similarityFilter = s.filters.findIndex((filter) => filter.column.name === 'Similarity')
+
+        if (similarityFilter !== -1) {
+          s.filters.splice(similarityFilter, 1)
+        }
       })
     },
   },
@@ -167,6 +177,7 @@ export const {
   resetDataFilter,
   setDataView,
   setIndexPatient,
+  resetIndexPatient,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */

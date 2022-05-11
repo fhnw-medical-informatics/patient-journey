@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { ColumnSortingState } from '../data/sorting'
-import { ActiveDataViewType } from '../data/dataSlice'
+import { ActiveDataViewType, resetIndexPatient } from '../data/dataSlice'
 
 type TableStateByView = {
   readonly [key in ActiveDataViewType]: TableState
@@ -29,6 +29,17 @@ const tableSlice = createSlice({
       const { view, sorting } = action.payload
       state[view].sorting = sorting
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(resetIndexPatient, (state) => {
+      if (state.patients.sorting.type !== 'neutral') {
+        const sortingColumn = state.patients.sorting.column
+
+        if (sortingColumn.name === 'Similarity') {
+          state.patients.sorting = { type: 'neutral' }
+        }
+      }
+    })
   },
 })
 
