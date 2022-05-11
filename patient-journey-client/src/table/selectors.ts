@@ -4,8 +4,13 @@ import { RootState } from '../store'
 
 const selectTableState = (state: RootState) => state.table
 
-export const selectActiveTableState = createSelector(
+const selectActiveTableState = createSelector(
   selectTableState,
   selectDataView,
   (tableByView, view) => tableByView[view]
+)
+
+export const selectActiveSorting = createSelector(
+  selectActiveTableState,
+  (activeTableState) => activeTableState.sorting
 )

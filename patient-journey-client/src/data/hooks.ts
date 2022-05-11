@@ -25,6 +25,7 @@ import {
   selectSelectedEntity,
   selectTimelineDataColumns,
   selectEventFilters,
+  selectIndexPatientId,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -99,3 +100,5 @@ export const useEventDataPidValues = () => useAppSelector(selectEventDataPidValu
 export const useEventDataTimestampValuesFormatted = () => useAppSelector(selectEventDataTimestampValuesFormatted)
 
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
+
+export const useIndexPatientId = () => useAppSelector(selectIndexPatientId)

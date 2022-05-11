@@ -52,18 +52,23 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
     }
   }
 
+  const numberProps = {
+    min: niceMin,
+    max: niceMax,
+    step: niceMax - niceMin <= 1 ? 0.1 : undefined,
+  }
+
   return (
     <FormGroup>
       <CustomSlider
         value={[!isNaN(value.from) ? value.from : niceMin, !isNaN(value.to) ? value.to : niceMax]}
         onChange={handleSliderChange}
         valueLabelDisplay="auto"
-        min={niceMin}
-        max={niceMax}
         size="small"
         components={{
           Thumb: CustomSliderThumb,
         }}
+        {...numberProps}
       />
       <Grid container spacing={1} direction="row">
         <Grid item xs={6}>
@@ -79,6 +84,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
                   handleChange(event.target.value ? +event.target.value : NaN, null)
                 }}
                 InputLabelProps={{ shrink: true }}
+                inputProps={numberProps}
               />
             </Grid>
           </Grid>
@@ -96,6 +102,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
                   handleChange(null, event.target.value ? +event.target.value : NaN)
                 }}
                 InputLabelProps={{ shrink: true }}
+                inputProps={numberProps}
               />
             </Grid>
           </Grid>

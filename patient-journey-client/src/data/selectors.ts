@@ -7,7 +7,7 @@ import { formatColumnValue, stringToMillis } from './columns'
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { FilterColumn, filterReducer } from './filtering'
-import { Patient, PatientDataColumnType, PatientId } from './patients'
+import { Patient, PatientDataColumn, PatientDataColumnType, PatientId, PatientIdNone } from './patients'
 import { Entity, EntityIdNone } from './entities'
 
 const selectData = (s: RootState): DataStateLoadingComplete => {
@@ -30,12 +30,29 @@ export const selectDataLoadingErrorMessage = (s: RootState): string => {
   }
 }
 
+const selectPatientData = createSelector(selectData, (data) => data.patientData)
+
+export const selectIndexPatientId = createSelector(selectData, (data) => data.indexPatientId)
+
+const selectPatientDataRows = createSelector(selectPatientData, selectIndexPatientId, (patientData, indexPatientId) =>
+  indexPatientId === PatientIdNone
+    ? patientData.allEntities
+    : patientData.allEntities.map((entity) => ({
+        ...entity,
+        values: [
+          ...entity.values,
+          `${Math.random()}`, // TODO: Resolve similarity with indexPatientId
+        ],
+      }))
+)
+
+const selectEventData = createSelector(selectData, (data) => data.eventData)
+
+export const selectEventDataRows = createSelector(selectEventData, (eventData) => eventData.allEntities)
+
 const entitiesToMap = (entities: ReadonlyArray<Entity>) => new Map(entities.map((e) => [e.uid, e]))
 
-const selectPatientDataRows = createSelector(selectData, (data) => data.patientData.allEntities)
 const selectPatientDataRowMap = createSelector(selectPatientDataRows, entitiesToMap)
-
-export const selectEventDataRows = createSelector(selectData, (data) => data.eventData.allEntities)
 const selectEventDataRowMap = createSelector(selectEventDataRows, entitiesToMap)
 
 export const selectActiveData = createSelector(
@@ -54,8 +71,18 @@ export const selectDataByEntityIdMap = createSelector(
   (type, patientMap, eventMap) => (type === 'none' ? new Map() : type === 'patients' ? patientMap : eventMap)
 )
 
-export const selectPatientDataColumns = createSelector(selectData, (data) => data.patientData.columns)
-export const selectEventDataColumns = createSelector(selectData, (data) => data.eventData.columns)
+export const selectPatientDataColumns = createSelector(
+  selectPatientData,
+  selectIndexPatientId,
+  (patientData, indexPatientId) =>
+    indexPatientId === PatientIdNone
+      ? patientData.columns
+      : ([
+          ...patientData.columns,
+          { name: 'Similarity', type: 'number', index: patientData.columns.length },
+        ] as ReadonlyArray<PatientDataColumn>)
+)
+export const selectEventDataColumns = createSelector(selectEventData, (eventData) => eventData.columns)
 
 export const selectActiveDataColumns = createSelector(
   selectDataView,

@@ -1,4 +1,4 @@
 import { useAppSelector } from '../store'
-import { selectActiveTableState } from './selectors'
+import { selectActiveSorting } from './selectors'
 
-export const useActiveTableState = () => useAppSelector(selectActiveTableState)
+export const useActiveTableSorting = () => useAppSelector(selectActiveSorting)

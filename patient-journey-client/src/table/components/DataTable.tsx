@@ -1,8 +1,12 @@
 import React, { useMemo } from 'react'
 
-import { darken, lighten, Paper, useTheme } from '@mui/material'
+import { Button, darken, IconButton, lighten, Paper, Tooltip, Typography, useTheme } from '@mui/material'
 
-import { DataGridPro, GridColumns, GridRow, GridRowProps, LicenseInfo } from '@mui/x-data-grid-pro'
+import StarIcon from '@mui/icons-material/Star'
+import StarOutlinedIcon from '@mui/icons-material/StarOutline'
+import CloseIcon from '@mui/icons-material/Close'
+
+import { DataGridPro, GridColumns, GridFooterContainer, GridRow, GridRowProps, LicenseInfo } from '@mui/x-data-grid-pro'
 
 import { makeStyles } from '../../utils'
 
@@ -12,11 +16,12 @@ import { ColorByColumn } from '../../color/colorSlice'
 import { ColorByColumnFn } from '../../color/hooks'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
 import { ColoredCircle } from '../../color/components/ColoredCircle'
+import { PatientId, PatientIdNone } from '../../data/patients'
 
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
 
-const useStyles = makeStyles()({
+const useStyles = makeStyles()((theme) => ({
   root: {
     display: 'grid',
     width: '100%',
@@ -27,7 +32,10 @@ const useStyles = makeStyles()({
     width: '100%',
     height: '100%',
   },
-})
+  footer: {
+    padding: `0 ${theme.spacing(2)}`,
+  },
+}))
 
 interface Props {
   readonly rows: ReadonlyArray<Entity>
@@ -39,6 +47,10 @@ interface Props {
   readonly colorByColumnFn: ColorByColumnFn
   readonly sorting: ColumnSortingState
   readonly onSortingChange: (sortingState: ColumnSortingState) => void
+  readonly indexPatientId: PatientId
+  readonly onSetIndexPatient: (pid: PatientId) => void
+  readonly onResetIndexPatient: () => void
+  readonly enableIndexPatientColumn: boolean
 }
 
 export const DataTable = ({
@@ -51,6 +63,10 @@ export const DataTable = ({
   onSortingChange,
   colorByColumn,
   colorByColumnFn,
+  indexPatientId,
+  onSetIndexPatient,
+  onResetIndexPatient,
+  enableIndexPatientColumn,
 }: Props) => {
   const theme = useTheme()
   const { classes } = useStyles()
@@ -63,6 +79,47 @@ export const DataTable = ({
       valueGetter: (params) => params.row.values[column.index],
       valueFormatter: (params) => formatColumnValue(column.type)(params.value),
     }))
+
+    if (enableIndexPatientColumn) {
+      cols = [
+        {
+          field: 'indexPatient',
+          headerName: '',
+          sortable: false,
+          width: 10,
+          renderCell: ({ row }) => {
+            const isIndexPatient = indexPatientId === row.uid
+
+            return (
+              <Tooltip
+                enterDelay={150}
+                enterNextDelay={1500}
+                placement="right"
+                arrow
+                title={isIndexPatient ? 'Unset index patient' : 'Set as index patient'}
+              >
+                <IconButton
+                  size="small"
+                  className={isIndexPatient ? '' : 'idx-patient'}
+                  onClick={(e) => {
+                    e.stopPropagation()
+
+                    if (isIndexPatient) {
+                      onResetIndexPatient()
+                    } else {
+                      onSetIndexPatient(row.uid)
+                    }
+                  }}
+                >
+                  {isIndexPatient ? <StarIcon fontSize="inherit" /> : <StarOutlinedIcon fontSize="inherit" />}
+                </IconButton>
+              </Tooltip>
+            )
+          },
+        },
+        ...cols,
+      ]
+    }
 
     if (colorByColumn.type !== 'none') {
       cols = [
@@ -78,7 +135,15 @@ export const DataTable = ({
     }
 
     return cols
-  }, [columns, colorByColumn.type, colorByColumnFn])
+  }, [
+    columns,
+    colorByColumn.type,
+    colorByColumnFn,
+    onSetIndexPatient,
+    indexPatientId,
+    enableIndexPatientColumn,
+    onResetIndexPatient,
+  ])
 
   // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
   // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773
@@ -143,6 +208,29 @@ export const DataTable = ({
                 }}
               />
             ),
+            Footer: () => (
+              <GridFooterContainer className={classes.footer}>
+                {indexPatientId !== PatientIdNone ? (
+                  <Button
+                    onClick={onResetIndexPatient}
+                    variant="text"
+                    size="small"
+                    color="inherit"
+                    endIcon={<CloseIcon />}
+                  >
+                    Index Patient: {indexPatientId}
+                  </Button>
+                ) : (
+                  <span></span>
+                )}
+                {selectedEntity !== EntityIdNone ? (
+                  <Typography variant="body2">1 Row selected</Typography>
+                ) : (
+                  <span></span>
+                )}
+                <Typography variant="body2">Total Rows: {rows.length}</Typography>
+              </GridFooterContainer>
+            ),
           }}
           sx={{
             '& .MuiDataGrid-row.Mui-selected': {
@@ -160,6 +248,12 @@ export const DataTable = ({
             },
             '& .MuiDataGrid-cell:focus, .MuiDataGrid-columnHeader:focus, .MuiDataGrid-columnHeader:focus-within': {
               outline: 'none',
+            },
+            '& .MuiDataGrid-row .idx-patient': {
+              display: 'none',
+            },
+            '& .MuiDataGrid-row:hover .idx-patient': {
+              display: 'inherit',
             },
           }}
         />
