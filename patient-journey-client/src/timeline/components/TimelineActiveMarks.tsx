@@ -4,6 +4,7 @@ import { darken, lighten, useTheme } from '@mui/material'
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { EntityId, EntityIdNone } from '../../data/entities'
 import { calcMarkSize, SvgMark } from './SvgMark'
+import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
 
 // drawing active mark slightly bigger, to pronounce interactivity (micro-animate the size-up?)
 const TIMELINE_MARK_INTERACTIVITY_GROWTH_FACTOR = 1.2
@@ -52,7 +53,7 @@ export const TimelineActiveMarks = <
         <SvgMark
           size={markSize}
           color={color}
-          stroke={theme.palette.text.primary}
+          stroke={theme.palette.mode === 'dark' ? lighten(color, LIGHTENING_FACTOR) : darken(color, DARKENING_FACTOR)}
           onClick={() => onSelect(event.eventId as EntityId)}
           onMouseEnter={() => onHover(event.eventId as EntityId)}
           onMouseLeave={() => onHover(EntityIdNone)}
@@ -66,7 +67,9 @@ export const TimelineActiveMarks = <
       {hoveredEvent &&
         createCirce(
           hoveredEvent,
-          theme.palette.mode === 'dark' ? darken(selectedColor, 0.6) : lighten(selectedColor, 0.8)
+          theme.palette.mode === 'dark'
+            ? darken(selectedColor, DARKENING_FACTOR)
+            : lighten(selectedColor, LIGHTENING_FACTOR)
         )}
       {selectedEvent && createCirce(selectedEvent, selectedColor)}
     </>

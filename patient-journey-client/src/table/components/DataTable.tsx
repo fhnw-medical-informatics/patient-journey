@@ -17,6 +17,7 @@ import { ColorByColumnFn } from '../../color/hooks'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
 import { ColoredCircle } from '../../color/components/ColoredCircle'
 import { PatientId, PatientIdNone } from '../../data/patients'
+import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
 
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
@@ -34,6 +35,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   footer: {
     padding: `0 ${theme.spacing(2)}`,
+    color: theme.entityColors.indexPatient,
   },
 }))
 
@@ -110,6 +112,9 @@ export const DataTable = ({
                       onSetIndexPatient(row.uid)
                     }
                   }}
+                  sx={{
+                    color: theme.entityColors.indexPatient,
+                  }}
                 >
                   {isIndexPatient ? <StarIcon fontSize="inherit" /> : <StarOutlinedIcon fontSize="inherit" />}
                 </IconButton>
@@ -143,6 +148,7 @@ export const DataTable = ({
     indexPatientId,
     enableIndexPatientColumn,
     onResetIndexPatient,
+    theme.entityColors.indexPatient,
   ])
 
   // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
@@ -200,10 +206,14 @@ export const DataTable = ({
                 style={{
                   ...props.style,
                   backgroundColor:
-                    colorByColumn.type !== 'none'
+                    props.row.pid === indexPatientId
                       ? theme.palette.mode === 'dark'
-                        ? darken(colorByColumnFn(props.row), 0.6)
-                        : lighten(colorByColumnFn(props.row), 0.8)
+                        ? darken(theme.entityColors.indexPatient, DARKENING_FACTOR)
+                        : lighten(theme.entityColors.indexPatient, LIGHTENING_FACTOR)
+                      : colorByColumn.type !== 'none'
+                      ? theme.palette.mode === 'dark'
+                        ? darken(colorByColumnFn(props.row), DARKENING_FACTOR)
+                        : lighten(colorByColumnFn(props.row), LIGHTENING_FACTOR)
                       : '',
                 }}
               />
@@ -213,10 +223,10 @@ export const DataTable = ({
                 {indexPatientId !== PatientIdNone ? (
                   <Button
                     onClick={onResetIndexPatient}
-                    variant="text"
+                    variant="outlined"
                     size="small"
-                    color="inherit"
                     endIcon={<CloseIcon />}
+                    color="inherit"
                   >
                     Index Patient: {indexPatientId}
                   </Button>
@@ -224,11 +234,15 @@ export const DataTable = ({
                   <span></span>
                 )}
                 {selectedEntity !== EntityIdNone ? (
-                  <Typography variant="body2">1 Row selected</Typography>
+                  <Typography variant="body2" color={theme.palette.text.primary}>
+                    1 Row selected (id: {selectedEntity})
+                  </Typography>
                 ) : (
                   <span></span>
                 )}
-                <Typography variant="body2">Total Rows: {rows.length}</Typography>
+                <Typography variant="body2" color={theme.palette.text.primary}>
+                  Total Rows: {rows.length}
+                </Typography>
               </GridFooterContainer>
             ),
           }}
@@ -242,8 +256,8 @@ export const DataTable = ({
             '& .MuiDataGrid-row:hover': {
               backgroundColor: `${
                 theme.palette.mode === 'dark'
-                  ? darken(theme.entityColors.selected, 0.6)
-                  : lighten(theme.entityColors.selected, 0.8)
+                  ? darken(theme.entityColors.selected, DARKENING_FACTOR)
+                  : lighten(theme.entityColors.selected, LIGHTENING_FACTOR)
               } !important`,
             },
             '& .MuiDataGrid-cell:focus, .MuiDataGrid-columnHeader:focus, .MuiDataGrid-columnHeader:focus-within': {
