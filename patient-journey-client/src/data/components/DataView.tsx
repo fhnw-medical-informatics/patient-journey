@@ -9,7 +9,7 @@ import { InfoPanel } from '../containers/info/InfoPanel'
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '20%'
 const DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE = '60%'
-const DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE = '70%'
+const DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE = '65%'
 
 const useStyles = makeStyles()((theme) => ({
   filters: {

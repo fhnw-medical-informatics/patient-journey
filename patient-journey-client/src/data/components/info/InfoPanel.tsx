@@ -11,9 +11,9 @@ const useStyles = makeStyles()((theme) => ({
     display: 'grid',
     width: '100%',
     height: '100%',
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
     gridTemplateColumns: '1fr',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(2),
     alignContent: 'start',
   },
 }))
