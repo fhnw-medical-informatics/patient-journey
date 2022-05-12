@@ -25,6 +25,14 @@ const useStyles = makeStyles()((theme) => ({
   },
   toolbar: {
     padding: theme.spacing(2),
+    lineHeight: 1,
+  },
+  checkboxes: {
+    margin: 0,
+    minWidth: 215,
+  },
+  help: {
+    margin: 0,
   },
 }))
 
@@ -126,9 +134,15 @@ export const ControlPanel = ({
 
   return (
     <div className={classes.root}>
-      <Grid container alignItems={'flex-start'} justifyContent={'space-between'} className={classes.toolbar}>
-        <Grid item xs="auto">
-          <Grid container alignItems={'flex-end'} spacing={4}>
+      <Grid
+        container
+        alignItems={'flex-start'}
+        justifyContent={'space-between'}
+        className={classes.toolbar}
+        spacing={2}
+      >
+        <Grid item>
+          <Grid container alignItems={'flex-end'} spacing={1}>
             <Grid item>
               <Typography variant="overline" display="block">
                 View by
@@ -212,30 +226,36 @@ export const ControlPanel = ({
                 </Select>
               </FormControl>
             </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs>
+          <Grid container spacing={1} className={classes.checkboxes} justifyContent="flex-end">
             <Grid item>
               <FormControlLabel
-                control={<Switch checked={cluster} onChange={onSetTimelineCluster} color="primary" />}
+                control={<Switch checked={cluster} onChange={onSetTimelineCluster} color="primary" size="small" />}
                 label="Cluster Events"
               />
             </Grid>
             {hasActiveFilters && (
-              <Grid item ml={-2}>
+              <Grid item>
                 <FormControlLabel
-                  control={<Switch checked={showFilteredOut} onChange={onSetShowFilteredOut} color="primary" />}
+                  control={
+                    <Switch checked={showFilteredOut} onChange={onSetShowFilteredOut} color="primary" size="small" />
+                  }
                   label="Show Filtered Events"
                 />
               </Grid>
             )}
-            <Grid item ml={-2}>
+            <Grid item>
               <FormControlLabel
-                control={<Switch checked={showTimeGrid} onChange={onToggleTimeGrid} color="primary" />}
+                control={<Switch checked={showTimeGrid} onChange={onToggleTimeGrid} color="primary" size="small" />}
                 label="Grid"
               />
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs="auto">
-          <Grid container alignItems={'flex-start'} spacing={2}>
+          <Grid container alignItems={'flex-start'} spacing={1} className={classes.help}>
             <Grid item>
               <Tooltip
                 title={
