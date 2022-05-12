@@ -1,6 +1,5 @@
 import { DataColumn, GENERIC_COLUMN_TYPES } from './columns'
 import { PATIENT_ID_COLUMN_TYPE, PatientId } from './patients'
-import { ParseResult } from 'papaparse'
 import { DataEntity, Entity, EntityId } from './entities'
 import { noOp } from '../utils'
 
@@ -28,12 +27,12 @@ export const EMPTY_EVENT_DATA: EventData = {
 }
 
 export const createEventData = (
-  result: ParseResult<string[]>,
+  data: ReadonlyArray<string[]>,
   headerRowCount: number,
   onWarning: (message: string) => void = noOp
 ): EventData => {
-  const columnNames = result.data[0]
-  const columnTypes = result.data[1].map((v) => v.toLowerCase())
+  const columnNames = data[0]
+  const columnTypes = data[1].map((v) => v.toLowerCase())
   const eventIdColumnIndex = columnTypes.indexOf(EVENT_ID_COLUMN_TYPE)
   const isMissingEventIdColumn = eventIdColumnIndex < 0
   const patientIdColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
@@ -61,7 +60,7 @@ export const createEventData = (
   return {
     ...EMPTY_EVENT_DATA,
     columns,
-    allEntities: result.data.slice(headerRowCount).map((row: string[], index) => {
+    allEntities: data.slice(headerRowCount).map((row: string[], index) => {
       const id = isMissingEventIdColumn ? String(index) : row[eventIdColumnIndex]
       return {
         uid: id as EntityId,

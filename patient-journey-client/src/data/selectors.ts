@@ -10,7 +10,7 @@ import { FilterColumn, filterReducer } from './filtering'
 import { Patient, PatientDataColumn, PatientDataColumnType, PatientId, PatientIdNone } from './patients'
 import { Entity, EntityIdNone } from './entities'
 
-const selectData = (s: RootState): DataStateLoadingComplete => {
+export const selectData = (s: RootState): DataStateLoadingComplete => {
   if (s.data.type === 'loading-complete') {
     return s.data
   } else {

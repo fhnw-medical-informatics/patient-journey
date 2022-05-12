@@ -1,5 +1,4 @@
 import { DataColumn, GENERIC_COLUMN_TYPES } from './columns'
-import { ParseResult } from 'papaparse'
 import { DataEntity, Entity, EntityId } from './entities'
 import { noOp } from '../utils'
 
@@ -27,12 +26,12 @@ export const EMPTY_PATIENT_DATA: PatientData = {
 }
 
 export const createPatientData = (
-  result: ParseResult<string[]>,
+  data: ReadonlyArray<string[]>,
   headerRowCount: number,
   onWarning: (message: string) => void = noOp
 ): PatientData => {
-  const columnNames = result.data[0]
-  const columnTypes = result.data[1].map((v) => v.toLowerCase())
+  const columnNames = data[0]
+  const columnTypes = data[1].map((v) => v.toLowerCase())
   const idColumnIndex = columnTypes.indexOf(PATIENT_ID_COLUMN_TYPE)
   const isMissingIdColumn = idColumnIndex < 0
 
@@ -57,7 +56,7 @@ export const createPatientData = (
   return {
     ...EMPTY_PATIENT_DATA,
     columns,
-    allEntities: result.data.slice(headerRowCount).map((row: string[], index) => {
+    allEntities: data.slice(headerRowCount).map((row: string[], index) => {
       const id = isMissingIdColumn ? String(index) : row[idColumnIndex]
       return {
         uid: id as EntityId,
