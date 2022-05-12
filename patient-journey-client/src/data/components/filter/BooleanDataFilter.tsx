@@ -13,12 +13,14 @@ export interface BooleanDataFilterProps extends Filter<'boolean'> {
 
 export const BooleanDataFilter = ({ column, type, value, onChange, onRemove }: BooleanDataFilterProps) => {
   const handleChange = (event: React.MouseEvent<HTMLElement, MouseEvent>, newValue: any) => {
-    const filter = createFilter(column, type, { isTrue: newValue })
+    if (newValue !== null) {
+      const filter = createFilter(column, type, { isTrue: newValue })
 
-    if (filter.value.isTrue !== TrilianNone) {
-      onChange(filter)
-    } else {
-      onRemove(filter)
+      if (filter.value.isTrue !== TrilianNone) {
+        onChange(filter)
+      } else {
+        onRemove(filter)
+      }
     }
   }
 
