@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useTheme } from '@mui/material'
 import { scaleOrdinal } from 'd3-scale'
-import { interpolatePlasma, schemeSet1, schemeSet2 } from 'd3-scale-chromatic'
+import { interpolateWarm, interpolateCool, schemeSet2 } from 'd3-scale-chromatic'
 import { ColorByColumnOptionNone, ColorByColumn, ColorByColumnNone } from './colorSlice'
 import { FilterColumn } from '../data/filtering'
 import { Entity, EntityId, EntityIdNone, EntityType } from '../data/entities'
@@ -22,11 +22,11 @@ export interface ColorBy {
   colorByColumn: ColorByColumn
 }
 
-const lightCategoryFn = scaleOrdinal(schemeSet1)
+const lightCategoryFn = scaleOrdinal(schemeSet2)
 const darkCategoryFn = scaleOrdinal(schemeSet2)
 
-const lightNumberFn = interpolatePlasma
-const darkNumberFn = interpolatePlasma
+const lightNumberFn = interpolateWarm
+const darkNumberFn = interpolateCool
 
 export const useColor = (type: 'all' | EntityType = 'all'): ColorBy => {
   const theme = useTheme()

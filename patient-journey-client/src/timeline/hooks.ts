@@ -27,8 +27,14 @@ export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
 
 export const useTimelineCursorPosition = () => useAppSelector(selectCursorPosition)
 
-export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn, filteredOutColor: string) =>
-  useAppSelector((state) => selectFilteredEventDataAsTimelineEvents(state, colorByColumnFn, filteredOutColor))
+export const useActiveDataAsEvents = (
+  colorByColumnFn: ColorByColumnFn,
+  filteredOutColor: string,
+  indexPatientColor: string
+) =>
+  useAppSelector((state) =>
+    selectFilteredEventDataAsTimelineEvents(state, colorByColumnFn, filteredOutColor, indexPatientColor)
+  )
 
 export const useSelectedActiveEvent = () => useAppSelector(selectSelectedActiveEvent)
 

@@ -58,7 +58,8 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
 
       ctx.clearRect(0, 0, width, height)
 
-      ctx.strokeStyle = theme.palette.text.primary
+      ctx.strokeStyle = theme.palette.background.paper
+      ctx.lineWidth = 2
 
       // Draw Clusters
       const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))

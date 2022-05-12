@@ -23,7 +23,7 @@ export const ColoredCircle = ({ color }: Props) => {
           height: '20px',
           borderRadius: '50%',
           backgroundColor: color,
-          border: `1px solid ${theme.palette.text.primary}`,
+          border: `2px solid ${theme.palette.common.white}`,
         }}
       />
     </div>

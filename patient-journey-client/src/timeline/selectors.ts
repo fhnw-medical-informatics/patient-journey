@@ -13,6 +13,7 @@ import {
   selectActiveSelectedEventEntity,
   selectFocusEntity,
   selectCrossFilteredEventDataOnlyFilteredOutEvents,
+  selectIndexPatientId,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -31,17 +32,31 @@ export const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline
 const selectColorByColumnFn = (
   s: RootState,
   colorByColumnFn: ColorByColumnFn,
-  filteredOutColor: string
+  filteredOutColor: string,
+  indexPatientColor: string
 ): ColorByColumnFn => colorByColumnFn
 
-const selectFilteredOutColor = (s: RootState, colorByColumnFn: ColorByColumnFn, filteredOutColor: string): string =>
-  filteredOutColor
+const selectFilteredOutColor = (
+  s: RootState,
+  colorByColumnFn: ColorByColumnFn,
+  filteredOutColor: string,
+  indexPatientColor: string
+): string => filteredOutColor
+
+const selectIndexPatientColor = (
+  s: RootState,
+  colorByColumnFn: ColorByColumnFn,
+  filteredOutColor: string,
+  indexPatientColor: string
+): string => indexPatientColor
 
 const convertEntityToTimelineEvent = (
   viewByColumn: TimelineColumn,
   expandByColumn: TimelineColumn,
   activeColumns: ReadonlyArray<EventDataColumn>,
   activeData: ReadonlyArray<PatientJourneyEvent>,
+  indexPatientId: PatientId,
+  indexPatientColor?: string,
   colorByColumnFn?: ColorByColumnFn
 ) => {
   return viewByColumn !== TimelineColumnNone &&
@@ -49,8 +64,8 @@ const convertEntityToTimelineEvent = (
     ? (activeData.map((event) => ({
         eventId: event.uid,
         laneId: expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index],
-        isPinned: false,
-        color: colorByColumnFn ? colorByColumnFn(event) : undefined,
+        isPinned: event.pid === indexPatientId,
+        color: event.pid === indexPatientId ? indexPatientColor : colorByColumnFn ? colorByColumnFn(event) : undefined,
         startTimeMillis:
           viewByColumn.type === 'date'
             ? stringToMillis(event.values[viewByColumn.index])
@@ -68,6 +83,8 @@ export const selectFilteredEventDataAsTimelineEvents = createSelector(
   selectCrossFilteredEventDataOnlyFilteredOutEvents,
   selectShowFilteredOut,
   selectFilteredOutColor,
+  selectIndexPatientId,
+  selectIndexPatientColor,
   (
     viewByColumn,
     expandByColumn,
@@ -76,13 +93,17 @@ export const selectFilteredEventDataAsTimelineEvents = createSelector(
     colorByColumnFn,
     filteredOutEventData,
     showFilteredOut,
-    filteredOutColor
+    filteredOutColor,
+    indexPatientId,
+    indexPatientColor
   ) => {
     const filteredEventDataAsTimelineEvents = convertEntityToTimelineEvent(
       viewByColumn,
       expandByColumn,
       activeColumns,
       filteredEventData,
+      indexPatientId,
+      indexPatientColor,
       colorByColumnFn
     )
 
@@ -92,6 +113,8 @@ export const selectFilteredEventDataAsTimelineEvents = createSelector(
         expandByColumn,
         activeColumns,
         filteredOutEventData,
+        indexPatientId,
+        indexPatientColor,
         () => filteredOutColor
       )
 
@@ -109,12 +132,22 @@ export const selectFilteredEventDataAsTimelineEventsWithoutColor = createSelecto
   selectCrossFilteredEventData,
   selectCrossFilteredEventDataOnlyFilteredOutEvents,
   selectShowFilteredOut,
-  (viewByColumn, expandByColumn, activeColumns, filteredEventData, filteredOutEventData, showFilteredOut) => {
+  selectIndexPatientId,
+  (
+    viewByColumn,
+    expandByColumn,
+    activeColumns,
+    filteredEventData,
+    filteredOutEventData,
+    showFilteredOut,
+    indexPatientId
+  ) => {
     const filteredEventDataAsTimelineEvents = convertEntityToTimelineEvent(
       viewByColumn,
       expandByColumn,
       activeColumns,
-      filteredEventData
+      filteredEventData,
+      indexPatientId
     )
 
     if (showFilteredOut) {
@@ -122,7 +155,8 @@ export const selectFilteredEventDataAsTimelineEventsWithoutColor = createSelecto
         viewByColumn,
         expandByColumn,
         activeColumns,
-        filteredOutEventData
+        filteredOutEventData,
+        indexPatientId
       )
 
       return [...filteredEventDataAsTimelineEvents, ...filteredOutEventDataAsTimelineEvents]

@@ -1,6 +1,6 @@
 import { createTheme, Theme } from '@mui/material'
 import { useAppSelector } from '../store'
-import { deepPurple, yellow, grey } from '@mui/material/colors'
+import { deepPurple, yellow, grey, pink } from '@mui/material/colors'
 import { AppTheme } from './themeSlice'
 
 declare module '@mui/material/styles' {
@@ -9,6 +9,8 @@ declare module '@mui/material/styles' {
       default: string
       filteredOut: string
       selected: string
+      indexPatient: string
+      stroke: string
     }
   }
 
@@ -19,6 +21,8 @@ declare module '@mui/material/styles' {
       default?: string
       filteredOut?: string
       selected?: string
+      indexPatient?: string
+      stroke?: string
     }
   }
 }
@@ -33,8 +37,9 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
     },
     entityColors: {
       default: defaultColor,
-      filteredOut: mode === 'light' ? grey[100] : grey[900],
+      filteredOut: mode === 'light' ? grey[200] : grey[700],
       selected: selectionColor,
+      indexPatient: mode === 'light' ? pink[600] : yellow[700],
     },
     components: {
       MuiTableRow: {
@@ -54,10 +59,10 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
     },
   })
 
-const LIGHT_SELECTION_COLOR = yellow[200]
+const LIGHT_SELECTION_COLOR = yellow[400]
 const DARK_SELECTION_COLOR = deepPurple[400]
 
-const LIGHT_DEFAULT_COLOR = grey[300]
+const LIGHT_DEFAULT_COLOR = grey[400]
 const DARK_DEFAULT_COLOR = grey[400]
 
 export const lightTheme = createCustomTheme('light', LIGHT_SELECTION_COLOR, LIGHT_DEFAULT_COLOR)
@@ -67,3 +72,6 @@ export const useCustomTheme = () =>
   useAppSelector<Theme>((s) => {
     return s.theme === 'light' ? lightTheme : darkTheme
   })
+
+export const LIGHTENING_FACTOR = 0.6
+export const DARKENING_FACTOR = 0.6
