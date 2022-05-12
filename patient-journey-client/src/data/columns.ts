@@ -95,3 +95,10 @@ export const formatColumnValue = (columnType: string) => (value: string) => {
       return value
   }
 }
+
+export const compareColumns = (v1: DataColumn<any>, v2: DataColumn<any>) =>
+  v1.name === v2.name && v1.index === v2.index && v1.type === v2.type
+
+export const doesContainColumn = (columns: ReadonlyArray<DataColumn<any>>, column: Readonly<DataColumn<any>>) => {
+  return columns.some((c) => compareColumns(c, column))
+}
