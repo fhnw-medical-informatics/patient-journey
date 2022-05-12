@@ -1,4 +1,4 @@
-import { AnyAction, createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
+import { AnyAction, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
 import {
@@ -89,7 +89,7 @@ const dataSlice = createSlice({
       hovered: FOCUS_ENTITY_NONE,
       selected: FOCUS_ENTITY_NONE,
       indexPatientId: PatientIdNone,
-      ...action.payload,
+      ...freeze(action.payload, true),
     }),
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
       mutateLoadedDataState(state, (s) => {
