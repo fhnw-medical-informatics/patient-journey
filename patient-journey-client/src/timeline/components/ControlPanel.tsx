@@ -17,6 +17,7 @@ import { TimelineColumn, TimelineColumnNone } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
 import { ColorByColumn, ColorByColumnNone, ColorByColumnOptionNone } from '../../color/colorSlice'
+import { doesContainColumn } from '../../data/columns'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -78,13 +79,7 @@ export const ControlPanel = ({
       setInitialActiveColumn()
     } else {
       // Set initial column if selected column is not available anymore
-      const currentColumn = viewByColumn
-      const doesContain =
-        availableColumns.findIndex(
-          (column) => column.name === currentColumn.name && column.index === currentColumn.index
-        ) !== -1
-
-      if (!doesContain) {
+      if (!doesContainColumn(availableColumns, viewByColumn)) {
         setInitialActiveColumn()
       }
     }
@@ -92,15 +87,22 @@ export const ControlPanel = ({
 
   // Reset expandByColumn when availableColumns change
   useEffect(() => {
-    onSetExpandByColumn(TimelineColumnNone)
-  }, [onSetExpandByColumn, availableColumns])
+    if (expandByColumn !== TimelineColumnNone && !doesContainColumn(availableColumns, expandByColumn)) {
+      onSetExpandByColumn(TimelineColumnNone)
+    }
+  }, [onSetExpandByColumn, expandByColumn, availableColumns])
 
   // Reset colorByColumn when event or patient data columns change
   // TODO: Move this logic to extraReducer within colorSlice and
   // react on dispatched actions that affect columns
   useEffect(() => {
-    onChangeColorByColumn(ColorByColumnNone)
-  }, [onChangeColorByColumn, eventDataColumns, patientDataColumns])
+    if (
+      colorByColumn.column !== ColorByColumnOptionNone &&
+      !doesContainColumn([...eventDataColumns, ...patientDataColumns], colorByColumn.column)
+    ) {
+      onChangeColorByColumn(ColorByColumnNone)
+    }
+  }, [onChangeColorByColumn, eventDataColumns, patientDataColumns, colorByColumn])
 
   const handleChangeViewByColumn = (event: SelectChangeEvent) => {
     onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
