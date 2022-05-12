@@ -23,12 +23,14 @@ export const DataViewSelector = ({ activeDataView, onChangeDataView }: DataViewS
   const { classes } = useStyles()
 
   const handleChange = (event: React.MouseEvent<HTMLElement, MouseEvent>, newValue: any) => {
-    onChangeDataView(newValue)
+    if (newValue) {
+      onChangeDataView(newValue)
+    }
   }
 
   return (
     <FormGroup>
-      <ToggleButtonGroup value={activeDataView} exclusive onChange={handleChange}>
+      <ToggleButtonGroup value={activeDataView} onChange={handleChange} exclusive size="small">
         <ToggleButton value={'patients'} className={classes.button}>
           Patients
         </ToggleButton>
