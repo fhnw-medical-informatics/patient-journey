@@ -34,15 +34,16 @@ const selectPatientData = createSelector(selectData, (data) => data.patientData)
 
 export const selectIndexPatientId = createSelector(selectData, (data) => data.indexPatientId)
 
-const selectPatientDataRows = createSelector(selectPatientData, selectIndexPatientId, (patientData, indexPatientId) =>
-  indexPatientId === PatientIdNone
+const selectSimilarityData = createSelector(selectData, selectIndexPatientId, (data, indexPatientId) =>
+  indexPatientId !== PatientIdNone ? data.similarityData[indexPatientId] : null
+)
+
+const selectPatientDataRows = createSelector(selectPatientData, selectSimilarityData, (patientData, similarityData) =>
+  similarityData === null
     ? patientData.allEntities
     : patientData.allEntities.map((entity) => ({
         ...entity,
-        values: [
-          ...entity.values,
-          `${Math.random()}`, // TODO: Resolve similarity with indexPatientId
-        ],
+        values: [...entity.values, `${similarityData[entity.pid]}`],
       }))
 )
 
