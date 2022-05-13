@@ -14,7 +14,7 @@ TIP: Development setup, architecture & available scripts are documented in the r
 All data is loaded from tabular CSV files.
 The following sections describe their general structure as well as entity-specific requirements:
 
-=== General Structure
+=== Patient & Event Data
 
 Each file must start with two header rows: row 1 specifying column names, row 2 specifying <<column-types, column types>>.
 Actual data hence spans from row 3 to row n.
@@ -51,10 +51,7 @@ The following types are supported:
 `date`:: data values formatted as `dd.MM.yyyy` (rendered as is, *not* timezone/locale specific, thus suitable for birthdays)
 `category`:: categorical variable (string or number) that can take on a limited number of possible values
 
-=== Specific Structure
-==== Patient Data
-
-Example:
+==== Patient Data Example
 
 ----
 Patient ID,First Name,Last Name,Date Of Birth,Height,Blood Type
@@ -73,7 +70,7 @@ p9,Clelia,Jordi,04.08.1927,180,A
 The first column of type `pid` is used to uniquely identify patients.
 If no `pid` column exists, the row index is used as a fallback.
 
-==== Event Data
+==== Event Data Example
 
 ----
 Event ID,Patient ID,Timestamp
@@ -87,6 +84,22 @@ The first column of type `eid` is used to uniquely identify events.
 If no `eid` column exists, the row index is used as a fallback.
 
 The first column of type `pid` is used to link events to patients.
+
+=== Similarities Matrix
+
+Patient similarities are defined as a CSV matrix:
+
+----
+,p1,p2,p3
+p1,1,0.2,0.3
+p2,0.2,1,0.4
+p3,0.3,0.4,1
+----
+
+Values can be any valid numerical value (convertable via unary + operator).
+
+[TIP]
+Columns define _index_ patients, while rows define _other_ patients (only relevant if matrix it not symmetrical).
 
 == Deployment
 
