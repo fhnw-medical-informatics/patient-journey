@@ -39,6 +39,10 @@ const useStyles = makeStyles()((theme) => ({
   unreadMarkerWarning: {
     backgroundColor: theme.palette.warning.main,
   },
+  listItemText: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
 }))
 
 export interface Props {
@@ -106,7 +110,10 @@ export const Alerts = ({ alerts, unreadCount, onMarkAlertsRead }: Props) => {
                       </Avatar>
                     )}
                   </ListItemAvatar>
-                  <ListItemText primary={alert.topic} secondary={alert.message} />
+                  <ListItemText
+                    primary={alert.topic}
+                    secondary={<div className={classes.listItemText}>{alert.message}</div>}
+                  />
                 </ListItem>
                 {index < alerts.length - 1 && <Divider component="li" />}
               </div>

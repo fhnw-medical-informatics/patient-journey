@@ -41,6 +41,7 @@ export const loadData = async (
     )
     const eventData = createEventData(await parseEntityDataFromUrl(eventDataUrl, 'Event'), HEADER_ROW_COUNT, onWarning)
     const similarityData = createSimilarityData(
+      patientData.allEntities.map((e) => e.pid),
       await parseDataFromUrl(similarityDataUrl).then((r) => r.data),
       onWarning
     )

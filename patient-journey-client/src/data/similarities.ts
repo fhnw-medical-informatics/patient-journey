@@ -16,8 +16,9 @@ export interface SimilarityValues {
 }
 
 export const createSimilarityData = (
+  allKnownPatientIds: ReadonlyArray<PatientId>,
   data: ReadonlyArray<string[]>,
-  _onWarning: (message: string) => void = noOp
+  onWarning: (message: string) => void = noOp
 ): SimilarityData => {
   const similarityData: Mutable<SimilarityData> = {}
   const indexPatients = data[0].slice(1).map((v) => v as PatientId)
@@ -33,6 +34,33 @@ export const createSimilarityData = (
     })
   })
 
-  // TODO: Assert matrix completeness (all known patient ids)
+  const incompletePatientIds: PatientId[] = []
+
+  // initialize missing data to empty string
+  allKnownPatientIds.forEach((indexPatient) => {
+    let values: Mutable<SimilarityValues> = similarityData[indexPatient]
+
+    // missing index patient columns
+    if (!values) {
+      incompletePatientIds.push(indexPatient)
+      values = { indexPatient }
+      similarityData[indexPatient] = values
+    }
+
+    // missing other patient values
+    allKnownPatientIds.forEach((otherPatient) => {
+      if (!values.hasOwnProperty(otherPatient)) {
+        incompletePatientIds.push(otherPatient)
+        values[otherPatient] = ''
+      }
+    })
+  })
+
+  if (incompletePatientIds.length > 0) {
+    // using a set would seem easier, but we want to keep original order
+    const uniqueIncompletePatientIds = incompletePatientIds.filter((v, i, a) => a.indexOf(v) === i)
+    onWarning(`Incomplete similarity matrix for patient IDs ${uniqueIncompletePatientIds}`)
+  }
+
   return similarityData
 }
