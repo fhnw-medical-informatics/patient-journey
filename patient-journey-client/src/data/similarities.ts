@@ -21,7 +21,7 @@ export const createSimilarityData = (
   onWarning: (message: string) => void = noOp
 ): SimilarityData => {
   const similarityData: Mutable<SimilarityData> = {}
-  const indexPatients = data[0].slice(1).map((v) => v as PatientId)
+  const indexPatients = data.length > 0 ? data[0].slice(1).map((v) => v as PatientId) : []
 
   indexPatients.forEach((indexPatient, columnIndex) => {
     similarityData[indexPatient] = {

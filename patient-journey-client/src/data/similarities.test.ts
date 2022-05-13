@@ -71,4 +71,13 @@ describe('similarities', () => {
       },
     })
   })
+  it('createSimilarityData – no file contents', () => {
+    const similarityData = createSimilarityData([P1], [], noOp)
+    expect(similarityData).toEqual({
+      P1: {
+        indexPatient: P1,
+        P1: '',
+      },
+    })
+  })
 })
