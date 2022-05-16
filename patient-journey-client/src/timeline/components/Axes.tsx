@@ -6,19 +6,14 @@ import { useTheme } from '@mui/material'
 
 const MAX_LABEL_FONT_SIZE = 18
 
-export interface AxesProps<PatientId extends string> {
-  readonly focusLaneId: PatientId
-  readonly lanes: ReadonlyArray<TimelineLane<PatientId>>
-  readonly yScale: ScaleBand<PatientId>
+export interface AxesProps<LID extends string> {
+  readonly focusLaneId: LID
+  readonly lanes: ReadonlyArray<TimelineLane<LID>>
+  readonly yScale: ScaleBand<LID>
   readonly isHideLaneDetails: boolean
 }
 
-export const Axes = <PatientId extends string>({
-  focusLaneId,
-  lanes,
-  yScale,
-  isHideLaneDetails,
-}: AxesProps<PatientId>) => {
+export const Axes = <LID extends string>({ focusLaneId, lanes, yScale, isHideLaneDetails }: AxesProps<LID>) => {
   const isDarkMode = useTheme().palette.mode === 'dark'
   const theme = useTimelineTheme()
 
@@ -31,7 +26,7 @@ export const Axes = <PatientId extends string>({
   const labelXOffset = 15
   return (
     <>
-      {lanes.map((lane: TimelineLane<PatientId>) => {
+      {lanes.map((lane: TimelineLane<LID>) => {
         const y = yScale(lane.laneId)!
         const isFocused = lane.laneId === focusLaneId
         const fontWeight = isFocused ? 800 : 600

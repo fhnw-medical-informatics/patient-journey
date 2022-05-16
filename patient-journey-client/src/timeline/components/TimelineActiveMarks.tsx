@@ -1,31 +1,24 @@
 import React, { useMemo } from 'react'
 import { darken, lighten, useTheme } from '@mui/material'
 
-import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { EntityId, EntityIdNone } from '../../data/entities'
 import { calcMarkSize, SvgMark } from './SvgMark'
 import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
+import { EventId } from '../../data/events'
+import { PatientJourneyCustomLayerProps, PatientJourneyTimelineEvent } from './shared'
 
 // drawing active mark slightly bigger, to pronounce interactivity (micro-animate the size-up?)
 const TIMELINE_MARK_INTERACTIVITY_GROWTH_FACTOR = 1.2
 
-interface TimelineActiveMarksProps<
-  EID extends string,
-  PatientId extends string,
-  E extends TimelineEvent<EID, PatientId>
-> extends CustomLayerProps<EID, PatientId, E> {
-  selectedEvent: TimelineEvent<EID, PatientId> | undefined
-  hoveredEvent: TimelineEvent<EID, PatientId> | undefined
+interface Props<LID extends string> extends PatientJourneyCustomLayerProps<LID> {
+  selectedEvent: PatientJourneyTimelineEvent<LID> | undefined
+  hoveredEvent: PatientJourneyTimelineEvent<LID> | undefined
   selectedColor: string
-  onHover: (eventId: EntityId) => void
-  onSelect: (eventId: EntityId) => void
+  onHover: (eventId: EventId) => void
+  onSelect: (eventId: EventId) => void
 }
 
-export const TimelineActiveMarks = <
-  EID extends string,
-  PatientId extends string,
-  E extends TimelineEvent<EID, PatientId>
->({
+export const TimelineActiveMarks = <LID extends string>({
   yScale,
   xScale,
   laneDisplayMode,
@@ -35,7 +28,7 @@ export const TimelineActiveMarks = <
   selectedColor,
   onHover,
   onSelect,
-}: TimelineActiveMarksProps<EID, PatientId, E>) => {
+}: Props<LID>) => {
   const theme = useTheme()
 
   const laneHeight = yScale.bandwidth()
@@ -44,7 +37,7 @@ export const TimelineActiveMarks = <
     [laneDisplayMode, laneHeight]
   )
 
-  const createCirce = (event: TimelineEvent<EID, PatientId>, color: string) => {
+  const createCirce = (event: PatientJourneyTimelineEvent<LID>, color: string) => {
     const x = Math.round(xScale(event.startTimeMillis))
     const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId) ?? height / 2)
 

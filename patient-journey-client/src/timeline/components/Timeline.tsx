@@ -1,13 +1,14 @@
 import React from 'react'
 import { makeStyles } from '../../utils'
-import { LaneDisplayMode, TimelineEvent, TimelineLane } from 'react-svg-timeline'
+import { LaneDisplayMode, TimelineLane } from 'react-svg-timeline'
 import { Paper } from '@mui/material'
 import { TimelineView } from './TimelineView'
 import { CursorPosition, TimelineColumn } from '../timelineSlice'
-import { PatientDataColumn, PatientId } from '../../data/patients'
+import { PatientDataColumn } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
 import { ColorByColumn } from '../../color/colorSlice'
+import { PatientJourneyTimelineEvent } from './shared'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -19,9 +20,9 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-interface TimelineProps {
-  events: ReadonlyArray<TimelineEvent<PatientId, any>>
-  lanes: ReadonlyArray<TimelineLane<any>>
+interface TimelineProps<LID extends string> {
+  events: ReadonlyArray<PatientJourneyTimelineEvent<LID>>
+  lanes: ReadonlyArray<TimelineLane<LID>>
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   viewByColumn: TimelineColumn
@@ -44,7 +45,7 @@ interface TimelineProps {
   hasActiveEventFilters: boolean
 }
 
-export const Timeline = ({
+export const Timeline = <LID extends string>({
   events,
   lanes,
   dateFormat,
@@ -67,7 +68,7 @@ export const Timeline = ({
   onCursorPositionChange,
   onInteractionEnd,
   hasActiveEventFilters,
-}: TimelineProps) => {
+}: TimelineProps<LID>) => {
   const { classes } = useStyles()
 
   return (

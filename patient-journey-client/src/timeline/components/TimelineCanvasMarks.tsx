@@ -7,8 +7,9 @@ import { scaleSqrt } from 'd3-scale'
 
 import { makeStyles } from '../../utils'
 
-import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
+import { CustomLayer, TimelineEvent } from 'react-svg-timeline'
 import { calcMarkSize } from './SvgMark'
+import { PatientJourneyCustomLayerProps } from './shared'
 
 type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
 
@@ -19,7 +20,7 @@ const useStyles = makeStyles()({
   },
 })
 
-const TimelineCanvasMarks = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>({
+const TimelineCanvasMarks = <LID extends string>({
   height,
   width,
   events,
@@ -27,7 +28,7 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
   laneDisplayMode,
   yScale,
   eventClusters,
-}: CustomLayerProps<EID, PatientId, E>) => {
+}: PatientJourneyCustomLayerProps<LID>) => {
   const { classes } = useStyles()
   const theme = useTheme()
 
@@ -118,7 +119,9 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
 
 // A passthrough component is needed to prevent the whole timeline from re-rendering
 // when the components hooks change.
-export const TimelineCanvasMarksLayer: CustomLayer = (props) => {
+export const TimelineCanvasMarksLayer: CustomLayer = <LID extends string>(
+  props: PatientJourneyCustomLayerProps<LID>
+) => {
   return <TimelineCanvasMarks {...props} />
 }
 

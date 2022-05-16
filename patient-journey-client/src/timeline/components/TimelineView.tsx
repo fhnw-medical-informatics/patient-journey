@@ -1,12 +1,5 @@
 import React from 'react'
-import { PatientId } from '../../data/patients'
-import {
-  deriveTimelineTheme,
-  LaneDisplayMode,
-  Timeline as SVGTimeline,
-  TimelineEvent,
-  TimelineLane,
-} from 'react-svg-timeline'
+import { deriveTimelineTheme, LaneDisplayMode, Timeline as SVGTimeline, TimelineLane } from 'react-svg-timeline'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { useTheme } from '@mui/material'
 
@@ -16,12 +9,13 @@ import { MouseAwareSvg } from './MouseAwareSvg'
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
 import { TimelineActiveMarksLayer } from '../containers/TimelineActiveMarks'
 import { TimelineLanesLayer } from '../containers/TimelineLanes'
+import { PatientJourneyTimelineEvent } from './shared'
 
 const INVISIBLE_LAYER = () => null
 
-interface TimelineProps {
-  events: ReadonlyArray<TimelineEvent<PatientId, any>>
-  lanes: ReadonlyArray<TimelineLane<any>>
+interface Props<LID extends string> {
+  events: ReadonlyArray<PatientJourneyTimelineEvent<LID>>
+  lanes: ReadonlyArray<TimelineLane<LID>>
   dateFormat: (ms: number) => string
   laneDisplayMode: LaneDisplayMode
   enableClustering: boolean
@@ -30,7 +24,7 @@ interface TimelineProps {
   onInteractionEnd: () => void
 }
 
-export const TimelineView = ({
+export const TimelineView = <LID extends string>({
   events,
   lanes,
   dateFormat,
@@ -39,7 +33,7 @@ export const TimelineView = ({
   showTimeGrid,
   onCursorPositionChange,
   onInteractionEnd,
-}: TimelineProps) => {
+}: Props<LID>) => {
   const muiTheme = useTheme()
   const timelineTheme = deriveTimelineTheme(muiTheme.palette.mode, muiTheme)
 

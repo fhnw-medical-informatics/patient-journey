@@ -2,35 +2,28 @@ import { useEffect } from 'react'
 
 import { least } from 'd3-array'
 
-import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { EntityId } from '../../data/entities'
 import { diff } from '../../utils'
 
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
+import { EventId } from '../../data/events'
+import { PatientJourneyCustomLayerProps, PatientJourneyTimelineEvent } from './shared'
 
-const getNearestPoint = <EID extends string, PatientId extends string>(
-  events: ReadonlyArray<TimelineEvent<EID, PatientId>>,
+const getNearestPoint = <LID extends string>(
+  events: ReadonlyArray<PatientJourneyTimelineEvent<LID>>,
   cursorPosition: number
-): TimelineEvent<EID, PatientId> | null => {
+): PatientJourneyTimelineEvent<LID> | null => {
   return least(events, (event) => diff(event.startTimeMillis, cursorPosition)) ?? null
 }
 
-interface TimelineCanvasMarksInteractionProps<
-  EID extends string,
-  PatientId extends string,
-  E extends TimelineEvent<EID, PatientId>
-> extends CustomLayerProps<EID, PatientId, E> {
+interface Props<LID extends string> extends PatientJourneyCustomLayerProps<LID> {
   cursorPosition: CursorPosition
-  onHover: (eventId: EntityId) => void
-  onSelect: (eventId: EntityId) => void
+  onHover: (eventId: EventId) => void
+  onSelect: (eventId: EventId) => void
 }
 
-// TODO: This doesn't have to be a custom layer. Redux mittleware?
-export const TimelineCanvasMarksInteraction = <
-  EID extends string,
-  PatientId extends string,
-  E extends TimelineEvent<EID, PatientId>
->({
+// TODO: This doesn't have to be a custom layer. Redux middleware?
+export const TimelineCanvasMarksInteraction = <LID extends string>({
   events,
   cursorPosition,
   lanes,
@@ -39,8 +32,7 @@ export const TimelineCanvasMarksInteraction = <
   laneDisplayMode,
   height,
   onHover,
-  onSelect,
-}: TimelineCanvasMarksInteractionProps<EID, PatientId, E>) => {
+}: Props<LID>) => {
   useEffect(() => {
     if (cursorPosition !== CursorPositionNone) {
       const cursorPositionMillisX = xScale.invert(cursorPosition.x)

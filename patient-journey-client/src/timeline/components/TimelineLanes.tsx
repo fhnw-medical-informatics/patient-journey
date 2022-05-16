@@ -1,21 +1,20 @@
-import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { Axes } from './Axes'
 import { Axis } from './Axis'
+import { PatientJourneyCustomLayerProps } from './shared'
 
-interface Props<EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>
-  extends CustomLayerProps<EID, PatientId, E> {
-  readonly focusLaneId: PatientId
+interface Props<LID extends string> extends PatientJourneyCustomLayerProps<LID> {
+  readonly focusLaneId: LID
   readonly isHideLaneDetails: boolean
 }
 
-export const TimelineLanes = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>({
+export const TimelineLanes = <LID extends string>({
   laneDisplayMode,
   lanes,
   focusLaneId,
   yScale,
   height,
   isHideLaneDetails,
-}: Props<EID, PatientId, E>) => {
+}: Props<LID>) => {
   return laneDisplayMode === 'expanded' ? (
     <Axes key="axes" yScale={yScale} lanes={lanes} focusLaneId={focusLaneId} isHideLaneDetails={isHideLaneDetails} />
   ) : (

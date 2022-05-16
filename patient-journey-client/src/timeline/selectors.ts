@@ -3,7 +3,7 @@ import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
-import { EventDataColumn, PatientJourneyEvent } from '../data/events'
+import { EventDataColumn, EventId, PatientJourneyEvent } from '../data/events'
 import { PatientId, PatientIdNone } from '../data/patients'
 import {
   selectActiveSelectedEntity,
@@ -168,7 +168,7 @@ export const selectFilteredEventDataAsTimelineEventsWithoutColor = createSelecto
 
 const selectFilteredActiveEventsAsMap = createSelector(
   selectFilteredEventDataAsTimelineEventsWithoutColor,
-  (events): ReadonlyMap<EntityId, TimelineEvent<EntityId, any>> => new Map(events.map((e) => [e.eventId, e]))
+  (events): ReadonlyMap<EventId, TimelineEvent<EventId, any>> => new Map(events.map((e) => [e.eventId, e]))
 )
 
 export const selectSelectedActiveEntityAsEvent = createSelector(
