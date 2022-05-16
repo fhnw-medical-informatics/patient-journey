@@ -28,7 +28,7 @@ export const DATE_FORMAT = 'dd.MM.yyyy'
 // than the native Date.parse / new Date()
 export const parseDate = (date: string) => {
   const [day, month, year] = date.split('.')
-  return new Date(`${year}-${month}-${day}`)
+  return new Date(`${year}-${month}-${day} 00:00:00.000`)
 }
 
 export const parseHTMLDateInput = (isoDateString: string) => parseISO(isoDateString)
