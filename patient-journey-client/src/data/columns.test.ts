@@ -11,7 +11,7 @@ describe('columns', () => {
 
   describe('parseDate', () => {
     it('parses 31.12.2019', () => {
-      expect(parseDate('31.12.2019').getTime()).toEqual(1577750400000)
+      expect(parseDate('31.12.2019').getTime()).toEqual(1577746800000)
     })
   })
 

@@ -196,7 +196,7 @@ describe('Filter Reducer', () => {
     const dateFilter: Filter<'date'> = {
       column: mockColumns[3],
       type: 'date',
-      value: { millisFrom: 1577750400000, millisTo: 1580511600000, toInclusive: true },
+      value: { millisFrom: 1577746800000, millisTo: 1580511600000, toInclusive: true },
     }
 
     const filteredData = filterReducer(mockData, dateFilter)
