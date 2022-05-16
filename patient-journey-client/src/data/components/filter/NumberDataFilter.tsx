@@ -25,7 +25,7 @@ export interface NumberDataFilterProps extends Filter<'number'> {
 export const NumberDataFilter = ({ allActiveData, column, type, value, onChange, onRemove }: NumberDataFilterProps) => {
   const { classes } = useStyles()
 
-  const { niceMin, niceMax } = useNumbers(allActiveData, column as DataColumn<'number'>)
+  const { niceMin, niceMax, niceStep } = useNumbers(allActiveData, column as DataColumn<'number'>)
 
   const handleChange = useCallback(
     (fromValue: number | null, toValue: number | null) => {
@@ -55,7 +55,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
   const numberProps = {
     min: niceMin,
     max: niceMax,
-    step: niceMax - niceMin <= 1 ? 0.1 : undefined,
+    step: niceStep,
   }
 
   return (

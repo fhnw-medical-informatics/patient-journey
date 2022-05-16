@@ -28,10 +28,11 @@ export const useNumbers = (
   column: DataColumn<'number'>
 ): {
   allNumbers: ReadonlyArray<number>
-  min: number | undefined
-  max: number | undefined
+  min: number
+  max: number
   niceMin: number
   niceMax: number
+  niceStep: number
   extractValueSafe: (entity: Entity) => [number] | []
 } => {
   const extractValueSafe = useMemo(() => extractNumberValueSafe(column), [column])
@@ -40,12 +41,21 @@ export const useNumbers = (
 
   const [min, max] = useMemo(() => extent(allNumbers), [allNumbers])
 
-  const [niceMin, niceMax] = useMemo(
-    () => scaleLinear<number, number>().domain([min!, max!]).nice().domain(),
-    [min, max]
-  )
+  const { niceMin, niceMax, niceStep } = useMemo(() => {
+    if (min !== undefined && max !== undefined) {
+      const scale = scaleLinear<number, number>().domain([min!, max!]).nice()
 
-  return { allNumbers, min, max, niceMin, niceMax, extractValueSafe }
+      const [niceMin, niceMax] = scale.domain()
+
+      const niceStep = scale.ticks(100)[1] - scale.ticks(10)[0]
+
+      return { niceMin, niceMax, niceStep }
+    } else {
+      return { niceMin: 0, niceMax: 0, niceStep: 0 }
+    }
+  }, [min, max])
+
+  return { allNumbers, min: min ?? 0, max: max ?? 0, niceMin, niceMax, niceStep, extractValueSafe }
 }
 
 export const useDates = (
