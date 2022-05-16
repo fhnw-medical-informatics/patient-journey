@@ -28,7 +28,7 @@ export interface DateDataFilterProps extends Filter<'timestamp' | 'date'> {
 export const DateDataFilter = ({ allActiveData, column, type, value, onChange, onRemove }: DateDataFilterProps) => {
   const { classes } = useStyles()
 
-  const { niceMinMillis, niceMaxMillis, niceStepMillis } = useDates(
+  const { max, niceMinMillis, niceMaxMillis, niceStepMillis } = useDates(
     allActiveData,
     column as DataColumn<'timestamp' | 'date'>
   )
@@ -40,7 +40,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
       const filter = createFilter(column, type, {
         millisFrom: fromValue !== null ? fromValue : value.millisFrom,
         millisTo: _millisTo,
-        toInclusive: _millisTo === niceMaxMillis,
+        toInclusive: _millisTo >= max.valueOf(),
       })
 
       if (filter.value.millisFrom === MillisNone && filter.value.millisTo === MillisNone) {
@@ -49,7 +49,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
         onChange(filter)
       }
     },
-    [column, niceMaxMillis, onChange, onRemove, type, value]
+    [column, max, onChange, onRemove, type, value]
   )
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
