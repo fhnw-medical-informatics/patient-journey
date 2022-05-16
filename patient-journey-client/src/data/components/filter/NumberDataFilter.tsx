@@ -58,6 +58,8 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
     step: niceStep,
   }
 
+  const isDisabled = niceMin === niceMax
+
   return (
     <FormGroup>
       <CustomSlider
@@ -69,6 +71,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
           Thumb: CustomSliderThumb,
         }}
         {...numberProps}
+        disabled={isDisabled}
       />
       <Grid container spacing={1} direction="row">
         <Grid item xs={6}>
@@ -85,6 +88,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
                 }}
                 InputLabelProps={{ shrink: true }}
                 inputProps={numberProps}
+                disabled={isDisabled}
               />
             </Grid>
           </Grid>
@@ -103,6 +107,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
                 }}
                 InputLabelProps={{ shrink: true }}
                 inputProps={numberProps}
+                disabled={isDisabled}
               />
             </Grid>
           </Grid>

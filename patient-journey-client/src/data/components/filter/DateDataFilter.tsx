@@ -28,7 +28,10 @@ export interface DateDataFilterProps extends Filter<'timestamp' | 'date'> {
 export const DateDataFilter = ({ allActiveData, column, type, value, onChange, onRemove }: DateDataFilterProps) => {
   const { classes } = useStyles()
 
-  const { niceMin, niceMax } = useDates(allActiveData, column as DataColumn<'timestamp' | 'date'>)
+  const { niceMinMillis, niceMaxMillis, niceStepMillis } = useDates(
+    allActiveData,
+    column as DataColumn<'timestamp' | 'date'>
+  )
 
   const handleChange = useCallback(
     (fromValue: Millis | null, toValue: Millis | null) => {
@@ -37,7 +40,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
       const filter = createFilter(column, type, {
         millisFrom: fromValue !== null ? fromValue : value.millisFrom,
         millisTo: _millisTo,
-        toInclusive: _millisTo === niceMax.valueOf(),
+        toInclusive: _millisTo === niceMaxMillis,
       })
 
       if (filter.value.millisFrom === MillisNone && filter.value.millisTo === MillisNone) {
@@ -46,7 +49,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
         onChange(filter)
       }
     },
-    [column, niceMax, onChange, onRemove, type, value]
+    [column, niceMaxMillis, onChange, onRemove, type, value]
   )
 
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
@@ -65,17 +68,21 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
     }
   }
 
+  const isDisabled = niceMinMillis === niceMaxMillis
+
   return (
     <FormGroup>
       <CustomSlider
         value={[
-          value.millisFrom !== MillisNone ? value.millisFrom : niceMin.valueOf(),
-          value.millisTo !== MillisNone ? value.millisTo : niceMax.valueOf(),
+          value.millisFrom !== MillisNone ? value.millisFrom : niceMinMillis,
+          value.millisTo !== MillisNone ? value.millisTo : niceMaxMillis,
         ]}
         onChange={handleSliderChange}
         valueLabelDisplay="auto"
-        min={niceMin.valueOf()}
-        max={niceMax.valueOf()}
+        min={niceMinMillis}
+        max={niceMaxMillis}
+        step={niceStepMillis}
+        disabled={isDisabled}
         valueLabelFormat={(value) => format(value, type === 'timestamp' ? DATE_TIMESTAMP_FORMAT : DATE_FORMAT)}
         size="small"
         components={{
@@ -102,6 +109,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
                 }}
                 // Issue with shrink state: https://mui.com/components/text-fields/#shrink
                 InputLabelProps={{ shrink: true }}
+                disabled={isDisabled}
               />
             </Grid>
           </Grid>
@@ -125,6 +133,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
                 }}
                 // Issue with shrink state https://mui.com/components/text-fields/#shrink
                 InputLabelProps={{ shrink: true }}
+                disabled={isDisabled}
               />
             </Grid>
           </Grid>

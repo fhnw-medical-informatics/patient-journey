@@ -39,23 +39,25 @@ export const useNumbers = (
 
   const allNumbers = useMemo(() => allData.flatMap(extractValueSafe), [allData, extractValueSafe])
 
-  const [min, max] = useMemo(() => extent(allNumbers), [allNumbers])
+  const [min, max] = useMemo(() => {
+    const [min, max] = extent(allNumbers)
+
+    return [min ?? 0, max ?? 0]
+  }, [allNumbers])
 
   const { niceMin, niceMax, niceStep } = useMemo(() => {
-    if (min !== undefined && max !== undefined) {
-      const scale = scaleLinear<number, number>().domain([min!, max!]).nice()
+    const scale = scaleLinear<number, number>().domain([min, max]).nice()
 
-      const [niceMin, niceMax] = scale.domain()
+    const [niceMin, niceMax] = scale.domain()
 
-      const niceStep = scale.ticks(100)[1] - scale.ticks(10)[0]
+    const ticks = scale.ticks(10)
 
-      return { niceMin, niceMax, niceStep }
-    } else {
-      return { niceMin: 0, niceMax: 0, niceStep: 0 }
-    }
+    const niceStep = ticks.length >= 2 ? scale.ticks(100)[1] - scale.ticks(10)[0] : 0
+
+    return { niceMin, niceMax, niceStep }
   }, [min, max])
 
-  return { allNumbers, min: min ?? 0, max: max ?? 0, niceMin, niceMax, niceStep, extractValueSafe }
+  return { allNumbers, min, max, niceMin, niceMax, niceStep, extractValueSafe }
 }
 
 export const useDates = (
@@ -63,10 +65,11 @@ export const useDates = (
   column: DataColumn<'date' | 'timestamp'>
 ): {
   allDates: ReadonlyArray<Date>
-  min: Date | undefined
-  max: Date | undefined
-  niceMin: Date
-  niceMax: Date
+  min: Date
+  max: Date
+  niceMinMillis: number
+  niceMaxMillis: number
+  niceStepMillis: number
   timeScale: ScaleTime<Date, Date>
   extractValueSafe: (entity: Entity) => [Date] | []
 } => {
@@ -74,11 +77,32 @@ export const useDates = (
 
   const allDates = useMemo(() => allData.flatMap(extractValueSafe), [allData, extractValueSafe])
 
-  const [min, max] = useMemo(() => extent(allDates), [allDates])
+  const [min, max] = useMemo(() => {
+    const [min, max] = extent(allDates)
 
-  const timeScale = useMemo(() => scaleTime<Date, Date>().domain([min!, max!]).nice(), [min, max])
+    return [min ?? new Date(0), max ?? new Date(0)]
+  }, [allDates])
 
-  const [niceMin, niceMax] = useMemo(() => timeScale.domain(), [timeScale])
+  const timeScale = useMemo(() => scaleTime<Date, Date>().domain([min, max]).nice(), [min, max])
 
-  return { allDates, min, max, niceMin, niceMax, timeScale, extractValueSafe }
+  const { niceMin, niceMax, niceStepMillis } = useMemo(() => {
+    const [niceMin, niceMax] = timeScale.domain()
+
+    const ticks = timeScale.ticks(100)
+
+    const niceStepMillis = ticks.length >= 2 ? timeScale.ticks(100)[1].valueOf() - timeScale.ticks(10)[0].valueOf() : 0
+
+    return { niceMin, niceMax, niceStepMillis }
+  }, [timeScale])
+
+  return {
+    allDates,
+    min,
+    max,
+    niceMinMillis: niceMin.valueOf(),
+    niceMaxMillis: niceMax.valueOf(),
+    niceStepMillis,
+    timeScale,
+    extractValueSafe,
+  }
 }
