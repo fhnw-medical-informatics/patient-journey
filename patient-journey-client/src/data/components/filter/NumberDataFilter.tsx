@@ -25,7 +25,7 @@ export interface NumberDataFilterProps extends Filter<'number'> {
 export const NumberDataFilter = ({ allActiveData, column, type, value, onChange, onRemove }: NumberDataFilterProps) => {
   const { classes } = useStyles()
 
-  const { niceMin, niceMax } = useNumbers(allActiveData, column as DataColumn<'number'>)
+  const { niceMin, niceMax, niceStep } = useNumbers(allActiveData, column as DataColumn<'number'>)
 
   const handleChange = useCallback(
     (fromValue: number | null, toValue: number | null) => {
@@ -55,8 +55,10 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
   const numberProps = {
     min: niceMin,
     max: niceMax,
-    step: niceMax - niceMin <= 1 ? 0.1 : undefined,
+    step: niceStep,
   }
+
+  const isDisabled = niceMin === niceMax
 
   return (
     <FormGroup>
@@ -69,6 +71,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
           Thumb: CustomSliderThumb,
         }}
         {...numberProps}
+        disabled={isDisabled}
       />
       <Grid container spacing={1} direction="row">
         <Grid item xs={6}>
@@ -85,6 +88,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
                 }}
                 InputLabelProps={{ shrink: true }}
                 inputProps={numberProps}
+                disabled={isDisabled}
               />
             </Grid>
           </Grid>
@@ -103,6 +107,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
                 }}
                 InputLabelProps={{ shrink: true }}
                 inputProps={numberProps}
+                disabled={isDisabled}
               />
             </Grid>
           </Grid>
