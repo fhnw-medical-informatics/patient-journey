@@ -4,7 +4,7 @@ import { ColorByColumnOptionNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
 import { formatColumnValue, stringToMillis } from './columns'
-import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
+import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity, LoadingProgress } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { FilterColumn, filterReducer } from './filtering'
 import { Patient, PatientDataColumn, PatientDataColumnType, PatientId, PatientIdNone } from './patients'
@@ -19,6 +19,14 @@ export const selectData = (s: RootState): DataStateLoadingComplete => {
 }
 
 export const selectDataLoadingState = (s: RootState) => s.data.type
+
+export const selectDataLoadingProgress = (s: RootState): LoadingProgress => {
+  if (s.data.type === 'loading-in-progress') {
+    return s.data
+  } else {
+    throw new Error('Illegal state')
+  }
+}
 
 export const selectDataView = createSelector(selectData, (data) => data.view)
 

@@ -4,6 +4,7 @@ import { createEventData, EventData, EventDataColumn } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createSimilarityData, SimilarityData } from './similarities'
+import { LoadingProgress } from './dataSlice'
 
 export const DATA_FOLDER = 'data'
 export const PATIENT_DATA_FILE_URL = `${DATA_FOLDER}/patients.csv`
@@ -25,28 +26,37 @@ export const loadData = async (
   patientDataUrl: string,
   eventDataUrl: string,
   similarityDataUrl: string,
-  onLoadingDataInProgress: () => void,
+  onLoadingDataInProgress: (progress: LoadingProgress) => void,
   onLoadingDataComplete: (data: LoadedData) => void,
   onLoadingDataFailed: (message: string) => void,
   onAddAlerts: (alerts: ReadonlyArray<Alert>) => void
 ) => {
-  onLoadingDataInProgress()
   const onWarning = (message: string) => onAddAlerts([{ type: 'warning', topic: DATA_LOADING_WARNING, message }])
   const onError = (message: string) => onAddAlerts([{ type: 'error', topic: DATA_LOADING_ERROR, message }])
   try {
+    // loading patients
+    onLoadingDataInProgress({ activeStep: 0, stepPercentage: 0 })
     const patientData = createPatientData(
       await parseEntityDataFromUrl(patientDataUrl, 'Patient'),
       HEADER_ROW_COUNT,
       onWarning
     )
+
+    // loading events
+    onLoadingDataInProgress({ activeStep: 1, stepPercentage: 0 })
     const eventData = createEventData(await parseEntityDataFromUrl(eventDataUrl, 'Event'), HEADER_ROW_COUNT, onWarning)
+
+    // loading similarities
+    onLoadingDataInProgress({ activeStep: 2, stepPercentage: 0 })
     const similarityData = createSimilarityData(
       patientData.allEntities.map((e) => e.pid),
       await parseDataFromUrl(similarityDataUrl).then((r) => r.data),
       onWarning
     )
-    const data = { patientData, eventData, similarityData }
 
+    // consistency checks
+    const data = { patientData, eventData, similarityData }
+    onLoadingDataInProgress({ activeStep: 3, stepPercentage: 0 })
     checkDataInconsistencies(data, onWarning)
     onLoadingDataComplete(data)
   } catch (e: any) {
