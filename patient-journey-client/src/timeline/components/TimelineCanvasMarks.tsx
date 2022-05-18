@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTheme } from '@mui/material'
 
-import { extent } from 'd3-array'
+import { extent, groups } from 'd3-array'
 import { scaleSqrt } from 'd3-scale'
 
 import { makeStyles } from '../../utils'
@@ -30,6 +30,32 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
 }: CustomLayerProps<EID, PatientId, E>) => {
   const { classes } = useStyles()
   const theme = useTheme()
+
+  // TODO: Effective memoization
+  const eventsWithCoordinates = useMemo(
+    () =>
+      events.map((e) => ({
+        ...e,
+        x: Math.floor(xScale(e.startTimeMillis)),
+        y: Math.floor(laneDisplayMode === 'collapsed' ? height / 2 : yScale(e.laneId!)!),
+      })),
+    [events, height, laneDisplayMode, xScale, yScale]
+  )
+
+  const pinnedEventsWithCoordinates = useMemo(
+    () => eventsWithCoordinates.filter((event) => event.isSelected || event.isPinned),
+    [eventsWithCoordinates]
+  )
+
+  const eventsGroupedByCoordinates = useMemo(
+    () =>
+      groups(
+        eventsWithCoordinates,
+        (e) => e.y,
+        (e) => e.x
+      ),
+    [eventsWithCoordinates]
+  )
 
   const [renderInfo, setRenderInfo] = useState<RenderInfo>()
 
@@ -76,7 +102,8 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
         const x = Math.round(xScale(cluster.timeMillis))
         const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(cluster.laneId!)!)
 
-        ctx.fillStyle = theme.palette.primary.main
+        changeCanvasFillStyle(ctx, theme.palette.primary.main)
+
         ctx.beginPath()
         ctx.arc(x, y, clusterScale(cluster.size), 0, 360)
         ctx.fill()
@@ -84,30 +111,45 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
         // ctx.closePath() - ctx.fill() automatically closes the path
       })
 
-      // Draw Events
-      const drawEvent = <EID extends string, E extends TimelineEvent<EID, any>>(event: E) => {
-        // Round to avoid sub-pixel rendering
-        const x = Math.round(xScale(event.startTimeMillis))
-        const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId!)!)
-
-        ctx.fillStyle = event.color ?? theme.palette.primary.main
+      const drawGroup = (group: { x: number; y: number; color?: string }) => {
+        changeCanvasFillStyle(ctx, group.color ?? theme.palette.primary.main)
 
         // Note: We could further optimize this, by
         // grouping events by color and then beginPath()ing
         // and filling/stroking only once per color.
         ctx.beginPath()
-        ctx.arc(x, y, markSize / 2, 0, 360)
+        ctx.arc(group.x, group.y, markSize / 2, 0, 360)
         ctx.fill()
         ctx.stroke()
         // ctx.closePath() - ctx.fill() automatically closes the path
       }
 
-      // Draw events
-      events.forEach(drawEvent)
+      // Draw visible events
+      eventsGroupedByCoordinates.forEach((lane) => {
+        const y = lane[0]
+
+        for (let i = 0; i < lane[1].length; i++) {
+          const x = lane[1][i][0]
+          const firstEventInGroup = lane[1][i][1][0]
+
+          drawGroup({ x, y, color: firstEventInGroup.color })
+        }
+      })
       // Draw selected and pinned events on top
-      events.filter((event) => event.isSelected || event.isPinned).forEach(drawEvent)
+      pinnedEventsWithCoordinates.forEach((event) => drawGroup({ x: event.x, y: event.y, color: event.color }))
     }
-  }, [renderInfo, events, xScale, width, height, yScale, laneDisplayMode, eventClusters, theme])
+  }, [
+    renderInfo,
+    pinnedEventsWithCoordinates,
+    eventsGroupedByCoordinates,
+    xScale,
+    width,
+    height,
+    yScale,
+    laneDisplayMode,
+    eventClusters,
+    theme,
+  ])
 
   return (
     <foreignObject x="0" y="0" width={width} height={height}>
@@ -139,5 +181,12 @@ export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingCont
     canvas.height = displayHeight
 
     ctx.scale(dpr, dpr)
+  }
+}
+
+// Canvas state changes are expensive, only change if needed
+function changeCanvasFillStyle(ctx: CanvasRenderingContext2D, color: string): void {
+  if (ctx.fillStyle !== color) {
+    ctx.fillStyle = color
   }
 }
