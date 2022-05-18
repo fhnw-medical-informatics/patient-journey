@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
 
 import { useTheme } from '@mui/material'
 
@@ -31,31 +31,30 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
   const { classes } = useStyles()
   const theme = useTheme()
 
-  // TODO: Effective memoization
-  const eventsWithCoordinates = useMemo(
-    () =>
-      events.map((e) => ({
-        ...e,
-        x: Math.floor(xScale(e.startTimeMillis)),
-        y: Math.floor(laneDisplayMode === 'collapsed' ? height / 2 : yScale(e.laneId!)!),
-      })),
-    [events, height, laneDisplayMode, xScale, yScale]
-  )
+  const deferredEvents = useDeferredValue(events)
+  const deferredClusters = useDeferredValue(eventClusters)
+  const deferredHeight = useDeferredValue(height)
+  const deferredWidth = useDeferredValue(width)
+  const deferredYScale = useDeferredValue(yScale)
+  const deferredXScale = useDeferredValue(xScale)
 
-  const pinnedEventsWithCoordinates = useMemo(
-    () => eventsWithCoordinates.filter((event) => event.isSelected || event.isPinned),
-    [eventsWithCoordinates]
-  )
+  const { pinnedEventsWithCoordinates, eventsGroupedByCoordinates } = useMemo(() => {
+    const eventsWithCoordinates = deferredEvents.map((e) => ({
+      ...e,
+      x: Math.floor(deferredXScale(e.startTimeMillis)),
+      y: Math.floor(laneDisplayMode === 'collapsed' ? deferredHeight / 2 : deferredYScale(e.laneId!)!),
+    }))
 
-  const eventsGroupedByCoordinates = useMemo(
-    () =>
-      groups(
-        eventsWithCoordinates,
-        (e) => e.y,
-        (e) => e.x
-      ),
-    [eventsWithCoordinates]
-  )
+    const pinnedEventsWithCoordinates = eventsWithCoordinates.filter((event) => event.isSelected || event.isPinned)
+
+    const eventsGroupedByCoordinates = groups(
+      eventsWithCoordinates,
+      (e) => e.y,
+      (e) => e.x
+    )
+
+    return { pinnedEventsWithCoordinates, eventsGroupedByCoordinates }
+  }, [deferredEvents, deferredHeight, laneDisplayMode, deferredXScale, deferredYScale])
 
   const [renderInfo, setRenderInfo] = useState<RenderInfo>()
 
@@ -82,25 +81,25 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
 
       resizeCanvas(canvas, ctx)
 
-      ctx.clearRect(0, 0, width, height)
+      ctx.clearRect(0, 0, deferredWidth, deferredHeight)
 
       ctx.strokeStyle = theme.palette.background.paper
       ctx.lineWidth = 2
 
       // Draw Clusters
-      const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))
-      const markSize = calcMarkSize(laneDisplayMode, yScale.bandwidth())
+      const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(deferredClusters.map((c) => c.size))
+      const markSize = calcMarkSize(laneDisplayMode, deferredYScale.bandwidth())
       const clusterRadiusMin = markSize / 2
-      const clusterRadiusMax = laneDisplayMode === 'expanded' ? markSize : Math.min(height / 2, 2 * markSize)
+      const clusterRadiusMax = laneDisplayMode === 'expanded' ? markSize : Math.min(deferredHeight / 2, 2 * markSize)
 
       const clusterScale = scaleSqrt()
         .domain([clusterSizeDomainMin ?? 0, clusterSizeDomainMax ?? 0])
         .range([clusterRadiusMin, clusterRadiusMax])
 
-      eventClusters.forEach((cluster) => {
+      deferredClusters.forEach((cluster) => {
         // Round to avoid sub-pixel rendering
-        const x = Math.round(xScale(cluster.timeMillis))
-        const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(cluster.laneId!)!)
+        const x = Math.round(deferredXScale(cluster.timeMillis))
+        const y = Math.round(laneDisplayMode === 'collapsed' ? deferredHeight / 2 : deferredYScale(cluster.laneId!)!)
 
         changeCanvasFillStyle(ctx, theme.palette.primary.main)
 
@@ -142,12 +141,12 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
     renderInfo,
     pinnedEventsWithCoordinates,
     eventsGroupedByCoordinates,
-    xScale,
-    width,
-    height,
-    yScale,
+    deferredXScale,
+    deferredWidth,
+    deferredHeight,
+    deferredYScale,
     laneDisplayMode,
-    eventClusters,
+    deferredClusters,
     theme,
   ])
 
