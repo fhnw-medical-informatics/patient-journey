@@ -9918,10 +9918,10 @@ react-style-proptype@^3.2.2:
   dependencies:
     prop-types "^15.5.4"
 
-react-svg-timeline@^0.23.0:
-  version "0.23.0"
-  resolved "https://registry.yarnpkg.com/react-svg-timeline/-/react-svg-timeline-0.23.0.tgz#37fe31b0118a39be8660c1efb330c2c13f3090ea"
-  integrity sha512-e+qF7syb5yIbVEYPfbvL2iqL4ywXT0FovljXK4RD2VqdnrDvw2+29E4JnIT6T7fu6z0PjRPZVpsID1TSMcytLg==
+react-svg-timeline@^0.23.2:
+  version "0.23.2"
+  resolved "https://registry.yarnpkg.com/react-svg-timeline/-/react-svg-timeline-0.23.2.tgz#47dc06b0330457ea70824f3869405514f1aaa228"
+  integrity sha512-uWP/8D1o2UTwttwEK+ecan3hreX/5Fb2pcm8YNJJst7yjDyKMjoCbrKFvEHxROs0vAzQk/zQNbZN94MpIOQjaw==
   dependencies:
     d3-array "^2.11.0"
     d3-scale "^3.0.1"
