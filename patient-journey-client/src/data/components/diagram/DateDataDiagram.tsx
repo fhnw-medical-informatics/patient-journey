@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react'
-import { bin } from 'd3-array'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Bin, bin } from 'd3-array'
 import { ScaleTime } from 'd3-scale'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { format } from '../../columns'
@@ -9,6 +9,8 @@ import { useTheme } from '@mui/material'
 import { useDates } from './hooks'
 import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
+
+import WerkitWorker from '../../workers/werkit?worker'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -45,6 +47,21 @@ export const DateDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
+  const [werkit, setWerkIt] = useState<Worker>()
+
+  const [filteredTicketBins, setfilteredTicketBins] = useState<Bin<Date, Date>[]>([])
+
+  useEffect(() => {
+    if (!werkit) {
+      const worker = new WerkitWorker()
+      worker.addEventListener('message', (event) => {
+        console.log('Main received from werkit:', event.data)
+        setfilteredTicketBins(event.data)
+      })
+      setWerkIt(worker)
+    }
+  }, [werkit])
+
   const colors = useCallback(
     (node: any) => {
       if (node.id === 'filteredOut') {
@@ -56,7 +73,7 @@ export const DateDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const { allDates, timeScale, extractValueSafe } = useDates(allActiveData, column)
+  const { allDates, min, max, timeScale, extractValueSafe } = useDates(allActiveData, column)
 
   const filteredDates = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
@@ -65,9 +82,20 @@ export const DateDataDiagram = ({
 
   const allTicketBins = useMemo(() => createBins(allDates, timeScale), [allDates, timeScale])
 
+  useMemo(() => {
+    if (werkit) {
+      const message = {
+        filteredDates,
+        min,
+        max,
+      }
+      werkit.postMessage(message)
+    }
+  }, [werkit, filteredDates, min, max])
+
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    const filteredTicketBins = createBins(filteredDates, timeScale)
+    // const filteredTicketBins = createBins(filteredDates, timeScale)
 
     return (
       allTicketBins
@@ -95,7 +123,7 @@ export const DateDataDiagram = ({
           []
         )
     )
-  }, [allTicketBins, filteredDates, timeScale])
+  }, [allTicketBins, filteredTicketBins])
 
   const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(
     ({ data, value, color }) => {
