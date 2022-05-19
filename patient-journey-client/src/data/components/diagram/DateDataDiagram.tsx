@@ -117,8 +117,6 @@ export const DateDataDiagram = ({
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    // const filteredTicketBins = createBins(filteredDates, timeScale)
-
     return (
       allTicketBins
         .map<BinDatum>((_, binIndex) => {

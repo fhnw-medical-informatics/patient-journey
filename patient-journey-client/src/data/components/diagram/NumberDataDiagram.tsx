@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react'
-import { bin } from 'd3-array'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Bin } from 'd3-array'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
@@ -8,18 +8,14 @@ import { useNumbers } from './hooks'
 import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
+import NumberBinWorker from '../../workers/create-number-bins?worker'
+
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
   },
 }))
-
-const histogramBinCount = 10
-
-function createBins(numbers: ReadonlyArray<number>, min: number, max: number) {
-  return bin<number, number>().domain([min, max]).thresholds(histogramBinCount)(numbers)
-}
 
 interface BinDatum {
   readonly binIndex: number
@@ -43,6 +39,42 @@ export const NumberDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
+  const [filteredNumberBinWorker, setFilteredNumberBinWorker] = useState<Worker>()
+  const [allNumberBinWorker, setAllNumberBinWorker] = useState<Worker>()
+
+  const [allTicketBins, setAllTicketBins] = useState<Bin<number, number>[]>([])
+  const [filteredTicketBins, setfilteredTicketBins] = useState<Bin<number, number>[]>([])
+
+  useEffect(() => {
+    if (!filteredNumberBinWorker) {
+      const worker = new NumberBinWorker()
+      worker.addEventListener('message', (event) => {
+        setfilteredTicketBins(event.data)
+      })
+      setFilteredNumberBinWorker(worker)
+    } else {
+      return () => {
+        filteredNumberBinWorker.terminate()
+        setFilteredNumberBinWorker(undefined)
+      }
+    }
+  }, [filteredNumberBinWorker])
+
+  useEffect(() => {
+    if (!allNumberBinWorker) {
+      const worker = new NumberBinWorker()
+      worker.addEventListener('message', (event) => {
+        setAllTicketBins(event.data)
+      })
+      setAllNumberBinWorker(worker)
+    } else {
+      return () => {
+        allNumberBinWorker.terminate()
+        setAllNumberBinWorker(undefined)
+      }
+    }
+  }, [allNumberBinWorker])
+
   const colors = useCallback(
     (node: any) => {
       if (node.id === 'filteredOut') {
@@ -61,12 +93,30 @@ export const NumberDataDiagram = ({
     [filteredActiveData, extractValueSafe]
   )
 
-  const allTicketBins = useMemo(() => createBins(allNumbers, niceMin, niceMax), [allNumbers, niceMin, niceMax])
+  useEffect(() => {
+    if (allNumberBinWorker) {
+      const message = {
+        numbers: allNumbers,
+        min: niceMin,
+        max: niceMax,
+      }
+      allNumberBinWorker.postMessage(message)
+    }
+  }, [allNumberBinWorker, allNumbers, niceMin, niceMax])
+
+  useEffect(() => {
+    if (filteredNumberBinWorker) {
+      const message = {
+        numbers: filteredNumbers,
+        min: niceMin,
+        max: niceMax,
+      }
+      filteredNumberBinWorker.postMessage(message)
+    }
+  }, [filteredNumberBinWorker, filteredNumbers, niceMin, niceMax])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    const filteredTicketBins = createBins(filteredNumbers, niceMin, niceMax)
-
     return (
       allTicketBins
         .map<BinDatum>((_, binIndex) => {
@@ -92,7 +142,7 @@ export const NumberDataDiagram = ({
           return [...acc, bin]
         }, [])
     )
-  }, [allTicketBins, filteredNumbers, niceMin, niceMax])
+  }, [allTicketBins, filteredTicketBins])
 
   const tooltip = useCallback<React.FC<BarTooltipProps<BarDatum>>>(({ data, value, color }) => {
     const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${
