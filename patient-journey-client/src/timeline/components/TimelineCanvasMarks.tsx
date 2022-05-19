@@ -50,6 +50,7 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
       }
     }
 
+    // TODO: Also do this, when resizing and panning
     if (!isAnimationInProgress) {
       // Process all events when no animation is in progress
 
