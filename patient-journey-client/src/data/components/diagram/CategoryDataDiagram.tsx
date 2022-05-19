@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
@@ -6,6 +6,8 @@ import { useTheme } from '@mui/material'
 import { useCategories } from './hooks'
 import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
+
+import CategoryCountsWorker from '../../workers/create-category-counts?worker'
 
 const useStyles = makeStyles()(() => ({
   container: {
@@ -34,6 +36,42 @@ export const CategoryDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
+  const [filteredCategoryCountWorker, setFilteredCategoryCountWorker] = useState<Worker>()
+  const [allCategoryCountWorker, setAllCategoryCountWorker] = useState<Worker>()
+
+  const [allCategoryCount, setAllCategoryCount] = useState<Map<string, number>>(new Map())
+  const [filteredCategoryCount, setFilteredCategoryCount] = useState<Map<string, number>>(new Map())
+
+  useEffect(() => {
+    if (!filteredCategoryCountWorker) {
+      const worker = new CategoryCountsWorker()
+      worker.addEventListener('message', (event) => {
+        setFilteredCategoryCount(event.data)
+      })
+      setFilteredCategoryCountWorker(worker)
+    } else {
+      return () => {
+        filteredCategoryCountWorker.terminate()
+        setFilteredCategoryCountWorker(undefined)
+      }
+    }
+  }, [filteredCategoryCountWorker])
+
+  useEffect(() => {
+    if (!allCategoryCountWorker) {
+      const worker = new CategoryCountsWorker()
+      worker.addEventListener('message', (event) => {
+        setAllCategoryCount(event.data)
+      })
+      setAllCategoryCountWorker(worker)
+    } else {
+      return () => {
+        allCategoryCountWorker.terminate()
+        setAllCategoryCountWorker(undefined)
+      }
+    }
+  }, [allCategoryCountWorker])
+
   const colors = useCallback(
     (node: any) => {
       if (node.id === 'filteredOut') {
@@ -47,25 +85,35 @@ export const CategoryDataDiagram = ({
 
   const { allCategories, uniqueCategories, extractValueSafe } = useCategories(allActiveData, column)
 
-  const allCategoryCount: Map<string, number> = useMemo(
-    () =>
-      new Map<string, number>(
-        uniqueCategories.map((category) => [category, allCategories.filter((c) => c === category).length])
-      ),
-    [allCategories, uniqueCategories]
-  )
-
   const filteredCategories = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
 
+  useEffect(() => {
+    if (allCategoryCountWorker) {
+      const message = {
+        categories: allCategories,
+        uniqueCategories,
+      }
+      allCategoryCountWorker.postMessage(message)
+    }
+  }, [allCategoryCountWorker, allCategories, uniqueCategories])
+
+  useEffect(() => {
+    if (filteredCategoryCountWorker) {
+      const message = {
+        categories: filteredCategories,
+        uniqueCategories,
+      }
+      filteredCategoryCountWorker.postMessage(message)
+    }
+  }, [filteredCategoryCountWorker, filteredCategories, uniqueCategories])
+
   const data = useMemo(() => {
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {
-      const predicate = (t: string) => t === category
-
       const allCount = allCategoryCount.get(category) ?? 0
-      const filteredCount = filteredCategories.filter(predicate).length
+      const filteredCount = filteredCategoryCount.get(category) ?? 0
       const filteredIn = filteredCount
       const filteredOut = allCount - filteredCount
       return {
@@ -75,7 +123,7 @@ export const CategoryDataDiagram = ({
         category,
       }
     })
-  }, [filteredCategories, uniqueCategories, allCategoryCount])
+  }, [filteredCategoryCount, uniqueCategories, allCategoryCount])
 
   const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(({ data, value, color }) => {
     const title = `${data.category} (${value})`
