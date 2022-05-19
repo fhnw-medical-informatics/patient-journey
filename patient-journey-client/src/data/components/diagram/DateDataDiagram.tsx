@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Bin, bin } from 'd3-array'
-import { ScaleTime } from 'd3-scale'
+import { Bin } from 'd3-array'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { format } from '../../columns'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
@@ -10,7 +9,7 @@ import { useDates } from './hooks'
 import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
-import WerkitWorker from '../../workers/werkit?worker'
+import DateBinWorker from '../../workers/create-date-bins?worker'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -18,13 +17,6 @@ const useStyles = makeStyles()((theme) => ({
     height: '100px',
   },
 }))
-
-const histogramBinCount = 10
-
-function createBins(dates: ReadonlyArray<Date>, timeScale: ScaleTime<Date, Date>) {
-  const [min, max] = timeScale.domain()
-  return bin<Date, Date>().domain([min, max]).thresholds(timeScale.ticks(histogramBinCount))(dates)
-}
 
 interface BinDatum {
   readonly binIndex: number
@@ -47,20 +39,41 @@ export const DateDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [werkit, setWerkIt] = useState<Worker>()
+  const [filteredDateBinWorker, setFilteredDateBinWorker] = useState<Worker>()
+  const [allDateBinWorker, setAllDateBinWorker] = useState<Worker>()
 
+  const [allTicketBins, setAllTicketBins] = useState<Bin<Date, Date>[]>([])
   const [filteredTicketBins, setfilteredTicketBins] = useState<Bin<Date, Date>[]>([])
 
   useEffect(() => {
-    if (!werkit) {
-      const worker = new WerkitWorker()
+    if (!filteredDateBinWorker) {
+      const worker = new DateBinWorker()
       worker.addEventListener('message', (event) => {
-        console.log('Main received from werkit:', event.data)
         setfilteredTicketBins(event.data)
       })
-      setWerkIt(worker)
+      setFilteredDateBinWorker(worker)
+    } else {
+      return () => {
+        filteredDateBinWorker.terminate()
+        setFilteredDateBinWorker(undefined)
+      }
     }
-  }, [werkit])
+  }, [filteredDateBinWorker])
+
+  useEffect(() => {
+    if (!allDateBinWorker) {
+      const worker = new DateBinWorker()
+      worker.addEventListener('message', (event) => {
+        setAllTicketBins(event.data)
+      })
+      setAllDateBinWorker(worker)
+    } else {
+      return () => {
+        allDateBinWorker.terminate()
+        setAllDateBinWorker(undefined)
+      }
+    }
+  }, [allDateBinWorker])
 
   const colors = useCallback(
     (node: any) => {
@@ -73,25 +86,34 @@ export const DateDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const { allDates, min, max, timeScale, extractValueSafe } = useDates(allActiveData, column)
+  const { allDates, min, max, extractValueSafe } = useDates(allActiveData, column)
 
   const filteredDates = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
 
-  const allTicketBins = useMemo(() => createBins(allDates, timeScale), [allDates, timeScale])
-
-  useMemo(() => {
-    if (werkit) {
+  useEffect(() => {
+    if (allDateBinWorker) {
       const message = {
-        filteredDates,
+        dates: allDates,
         min,
         max,
       }
-      werkit.postMessage(message)
+      allDateBinWorker.postMessage(message)
     }
-  }, [werkit, filteredDates, min, max])
+  }, [allDateBinWorker, allDates, min, max])
+
+  useEffect(() => {
+    if (filteredDateBinWorker) {
+      const message = {
+        dates: filteredDates,
+        min,
+        max,
+      }
+      filteredDateBinWorker.postMessage(message)
+    }
+  }, [filteredDateBinWorker, filteredDates, min, max])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
