@@ -1,4 +1,4 @@
-import React, { useCallback, useDeferredValue, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { useTheme } from '@mui/material'
 
@@ -39,23 +39,14 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
   >([])
   const [pinnedEventsWithCoordinates, setPinnedEventsWithCoordinates] = useState<ReadonlyArray<E & Coordinates>>([])
 
-  // Use deferred values to ensure user interaction has priority
-  // when changen pane size or zooming.
-  const deferredEvents = useDeferredValue(events)
-  const deferredClusters = useDeferredValue(eventClusters)
-  const deferredHeight = useDeferredValue(height)
-  const deferredWidth = useDeferredValue(width)
-  const deferredYScale = useDeferredValue(yScale)
-  const deferredXScale = useDeferredValue(xScale)
-
   // TODO: This is a workaround for the way animations work
   // in react-svg-timeline (each animation fram is a state change)
   // once re-factored, the code below can be simplified.
   useEffect(() => {
     const getCoordinates = (e: Pick<E, 'color' | 'startTimeMillis' | 'laneId'>): Coordinates => {
       return {
-        x: Math.floor(deferredXScale(e.startTimeMillis)),
-        y: Math.floor(laneDisplayMode === 'collapsed' ? deferredHeight / 2 : deferredYScale(e.laneId!)!),
+        x: Math.floor(xScale(e.startTimeMillis)),
+        y: Math.floor(laneDisplayMode === 'collapsed' ? height / 2 : yScale(e.laneId!)!),
       }
     }
 
@@ -63,7 +54,7 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
       // Process all events when no animation is in progress
 
       // Get current coordinates for all events
-      const eventsWithCoordinates = deferredEvents.map((e) => ({
+      const eventsWithCoordinates = events.map((e) => ({
         ...e,
         ...getCoordinates(e),
       }))
@@ -108,7 +99,7 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
       setVisibleEventsWithCoordinates((events) => events.map((e) => ({ ...e, ...getCoordinates(e) })))
       setPinnedEventsWithCoordinates((events) => events.map((e) => ({ ...e, ...getCoordinates(e) })))
     }
-  }, [deferredEvents, deferredHeight, laneDisplayMode, deferredXScale, deferredYScale, isAnimationInProgress])
+  }, [events, height, laneDisplayMode, xScale, yScale, isAnimationInProgress])
 
   const [renderInfo, setRenderInfo] = useState<RenderInfo>()
 
@@ -135,25 +126,25 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
 
       resizeCanvas(canvas, ctx)
 
-      ctx.clearRect(0, 0, deferredWidth, deferredHeight)
+      ctx.clearRect(0, 0, width, height)
 
       ctx.strokeStyle = theme.palette.background.paper
       ctx.lineWidth = 2
 
       // Draw Clusters
-      const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(deferredClusters.map((c) => c.size))
-      const markSize = calcMarkSize(laneDisplayMode, deferredYScale.bandwidth())
+      const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))
+      const markSize = calcMarkSize(laneDisplayMode, yScale.bandwidth())
       const clusterRadiusMin = markSize / 2
-      const clusterRadiusMax = laneDisplayMode === 'expanded' ? markSize : Math.min(deferredHeight / 2, 2 * markSize)
+      const clusterRadiusMax = laneDisplayMode === 'expanded' ? markSize : Math.min(height / 2, 2 * markSize)
 
       const clusterScale = scaleSqrt()
         .domain([clusterSizeDomainMin ?? 0, clusterSizeDomainMax ?? 0])
         .range([clusterRadiusMin, clusterRadiusMax])
 
-      deferredClusters.forEach((cluster) => {
+      eventClusters.forEach((cluster) => {
         // Round to avoid sub-pixel rendering
-        const x = Math.round(deferredXScale(cluster.timeMillis))
-        const y = Math.round(laneDisplayMode === 'collapsed' ? deferredHeight / 2 : deferredYScale(cluster.laneId!)!)
+        const x = Math.round(xScale(cluster.timeMillis))
+        const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(cluster.laneId!)!)
 
         changeCanvasFillStyle(ctx, theme.palette.primary.main)
 
@@ -186,12 +177,12 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
     renderInfo,
     pinnedEventsWithCoordinates,
     visibleEventsWithCoordinates,
-    deferredXScale,
-    deferredWidth,
-    deferredHeight,
-    deferredYScale,
+    xScale,
+    width,
+    height,
+    yScale,
     laneDisplayMode,
-    deferredClusters,
+    eventClusters,
     theme,
   ])
 
