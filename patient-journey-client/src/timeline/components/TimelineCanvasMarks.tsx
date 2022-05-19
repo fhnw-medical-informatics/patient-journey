@@ -1,4 +1,4 @@
-import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useDeferredValue, useEffect, useState } from 'react'
 
 import { useTheme } from '@mui/material'
 
@@ -11,6 +11,8 @@ import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline
 import { calcMarkSize } from './SvgMark'
 
 type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
+
+type Coordinates = { x: number; y: number }
 
 const useStyles = makeStyles()({
   layer: {
@@ -27,10 +29,18 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
   laneDisplayMode,
   yScale,
   eventClusters,
+  isAnimationInProgress,
 }: CustomLayerProps<EID, PatientId, E>) => {
   const { classes } = useStyles()
   const theme = useTheme()
 
+  const [visibleEventsWithCoordinates, setVisibleEventsWithCoordinates] = useState<
+    ReadonlyArray<Pick<E, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates>
+  >([])
+  const [pinnedEventsWithCoordinates, setPinnedEventsWithCoordinates] = useState<ReadonlyArray<E & Coordinates>>([])
+
+  // Use deferred values to ensure user interaction has priority
+  // when changen pane size or zooming.
   const deferredEvents = useDeferredValue(events)
   const deferredClusters = useDeferredValue(eventClusters)
   const deferredHeight = useDeferredValue(height)
@@ -38,23 +48,67 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
   const deferredYScale = useDeferredValue(yScale)
   const deferredXScale = useDeferredValue(xScale)
 
-  const { pinnedEventsWithCoordinates, eventsGroupedByCoordinates } = useMemo(() => {
-    const eventsWithCoordinates = deferredEvents.map((e) => ({
-      ...e,
-      x: Math.floor(deferredXScale(e.startTimeMillis)),
-      y: Math.floor(laneDisplayMode === 'collapsed' ? deferredHeight / 2 : deferredYScale(e.laneId!)!),
-    }))
+  // TODO: This is a workaround for the way animations work
+  // in react-svg-timeline (each animation fram is a state change)
+  // once re-factored, the code below can be simplified.
+  useEffect(() => {
+    const getCoordinates = (e: Pick<E, 'color' | 'startTimeMillis' | 'laneId'>): Coordinates => {
+      return {
+        x: Math.floor(deferredXScale(e.startTimeMillis)),
+        y: Math.floor(laneDisplayMode === 'collapsed' ? deferredHeight / 2 : deferredYScale(e.laneId!)!),
+      }
+    }
 
-    const pinnedEventsWithCoordinates = eventsWithCoordinates.filter((event) => event.isSelected || event.isPinned)
+    if (!isAnimationInProgress) {
+      // Process all events when no animation is in progress
 
-    const eventsGroupedByCoordinates = groups(
-      eventsWithCoordinates,
-      (e) => e.y,
-      (e) => e.x
-    )
+      // Get current coordinates for all events
+      const eventsWithCoordinates = deferredEvents.map((e) => ({
+        ...e,
+        ...getCoordinates(e),
+      }))
 
-    return { pinnedEventsWithCoordinates, eventsGroupedByCoordinates }
-  }, [deferredEvents, deferredHeight, laneDisplayMode, deferredXScale, deferredYScale])
+      // Get current coordinates for all pinned/selected events
+      const pinnedEventsWithCoordinates = eventsWithCoordinates.filter((event) => event.isSelected || event.isPinned)
+
+      // Group events by coordinates (events that would be painted on top of each other,
+      // share the same coordinates and fall into the same group)
+      const eventsGroupedByCoordinates = groups(
+        eventsWithCoordinates,
+        (e) => e.y,
+        (e) => e.x
+      )
+
+      // Reduce the events to only visible events (1 event representing each coordinate group)
+      const visibleEventsWithCoordinates = eventsGroupedByCoordinates.reduce((accLanes, curLane) => {
+        const y = curLane[0]
+
+        const newLanes = []
+
+        for (let i = 0; i < curLane[1].length; i++) {
+          const x = curLane[1][i][0]
+          const firstEventInGroup = curLane[1][i][1][0]
+
+          newLanes.push({
+            x,
+            y,
+            color: firstEventInGroup.color,
+            startTimeMillis: firstEventInGroup.startTimeMillis,
+            laneId: firstEventInGroup.laneId,
+          })
+        }
+
+        return [...accLanes, ...newLanes]
+      }, [] as ReadonlyArray<Pick<E, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates>)
+
+      setVisibleEventsWithCoordinates(visibleEventsWithCoordinates)
+      setPinnedEventsWithCoordinates(pinnedEventsWithCoordinates)
+    } else {
+      // Only update currently visible (previously processed) events when animation is in progress
+      setVisibleEventsWithCoordinates((events) => events.map((e) => ({ ...e, ...getCoordinates(e) })))
+      setPinnedEventsWithCoordinates((events) => events.map((e) => ({ ...e, ...getCoordinates(e) })))
+    }
+  }, [deferredEvents, deferredHeight, laneDisplayMode, deferredXScale, deferredYScale, isAnimationInProgress])
 
   const [renderInfo, setRenderInfo] = useState<RenderInfo>()
 
@@ -110,37 +164,28 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
         // ctx.closePath() - ctx.fill() automatically closes the path
       })
 
-      const drawGroup = (group: { x: number; y: number; color?: string }) => {
-        changeCanvasFillStyle(ctx, group.color ?? theme.palette.primary.main)
+      const drawVisibleEvents = (visibleEvent: { x: number; y: number; color?: string }) => {
+        changeCanvasFillStyle(ctx, visibleEvent.color ?? theme.palette.primary.main)
 
         // Note: We could further optimize this, by
         // grouping events by color and then beginPath()ing
         // and filling/stroking only once per color.
         ctx.beginPath()
-        ctx.arc(group.x, group.y, markSize / 2, 0, 360)
+        ctx.arc(visibleEvent.x, visibleEvent.y, markSize / 2, 0, 360)
         ctx.fill()
         ctx.stroke()
         // ctx.closePath() - ctx.fill() automatically closes the path
       }
 
       // Draw visible events
-      eventsGroupedByCoordinates.forEach((lane) => {
-        const y = lane[0]
-
-        for (let i = 0; i < lane[1].length; i++) {
-          const x = lane[1][i][0]
-          const firstEventInGroup = lane[1][i][1][0]
-
-          drawGroup({ x, y, color: firstEventInGroup.color })
-        }
-      })
+      visibleEventsWithCoordinates.forEach((event) => drawVisibleEvents({ x: event.x, y: event.y, color: event.color }))
       // Draw selected and pinned events on top
-      pinnedEventsWithCoordinates.forEach((event) => drawGroup({ x: event.x, y: event.y, color: event.color }))
+      pinnedEventsWithCoordinates.forEach((event) => drawVisibleEvents({ x: event.x, y: event.y, color: event.color }))
     }
   }, [
     renderInfo,
     pinnedEventsWithCoordinates,
-    eventsGroupedByCoordinates,
+    visibleEventsWithCoordinates,
     deferredXScale,
     deferredWidth,
     deferredHeight,
