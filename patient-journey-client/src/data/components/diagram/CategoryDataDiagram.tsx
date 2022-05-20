@@ -8,6 +8,7 @@ import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
 import CategoryCountsWorker from '../../workers/create-category-counts?worker'
+import { useWorker } from '../../workers/hooks'
 
 const useStyles = makeStyles()(() => ({
   container: {
@@ -36,41 +37,21 @@ export const CategoryDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [filteredCategoryCountWorker, setFilteredCategoryCountWorker] = useState<Worker>()
-  const [allCategoryCountWorker, setAllCategoryCountWorker] = useState<Worker>()
+  const [isFilteredCategoryCountWorkerReady, postMessageToFilteredCategoryCountWorker] = useWorker(
+    CategoryCountsWorker,
+    (event) => {
+      setFilteredCategoryCount(event.data)
+    }
+  )
+  const [isAllCategoryCountWorkerReady, postMessageToAllCategoryCountWorker] = useWorker(
+    CategoryCountsWorker,
+    (event) => {
+      setAllCategoryCount(event.data)
+    }
+  )
 
   const [allCategoryCount, setAllCategoryCount] = useState<Map<string, number>>(new Map())
   const [filteredCategoryCount, setFilteredCategoryCount] = useState<Map<string, number>>(new Map())
-
-  useEffect(() => {
-    if (!filteredCategoryCountWorker) {
-      const worker = new CategoryCountsWorker()
-      worker.addEventListener('message', (event) => {
-        setFilteredCategoryCount(event.data)
-      })
-      setFilteredCategoryCountWorker(worker)
-    } else {
-      return () => {
-        filteredCategoryCountWorker.terminate()
-        setFilteredCategoryCountWorker(undefined)
-      }
-    }
-  }, [filteredCategoryCountWorker])
-
-  useEffect(() => {
-    if (!allCategoryCountWorker) {
-      const worker = new CategoryCountsWorker()
-      worker.addEventListener('message', (event) => {
-        setAllCategoryCount(event.data)
-      })
-      setAllCategoryCountWorker(worker)
-    } else {
-      return () => {
-        allCategoryCountWorker.terminate()
-        setAllCategoryCountWorker(undefined)
-      }
-    }
-  }, [allCategoryCountWorker])
 
   const colors = useCallback(
     (node: any) => {
@@ -91,24 +72,29 @@ export const CategoryDataDiagram = ({
   )
 
   useEffect(() => {
-    if (allCategoryCountWorker) {
+    if (isAllCategoryCountWorkerReady) {
       const message = {
         categories: allCategories,
         uniqueCategories,
       }
-      allCategoryCountWorker.postMessage(message)
+      postMessageToAllCategoryCountWorker(message)
     }
-  }, [allCategoryCountWorker, allCategories, uniqueCategories])
+  }, [isAllCategoryCountWorkerReady, postMessageToAllCategoryCountWorker, allCategories, uniqueCategories])
 
   useEffect(() => {
-    if (filteredCategoryCountWorker) {
+    if (isFilteredCategoryCountWorkerReady) {
       const message = {
         categories: filteredCategories,
         uniqueCategories,
       }
-      filteredCategoryCountWorker.postMessage(message)
+      postMessageToFilteredCategoryCountWorker(message)
     }
-  }, [filteredCategoryCountWorker, filteredCategories, uniqueCategories])
+  }, [
+    isFilteredCategoryCountWorkerReady,
+    postMessageToFilteredCategoryCountWorker,
+    filteredCategories,
+    uniqueCategories,
+  ])
 
   const data = useMemo(() => {
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {

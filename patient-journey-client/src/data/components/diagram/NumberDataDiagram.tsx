@@ -9,6 +9,7 @@ import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
 import NumberBinWorker from '../../workers/create-number-bins?worker'
+import { useWorker } from '../../workers/hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -39,41 +40,15 @@ export const NumberDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [filteredNumberBinWorker, setFilteredNumberBinWorker] = useState<Worker>()
-  const [allNumberBinWorker, setAllNumberBinWorker] = useState<Worker>()
+  const [isFilteredNumberBinWorkerReady, postMessageToFilteredNumberBinWorker] = useWorker(NumberBinWorker, (event) => {
+    setfilteredTicketBins(event.data)
+  })
+  const [isAllNumberBinWorkerReady, postMessageToAllNumberBinWorker] = useWorker(NumberBinWorker, (event) => {
+    setAllTicketBins(event.data)
+  })
 
   const [allTicketBins, setAllTicketBins] = useState<Bin<number, number>[]>([])
   const [filteredTicketBins, setfilteredTicketBins] = useState<Bin<number, number>[]>([])
-
-  useEffect(() => {
-    if (!filteredNumberBinWorker) {
-      const worker = new NumberBinWorker()
-      worker.addEventListener('message', (event) => {
-        setfilteredTicketBins(event.data)
-      })
-      setFilteredNumberBinWorker(worker)
-    } else {
-      return () => {
-        filteredNumberBinWorker.terminate()
-        setFilteredNumberBinWorker(undefined)
-      }
-    }
-  }, [filteredNumberBinWorker])
-
-  useEffect(() => {
-    if (!allNumberBinWorker) {
-      const worker = new NumberBinWorker()
-      worker.addEventListener('message', (event) => {
-        setAllTicketBins(event.data)
-      })
-      setAllNumberBinWorker(worker)
-    } else {
-      return () => {
-        allNumberBinWorker.terminate()
-        setAllNumberBinWorker(undefined)
-      }
-    }
-  }, [allNumberBinWorker])
 
   const colors = useCallback(
     (node: any) => {
@@ -94,26 +69,26 @@ export const NumberDataDiagram = ({
   )
 
   useEffect(() => {
-    if (allNumberBinWorker) {
+    if (isAllNumberBinWorkerReady) {
       const message = {
         numbers: allNumbers,
         min: niceMin,
         max: niceMax,
       }
-      allNumberBinWorker.postMessage(message)
+      postMessageToAllNumberBinWorker(message)
     }
-  }, [allNumberBinWorker, allNumbers, niceMin, niceMax])
+  }, [isAllNumberBinWorkerReady, postMessageToAllNumberBinWorker, allNumbers, niceMin, niceMax])
 
   useEffect(() => {
-    if (filteredNumberBinWorker) {
+    if (isFilteredNumberBinWorkerReady) {
       const message = {
         numbers: filteredNumbers,
         min: niceMin,
         max: niceMax,
       }
-      filteredNumberBinWorker.postMessage(message)
+      postMessageToFilteredNumberBinWorker(message)
     }
-  }, [filteredNumberBinWorker, filteredNumbers, niceMin, niceMax])
+  }, [isFilteredNumberBinWorkerReady, postMessageToFilteredNumberBinWorker, filteredNumbers, niceMin, niceMax])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure

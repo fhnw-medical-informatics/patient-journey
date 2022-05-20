@@ -10,6 +10,7 @@ import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
 import DateBinWorker from '../../workers/create-date-bins?worker'
+import { useWorker } from '../../workers/hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -39,41 +40,15 @@ export const DateDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [filteredDateBinWorker, setFilteredDateBinWorker] = useState<Worker>()
-  const [allDateBinWorker, setAllDateBinWorker] = useState<Worker>()
+  const [isFilteredDateBinWorkerReady, postMessageToFilteredDateBinWorker] = useWorker(DateBinWorker, (event) => {
+    setfilteredTicketBins(event.data)
+  })
+  const [isAllDateBinWorkerReady, postMessageToAllDateBinWorker] = useWorker(DateBinWorker, (event) => {
+    setAllTicketBins(event.data)
+  })
 
   const [allTicketBins, setAllTicketBins] = useState<Bin<Date, Date>[]>([])
   const [filteredTicketBins, setfilteredTicketBins] = useState<Bin<Date, Date>[]>([])
-
-  useEffect(() => {
-    if (!filteredDateBinWorker) {
-      const worker = new DateBinWorker()
-      worker.addEventListener('message', (event) => {
-        setfilteredTicketBins(event.data)
-      })
-      setFilteredDateBinWorker(worker)
-    } else {
-      return () => {
-        filteredDateBinWorker.terminate()
-        setFilteredDateBinWorker(undefined)
-      }
-    }
-  }, [filteredDateBinWorker])
-
-  useEffect(() => {
-    if (!allDateBinWorker) {
-      const worker = new DateBinWorker()
-      worker.addEventListener('message', (event) => {
-        setAllTicketBins(event.data)
-      })
-      setAllDateBinWorker(worker)
-    } else {
-      return () => {
-        allDateBinWorker.terminate()
-        setAllDateBinWorker(undefined)
-      }
-    }
-  }, [allDateBinWorker])
 
   const colors = useCallback(
     (node: any) => {
@@ -94,26 +69,26 @@ export const DateDataDiagram = ({
   )
 
   useEffect(() => {
-    if (allDateBinWorker) {
+    if (isAllDateBinWorkerReady) {
       const message = {
         dates: allDates,
         min,
         max,
       }
-      allDateBinWorker.postMessage(message)
+      postMessageToAllDateBinWorker(message)
     }
-  }, [allDateBinWorker, allDates, min, max])
+  }, [isAllDateBinWorkerReady, postMessageToAllDateBinWorker, allDates, min, max])
 
   useEffect(() => {
-    if (filteredDateBinWorker) {
+    if (isFilteredDateBinWorkerReady) {
       const message = {
         dates: filteredDates,
         min,
         max,
       }
-      filteredDateBinWorker.postMessage(message)
+      postMessageToFilteredDateBinWorker(message)
     }
-  }, [filteredDateBinWorker, filteredDates, min, max])
+  }, [isFilteredDateBinWorkerReady, postMessageToFilteredDateBinWorker, filteredDates, min, max])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
