@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { Bin } from 'd3-array'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
