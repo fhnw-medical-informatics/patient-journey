@@ -1,15 +1,14 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-export const useWorker = (
-  _Worker: new () => Worker,
-  onMessage: (e: MessageEvent) => void
-): [boolean, (msg: any) => void] => {
+export const useWorker = <D, R>(_Worker: new () => Worker, data: D, initialValue: R): R => {
   const [workerInstance, setWorkerInstance] = useState<Worker>()
+  const [result, setResult] = useState<R>(initialValue)
 
+  // Initialize worker
   useEffect(() => {
     if (!workerInstance) {
       const worker = new _Worker()
-      worker.addEventListener('message', onMessage)
+      worker.addEventListener('message', (e) => setResult(e.data))
       setWorkerInstance(worker)
     } else {
       return () => {
@@ -17,16 +16,12 @@ export const useWorker = (
         setWorkerInstance(undefined)
       }
     }
-  }, [workerInstance, onMessage, _Worker])
+  }, [workerInstance, _Worker])
 
-  const postMessage = useCallback(
-    (msg: any) => {
-      if (workerInstance) {
-        workerInstance.postMessage(msg)
-      }
-    },
-    [workerInstance]
-  )
+  // Post data to the worker when data changes
+  useEffect(() => {
+    workerInstance?.postMessage(data)
+  }, [workerInstance, data])
 
-  return [workerInstance !== undefined, postMessage]
+  return result
 }

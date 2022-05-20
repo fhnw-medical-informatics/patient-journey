@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
@@ -37,22 +37,6 @@ export const CategoryDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [isFilteredCategoryCountWorkerReady, postMessageToFilteredCategoryCountWorker] = useWorker(
-    CategoryCountsWorker,
-    (event) => {
-      setFilteredCategoryCount(event.data)
-    }
-  )
-  const [isAllCategoryCountWorkerReady, postMessageToAllCategoryCountWorker] = useWorker(
-    CategoryCountsWorker,
-    (event) => {
-      setAllCategoryCount(event.data)
-    }
-  )
-
-  const [allCategoryCount, setAllCategoryCount] = useState<Map<string, number>>(new Map())
-  const [filteredCategoryCount, setFilteredCategoryCount] = useState<Map<string, number>>(new Map())
-
   const colors = useCallback(
     (node: any) => {
       if (node.id === 'filteredOut') {
@@ -71,30 +55,23 @@ export const CategoryDataDiagram = ({
     [filteredActiveData, extractValueSafe]
   )
 
-  useEffect(() => {
-    if (isAllCategoryCountWorkerReady) {
-      const message = {
-        categories: allCategories,
-        uniqueCategories,
-      }
-      postMessageToAllCategoryCountWorker(message)
-    }
-  }, [isAllCategoryCountWorkerReady, postMessageToAllCategoryCountWorker, allCategories, uniqueCategories])
+  const allCategoriesWorkerData = useMemo(
+    () => ({ categories: allCategories, uniqueCategories }),
+    [allCategories, uniqueCategories]
+  )
 
-  useEffect(() => {
-    if (isFilteredCategoryCountWorkerReady) {
-      const message = {
-        categories: filteredCategories,
-        uniqueCategories,
-      }
-      postMessageToFilteredCategoryCountWorker(message)
-    }
-  }, [
-    isFilteredCategoryCountWorkerReady,
-    postMessageToFilteredCategoryCountWorker,
-    filteredCategories,
-    uniqueCategories,
-  ])
+  const allCategoryCount = useWorker<any, Map<string, number>>(CategoryCountsWorker, allCategoriesWorkerData, new Map())
+
+  const filteredCategoriesWorkerData = useMemo(
+    () => ({ categories: filteredCategories, uniqueCategories }),
+    [filteredCategories, uniqueCategories]
+  )
+
+  const filteredCategoryCount = useWorker<any, Map<string, number>>(
+    CategoryCountsWorker,
+    filteredCategoriesWorkerData,
+    new Map()
+  )
 
   const data = useMemo(() => {
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {

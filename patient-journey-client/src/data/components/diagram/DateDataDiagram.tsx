@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { Bin } from 'd3-array'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { format } from '../../columns'
@@ -40,16 +40,6 @@ export const DateDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [isFilteredDateBinWorkerReady, postMessageToFilteredDateBinWorker] = useWorker(DateBinWorker, (event) => {
-    setfilteredTicketBins(event.data)
-  })
-  const [isAllDateBinWorkerReady, postMessageToAllDateBinWorker] = useWorker(DateBinWorker, (event) => {
-    setAllTicketBins(event.data)
-  })
-
-  const [allTicketBins, setAllTicketBins] = useState<Bin<Date, Date>[]>([])
-  const [filteredTicketBins, setfilteredTicketBins] = useState<Bin<Date, Date>[]>([])
-
   const colors = useCallback(
     (node: any) => {
       if (node.id === 'filteredOut') {
@@ -68,27 +58,13 @@ export const DateDataDiagram = ({
     [filteredActiveData, extractValueSafe]
   )
 
-  useEffect(() => {
-    if (isAllDateBinWorkerReady) {
-      const message = {
-        dates: allDates,
-        min,
-        max,
-      }
-      postMessageToAllDateBinWorker(message)
-    }
-  }, [isAllDateBinWorkerReady, postMessageToAllDateBinWorker, allDates, min, max])
+  const allDatesWorkerData = useMemo(() => ({ dates: allDates, min, max }), [allDates, min, max])
 
-  useEffect(() => {
-    if (isFilteredDateBinWorkerReady) {
-      const message = {
-        dates: filteredDates,
-        min,
-        max,
-      }
-      postMessageToFilteredDateBinWorker(message)
-    }
-  }, [isFilteredDateBinWorkerReady, postMessageToFilteredDateBinWorker, filteredDates, min, max])
+  const allTicketBins = useWorker<any, ReadonlyArray<Bin<Date, Date>>>(DateBinWorker, allDatesWorkerData, [])
+
+  const filteredDatesWorkerData = useMemo(() => ({ dates: filteredDates, min, max }), [filteredDates, min, max])
+
+  const filteredTicketBins = useWorker<any, ReadonlyArray<Bin<Date, Date>>>(DateBinWorker, filteredDatesWorkerData, [])
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure

@@ -40,16 +40,6 @@ export const NumberDataDiagram = ({
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [isFilteredNumberBinWorkerReady, postMessageToFilteredNumberBinWorker] = useWorker(NumberBinWorker, (event) => {
-    setfilteredTicketBins(event.data)
-  })
-  const [isAllNumberBinWorkerReady, postMessageToAllNumberBinWorker] = useWorker(NumberBinWorker, (event) => {
-    setAllTicketBins(event.data)
-  })
-
-  const [allTicketBins, setAllTicketBins] = useState<Bin<number, number>[]>([])
-  const [filteredTicketBins, setfilteredTicketBins] = useState<Bin<number, number>[]>([])
-
   const colors = useCallback(
     (node: any) => {
       if (node.id === 'filteredOut') {
@@ -68,27 +58,23 @@ export const NumberDataDiagram = ({
     [filteredActiveData, extractValueSafe]
   )
 
-  useEffect(() => {
-    if (isAllNumberBinWorkerReady) {
-      const message = {
-        numbers: allNumbers,
-        min: niceMin,
-        max: niceMax,
-      }
-      postMessageToAllNumberBinWorker(message)
-    }
-  }, [isAllNumberBinWorkerReady, postMessageToAllNumberBinWorker, allNumbers, niceMin, niceMax])
+  const allNumbersWorkerData = useMemo(
+    () => ({ numbers: allNumbers, min: niceMin, max: niceMax }),
+    [allNumbers, niceMin, niceMax]
+  )
 
-  useEffect(() => {
-    if (isFilteredNumberBinWorkerReady) {
-      const message = {
-        numbers: filteredNumbers,
-        min: niceMin,
-        max: niceMax,
-      }
-      postMessageToFilteredNumberBinWorker(message)
-    }
-  }, [isFilteredNumberBinWorkerReady, postMessageToFilteredNumberBinWorker, filteredNumbers, niceMin, niceMax])
+  const allTicketBins = useWorker<any, ReadonlyArray<Bin<number, number>>>(NumberBinWorker, allNumbersWorkerData, [])
+
+  const filteredNumbersWorkerData = useMemo(
+    () => ({ numbers: filteredNumbers, min: niceMin, max: niceMax }),
+    [filteredNumbers, niceMin, niceMax]
+  )
+
+  const filteredTicketBins = useWorker<any, ReadonlyArray<Bin<number, number>>>(
+    NumberBinWorker,
+    filteredNumbersWorkerData,
+    []
+  )
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
