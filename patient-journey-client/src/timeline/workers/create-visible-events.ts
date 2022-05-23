@@ -2,17 +2,20 @@ import { groups } from 'd3-array'
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { createTimelineScales } from './shared'
 
-export type Coordinates = { x: number; y: number }
+type Coordinates = { x: number; y: number }
 
+type MinimalEvent = Pick<TimelineEvent<any, any>, 'color' | 'startTimeMillis' | 'laneId'>
+
+type EventWithCoordinates = MinimalEvent & Coordinates
+
+export interface VisibleEventsResult {
+  visibleEventsWithCoordinates: ReadonlyArray<EventWithCoordinates>
+  pinnedEventsWithCoordinates: ReadonlyArray<EventWithCoordinates>
+}
+
+// TODO: Use this for cluster calc als well.
 const createVisibleEventsWorker = () => {
-  let previousResult: {
-    visibleEventsWithCoordinates: ReadonlyArray<
-      Pick<TimelineEvent<any, any>, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates
-    >
-    pinnedEventsWithCoordinates: ReadonlyArray<
-      Pick<TimelineEvent<any, any>, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates
-    >
-  } = {
+  let previousResult: VisibleEventsResult = {
     visibleEventsWithCoordinates: [],
     pinnedEventsWithCoordinates: [],
   }
@@ -36,7 +39,7 @@ const createVisibleEventsWorker = () => {
       timeScalePadding,
     })
 
-    const getCoordinates = (e: Pick<TimelineEvent<any, any>, 'color' | 'startTimeMillis' | 'laneId'>): Coordinates => {
+    const getCoordinates = (e: MinimalEvent): Coordinates => {
       return {
         x: Math.floor(xScale(e.startTimeMillis)),
         y: Math.floor(laneDisplayMode === 'collapsed' ? height / 2 : yScale(e.laneId!)!),
@@ -84,7 +87,7 @@ const createVisibleEventsWorker = () => {
         }
 
         return [...accLanes, ...newLanes]
-      }, [] as ReadonlyArray<Pick<TimelineEvent<any, any>, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates>)
+      }, [] as ReadonlyArray<EventWithCoordinates>)
 
       return {
         visibleEventsWithCoordinates,
@@ -106,9 +109,7 @@ const createVisibleEventsWorker = () => {
   }
 
   onmessage = (e: MessageEvent<CustomLayerProps<any, any, TimelineEvent<any, any>>>) => {
-    console.log('getting message')
     previousResult = computeVisibleEvents(e.data)
-
     postMessage(previousResult)
   }
 }
