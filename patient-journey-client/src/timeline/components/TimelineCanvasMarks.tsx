@@ -1,18 +1,20 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTheme } from '@mui/material'
 
-import { extent, groups } from 'd3-array'
+import { extent } from 'd3-array'
 import { scaleSqrt } from 'd3-scale'
 
 import { makeStyles } from '../../utils'
 
 import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { calcMarkSize } from './SvgMark'
+import { Coordinates } from '../workers/create-visible-events'
+
+import CreateVisibleEventsWorker from '../workers/create-visible-events?worker'
+import { useWorker } from '../../data/workers/hooks'
 
 type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
-
-type Coordinates = { x: number; y: number }
 
 const useStyles = makeStyles()({
   layer: {
@@ -22,6 +24,8 @@ const useStyles = makeStyles()({
 })
 
 const TimelineCanvasMarks = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>({
+  domain,
+  lanes,
   height,
   width,
   events,
@@ -34,73 +38,26 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [visibleEventsWithCoordinates, setVisibleEventsWithCoordinates] = useState<
-    ReadonlyArray<Pick<E, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates>
-  >([])
-  const [pinnedEventsWithCoordinates, setPinnedEventsWithCoordinates] = useState<ReadonlyArray<E & Coordinates>>([])
+  const workerProps = useMemo(
+    () => ({
+      events,
+      domain,
+      width,
+      height,
+      lanes,
+      laneDisplayMode,
+      isAnimationInProgress,
+    }),
+    [events, domain, width, height, lanes, laneDisplayMode, isAnimationInProgress]
+  )
 
-  // TODO: This is a workaround for the way animations work
-  // in react-svg-timeline (each animation fram is a state change)
-  // once re-factored, the code below can be simplified.
-  useEffect(() => {
-    const getCoordinates = (e: Pick<E, 'color' | 'startTimeMillis' | 'laneId'>): Coordinates => {
-      return {
-        x: Math.floor(xScale(e.startTimeMillis)),
-        y: Math.floor(laneDisplayMode === 'collapsed' ? height / 2 : yScale(e.laneId!)!),
-      }
+  const { visibleEventsWithCoordinates, pinnedEventsWithCoordinates } = useWorker<
+    any,
+    {
+      visibleEventsWithCoordinates: ReadonlyArray<Pick<E, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates>
+      pinnedEventsWithCoordinates: ReadonlyArray<Pick<E, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates>
     }
-
-    // TODO: Also do this, when resizing and panning
-    if (!isAnimationInProgress) {
-      // Process all events when no animation is in progress
-
-      // Get current coordinates for all events
-      const eventsWithCoordinates = events.map((e) => ({
-        ...e,
-        ...getCoordinates(e),
-      }))
-
-      // Get current coordinates for all pinned/selected events
-      const pinnedEventsWithCoordinates = eventsWithCoordinates.filter((event) => event.isSelected || event.isPinned)
-
-      // Group events by coordinates (events that would be painted on top of each other,
-      // share the same coordinates and fall into the same group)
-      const eventsGroupedByCoordinates = groups(
-        eventsWithCoordinates,
-        (e) => e.y,
-        (e) => e.x
-      )
-
-      // Reduce the events to only visible events (1 event representing each coordinate group)
-      const visibleEventsWithCoordinates = eventsGroupedByCoordinates.reduce((accLanes, curLane) => {
-        const y = curLane[0]
-
-        const newLanes = []
-
-        for (let i = 0; i < curLane[1].length; i++) {
-          const x = curLane[1][i][0]
-          const firstEventInGroup = curLane[1][i][1][0]
-
-          newLanes.push({
-            x,
-            y,
-            color: firstEventInGroup.color,
-            startTimeMillis: firstEventInGroup.startTimeMillis,
-            laneId: firstEventInGroup.laneId,
-          })
-        }
-
-        return [...accLanes, ...newLanes]
-      }, [] as ReadonlyArray<Pick<E, 'color' | 'startTimeMillis' | 'laneId'> & Coordinates>)
-
-      setVisibleEventsWithCoordinates(visibleEventsWithCoordinates)
-      setPinnedEventsWithCoordinates(pinnedEventsWithCoordinates)
-    } else {
-      // Only update currently visible (previously processed) events when animation is in progress
-      setVisibleEventsWithCoordinates((events) => events.map((e) => ({ ...e, ...getCoordinates(e) })))
-      setPinnedEventsWithCoordinates((events) => events.map((e) => ({ ...e, ...getCoordinates(e) })))
-    }
-  }, [events, height, laneDisplayMode, xScale, yScale, isAnimationInProgress])
+  >(CreateVisibleEventsWorker, workerProps, { visibleEventsWithCoordinates: [], pinnedEventsWithCoordinates: [] })
 
   const [renderInfo, setRenderInfo] = useState<RenderInfo>()
 
