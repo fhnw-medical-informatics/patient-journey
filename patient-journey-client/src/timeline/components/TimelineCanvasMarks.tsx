@@ -40,7 +40,9 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
 
   const workerProps = useMemo(
     () => ({
-      events,
+      // Faster to pass empty array than to pass all events
+      // TODO: Also only pass [] when height/with is changing
+      events: isAnimationInProgress ? [] : events,
       domain,
       width,
       height,
