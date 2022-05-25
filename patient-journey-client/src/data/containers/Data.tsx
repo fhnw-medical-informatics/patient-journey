@@ -1,6 +1,6 @@
 import { Data as DataComponent } from '../components/Data'
 import { useDataLoadingErrorMessage, useDataLoadingState } from '../hooks'
-import { DataView } from '../components/DataView'
+import { DataView } from './DataView'
 
 export const Data = () => {
   const type = useDataLoadingState()

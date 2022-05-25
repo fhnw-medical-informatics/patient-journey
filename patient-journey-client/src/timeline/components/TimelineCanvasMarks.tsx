@@ -7,7 +7,7 @@ import { scaleSqrt } from 'd3-scale'
 
 import { makeStyles } from '../../utils'
 
-import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
+import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { calcMarkSize } from './SvgMark'
 import { VisibleEventsResult } from '../workers/create-visible-events'
 
@@ -23,7 +23,19 @@ const useStyles = makeStyles()({
   },
 })
 
-const TimelineCanvasMarks = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>({
+interface TimelineCanvasMarksProps<
+  EID extends string,
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
+> extends CustomLayerProps<EID, PatientId, E> {
+  isPaneResizing: boolean
+}
+
+export const TimelineCanvasMarks = <
+  EID extends string,
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
+>({
   domain,
   lanes,
   height,
@@ -34,7 +46,8 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
   yScale,
   eventClusters,
   isAnimationInProgress,
-}: CustomLayerProps<EID, PatientId, E>) => {
+  isPaneResizing,
+}: TimelineCanvasMarksProps<EID, PatientId, E>) => {
   const { classes } = useStyles()
   const theme = useTheme()
 
@@ -42,15 +55,15 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
     () => ({
       // Faster to pass empty array than to pass all events
       // TODO: Also only pass [] when height/with is changing
-      events: isAnimationInProgress ? [] : events,
+      events: isAnimationInProgress || isPaneResizing ? [] : events,
       domain,
       width,
       height,
       lanes,
       laneDisplayMode,
-      isAnimationInProgress,
+      isAnimationInProgress: isAnimationInProgress || isPaneResizing,
     }),
-    [events, domain, width, height, lanes, laneDisplayMode, isAnimationInProgress]
+    [events, domain, width, height, lanes, laneDisplayMode, isAnimationInProgress, isPaneResizing]
   )
 
   const { visibleEventsWithCoordinates, pinnedEventsWithCoordinates } = useWorker<any, VisibleEventsResult>(
@@ -149,12 +162,6 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
       <canvas ref={canvasRef} className={classes.layer}></canvas>
     </foreignObject>
   )
-}
-
-// A passthrough component is needed to prevent the whole timeline from re-rendering
-// when the components hooks change.
-export const TimelineCanvasMarksLayer: CustomLayer = (props) => {
-  return <TimelineCanvasMarks {...props} />
 }
 
 export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {

@@ -45,7 +45,12 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-export const DataView = () => {
+interface DataViewProps {
+  onResizeStart: () => void
+  onResizeEnd: () => void
+}
+
+export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
   const { classes } = useStyles()
 
   const [splitPaneVerticalSize, setSplitPaneVerticalSize] = useState<'default' | number>('default')
@@ -65,6 +70,8 @@ export const DataView = () => {
       }}
       maxSize={-12}
       minSize={12}
+      onDragStarted={onResizeStart}
+      onDragFinished={onResizeEnd}
     >
       {/* @ts-ignore */}
       <SplitPane
@@ -81,6 +88,8 @@ export const DataView = () => {
         }}
         minSize={12}
         maxSize={-12}
+        onDragStarted={onResizeStart}
+        onDragFinished={onResizeEnd}
       >
         <div className={classes.filters}>
           <DataFilters />
@@ -109,6 +118,8 @@ export const DataView = () => {
         }}
         minSize={144}
         maxSize={-12}
+        onDragStarted={onResizeStart}
+        onDragFinished={onResizeEnd}
       >
         <div className={classes.table}>
           <DataTable />
