@@ -3,13 +3,15 @@ import {
   addDataFilter,
   DataStateLoadingFailed,
   loadData,
+  loadingDataInProgress,
+  LoadingStep,
   removeDataFilter,
   resetDataFilter,
+  resetIndexPatient,
   setDataView,
   setHoveredEntity,
-  setSelectedEntity,
   setIndexPatient,
-  resetIndexPatient,
+  setSelectedEntity,
 } from './dataSlice'
 
 import { createStore } from '../store'
@@ -20,11 +22,12 @@ import { EventId, PatientJourneyEvent } from './events'
 import { DATA_LOADING_ERROR } from './loading'
 import { createStoreWithMockData } from '../test/createStoreWithMockData'
 import {
-  selectAllFilters,
-  selectDataView,
   selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
+  selectAllFilters,
   selectData,
+  selectDataLoadingProgress,
+  selectDataView,
   selectIndexPatientId,
 } from './selectors'
 import { EntityIdNone } from './entities'
@@ -296,6 +299,13 @@ describe('dataSlice', () => {
     expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)
     expect(store.getState().alert.alerts.length).toEqual(1)
     expect(store.getState().alert.alerts[0].message).toEqual("No 'pid' column type found in event data table.")
+  })
+
+  it(`handles ${loadingDataInProgress.type} action`, async () => {
+    const store = createStore()
+    store.dispatch(loadingDataInProgress({ activeStep: LoadingStep.Events }))
+    const data = selectDataLoadingProgress(store.getState())
+    expect(data.activeStep).toEqual(LoadingStep.Events)
   })
 
   it(`handles ${setSelectedEntity.type} action`, async () => {

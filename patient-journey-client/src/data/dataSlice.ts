@@ -21,10 +21,16 @@ type DataStateLoadingInProgress = Readonly<{
 }> &
   LoadingProgress
 
-export type LoadingProgress = Readonly<{
-  activeStep: number
-  stepPercentage: number
-}>
+export interface LoadingProgress {
+  activeStep: LoadingStep
+}
+
+export enum LoadingStep {
+  Patients,
+  Events,
+  Similarities,
+  ConsistencyChecks,
+}
 
 export type DataStateLoadingFailed = Readonly<{
   type: 'loading-failed'

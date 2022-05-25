@@ -4,7 +4,7 @@ import { createEventData, EventData, EventDataColumn } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createSimilarityData, SimilarityData } from './similarities'
-import { LoadingProgress } from './dataSlice'
+import { LoadingProgress, LoadingStep } from './dataSlice'
 
 export const DATA_FOLDER = 'data'
 export const PATIENT_DATA_FILE_URL = `${DATA_FOLDER}/patients.csv`
@@ -35,7 +35,7 @@ export const loadData = async (
   const onError = (message: string) => onAddAlerts([{ type: 'error', topic: DATA_LOADING_ERROR, message }])
   try {
     // loading patients
-    onLoadingDataInProgress({ activeStep: 0, stepPercentage: 0 })
+    onLoadingDataInProgress({ activeStep: LoadingStep.Patients })
     const patientData = createPatientData(
       await parseEntityDataFromUrl(patientDataUrl, 'Patient'),
       HEADER_ROW_COUNT,
@@ -43,11 +43,11 @@ export const loadData = async (
     )
 
     // loading events
-    onLoadingDataInProgress({ activeStep: 1, stepPercentage: 0 })
+    onLoadingDataInProgress({ activeStep: LoadingStep.Events })
     const eventData = createEventData(await parseEntityDataFromUrl(eventDataUrl, 'Event'), HEADER_ROW_COUNT, onWarning)
 
     // loading similarities
-    onLoadingDataInProgress({ activeStep: 2, stepPercentage: 0 })
+    onLoadingDataInProgress({ activeStep: LoadingStep.Similarities })
     const similarityData = createSimilarityData(
       patientData.allEntities.map((e) => e.pid),
       await parseDataFromUrl(similarityDataUrl).then((r) => r.data),
@@ -56,7 +56,7 @@ export const loadData = async (
 
     // consistency checks
     const data = { patientData, eventData, similarityData }
-    onLoadingDataInProgress({ activeStep: 3, stepPercentage: 0 })
+    onLoadingDataInProgress({ activeStep: LoadingStep.ConsistencyChecks })
     checkDataInconsistencies(data, onWarning)
     onLoadingDataComplete(data)
   } catch (e: any) {

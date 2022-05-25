@@ -1,7 +1,7 @@
 import React from 'react'
 import { makeStyles } from '../../utils'
 import { CircularProgress, Step, StepIcon, StepIconProps, StepLabel, Stepper } from '@mui/material'
-import { LoadingProgress as LoadingProgressState } from '../dataSlice'
+import { LoadingStep } from '../dataSlice'
 
 const STEPS = ['Loading Patients', 'Loading Events', 'Loading Similarities', 'Checking Consistency']
 
@@ -19,7 +19,9 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-type Props = LoadingProgressState
+interface Props {
+  readonly activeStep: LoadingStep
+}
 
 export const LoadingProgress = ({ activeStep }: Props) => {
   const { classes } = useStyles()
