@@ -8,7 +8,7 @@ import { scaleSqrt } from 'd3-scale'
 import { makeStyles } from '../../utils'
 
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
-import { calcMarkSize } from './SvgMark'
+import { calcMarkSize, TIMELINE_MARK_STROKE_WIDTH } from './SvgMark'
 import { VisibleEventsResult } from '../workers/create-visible-events'
 
 import CreateVisibleEventsWorker from '../workers/create-visible-events?worker'
@@ -100,7 +100,7 @@ export const TimelineCanvasMarks = <
       ctx.clearRect(0, 0, width, height)
 
       ctx.strokeStyle = theme.palette.background.paper
-      ctx.lineWidth = 2
+      ctx.lineWidth = TIMELINE_MARK_STROKE_WIDTH
 
       // Draw Clusters
       const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))
@@ -120,7 +120,7 @@ export const TimelineCanvasMarks = <
         changeCanvasFillStyle(ctx, theme.palette.primary.main)
 
         ctx.beginPath()
-        ctx.arc(x, y, clusterScale(cluster.size), 0, 360)
+        ctx.arc(x, y, Math.round(clusterScale(cluster.size)), 0, 6.28)
         ctx.fill()
         ctx.stroke()
         // ctx.closePath() - ctx.fill() automatically closes the path
@@ -133,7 +133,7 @@ export const TimelineCanvasMarks = <
         // grouping events by color and then beginPath()ing
         // and filling/stroking only once per color.
         ctx.beginPath()
-        ctx.arc(visibleEvent.x, visibleEvent.y, markSize / 2, 0, 360)
+        ctx.arc(visibleEvent.x, visibleEvent.y, Math.round(markSize / 2), 0, 6.28)
         ctx.fill()
         ctx.stroke()
         // ctx.closePath() - ctx.fill() automatically closes the path
