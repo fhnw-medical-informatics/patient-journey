@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react'
-import { Bin } from 'd3-array'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { format } from '../../columns'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
@@ -10,6 +9,7 @@ import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
 import DateBinWorker from '../../workers/create-date-bins?worker'
+import { DateBinWorkerData, DateBinWorkerResponse } from '../../workers/create-date-bins'
 import { useWorker } from '../../workers/hooks'
 
 const useStyles = makeStyles()((theme) => ({
@@ -60,11 +60,15 @@ export const DateDataDiagram = ({
 
   const allDatesWorkerData = useMemo(() => ({ dates: allDates, min, max }), [allDates, min, max])
 
-  const allTicketBins = useWorker<any, ReadonlyArray<Bin<Date, Date>>>(DateBinWorker, allDatesWorkerData, [])
+  const allTicketBins = useWorker<DateBinWorkerData, DateBinWorkerResponse>(DateBinWorker, allDatesWorkerData, [])
 
   const filteredDatesWorkerData = useMemo(() => ({ dates: filteredDates, min, max }), [filteredDates, min, max])
 
-  const filteredTicketBins = useWorker<any, ReadonlyArray<Bin<Date, Date>>>(DateBinWorker, filteredDatesWorkerData, [])
+  const filteredTicketBins = useWorker<DateBinWorkerData, DateBinWorkerResponse>(
+    DateBinWorker,
+    filteredDatesWorkerData,
+    []
+  )
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure

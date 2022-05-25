@@ -8,6 +8,7 @@ import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
 import CategoryCountsWorker from '../../workers/create-category-counts?worker'
+import { CategoryCountsWorkerData, CategoryCountsWorkerResponse } from '../../workers/create-category-counts'
 import { useWorker } from '../../workers/hooks'
 
 const useStyles = makeStyles()(() => ({
@@ -60,14 +61,18 @@ export const CategoryDataDiagram = ({
     [allCategories, uniqueCategories]
   )
 
-  const allCategoryCount = useWorker<any, Map<string, number>>(CategoryCountsWorker, allCategoriesWorkerData, new Map())
+  const allCategoryCount = useWorker<CategoryCountsWorkerData, CategoryCountsWorkerResponse>(
+    CategoryCountsWorker,
+    allCategoriesWorkerData,
+    new Map()
+  )
 
   const filteredCategoriesWorkerData = useMemo(
     () => ({ categories: filteredCategories, uniqueCategories }),
     [filteredCategories, uniqueCategories]
   )
 
-  const filteredCategoryCount = useWorker<any, Map<string, number>>(
+  const filteredCategoryCount = useWorker<CategoryCountsWorkerData, CategoryCountsWorkerResponse>(
     CategoryCountsWorker,
     filteredCategoriesWorkerData,
     new Map()

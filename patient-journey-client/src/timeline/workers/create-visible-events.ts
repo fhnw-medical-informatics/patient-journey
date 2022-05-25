@@ -1,5 +1,5 @@
 import { groups } from 'd3-array'
-import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
+import { TimelineEvent } from 'react-svg-timeline'
 import { createTimelineScales } from './shared'
 
 type Coordinates = { x: number; y: number }
@@ -8,14 +8,26 @@ type MinimalEvent = Pick<TimelineEvent<any, any>, 'color' | 'startTimeMillis' | 
 
 type EventWithCoordinates = MinimalEvent & Coordinates
 
-export interface VisibleEventsResult {
+interface VisibleEventsResult {
   visibleEventsWithCoordinates: ReadonlyArray<EventWithCoordinates>
   pinnedEventsWithCoordinates: ReadonlyArray<EventWithCoordinates>
 }
 
+export type VisibleEventsWorkerData = {
+  events: ReadonlyArray<TimelineEvent<any, any>>
+  domain: [number, number]
+  width: number
+  height: number
+  lanes: ReadonlyArray<any>
+  laneDisplayMode: 'collapsed' | 'expanded' | undefined
+  isAnimationInProgress: boolean
+}
+
+export type VisibleEventsWorkerResponse = VisibleEventsResult
+
 // TODO: Use this for cluster calc als well.
 const createVisibleEventsWorker = () => {
-  let previousResult: VisibleEventsResult = {
+  let previousResult: VisibleEventsWorkerResponse = {
     visibleEventsWithCoordinates: [],
     pinnedEventsWithCoordinates: [],
   }
@@ -28,7 +40,7 @@ const createVisibleEventsWorker = () => {
     lanes,
     laneDisplayMode,
     isAnimationInProgress,
-  }: CustomLayerProps<any, any, TimelineEvent<any, any>>) => {
+  }: VisibleEventsWorkerData): VisibleEventsWorkerResponse => {
     const timeScalePadding = 50
 
     const { xScale, yScale } = createTimelineScales({
@@ -108,7 +120,7 @@ const createVisibleEventsWorker = () => {
     }
   }
 
-  onmessage = (e: MessageEvent<CustomLayerProps<any, any, TimelineEvent<any, any>>>) => {
+  onmessage = (e: MessageEvent<VisibleEventsWorkerData>) => {
     previousResult = computeVisibleEvents(e.data)
     postMessage(previousResult)
   }

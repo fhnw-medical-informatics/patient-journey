@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react'
-import { Bin } from 'd3-array'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
@@ -9,6 +8,8 @@ import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
 import NumberBinWorker from '../../workers/create-number-bins?worker'
+import { NumbersBinWorkerData, NumbersBinWorkerResponse } from '../../workers/create-number-bins'
+
 import { useWorker } from '../../workers/hooks'
 
 const useStyles = makeStyles()((theme) => ({
@@ -63,14 +64,18 @@ export const NumberDataDiagram = ({
     [allNumbers, niceMin, niceMax]
   )
 
-  const allTicketBins = useWorker<any, ReadonlyArray<Bin<number, number>>>(NumberBinWorker, allNumbersWorkerData, [])
+  const allTicketBins = useWorker<NumbersBinWorkerData, NumbersBinWorkerResponse>(
+    NumberBinWorker,
+    allNumbersWorkerData,
+    []
+  )
 
   const filteredNumbersWorkerData = useMemo(
     () => ({ numbers: filteredNumbers, min: niceMin, max: niceMax }),
     [filteredNumbers, niceMin, niceMax]
   )
 
-  const filteredTicketBins = useWorker<any, ReadonlyArray<Bin<number, number>>>(
+  const filteredTicketBins = useWorker<NumbersBinWorkerData, NumbersBinWorkerResponse>(
     NumberBinWorker,
     filteredNumbersWorkerData,
     []

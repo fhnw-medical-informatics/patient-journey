@@ -9,10 +9,11 @@ import { makeStyles } from '../../utils'
 
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { calcMarkSize, TIMELINE_MARK_STROKE_WIDTH } from './SvgMark'
-import { VisibleEventsResult } from '../workers/create-visible-events'
+
+import { useWorker } from '../../data/workers/hooks'
 
 import CreateVisibleEventsWorker from '../workers/create-visible-events?worker'
-import { useWorker } from '../../data/workers/hooks'
+import { VisibleEventsWorkerData, VisibleEventsWorkerResponse } from '../workers/create-visible-events'
 
 type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
 
@@ -66,11 +67,10 @@ export const TimelineCanvasMarks = <
     [events, domain, width, height, lanes, laneDisplayMode, isAnimationInProgress, isPaneResizing]
   )
 
-  const { visibleEventsWithCoordinates, pinnedEventsWithCoordinates } = useWorker<any, VisibleEventsResult>(
-    CreateVisibleEventsWorker,
-    workerProps,
-    { visibleEventsWithCoordinates: [], pinnedEventsWithCoordinates: [] }
-  )
+  const { visibleEventsWithCoordinates, pinnedEventsWithCoordinates } = useWorker<
+    VisibleEventsWorkerData,
+    VisibleEventsWorkerResponse
+  >(CreateVisibleEventsWorker, workerProps, { visibleEventsWithCoordinates: [], pinnedEventsWithCoordinates: [] })
 
   const [renderInfo, setRenderInfo] = useState<RenderInfo>()
 
