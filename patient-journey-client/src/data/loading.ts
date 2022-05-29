@@ -5,7 +5,8 @@ import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createSimilarityData, SimilarityData } from './similarities'
 
-export const DATA_FOLDER = 'data'
+//export const DATA_FOLDER = 'data'
+export const DATA_FOLDER = 'live'
 export const PATIENT_DATA_FILE_URL = `${DATA_FOLDER}/patients.csv`
 export const EVENT_DATA_FILE_URL = `${DATA_FOLDER}/events.csv`
 export const SIMILARITY_DATA_FILE_URL = `${DATA_FOLDER}/similarities.csv`
@@ -34,17 +35,35 @@ export const loadData = async (
   const onWarning = (message: string) => onAddAlerts([{ type: 'warning', topic: DATA_LOADING_WARNING, message }])
   const onError = (message: string) => onAddAlerts([{ type: 'error', topic: DATA_LOADING_ERROR, message }])
   try {
+
+    // Create patient data
     const patientData = createPatientData(
       await parseEntityDataFromUrl(patientDataUrl, 'Patient'),
       HEADER_ROW_COUNT,
       onWarning
     )
+
+    // Create event data
     const eventData = createEventData(await parseEntityDataFromUrl(eventDataUrl, 'Event'), HEADER_ROW_COUNT, onWarning)
-    const similarityData = createSimilarityData(
-      patientData.allEntities.map((e) => e.pid),
-      await parseDataFromUrl(similarityDataUrl).then((r) => r.data),
-      onWarning
-    )
+
+    // Create similarity data
+    let similarityData: SimilarityData = {}
+    const response = await fetch(similarityDataUrl, { method: "HEAD" })
+    if (response.ok) {
+      similarityData = createSimilarityData(
+          patientData.allEntities.map((e) => e.pid),
+          await parseDataFromUrl(similarityDataUrl).then((r) => r.data),
+          onWarning
+      )
+    } else {
+      similarityData = createSimilarityData(
+          patientData.allEntities.map((e) => e.pid),
+          [],
+          onWarning
+      )
+    }
+
+
     const data = { patientData, eventData, similarityData }
 
     checkDataInconsistencies(data, onWarning)
