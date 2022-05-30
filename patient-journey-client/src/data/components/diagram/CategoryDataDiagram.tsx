@@ -7,6 +7,10 @@ import { useCategories } from './hooks'
 import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
+import CategoryCountsWorker from '../../workers/create-category-counts?worker'
+import { CategoryCountsWorkerData, CategoryCountsWorkerResponse } from '../../workers/create-category-counts'
+import { useWorker } from '../../workers/hooks'
+
 const useStyles = makeStyles()(() => ({
   container: {
     width: '100%',
@@ -47,25 +51,37 @@ export const CategoryDataDiagram = ({
 
   const { allCategories, uniqueCategories, extractValueSafe } = useCategories(allActiveData, column)
 
-  const allCategoryCount: Map<string, number> = useMemo(
-    () =>
-      new Map<string, number>(
-        uniqueCategories.map((category) => [category, allCategories.filter((c) => c === category).length])
-      ),
-    [allCategories, uniqueCategories]
-  )
-
   const filteredCategories = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
 
+  const allCategoriesWorkerData = useMemo(
+    () => ({ categories: allCategories, uniqueCategories }),
+    [allCategories, uniqueCategories]
+  )
+
+  const allCategoryCount = useWorker<CategoryCountsWorkerData, CategoryCountsWorkerResponse>(
+    CategoryCountsWorker,
+    allCategoriesWorkerData,
+    new Map()
+  )
+
+  const filteredCategoriesWorkerData = useMemo(
+    () => ({ categories: filteredCategories, uniqueCategories }),
+    [filteredCategories, uniqueCategories]
+  )
+
+  const filteredCategoryCount = useWorker<CategoryCountsWorkerData, CategoryCountsWorkerResponse>(
+    CategoryCountsWorker,
+    filteredCategoriesWorkerData,
+    new Map()
+  )
+
   const data = useMemo(() => {
     return uniqueCategories.map<BinDatum>((category: string, binIndex: number) => {
-      const predicate = (t: string) => t === category
-
       const allCount = allCategoryCount.get(category) ?? 0
-      const filteredCount = filteredCategories.filter(predicate).length
+      const filteredCount = filteredCategoryCount.get(category) ?? 0
       const filteredIn = filteredCount
       const filteredOut = allCount - filteredCount
       return {
@@ -75,7 +91,7 @@ export const CategoryDataDiagram = ({
         category,
       }
     })
-  }, [filteredCategories, uniqueCategories, allCategoryCount])
+  }, [filteredCategoryCount, uniqueCategories, allCategoryCount])
 
   const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(({ data, value, color }) => {
     const title = `${data.category} (${value})`

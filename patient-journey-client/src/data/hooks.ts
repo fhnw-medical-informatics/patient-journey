@@ -27,6 +27,7 @@ import {
   selectEventFilters,
   selectIndexPatientId,
   selectDataLoadingProgress,
+  selectSplitPaneResizing,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -104,3 +105,5 @@ export const useEventDataTimestampValuesFormatted = () => useAppSelector(selectE
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
 
 export const useIndexPatientId = () => useAppSelector(selectIndexPatientId)
+
+export const useSplitPlaneResizing = () => useAppSelector(selectSplitPaneResizing)

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useDeferredValue } from 'react'
 
 import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 
@@ -16,12 +16,14 @@ const TimelineCanvasMarksInteraction = <
 ) => {
   const cursorPosition = useTimelineCursorPosition()
 
+  const deferredPosition = useDeferredValue(cursorPosition)
+
   const { onEntityClick, onEntityHover } = useEntityInteraction('events')
 
   return (
     <TimelineCanvasMarksInteractionComponent
       {...props}
-      cursorPosition={cursorPosition}
+      cursorPosition={deferredPosition}
       onSelect={onEntityClick}
       onHover={onEntityHover}
     />

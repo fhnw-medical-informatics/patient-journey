@@ -291,3 +291,5 @@ export const selectCurrentColorColumnNumberRange = createSelector(
     }
   }
 )
+
+export const selectSplitPaneResizing = createSelector(selectData, (data) => data.isResizing)

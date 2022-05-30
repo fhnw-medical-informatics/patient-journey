@@ -11,6 +11,7 @@ import {
   setHoveredEntity,
   setIndexPatient,
   setSelectedEntity,
+  setSplitPaneResizing,
 } from './dataSlice'
 
 import { createStore } from '../store'
@@ -28,6 +29,7 @@ import {
   selectDataLoadingProgress,
   selectDataView,
   selectIndexPatientId,
+  selectSplitPaneResizing,
 } from './selectors'
 import { EntityIdNone } from './entities'
 
@@ -535,5 +537,13 @@ describe('dataSlice', () => {
     expect(getFilters()).toEqual([testFilter, testFilter2])
     store.dispatch(resetIndexPatient())
     expect(getFilters()).toEqual([testFilter2])
+  })
+
+  it(`handles the ${setSplitPaneResizing.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getSplitPaneResizing = () => selectSplitPaneResizing(store.getState())
+    expect(getSplitPaneResizing()).toEqual(false)
+    store.dispatch(setSplitPaneResizing({ isResizing: true }))
+    expect(getSplitPaneResizing()).toEqual(true)
   })
 })
