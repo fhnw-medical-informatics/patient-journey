@@ -76,10 +76,11 @@
     "lodash": "^4.17.21",
     "papaparse": "^5.3.2",
     "react": "18.1.0",
+    "react-device-detect": "^2.2.2",
     "react-dom": "18.1.0",
     "react-redux": "8.0.1",
     "react-split-pane": "0.1.92",
-    "react-svg-timeline": "^0.23.2",
+    "react-svg-timeline": "^0.23.3",
     "react-virtualized-auto-sizer": "^1.0.6",
     "tss-react": "^3.6.2"
   },

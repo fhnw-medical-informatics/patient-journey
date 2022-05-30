@@ -10,7 +10,7 @@ import {
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import { useTheme } from '@mui/material'
 
-import { TimelineCanvasMarksLayer } from './TimelineCanvasMarks'
+import { TimelineCanvasMarksLayer } from '../containers/TimelineCanvasMarks'
 import { TimelineCanvasMarksInteractionLayer } from '../containers/TimelineCanvasMarksInteraction'
 import { MouseAwareSvg } from './MouseAwareSvg'
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'

@@ -1,6 +1,4 @@
 import React, { useCallback, useMemo } from 'react'
-import { bin } from 'd3-array'
-import { ScaleTime } from 'd3-scale'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { format } from '../../columns'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
@@ -10,19 +8,16 @@ import { useDates } from './hooks'
 import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
+import DateBinWorker from '../../workers/create-date-bins?worker'
+import { DateBinWorkerData, DateBinWorkerResponse } from '../../workers/create-date-bins'
+import { useWorker } from '../../workers/hooks'
+
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
   },
 }))
-
-const histogramBinCount = 10
-
-function createBins(dates: ReadonlyArray<Date>, timeScale: ScaleTime<Date, Date>) {
-  const [min, max] = timeScale.domain()
-  return bin<Date, Date>().domain([min, max]).thresholds(timeScale.ticks(histogramBinCount))(dates)
-}
 
 interface BinDatum {
   readonly binIndex: number
@@ -56,19 +51,27 @@ export const DateDataDiagram = ({
     [colorByNumberFn, theme]
   )
 
-  const { allDates, timeScale, extractValueSafe } = useDates(allActiveData, column)
+  const { allDates, min, max, extractValueSafe } = useDates(allActiveData, column)
 
   const filteredDates = useMemo(
     () => filteredActiveData.flatMap(extractValueSafe),
     [filteredActiveData, extractValueSafe]
   )
 
-  const allTicketBins = useMemo(() => createBins(allDates, timeScale), [allDates, timeScale])
+  const allDatesWorkerData = useMemo(() => ({ dates: allDates, min, max }), [allDates, min, max])
+
+  const allTicketBins = useWorker<DateBinWorkerData, DateBinWorkerResponse>(DateBinWorker, allDatesWorkerData, [])
+
+  const filteredDatesWorkerData = useMemo(() => ({ dates: filteredDates, min, max }), [filteredDates, min, max])
+
+  const filteredTicketBins = useWorker<DateBinWorkerData, DateBinWorkerResponse>(
+    DateBinWorker,
+    filteredDatesWorkerData,
+    []
+  )
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    const filteredTicketBins = createBins(filteredDates, timeScale)
-
     return (
       allTicketBins
         .map<BinDatum>((_, binIndex) => {
@@ -95,7 +98,7 @@ export const DateDataDiagram = ({
           []
         )
     )
-  }, [allTicketBins, filteredDates, timeScale])
+  }, [allTicketBins, filteredTicketBins])
 
   const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(
     ({ data, value, color }) => {
