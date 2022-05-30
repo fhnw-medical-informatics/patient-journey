@@ -21,7 +21,7 @@ export type CheckDataConsistencyWorkerResponse =
       type: 'done'
     }>
 
-const checkDataInconsistencies = (
+export const checkDataConsistency = (
   { patientData, eventData, headerRowCount }: CheckDataConsistencyWorkerData,
   onWarning: (message: string) => void,
   onError: (message: string) => void
@@ -46,7 +46,7 @@ const checkDataInconsistencies = (
 }
 
 // Checks that all date values of columns that are of type 'date' use the format dd.MM.yyyy
-// If not, an error is thrown with the offending column name and row number.
+// If not, an error is reported with the offending column name and row number.
 const checkDateFormats = <T extends DataEntity<Entity, PatientDataColumn | EventDataColumn>>(
   data: T,
   entityName: string,
@@ -79,18 +79,14 @@ const findNonMatchingPidRefs = (knownPids: ReadonlySet<PatientId>, pidRefs: Read
   ...new Set(pidRefs.filter((pidRef) => !knownPids.has(pidRef))),
 ]
 
-const createCheckDataConsistencyWorker = () => {
-  onmessage = (e: MessageEvent<CheckDataConsistencyWorkerData>) => {
-    const onMessage = (type: 'warning' | 'error') => (message: string) => {
-      const response: CheckDataConsistencyWorkerResponse = { type, message }
-      postMessage(response)
-    }
-    checkDataInconsistencies(e.data, onMessage('warning'), onMessage('error'))
-    const done: CheckDataConsistencyWorkerResponse = {
-      type: 'done',
-    }
-    postMessage(done)
+onmessage = (e: MessageEvent<CheckDataConsistencyWorkerData>) => {
+  const onMessage = (type: 'warning' | 'error') => (message: string) => {
+    const response: CheckDataConsistencyWorkerResponse = { type, message }
+    postMessage(response)
   }
+  checkDataConsistency(e.data, onMessage('warning'), onMessage('error'))
+  const done: CheckDataConsistencyWorkerResponse = {
+    type: 'done',
+  }
+  postMessage(done)
 }
-
-export default createCheckDataConsistencyWorker()

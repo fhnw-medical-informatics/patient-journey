@@ -198,6 +198,7 @@ export const {
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
 export const loadData =
   (
+    hasWorkerSupport: boolean = true,
     patientDataUrl: string = PATIENT_DATA_FILE_URL,
     eventDataUrl: string = EVENT_DATA_FILE_URL,
     similarityDataUrl: string = SIMILARITY_DATA_FILE_URL
@@ -207,6 +208,7 @@ export const loadData =
       patientDataUrl,
       eventDataUrl,
       similarityDataUrl,
+      hasWorkerSupport,
       (progress: LoadingProgress) => dispatch(loadingDataInProgress(progress)),
       (data) => dispatch(loadingDataComplete(data)),
       (message) => dispatch(loadingDataFailed(message)),

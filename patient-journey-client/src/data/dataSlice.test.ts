@@ -132,7 +132,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl, similarityDataUrl)(store.dispatch, store.getState)
+    await loadData(false, patientDataUrl, eventDataUrl, similarityDataUrl)(store.dispatch, store.getState)
 
     expect(store.getState().alert.alerts).toEqual([])
     const data = selectData(store.getState())
@@ -180,7 +180,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete patient data table missing pid', async () => {
     const store = createStore()
-    await loadData(patientDataUrlMissingPid, eventDataUrl, similarityDataUrl)(store.dispatch, store.getState)
+    await loadData(false, patientDataUrlMissingPid, eventDataUrl, similarityDataUrl)(store.dispatch, store.getState)
 
     const state = store.getState()
     const patientData = selectData(state).patientData
@@ -198,7 +198,12 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete patient data table invalid column type', async () => {
     const store = createStore()
-    await loadData(patientDataUrlInvalidColumnType, eventDataUrl, similarityDataUrl)(store.dispatch, store.getState)
+    await loadData(
+      false,
+      patientDataUrlInvalidColumnType,
+      eventDataUrl,
+      similarityDataUrl
+    )(store.dispatch, store.getState)
     expect(store.getState().alert.alerts.length).toEqual(1)
     expect(store.getState().alert.alerts[0].message).toEqual(
       "Invalid column type 'invalid' found in patient data table. Falling back to 'string'."
@@ -207,7 +212,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete event data table missing eid', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrlMissingEid, similarityDataUrl)(store.dispatch, store.getState)
+    await loadData(false, patientDataUrl, eventDataUrlMissingEid, similarityDataUrl)(store.dispatch, store.getState)
 
     const state = store.getState()
     const eventData = selectData(state).eventData
@@ -226,7 +231,12 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete event data table invalid column type', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrlInvalidColumnType, similarityDataUrl)(store.dispatch, store.getState)
+    await loadData(
+      false,
+      patientDataUrl,
+      eventDataUrlInvalidColumnType,
+      similarityDataUrl
+    )(store.dispatch, store.getState)
     expect(store.getState().alert.alerts.length).toEqual(1)
     expect(store.getState().alert.alerts[0].message).toEqual(
       "Invalid column type 'invalid' found in event data table. Falling back to 'string'."
@@ -236,7 +246,7 @@ describe('dataSlice', () => {
   it('loadData loading-failed', async () => {
     console.error = () => {}
     const store = createStore()
-    await loadData(errorUrl)(store.dispatch, store.getState)
+    await loadData(false, errorUrl)(store.dispatch, store.getState)
     const data = store.getState().data
     expect(data.type).toEqual('loading-failed')
     expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)
@@ -244,7 +254,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-failed patient table missing header rows', async () => {
     const store = createStore()
-    await loadData(emptyUrl, emptyUrl)(store.dispatch, store.getState)
+    await loadData(false, emptyUrl, emptyUrl)(store.dispatch, store.getState)
 
     const state = store.getState()
     const data = state.data
@@ -257,7 +267,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-failed event missing header rows', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, emptyUrl)(store.dispatch, store.getState)
+    await loadData(false, patientDataUrl, emptyUrl)(store.dispatch, store.getState)
 
     const state = store.getState()
     const data = state.data
@@ -270,7 +280,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-failed patient table no data rows', async () => {
     const store = createStore()
-    await loadData(patientDataUrlHeadersOnly, emptyUrl)(store.dispatch, store.getState)
+    await loadData(false, patientDataUrlHeadersOnly, emptyUrl)(store.dispatch, store.getState)
     const data = store.getState().data
     expect(data.type).toEqual('loading-failed')
     expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)
@@ -282,7 +292,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-failed event table no data rows', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrlHeadersOnly)(store.dispatch, store.getState)
+    await loadData(false, patientDataUrl, eventDataUrlHeadersOnly)(store.dispatch, store.getState)
     const data = store.getState().data
     expect(data.type).toEqual('loading-failed')
     expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)
@@ -292,7 +302,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-failed event table missing pid column type', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, successEventDataUrlMissingPid)(store.dispatch, store.getState)
+    await loadData(false, patientDataUrl, successEventDataUrlMissingPid)(store.dispatch, store.getState)
     const data = store.getState().data
     expect(data.type).toEqual('loading-failed')
     expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)

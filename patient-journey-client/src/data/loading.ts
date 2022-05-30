@@ -7,6 +7,7 @@ import CheckDataConsistencyWorker from './workers/create-check-data-consistency?
 import {
   CheckDataConsistencyWorkerData,
   CheckDataConsistencyWorkerResponse,
+  checkDataConsistency,
 } from './workers/create-check-data-consistency'
 
 export interface LoadingProgress {
@@ -41,6 +42,7 @@ export const loadData = async (
   patientDataUrl: string,
   eventDataUrl: string,
   similarityDataUrl: string,
+  hasWorkerSupport: boolean,
   onLoadingDataInProgress: (progress: LoadingProgress) => void,
   onLoadingDataComplete: (data: LoadedData) => void,
   onLoadingDataFailed: (message: string) => void,
@@ -73,13 +75,16 @@ export const loadData = async (
     // consistency checks
     const data = { patientData, eventData, similarityData }
     onLoadingDataInProgress({ activeStep: LoadingStep.ConsistencyChecks })
-    await checkDataConsistency(
-      { headerRowCount: HEADER_ROW_COUNT, patientData, eventData },
-      isSkipConsistencyChecksRequested,
-      onWarning
-    ).catch((e) => {
-      dataLoadingFailed(e, onLoadingDataFailed, onError)
-    })
+    const consistencyCheckData = { headerRowCount: HEADER_ROW_COUNT, patientData, eventData }
+    if (hasWorkerSupport) {
+      await checkDataConsistencyInWorker(consistencyCheckData, isSkipConsistencyChecksRequested, onWarning).catch(
+        (e) => {
+          dataLoadingFailed(e, onLoadingDataFailed, onError)
+        }
+      )
+    } else {
+      checkDataConsistency(consistencyCheckData, onWarning, onError)
+    }
     onLoadingDataComplete(data)
   } catch (e: any) {
     dataLoadingFailed(e, onLoadingDataFailed, onError)
@@ -126,7 +131,7 @@ export const parseFromString = (csv: string) => {
   return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true, delimiter: ',' })
 }
 
-const checkDataConsistency = async (
+const checkDataConsistencyInWorker = async (
   workerData: CheckDataConsistencyWorkerData,
   isSkipConsistencyChecksRequested: () => boolean,
   onWarning: (message: string) => void
@@ -134,8 +139,7 @@ const checkDataConsistency = async (
   new Promise<void>((resolve, reject) => {
     const worker = new CheckDataConsistencyWorker()
     worker.postMessage(workerData)
-    worker.onmessage = (e: MessageEvent<CheckDataConsistencyWorkerResponse>) => {
-      const { data } = e
+    worker.onmessage = ({ data }: MessageEvent<CheckDataConsistencyWorkerResponse>) => {
       switch (data.type) {
         case 'warning':
           onWarning(data.message)
