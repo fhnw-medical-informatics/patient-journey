@@ -4,11 +4,12 @@ import { ColorByColumnOptionNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
 import { formatColumnValue, stringToMillis } from './columns'
-import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity, LoadingProgress } from './dataSlice'
+import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { FilterColumn, filterReducer } from './filtering'
 import { Patient, PatientDataColumn, PatientDataColumnType, PatientId, PatientIdNone } from './patients'
 import { Entity, EntityIdNone } from './entities'
+import { LoadingProgress } from './loading'
 
 export const selectData = (s: RootState): DataStateLoadingComplete => {
   if (s.data.type === 'loading-complete') {

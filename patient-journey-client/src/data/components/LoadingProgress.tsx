@@ -13,7 +13,7 @@ import {
   Stepper,
   Typography,
 } from '@mui/material'
-import { LoadingStep } from '../dataSlice'
+import { LoadingStep } from '../loading'
 
 const STEPS = ['Loading Patients', 'Loading Events', 'Loading Similarities', 'Checking Consistency']
 
@@ -33,9 +33,10 @@ const useStyles = makeStyles()((theme) => ({
 
 export interface Props {
   readonly activeStep: LoadingStep
+  readonly onSkipPressed: () => void
 }
 
-export const LoadingProgress = ({ activeStep }: Props) => {
+export const LoadingProgress = ({ activeStep, onSkipPressed }: Props) => {
   const { classes } = useStyles()
   return (
     <div className={classes.centered}>
@@ -46,7 +47,7 @@ export const LoadingProgress = ({ activeStep }: Props) => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === LoadingStep.ConsistencyChecks && <SkipConsistencyChecksInfo />}
+      {activeStep === LoadingStep.ConsistencyChecks && <SkipConsistencyChecksInfo onSkipPressed={onSkipPressed} />}
     </div>
   )
 }
@@ -55,7 +56,11 @@ const CustomStepIcon = (props: StepIconProps) => {
   return props.active ? <CircularProgress size={24} disableShrink={true} /> : <StepIcon {...props} />
 }
 
-const SkipConsistencyChecksInfo = () => (
+interface SkipConsistencyChecksInfoProps {
+  readonly onSkipPressed: () => void
+}
+
+const SkipConsistencyChecksInfo = ({ onSkipPressed }: SkipConsistencyChecksInfoProps) => (
   <Card raised={true} sx={{ mt: 3, maxWidth: 400 }}>
     <CardContent>
       <Typography variant={'button'} color="text.secondary">
@@ -66,7 +71,9 @@ const SkipConsistencyChecksInfo = () => (
       </Typography>
     </CardContent>
     <CardActions sx={{ justifyContent: 'end' }}>
-      <Button size="small">{'Skip Checks'}</Button>
+      <Button size="small" onClick={onSkipPressed}>
+        {'Skip Checks'}
+      </Button>
     </CardActions>
   </Card>
 )

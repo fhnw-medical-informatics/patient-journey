@@ -1,10 +1,25 @@
-import { DataEntity, Entity, EntityId } from './entities'
-import { createPatientData, PatientData, PatientDataColumn, PatientId } from './patients'
-import { createEventData, EventData, EventDataColumn } from './events'
+import { createPatientData, PatientData } from './patients'
+import { createEventData, EventData } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createSimilarityData, SimilarityData } from './similarities'
-import { LoadingProgress, LoadingStep } from './dataSlice'
+import CheckDataConsistencyWorker from './workers/create-check-data-consistency?worker'
+import {
+  CheckDataConsistencyWorkerData,
+  CheckDataConsistencyWorkerResponse,
+} from './workers/create-check-data-consistency'
+
+export interface LoadingProgress {
+  activeStep: LoadingStep
+  isSkipConsistencyChecksRequested?: boolean
+}
+
+export enum LoadingStep {
+  Patients,
+  Events,
+  Similarities,
+  ConsistencyChecks,
+}
 
 export const DATA_FOLDER = 'data'
 export const PATIENT_DATA_FILE_URL = `${DATA_FOLDER}/patients.csv`
@@ -29,7 +44,8 @@ export const loadData = async (
   onLoadingDataInProgress: (progress: LoadingProgress) => void,
   onLoadingDataComplete: (data: LoadedData) => void,
   onLoadingDataFailed: (message: string) => void,
-  onAddAlerts: (alerts: ReadonlyArray<Alert>) => void
+  onAddAlerts: (alerts: ReadonlyArray<Alert>) => void,
+  isSkipConsistencyChecksRequested: () => boolean
 ) => {
   const onWarning = (message: string) => onAddAlerts([{ type: 'warning', topic: DATA_LOADING_WARNING, message }])
   const onError = (message: string) => onAddAlerts([{ type: 'error', topic: DATA_LOADING_ERROR, message }])
@@ -57,13 +73,27 @@ export const loadData = async (
     // consistency checks
     const data = { patientData, eventData, similarityData }
     onLoadingDataInProgress({ activeStep: LoadingStep.ConsistencyChecks })
-    checkDataInconsistencies(data, onWarning)
+    await checkDataConsistency(
+      { headerRowCount: HEADER_ROW_COUNT, patientData, eventData },
+      isSkipConsistencyChecksRequested,
+      onWarning
+    ).catch((e) => {
+      dataLoadingFailed(e, onLoadingDataFailed, onError)
+    })
     onLoadingDataComplete(data)
   } catch (e: any) {
-    console.error(DATA_LOADING_ERROR, e)
-    onLoadingDataFailed(DATA_LOADING_ERROR)
-    onError(e.message)
+    dataLoadingFailed(e, onLoadingDataFailed, onError)
   }
+}
+
+const dataLoadingFailed = (
+  e: any,
+  onLoadingDataFailed: (message: string) => void,
+  onError: (message: string) => void
+) => {
+  console.error(DATA_LOADING_ERROR, e)
+  onLoadingDataFailed(DATA_LOADING_ERROR)
+  onError(e.message)
 }
 
 async function parseDataFromUrl(url: string) {
@@ -96,57 +126,40 @@ export const parseFromString = (csv: string) => {
   return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true, delimiter: ',' })
 }
 
-const checkDataInconsistencies = (
-  { patientData, eventData }: LoadedData,
+const checkDataConsistency = async (
+  workerData: CheckDataConsistencyWorkerData,
+  isSkipConsistencyChecksRequested: () => boolean,
   onWarning: (message: string) => void
-): void => {
-  const pids = patientData.allEntities.map((p) => p.pid)
-  const duplicatePatientIds = findDuplicateIds(pids)
-  if (duplicatePatientIds.length > 0) {
-    onWarning(`Patient data table contains non-unique pid values: [${duplicatePatientIds}]`)
-  }
-  const eids = eventData.allEntities.map((e) => e.eid)
-  const duplicateEventIds = findDuplicateIds(eids)
-  if (duplicateEventIds.length > 0) {
-    onWarning(`Event data table contains non-unique eid values: [${duplicateEventIds}]`)
-  }
-  const pidRefs = eventData.allEntities.map((e) => e.pid)
-  const nonMatchingPidRefs = findNonMatchingPidRefs(new Set(pids), pidRefs)
-  if (nonMatchingPidRefs.length > 0) {
-    onWarning(`Event data table contains invalid pid references: [${nonMatchingPidRefs}]`)
-  }
-  checkDateFormats(patientData, 'Patient')
-  checkDateFormats(eventData, 'Event')
-}
-
-// Checks that all date values of columns that are of type 'date' use the format dd.MM.yyyy
-// If not, an error is thrown with the offending column name and row number.
-const checkDateFormats = <T extends DataEntity<Entity, PatientDataColumn | EventDataColumn>>(
-  data: T,
-  entityName: string
-): void => {
-  const dateColumns = data.columns.filter((c) => c.type === 'date')
-
-  for (const column of dateColumns) {
-    const dateValues = data.allEntities.map((e) => e.values[column.index])
-
-    for (let i = 0; i < dateValues.length; i++) {
-      const dateValue = dateValues[i]
-      if (dateValue && !/^\d{2}\.\d{2}\.\d{4}$/.test(dateValue)) {
-        throw new Error(
-          `${entityName} - Invalid date format for column "${column.name}" in row ${
-            i + HEADER_ROW_COUNT + 1
-          } (${dateValue}). Dates must be in the format dd.MM.yyyy.`
-        )
+): Promise<void> =>
+  new Promise<void>((resolve, reject) => {
+    const worker = new CheckDataConsistencyWorker()
+    worker.postMessage(workerData)
+    worker.onmessage = (e: MessageEvent<CheckDataConsistencyWorkerResponse>) => {
+      const { data } = e
+      switch (data.type) {
+        case 'warning':
+          onWarning(data.message)
+          break
+        case 'error':
+          worker.terminate()
+          reject(data)
+          break
+        case 'done':
+          resolve()
       }
     }
-  }
-}
+    worker.onerror = (e) => {
+      worker.terminate()
+      reject(e)
+    }
+    const terminateIfSkipRequested = () => {
+      if (isSkipConsistencyChecksRequested()) {
+        worker.terminate()
+        resolve()
+      } else {
+        requestAnimationFrame(terminateIfSkipRequested)
+      }
+    }
 
-const findDuplicateIds = (uids: ReadonlyArray<EntityId>): ReadonlyArray<EntityId> => [
-  ...new Set(uids.filter((e, i, a) => a.indexOf(e) !== i)),
-]
-
-const findNonMatchingPidRefs = (knownPids: ReadonlySet<PatientId>, pidRefs: ReadonlyArray<PatientId>) => [
-  ...new Set(pidRefs.filter((pidRef) => !knownPids.has(pidRef))),
-]
+    requestAnimationFrame(terminateIfSkipRequested)
+  })

@@ -1,7 +1,7 @@
 import { Meta, Story } from '@storybook/react'
 import React from 'react'
 import { LoadingProgress, Props } from '../data/components/LoadingProgress'
-import { LoadingStep } from '../data/dataSlice'
+import { LoadingStep } from '../data/loading'
 
 export default {
   title: 'LoadingProgress',

@@ -5,6 +5,7 @@ import {
   EVENT_DATA_FILE_URL,
   loadData as loadDataImpl,
   LoadedData,
+  LoadingProgress,
   PATIENT_DATA_FILE_URL,
   SIMILARITY_DATA_FILE_URL,
 } from './loading'
@@ -20,17 +21,6 @@ type DataStateLoadingInProgress = Readonly<{
   type: 'loading-in-progress'
 }> &
   LoadingProgress
-
-export interface LoadingProgress {
-  activeStep: LoadingStep
-}
-
-export enum LoadingStep {
-  Patients,
-  Events,
-  Similarities,
-  ConsistencyChecks,
-}
 
 export type DataStateLoadingFailed = Readonly<{
   type: 'loading-failed'
@@ -91,6 +81,11 @@ const dataSlice = createSlice({
       type: 'loading-in-progress',
       ...action.payload,
     }),
+    skipConsistencyChecks: (state: Draft<DataState>) => {
+      if (state.type === 'loading-in-progress') {
+        state.isSkipConsistencyChecksRequested = true
+      }
+    },
     loadingDataFailed: (_state: DataState, action: PayloadAction<string>): DataState => ({
       type: 'loading-failed',
       errorMessage: action.payload,
@@ -187,6 +182,7 @@ const mutateFilterData = (
 export const dataReducer = dataSlice.reducer
 export const {
   loadingDataInProgress,
+  skipConsistencyChecks,
   loadingDataFailed,
   loadingDataComplete,
   setSelectedEntity,
@@ -206,7 +202,7 @@ export const loadData =
     eventDataUrl: string = EVENT_DATA_FILE_URL,
     similarityDataUrl: string = SIMILARITY_DATA_FILE_URL
   ) =>
-  async (dispatch: Dispatch<AnyAction>) => {
+  async (dispatch: Dispatch<AnyAction>, getState: () => { data: DataState }) => {
     return await loadDataImpl(
       patientDataUrl,
       eventDataUrl,
@@ -214,6 +210,11 @@ export const loadData =
       (progress: LoadingProgress) => dispatch(loadingDataInProgress(progress)),
       (data) => dispatch(loadingDataComplete(data)),
       (message) => dispatch(loadingDataFailed(message)),
-      (alerts) => dispatch(addAlerts(alerts))
+      (alerts) => dispatch(addAlerts(alerts)),
+      () => {
+        // not using selectors here to prevent circular dependencies
+        const s = getState()
+        return s.data.type === 'loading-in-progress' && (s.data.isSkipConsistencyChecksRequested ?? false)
+      }
     )
   }
