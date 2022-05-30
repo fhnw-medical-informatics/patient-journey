@@ -1,28 +1,15 @@
-import { PatientData, PatientDataColumn, PatientId } from '../patients'
-import { EventData, EventDataColumn } from '../events'
-import { DataEntity, Entity, EntityId } from '../entities'
+import { PatientData, PatientDataColumn, PatientId } from './patients'
+import { EventData, EventDataColumn } from './events'
+import { DataEntity, Entity, EntityId } from './entities'
 
-export type CheckDataConsistencyWorkerData = Readonly<{
+export type ConsistencyCheckData = Readonly<{
   headerRowCount: number
   patientData: PatientData
   eventData: EventData
 }>
 
-export type CheckDataConsistencyWorkerResponse =
-  | Readonly<{
-      type: 'warning'
-      message: string
-    }>
-  | Readonly<{
-      type: 'error'
-      message: string
-    }>
-  | Readonly<{
-      type: 'done'
-    }>
-
 export const checkDataConsistency = (
-  { patientData, eventData, headerRowCount }: CheckDataConsistencyWorkerData,
+  { patientData, eventData, headerRowCount }: ConsistencyCheckData,
   onWarning: (message: string) => void,
   onError: (message: string) => void
 ): void => {
@@ -78,15 +65,3 @@ const findDuplicateIds = (uids: ReadonlyArray<EntityId>): ReadonlyArray<EntityId
 const findNonMatchingPidRefs = (knownPids: ReadonlySet<PatientId>, pidRefs: ReadonlyArray<PatientId>) => [
   ...new Set(pidRefs.filter((pidRef) => !knownPids.has(pidRef))),
 ]
-
-onmessage = (e: MessageEvent<CheckDataConsistencyWorkerData>) => {
-  const onMessage = (type: 'warning' | 'error') => (message: string) => {
-    const response: CheckDataConsistencyWorkerResponse = { type, message }
-    postMessage(response)
-  }
-  checkDataConsistency(e.data, onMessage('warning'), onMessage('error'))
-  const done: CheckDataConsistencyWorkerResponse = {
-    type: 'done',
-  }
-  postMessage(done)
-}
