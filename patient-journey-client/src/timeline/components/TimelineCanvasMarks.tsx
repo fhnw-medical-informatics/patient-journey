@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useTheme } from '@mui/material'
 
@@ -7,8 +7,13 @@ import { scaleSqrt } from 'd3-scale'
 
 import { makeStyles } from '../../utils'
 
-import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
-import { calcMarkSize } from './SvgMark'
+import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
+import { calcMarkSize, TIMELINE_MARK_STROKE_WIDTH } from './SvgMark'
+
+import { useWorker } from '../../data/workers/hooks'
+
+import CreateVisibleEventsWorker from '../workers/create-visible-events?worker'
+import { VisibleEventsWorkerData, VisibleEventsWorkerResponse } from '../workers/create-visible-events'
 
 type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
 
@@ -19,7 +24,21 @@ const useStyles = makeStyles()({
   },
 })
 
-const TimelineCanvasMarks = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>({
+interface TimelineCanvasMarksProps<
+  EID extends string,
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
+> extends CustomLayerProps<EID, PatientId, E> {
+  isPaneResizing: boolean
+}
+
+export const TimelineCanvasMarks = <
+  EID extends string,
+  PatientId extends string,
+  E extends TimelineEvent<EID, PatientId>
+>({
+  domain,
+  lanes,
   height,
   width,
   events,
@@ -27,9 +46,31 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
   laneDisplayMode,
   yScale,
   eventClusters,
-}: CustomLayerProps<EID, PatientId, E>) => {
+  isAnimationInProgress,
+  isPaneResizing,
+}: TimelineCanvasMarksProps<EID, PatientId, E>) => {
   const { classes } = useStyles()
   const theme = useTheme()
+
+  const workerProps = useMemo(
+    () => ({
+      // Faster to pass empty array than to pass all events
+      // TODO: Also only pass [] when height/with is changing
+      events: isAnimationInProgress || isPaneResizing ? [] : events,
+      domain,
+      width,
+      height,
+      lanes,
+      laneDisplayMode,
+      isAnimationInProgress: isAnimationInProgress || isPaneResizing,
+    }),
+    [events, domain, width, height, lanes, laneDisplayMode, isAnimationInProgress, isPaneResizing]
+  )
+
+  const { visibleEventsWithCoordinates, pinnedEventsWithCoordinates } = useWorker<
+    VisibleEventsWorkerData,
+    VisibleEventsWorkerResponse
+  >(CreateVisibleEventsWorker, workerProps, { visibleEventsWithCoordinates: [], pinnedEventsWithCoordinates: [] })
 
   const [renderInfo, setRenderInfo] = useState<RenderInfo>()
 
@@ -59,7 +100,7 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
       ctx.clearRect(0, 0, width, height)
 
       ctx.strokeStyle = theme.palette.background.paper
-      ctx.lineWidth = 2
+      ctx.lineWidth = TIMELINE_MARK_STROKE_WIDTH
 
       // Draw Clusters
       const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))
@@ -76,50 +117,51 @@ const TimelineCanvasMarks = <EID extends string, PatientId extends string, E ext
         const x = Math.round(xScale(cluster.timeMillis))
         const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(cluster.laneId!)!)
 
-        ctx.fillStyle = theme.palette.primary.main
+        changeCanvasFillStyle(ctx, theme.palette.primary.main)
+
         ctx.beginPath()
-        ctx.arc(x, y, clusterScale(cluster.size), 0, 360)
+        ctx.arc(x, y, Math.round(clusterScale(cluster.size)), 0, 6.28)
         ctx.fill()
         ctx.stroke()
         // ctx.closePath() - ctx.fill() automatically closes the path
       })
 
-      // Draw Events
-      const drawEvent = <EID extends string, E extends TimelineEvent<EID, any>>(event: E) => {
-        // Round to avoid sub-pixel rendering
-        const x = Math.round(xScale(event.startTimeMillis))
-        const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId!)!)
-
-        ctx.fillStyle = event.color ?? theme.palette.primary.main
+      const drawVisibleEvents = (visibleEvent: { x: number; y: number; color?: string }) => {
+        changeCanvasFillStyle(ctx, visibleEvent.color ?? theme.palette.primary.main)
 
         // Note: We could further optimize this, by
         // grouping events by color and then beginPath()ing
         // and filling/stroking only once per color.
         ctx.beginPath()
-        ctx.arc(x, y, markSize / 2, 0, 360)
+        ctx.arc(visibleEvent.x, visibleEvent.y, Math.round(markSize / 2), 0, 6.28)
         ctx.fill()
         ctx.stroke()
         // ctx.closePath() - ctx.fill() automatically closes the path
       }
 
-      // Draw events
-      events.forEach(drawEvent)
+      // Draw visible events
+      visibleEventsWithCoordinates.forEach((event) => drawVisibleEvents({ x: event.x, y: event.y, color: event.color }))
       // Draw selected and pinned events on top
-      events.filter((event) => event.isSelected || event.isPinned).forEach(drawEvent)
+      pinnedEventsWithCoordinates.forEach((event) => drawVisibleEvents({ x: event.x, y: event.y, color: event.color }))
     }
-  }, [renderInfo, events, xScale, width, height, yScale, laneDisplayMode, eventClusters, theme])
+  }, [
+    renderInfo,
+    pinnedEventsWithCoordinates,
+    visibleEventsWithCoordinates,
+    xScale,
+    width,
+    height,
+    yScale,
+    laneDisplayMode,
+    eventClusters,
+    theme,
+  ])
 
   return (
     <foreignObject x="0" y="0" width={width} height={height}>
       <canvas ref={canvasRef} className={classes.layer}></canvas>
     </foreignObject>
   )
-}
-
-// A passthrough component is needed to prevent the whole timeline from re-rendering
-// when the components hooks change.
-export const TimelineCanvasMarksLayer: CustomLayer = (props) => {
-  return <TimelineCanvasMarks {...props} />
 }
 
 export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): void {
@@ -139,5 +181,12 @@ export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingCont
     canvas.height = displayHeight
 
     ctx.scale(dpr, dpr)
+  }
+}
+
+// Canvas state changes are expensive, only change if needed
+function changeCanvasFillStyle(ctx: CanvasRenderingContext2D, color: string): void {
+  if (ctx.fillStyle !== color) {
+    ctx.fillStyle = color
   }
 }

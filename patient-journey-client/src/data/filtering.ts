@@ -135,22 +135,29 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
             return false
           }
 
-          let dateValue: Date
+          let dateValue: number
+          let dateFrom: number
+          let dateTo: number
 
           if (filter.type === 'timestamp') {
-            dateValue = parseMillis(+fieldValue.value)
+            dateValue = +fieldValue.value
+            dateFrom = (filter as Filter<'timestamp'>).value.millisFrom
+            dateTo = (filter as Filter<'timestamp'>).value.millisTo
           } else if (filter.type === 'date') {
-            dateValue = parseDate(fieldValue.value)
+            // TODO: Avoid parseDate here as well.
+            dateValue = parseDate(fieldValue.value).valueOf()
+            dateFrom = (filter as Filter<'timestamp'>).value.millisFrom
+
+            const dateToTmp = parseMillis((filter as Filter<'timestamp'>).value.millisTo)
+
+            // End of day when only date was used
+            if (dateToTmp.getUTCHours() === 0 && dateToTmp.getUTCMinutes() === 0) {
+              dateToTmp.setUTCHours(23, 59, 59, 999)
+            }
+
+            dateTo = dateToTmp.valueOf()
           } else {
             throw new Error('Filter is neither a timestamp nor a date')
-          }
-
-          const dateFrom = parseMillis((filter as Filter<'timestamp'>).value.millisFrom)
-          const dateTo = parseMillis((filter as Filter<'timestamp'>).value.millisTo)
-
-          // End of day when only date was used
-          if (dateTo.getUTCHours() === 0 && dateTo.getUTCMinutes() === 0) {
-            dateTo.setUTCHours(23, 59, 59, 999)
           }
 
           return (

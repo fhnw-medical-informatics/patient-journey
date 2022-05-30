@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react'
-import { bin } from 'd3-array'
 import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
@@ -8,18 +7,17 @@ import { useNumbers } from './hooks'
 import Tooltip from './Tooltip'
 import { FilterColumn } from '../../filtering'
 
+import NumberBinWorker from '../../workers/create-number-bins?worker'
+import { NumbersBinWorkerData, NumbersBinWorkerResponse } from '../../workers/create-number-bins'
+
+import { useWorker } from '../../workers/hooks'
+
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     height: '100px',
   },
 }))
-
-const histogramBinCount = 10
-
-function createBins(numbers: ReadonlyArray<number>, min: number, max: number) {
-  return bin<number, number>().domain([min, max]).thresholds(histogramBinCount)(numbers)
-}
 
 interface BinDatum {
   readonly binIndex: number
@@ -61,12 +59,30 @@ export const NumberDataDiagram = ({
     [filteredActiveData, extractValueSafe]
   )
 
-  const allTicketBins = useMemo(() => createBins(allNumbers, niceMin, niceMax), [allNumbers, niceMin, niceMax])
+  const allNumbersWorkerData = useMemo(
+    () => ({ numbers: allNumbers, min: niceMin, max: niceMax }),
+    [allNumbers, niceMin, niceMax]
+  )
+
+  const allTicketBins = useWorker<NumbersBinWorkerData, NumbersBinWorkerResponse>(
+    NumberBinWorker,
+    allNumbersWorkerData,
+    []
+  )
+
+  const filteredNumbersWorkerData = useMemo(
+    () => ({ numbers: filteredNumbers, min: niceMin, max: niceMax }),
+    [filteredNumbers, niceMin, niceMax]
+  )
+
+  const filteredTicketBins = useWorker<NumbersBinWorkerData, NumbersBinWorkerResponse>(
+    NumberBinWorker,
+    filteredNumbersWorkerData,
+    []
+  )
 
   const data = useMemo(() => {
     // universe of all tickets determines bin structure
-    const filteredTicketBins = createBins(filteredNumbers, niceMin, niceMax)
-
     return (
       allTicketBins
         .map<BinDatum>((_, binIndex) => {
@@ -92,7 +108,7 @@ export const NumberDataDiagram = ({
           return [...acc, bin]
         }, [])
     )
-  }, [allTicketBins, filteredNumbers, niceMin, niceMax])
+  }, [allTicketBins, filteredTicketBins])
 
   const tooltip = useCallback<React.FC<BarTooltipProps<BarDatum>>>(({ data, value, color }) => {
     const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${

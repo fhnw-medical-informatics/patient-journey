@@ -33,7 +33,8 @@ export type DataStateLoadingComplete = Readonly<{
   Filters &
   Hovering &
   Selection &
-  IndexPatient
+  IndexPatient &
+  SplitPane
 
 export const ACTIVE_DATA_VIEWS = ['patients', 'events'] as const
 export type ActiveDataViewType = typeof ACTIVE_DATA_VIEWS[number]
@@ -65,6 +66,10 @@ interface IndexPatient {
   readonly indexPatientId: PatientId
 }
 
+interface SplitPane {
+  isResizing: boolean
+}
+
 export type DataState =
   | DataStateLoadingPending
   | DataStateLoadingInProgress
@@ -89,6 +94,7 @@ const dataSlice = createSlice({
       hovered: FOCUS_ENTITY_NONE,
       selected: FOCUS_ENTITY_NONE,
       indexPatientId: PatientIdNone,
+      isResizing: false,
       ...freeze(action.payload, true),
     }),
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
@@ -150,6 +156,11 @@ const dataSlice = createSlice({
         }
       })
     },
+    setSplitPaneResizing: (state: Draft<DataState>, action: PayloadAction<SplitPane>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.isResizing = action.payload.isResizing
+      })
+    },
   },
 })
 
@@ -184,6 +195,7 @@ export const {
   setDataView,
   setIndexPatient,
   resetIndexPatient,
+  setSplitPaneResizing,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */

@@ -40,9 +40,10 @@ export const TimelineCanvasMarksInteraction = <
   height,
   onHover,
   onSelect,
+  isAnimationInProgress,
 }: TimelineCanvasMarksInteractionProps<EID, PatientId, E>) => {
   useEffect(() => {
-    if (cursorPosition !== CursorPositionNone) {
+    if (cursorPosition !== CursorPositionNone && !isAnimationInProgress) {
       const cursorPositionMillisX = xScale.invert(cursorPosition.x)
 
       const nearestLane =
@@ -62,7 +63,7 @@ export const TimelineCanvasMarksInteraction = <
         onHover(nearestPoint.eventId as EntityId)
       }
     }
-  }, [cursorPosition, events, laneDisplayMode, lanes, onHover, yScale, height, xScale])
+  }, [cursorPosition, events, laneDisplayMode, lanes, onHover, yScale, height, xScale, isAnimationInProgress])
 
   return null
 }
