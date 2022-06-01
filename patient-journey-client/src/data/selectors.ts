@@ -9,6 +9,7 @@ import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { FilterColumn, filterReducer } from './filtering'
 import { Patient, PatientDataColumn, PatientDataColumnType, PatientId, PatientIdNone } from './patients'
 import { Entity, EntityIdNone } from './entities'
+import { LoadingProgress } from './loading'
 
 export const selectData = (s: RootState): DataStateLoadingComplete => {
   if (s.data.type === 'loading-complete') {
@@ -19,6 +20,14 @@ export const selectData = (s: RootState): DataStateLoadingComplete => {
 }
 
 export const selectDataLoadingState = (s: RootState) => s.data.type
+
+export const selectDataLoadingProgress = (s: RootState): LoadingProgress => {
+  if (s.data.type === 'loading-in-progress') {
+    return s.data
+  } else {
+    throw new Error('Illegal state')
+  }
+}
 
 export const selectDataView = createSelector(selectData, (data) => data.view)
 

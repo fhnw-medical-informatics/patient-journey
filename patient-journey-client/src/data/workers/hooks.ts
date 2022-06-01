@@ -8,7 +8,7 @@ export const useWorker = <D, R>(_Worker: new () => Worker, data: D, initialValue
   let popData = useRef<any | undefined>(undefined)
 
   const flushPopData = useCallback(() => {
-    if (workerInstance && popData.current && isBusy.current === false) {
+    if (workerInstance && popData.current && !isBusy.current) {
       isBusy.current = true
       workerInstance.postMessage(popData.current)
       popData.current = undefined
@@ -25,7 +25,7 @@ export const useWorker = <D, R>(_Worker: new () => Worker, data: D, initialValue
         const handleWorkerResponse = (e: MessageEvent<R>) => {
           setResult(e.data)
           isBusy.current = false
-          flushPopData()
+          flushPopData() // TODO: Remove? Won't do anything if isBusy.current is false
         }
 
         workerInstance.addEventListener('message', handleWorkerResponse)

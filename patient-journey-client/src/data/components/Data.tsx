@@ -3,7 +3,7 @@ import React from 'react'
 import { DataState } from '../dataSlice'
 import { Typography } from '@mui/material'
 import { LoadingError } from './LoadingError'
-import { LoadingProgress } from './LoadingProgress'
+import { LoadingProgress } from '../containers/LoadingProgress'
 
 export interface Props {
   readonly type: DataState['type']
