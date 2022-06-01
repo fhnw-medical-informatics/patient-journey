@@ -1,4 +1,5 @@
 import { AnyAction, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
+import { Dispatch } from 'redux'
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
 import {
@@ -9,9 +10,8 @@ import {
   PATIENT_DATA_FILE_URL,
 } from './loading'
 import { addAlerts } from '../alert/alertSlice'
-import { Dispatch } from 'redux'
 import { PatientId, PatientIdNone } from './patients'
-import { LoadedSimilarities } from './similarities'
+import { LoadedSimilarities, parseSpecificRowFromSimilarityFile } from './similarities'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -254,3 +254,13 @@ export const loadData =
       (alerts) => dispatch(addAlerts(alerts))
     )
   }
+
+export const loadSimilarityData = (rowIndex: number) => async (dispatch: Dispatch<AnyAction>) => {
+  dispatch(loadingSimilaritiesInProgress())
+
+  parseSpecificRowFromSimilarityFile(
+    rowIndex,
+    (data) => dispatch(loadingSimilaritiesComplete(data)),
+    (message) => dispatch(loadingSimilaritiesDataFailed(message))
+  )
+}

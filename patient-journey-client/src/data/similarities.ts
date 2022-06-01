@@ -37,22 +37,28 @@ export type SimilarityData = {
 export const createPatientIdToSimilarityIndexMap = (patients: PatientData['allEntities']): Map<PatientId, number> =>
   new Map<PatientId, number>(patients.map((p, idx) => [p.pid, idx]))
 
-export const parseSpecificRowFromSimilarityFile = async (rowIndex: number): Promise<ReadonlyArray<string>> =>
-  new Promise((resolve, reject) => {
-    let currentRow = 0
+export const parseSpecificRowFromSimilarityFile = (
+  rowIndex: number,
+  onLoadingDataComplete: (data: LoadedSimilarities) => void,
+  onLoadingDataFailed: (message: string) => void
+) => {
+  let currentRow = 0
+  let result: string[] = []
 
-    csvParser.parse<ReadonlyArray<string>>(`${window.location.href}${SIMILARITY_DATA_FILE_URL}`, {
-      download: true,
-      worker: true,
-      complete: () => {},
-      error: (error) => reject(error),
-      step: (results, parser) => {
-        if (currentRow === rowIndex) {
-          resolve(results.data)
-          parser.abort()
-        } else {
-          currentRow++
-        }
-      },
-    })
+  csvParser.parse<Array<string>>(`${window.location.href}${SIMILARITY_DATA_FILE_URL}`, {
+    download: true,
+    worker: true,
+    complete: () => {
+      onLoadingDataComplete({ similarities: result })
+    },
+    error: (error) => onLoadingDataFailed(error.message),
+    step: (results, parser) => {
+      if (currentRow === rowIndex) {
+        result = results.data
+        parser.abort()
+      } else {
+        currentRow++
+      }
+    },
   })
+}

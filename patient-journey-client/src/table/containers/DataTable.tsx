@@ -14,8 +14,7 @@ import { setSorting } from '../tableSlice'
 import { selectDataView } from '../../data/selectors'
 import { ColumnSortingState } from '../../data/sorting'
 import { ColorByColumnNone } from '../../color/colorSlice'
-import { PatientId } from '../../data/patients'
-import { resetIndexPatient, setIndexPatient } from '../../data/dataSlice'
+import { resetIndexPatient } from '../../data/dataSlice'
 
 export const DataTable = React.memo(() => {
   const view = useAppSelector(selectDataView)
@@ -35,13 +34,6 @@ export const DataTable = React.memo(() => {
     [dispatch, view]
   )
 
-  const onSetIndexPatient = useCallback(
-    (pid: PatientId) => {
-      dispatch(setIndexPatient(pid))
-    },
-    [dispatch]
-  )
-
   const onResetIndexPatient = useCallback(() => {
     dispatch(resetIndexPatient())
   }, [dispatch])
@@ -58,7 +50,6 @@ export const DataTable = React.memo(() => {
       colorByColumn={view === colorByColumn.type ? colorByColumn : ColorByColumnNone}
       colorByColumnFn={colorByColumnFn}
       indexPatientId={indexPatientId}
-      onSetIndexPatient={onSetIndexPatient}
       onResetIndexPatient={onResetIndexPatient}
       enableIndexPatientColumn={view === 'patients'}
     />
