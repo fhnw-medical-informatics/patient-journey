@@ -206,15 +206,13 @@ export const loadData =
   (
     patientDataUrl: string = PATIENT_DATA_FILE_URL,
     eventDataUrl: string = EVENT_DATA_FILE_URL,
-    similarityDataUrl: string = SIMILARITY_DATA_FILE_URL,
-    skipConsistencyChecks: boolean = false
+    similarityDataUrl: string = SIMILARITY_DATA_FILE_URL
   ) =>
   async (dispatch: Dispatch<AnyAction>) => {
     return await loadDataImpl(
       patientDataUrl,
       eventDataUrl,
       similarityDataUrl,
-      skipConsistencyChecks,
       (progress: LoadingProgress) => dispatch(loadingDataInProgress(progress)),
       (data) => dispatch(loadingDataComplete(data)),
       (message) => dispatch(loadingDataFailed(message)),

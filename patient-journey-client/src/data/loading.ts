@@ -37,7 +37,6 @@ export const loadData = async (
   patientDataUrl: string,
   eventDataUrl: string,
   similarityDataUrl: string,
-  skipConsistencyChecks: boolean,
   onLoadingDataInProgress: (progress: LoadingProgress) => void,
   onLoadingDataComplete: (data: LoadedData) => void,
   onLoadingDataFailed: (message: string) => void,
@@ -68,14 +67,10 @@ export const loadData = async (
 
     const data = { patientData, eventData, similarityData }
 
-    if (skipConsistencyChecks) {
-      onLoadingDataComplete(data)
-    } else {
-      onLoadingDataInProgress({
-        activeStep: LoadingStep.ConsistencyChecks,
-        data,
-      })
-    }
+    onLoadingDataInProgress({
+      activeStep: LoadingStep.ConsistencyChecks,
+      data,
+    })
   } catch (e: any) {
     console.error(DATA_LOADING_ERROR, e)
     onLoadingDataFailed(DATA_LOADING_ERROR)
