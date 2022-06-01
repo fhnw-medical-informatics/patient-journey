@@ -26,6 +26,7 @@ import {
   selectTimelineDataColumns,
   selectEventFilters,
   selectIndexPatientId,
+  selectDataLoadingProgress,
   selectSplitPaneResizing,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
@@ -33,6 +34,7 @@ import { EntityId, EntityType } from './entities'
 import { useCallback } from 'react'
 
 export const useDataLoadingState = () => useAppSelector(selectDataLoadingState)
+export const useDataLoadingProgress = () => useAppSelector(selectDataLoadingProgress)
 export const useDataLoadingErrorMessage = () => useAppSelector(selectDataLoadingErrorMessage)
 
 export const useActiveDataView = () => useAppSelector(selectDataView)

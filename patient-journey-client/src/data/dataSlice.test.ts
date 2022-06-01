@@ -3,29 +3,29 @@ import {
   addDataFilter,
   DataStateLoadingFailed,
   loadData,
+  loadingDataInProgress,
   removeDataFilter,
   resetDataFilter,
+  resetIndexPatient,
   setDataView,
   setHoveredEntity,
-  setSelectedEntity,
   setIndexPatient,
-  resetIndexPatient,
+  setSelectedEntity,
   setSplitPaneResizing,
 } from './dataSlice'
 
-import { createStore } from '../store'
-
+import { createStore, RootState } from '../store'
 import { Filter } from './filtering'
 import { Patient, PatientId, PatientIdNone } from './patients'
 import { EventId, PatientJourneyEvent } from './events'
-import { DATA_LOADING_ERROR } from './loading'
+import { DATA_LOADING_ERROR, LoadedData, LoadingStep } from './loading'
 import { createStoreWithMockData } from '../test/createStoreWithMockData'
 import {
-  selectAllFilters,
-  selectDataView,
   selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
-  selectData,
+  selectAllFilters,
+  selectDataLoadingProgress,
+  selectDataView,
   selectIndexPatientId,
   selectSplitPaneResizing,
 } from './selectors'
@@ -44,6 +44,16 @@ const TEST_EVENTS_CSV_MISSING_EID = 'Patient ID,Timestamp\npid,timestamp\nPID_1,
 const TEST_EVENTS_CSV_INVALID_COLUMN_TYPE = 'Event ID,Patient ID,Invalid\neid,pid,invalid\nEID_1,PID_1,1\nEID_2,PID_2,2'
 const TEST_EVENTS_CSV_HEADERS_ONLY = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp'
 const TEST_SIMILARITIES_CSV = '↓ Other Patient | Index Patient →,PID_1,PID_2\nPID_1,1,42\nPID_2,99,1'
+
+const selectData = (s: RootState): LoadedData => {
+  if (s.data.type === 'loading-in-progress' && s.data.activeStep === LoadingStep.ConsistencyChecks) {
+    return s.data.data
+  } else if (s.data.type === 'loading-complete') {
+    return s.data
+  } else {
+    fail('Illegal data loading state')
+  }
+}
 
 describe('dataSlice', () => {
   const patientDataUrl = 'patientDataUrl'
@@ -136,7 +146,6 @@ describe('dataSlice', () => {
 
     expect(store.getState().alert.alerts).toEqual([])
     const data = selectData(store.getState())
-    expect(data.type).toEqual('loading-complete')
 
     // patients
     const patientData = data.patientData
@@ -183,7 +192,8 @@ describe('dataSlice', () => {
     await loadData(patientDataUrlMissingPid, eventDataUrl, similarityDataUrl)(store.dispatch)
 
     const state = store.getState()
-    const patientData = selectData(state).patientData
+    const loadedData = selectData(state)
+    const patientData = loadedData.patientData
     const expectedPatient: Patient = {
       pid: '0' as PatientId,
       uid: '0' as PatientId,
@@ -298,6 +308,13 @@ describe('dataSlice', () => {
     expect((data as DataStateLoadingFailed).errorMessage).toEqual(DATA_LOADING_ERROR)
     expect(store.getState().alert.alerts.length).toEqual(1)
     expect(store.getState().alert.alerts[0].message).toEqual("No 'pid' column type found in event data table.")
+  })
+
+  it(`handles ${loadingDataInProgress.type} action`, async () => {
+    const store = createStore()
+    store.dispatch(loadingDataInProgress({ activeStep: LoadingStep.Events }))
+    const data = selectDataLoadingProgress(store.getState())
+    expect(data.activeStep).toEqual(LoadingStep.Events)
   })
 
   it(`handles ${setSelectedEntity.type} action`, async () => {

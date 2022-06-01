@@ -5,6 +5,7 @@ import {
   EVENT_DATA_FILE_URL,
   loadData as loadDataImpl,
   LoadedData,
+  LoadingProgress,
   PATIENT_DATA_FILE_URL,
   SIMILARITY_DATA_FILE_URL,
 } from './loading'
@@ -18,7 +19,8 @@ type DataStateLoadingPending = Readonly<{
 
 type DataStateLoadingInProgress = Readonly<{
   type: 'loading-in-progress'
-}>
+}> &
+  LoadingProgress
 
 export type DataStateLoadingFailed = Readonly<{
   type: 'loading-failed'
@@ -80,8 +82,9 @@ const dataSlice = createSlice({
   name: 'data',
   initialState: { type: 'loading-pending' } as DataState,
   reducers: {
-    loadingDataInProgress: (): DataState => ({
+    loadingDataInProgress: (_state: DataState, action: PayloadAction<LoadingProgress>): DataState => ({
       type: 'loading-in-progress',
+      ...action.payload,
     }),
     loadingDataFailed: (_state: DataState, action: PayloadAction<string>): DataState => ({
       type: 'loading-failed',
@@ -210,7 +213,7 @@ export const loadData =
       patientDataUrl,
       eventDataUrl,
       similarityDataUrl,
-      () => dispatch(loadingDataInProgress()),
+      (progress: LoadingProgress) => dispatch(loadingDataInProgress(progress)),
       (data) => dispatch(loadingDataComplete(data)),
       (message) => dispatch(loadingDataFailed(message)),
       (alerts) => dispatch(addAlerts(alerts))

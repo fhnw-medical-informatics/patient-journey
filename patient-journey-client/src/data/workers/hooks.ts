@@ -8,7 +8,7 @@ export const useWorker = <D, R>(_Worker: new () => Worker, data: D, initialValue
   let popData = useRef<any | undefined>(undefined)
 
   const flushPopData = useCallback(() => {
-    if (workerInstance && popData.current && isBusy.current === false) {
+    if (workerInstance && popData.current && !isBusy.current) {
       isBusy.current = true
       workerInstance.postMessage(popData.current)
       popData.current = undefined
