@@ -1,7 +1,8 @@
 import { PatientData, PatientDataColumn, PatientId } from './patients'
 import { EventData, EventDataColumn } from './events'
 import { DataEntity, Entity, EntityId } from './entities'
-import { HEADER_ROW_COUNT } from './loading'
+
+export const HEADER_ROW_COUNT = 2
 
 export type ConsistencyCheckData = Readonly<{
   patientData: PatientData
@@ -10,8 +11,7 @@ export type ConsistencyCheckData = Readonly<{
 
 export const checkDataConsistency = (
   { patientData, eventData }: ConsistencyCheckData,
-  onWarning: (message: string) => void,
-  onError: (message: string) => void
+  onWarning: (message: string) => void
 ): void => {
   const pids = patientData.allEntities.map((p) => p.pid)
   const duplicatePatientIds = findDuplicateIds(pids)
@@ -28,8 +28,8 @@ export const checkDataConsistency = (
   if (nonMatchingPidRefs.length > 0) {
     onWarning(`Event data table contains invalid pid references: [${nonMatchingPidRefs}]`)
   }
-  checkDateFormats(patientData, 'Patient', HEADER_ROW_COUNT, onError)
-  checkDateFormats(eventData, 'Event', HEADER_ROW_COUNT, onError)
+  checkDateFormats(patientData, 'Patient', HEADER_ROW_COUNT)
+  checkDateFormats(eventData, 'Event', HEADER_ROW_COUNT)
 }
 
 // Checks that all date values of columns that are of type 'date' use the format dd.MM.yyyy
@@ -37,8 +37,7 @@ export const checkDataConsistency = (
 const checkDateFormats = <T extends DataEntity<Entity, PatientDataColumn | EventDataColumn>>(
   data: T,
   entityName: string,
-  headerRowCount: number,
-  onError: (message: string) => void
+  headerRowCount: number
 ): void => {
   const dateColumns = data.columns.filter((c) => c.type === 'date')
 
@@ -47,12 +46,11 @@ const checkDateFormats = <T extends DataEntity<Entity, PatientDataColumn | Event
     for (let i = 0; i < dateValues.length; i++) {
       const dateValue = dateValues[i]
       if (dateValue && !/^\d{2}\.\d{2}\.\d{4}$/.test(dateValue)) {
-        onError(
+        throw Error(
           `${entityName} - Invalid date format for column "${column.name}" in row ${
             i + headerRowCount + 1
           } (${dateValue}). Dates must be in the format dd.MM.yyyy.`
         )
-        return
       }
     }
   }

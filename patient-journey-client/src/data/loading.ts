@@ -3,6 +3,7 @@ import { createEventData, EventData } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createSimilarityData, SimilarityData } from './similarities'
+import { HEADER_ROW_COUNT } from './checkDataConsistency'
 
 export type LoadingProgress =
   | { activeStep: Exclude<LoadingStep, LoadingStep.ConsistencyChecks> }
@@ -25,8 +26,6 @@ export const SIMILARITY_DATA_FILE_URL = `${DATA_FOLDER}/similarities.csv`
 
 export const DATA_LOADING_ERROR = 'Data Loading Error'
 export const DATA_LOADING_WARNING = 'Data Loading Warning'
-
-export const HEADER_ROW_COUNT = 2
 
 export interface LoadedData {
   readonly patientData: PatientData
