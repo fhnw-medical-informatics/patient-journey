@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useColor } from '../../color/hooks'
 import { DataTable as DataTableComponent } from '../components/DataTable'
 import {
@@ -7,6 +7,7 @@ import {
   useFilteredActiveData,
   useActiveSelectedEntity,
   useIndexPatientId,
+  useIndexPatientIdIndex,
 } from '../../data/hooks'
 import { useActiveTableSorting } from '../hooks'
 import { useAppDispatch, useAppSelector } from '../../store'
@@ -14,7 +15,7 @@ import { setSorting } from '../tableSlice'
 import { selectDataView } from '../../data/selectors'
 import { ColumnSortingState } from '../../data/sorting'
 import { ColorByColumnNone } from '../../color/colorSlice'
-import { resetIndexPatient } from '../../data/dataSlice'
+import { loadSimilarityData, resetIndexPatient } from '../../data/dataSlice'
 
 export const DataTable = React.memo(() => {
   const view = useAppSelector(selectDataView)
@@ -27,6 +28,8 @@ export const DataTable = React.memo(() => {
   const selectedEntityId = useActiveSelectedEntity()
   const indexPatientId = useIndexPatientId()
 
+  const indexPatientIndex = useIndexPatientIdIndex()
+
   const dispatch = useAppDispatch()
 
   const onSortingChange = useCallback(
@@ -37,6 +40,13 @@ export const DataTable = React.memo(() => {
   const onResetIndexPatient = useCallback(() => {
     dispatch(resetIndexPatient())
   }, [dispatch])
+
+  // TODO: This should be handled by the data slice (middleware)
+  useEffect(() => {
+    if (indexPatientIndex !== undefined) {
+      dispatch(loadSimilarityData(indexPatientIndex))
+    }
+  }, [indexPatientIndex, dispatch])
 
   return (
     <DataTableComponent

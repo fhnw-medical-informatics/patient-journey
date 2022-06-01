@@ -28,7 +28,37 @@ export const IndexPatientButton = ({
 
   const isIndexPatient = indexPatientId === patientId
 
-  return (
+  const Button = (
+    <IconButton
+      size="small"
+      className={isIndexPatient ? '' : 'idx-patient'}
+      onClick={(e) => {
+        e.stopPropagation()
+
+        if (isIndexPatient) {
+          onResetIndexPatient()
+        } else {
+          onSetIndexPatient(patientId)
+        }
+      }}
+      sx={{
+        color: error ? theme.palette.error.main : theme.entityColors.indexPatient,
+      }}
+      disabled={isLoading}
+    >
+      {error ? (
+        <ErrorIcon fontSize="inherit" />
+      ) : isIndexPatient ? (
+        <StarIcon fontSize="inherit" />
+      ) : (
+        <StarOutlinedIcon fontSize="inherit" />
+      )}
+    </IconButton>
+  )
+
+  return isLoading ? (
+    Button
+  ) : (
     <Tooltip
       enterDelay={150}
       enterNextDelay={1500}
@@ -36,31 +66,7 @@ export const IndexPatientButton = ({
       arrow
       title={error ? error : isIndexPatient ? 'Unset index patient' : 'Set as index patient'}
     >
-      <IconButton
-        size="small"
-        className={isIndexPatient ? '' : 'idx-patient'}
-        onClick={(e) => {
-          e.stopPropagation()
-
-          if (isIndexPatient) {
-            onResetIndexPatient()
-          } else {
-            onSetIndexPatient(patientId)
-          }
-        }}
-        sx={{
-          color: error ? theme.palette.error.main : theme.entityColors.indexPatient,
-        }}
-        disabled={isLoading}
-      >
-        {error ? (
-          <ErrorIcon fontSize="inherit" />
-        ) : isIndexPatient ? (
-          <StarIcon fontSize="inherit" />
-        ) : (
-          <StarOutlinedIcon fontSize="inherit" />
-        )}
-      </IconButton>
+      {Button}
     </Tooltip>
   )
 }
