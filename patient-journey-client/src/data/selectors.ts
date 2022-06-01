@@ -44,15 +44,17 @@ const selectPatientData = createSelector(selectData, (data) => data.patientData)
 export const selectIndexPatientId = createSelector(selectData, (data) => data.indexPatientId)
 
 const selectSimilarityData = createSelector(selectData, selectIndexPatientId, (data, indexPatientId) =>
-  indexPatientId !== PatientIdNone ? data.similarityData[indexPatientId] : null
+  indexPatientId !== PatientIdNone && data.similarityData.indexPatientSimilarities.type === 'loading-complete'
+    ? data.similarityData.indexPatientSimilarities.similarities
+    : null
 )
 
 const selectPatientDataRows = createSelector(selectPatientData, selectSimilarityData, (patientData, similarityData) =>
   similarityData === null
     ? patientData.allEntities
-    : patientData.allEntities.map((entity) => ({
+    : patientData.allEntities.map((entity, idx) => ({
         ...entity,
-        values: [...entity.values, `${similarityData[entity.pid]}`],
+        values: [...entity.values, `${similarityData[idx]}`],
       }))
 )
 

@@ -4,6 +4,9 @@ import {
   DataStateLoadingFailed,
   loadData,
   loadingDataInProgress,
+  loadingSimilaritiesComplete,
+  loadingSimilaritiesDataFailed,
+  loadingSimilaritiesInProgress,
   removeDataFilter,
   resetDataFilter,
   resetIndexPatient,
@@ -34,6 +37,7 @@ import {
 import { EntityIdNone } from './entities'
 
 const PID_1 = 'PID_1' as PatientId
+const PID_2 = 'PID_2' as PatientId
 
 const TEST_PATIENTS_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
 const TEST_PATIENTS_CSV_MISSING_PID = 'Name\nstring\nJane'
@@ -157,7 +161,15 @@ describe('dataSlice', () => {
 
     // similarities
     const similarityData = data.similarityData
-    expect(similarityData).toEqual([])
+    expect(similarityData).toEqual({
+      patientIdMap: new Map([
+        [PID_1, 0],
+        [PID_2, 1],
+      ]),
+      indexPatientSimilarities: {
+        type: 'loading-pending',
+      },
+    })
   })
 
   // TODO: test consistency checking
@@ -518,5 +530,98 @@ describe('dataSlice', () => {
     expect(getSplitPaneResizing()).toEqual(false)
     store.dispatch(setSplitPaneResizing({ isResizing: true }))
     expect(getSplitPaneResizing()).toEqual(true)
+  })
+
+  it(`handles the ${loadingSimilaritiesInProgress.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(loadingSimilaritiesInProgress())
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-in-progress',
+    })
+  })
+
+  it(`handles the ${loadingSimilaritiesDataFailed.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(loadingSimilaritiesDataFailed('error message'))
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-failed',
+      errorMessage: 'error message',
+    })
+  })
+
+  it(`handles the ${loadingSimilaritiesComplete.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(
+      loadingSimilaritiesComplete({
+        similarities: ['0.1', '0.2'],
+      })
+    )
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-complete',
+      similarities: ['0.1', '0.2'],
+    })
+  })
+
+  it(`sets index patient similarities type to 'loading-pending' when index patient id changes`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(loadingSimilaritiesInProgress())
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-in-progress',
+    })
+
+    store.dispatch(setIndexPatient('PID_1'))
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+  })
+
+  it(`sets index patient similarities type to 'loading-pending' when index patient id is reset`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(loadingSimilaritiesInProgress())
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-in-progress',
+    })
+
+    store.dispatch(resetIndexPatient())
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
   })
 })

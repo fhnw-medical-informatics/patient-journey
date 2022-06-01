@@ -11,6 +11,7 @@ import {
 import { addAlerts } from '../alert/alertSlice'
 import { Dispatch } from 'redux'
 import { PatientId, PatientIdNone } from './patients'
+import { LoadedSimilarities } from './similarities'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -145,6 +146,9 @@ const dataSlice = createSlice({
     setIndexPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutateLoadedDataState(state, (s) => {
         s.indexPatientId = action.payload as PatientId
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-pending',
+        }
       })
     },
     resetIndexPatient: (state: Draft<DataState>) => {
@@ -156,12 +160,41 @@ const dataSlice = createSlice({
         if (similarityFilter !== -1) {
           s.filters.splice(similarityFilter, 1)
         }
+
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-pending',
+        }
       })
     },
     setSplitPaneResizing: (state: Draft<DataState>, action: PayloadAction<SplitPane>) => {
       mutateLoadedDataState(state, (s) => {
         s.isResizing = action.payload.isResizing
       })
+    },
+    loadingSimilaritiesInProgress: (state: Draft<DataState>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-in-progress',
+        }
+      })
+    },
+    loadingSimilaritiesDataFailed: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-failed',
+          errorMessage: action.payload,
+        }
+      })
+    },
+    loadingSimilaritiesComplete: (state: Draft<DataState>, action: PayloadAction<LoadedSimilarities>): DataState => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-complete',
+          ...freeze(action.payload, true),
+        }
+      })
+
+      return state
     },
   },
 })
@@ -198,6 +231,9 @@ export const {
   setIndexPatient,
   resetIndexPatient,
   setSplitPaneResizing,
+  loadingSimilaritiesInProgress,
+  loadingSimilaritiesDataFailed,
+  loadingSimilaritiesComplete,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
