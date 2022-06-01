@@ -1,4 +1,4 @@
-import { checkDataConsistency, ConsistencyCheckData } from '../checkDataConsistency'
+import { checkDataConsistency, ConsistencyCheckData } from '../consistency'
 
 type IdleResponse = Readonly<{
   type: 'idle'

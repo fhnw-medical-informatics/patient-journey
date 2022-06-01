@@ -3,7 +3,7 @@ import { createEventData, EventData } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createSimilarityData, SimilarityData } from './similarities'
-import { HEADER_ROW_COUNT } from './checkDataConsistency'
+import { HEADER_ROW_COUNT } from './consistency'
 
 export type LoadingProgress =
   | { activeStep: Exclude<LoadingStep, LoadingStep.ConsistencyChecks> }
