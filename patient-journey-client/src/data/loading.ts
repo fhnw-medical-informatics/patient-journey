@@ -3,14 +3,13 @@ import { createEventData, EventData } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createSimilarityData, SimilarityData } from './similarities'
-import CheckDataConsistencyWorker from './workers/createCheckDataConsistency?worker'
-import { CheckDataConsistencyWorkerResponse } from './workers/createCheckDataConsistency'
-import { checkDataConsistency, ConsistencyCheckData } from './checkDataConsistency'
 
-export interface LoadingProgress {
-  activeStep: LoadingStep
-  isSkipConsistencyChecksRequested?: boolean
-}
+export type LoadingProgress =
+  | { activeStep: Exclude<LoadingStep, LoadingStep.ConsistencyChecks> }
+  | {
+      activeStep: LoadingStep.ConsistencyChecks
+      data: LoadedData
+    }
 
 export enum LoadingStep {
   Patients,
@@ -27,7 +26,7 @@ export const SIMILARITY_DATA_FILE_URL = `${DATA_FOLDER}/similarities.csv`
 export const DATA_LOADING_ERROR = 'Data Loading Error'
 export const DATA_LOADING_WARNING = 'Data Loading Warning'
 
-const HEADER_ROW_COUNT = 2
+export const HEADER_ROW_COUNT = 2
 
 export interface LoadedData {
   readonly patientData: PatientData
@@ -39,12 +38,11 @@ export const loadData = async (
   patientDataUrl: string,
   eventDataUrl: string,
   similarityDataUrl: string,
-  hasWorkerSupport: boolean,
+  skipConsistencyChecks: boolean,
   onLoadingDataInProgress: (progress: LoadingProgress) => void,
   onLoadingDataComplete: (data: LoadedData) => void,
   onLoadingDataFailed: (message: string) => void,
-  onAddAlerts: (alerts: ReadonlyArray<Alert>) => void,
-  isSkipConsistencyChecksRequested: () => boolean
+  onAddAlerts: (alerts: ReadonlyArray<Alert>) => void
 ) => {
   const onWarning = (message: string) => onAddAlerts([{ type: 'warning', topic: DATA_LOADING_WARNING, message }])
   const onError = (message: string) => onAddAlerts([{ type: 'error', topic: DATA_LOADING_ERROR, message }])
@@ -69,16 +67,16 @@ export const loadData = async (
       onWarning
     )
 
-    // consistency checks
     const data = { patientData, eventData, similarityData }
-    onLoadingDataInProgress({ activeStep: LoadingStep.ConsistencyChecks })
-    const consistencyCheckData = { headerRowCount: HEADER_ROW_COUNT, patientData, eventData }
-    if (hasWorkerSupport) {
-      await checkDataConsistencyInWorker(consistencyCheckData, isSkipConsistencyChecksRequested, onWarning)
+
+    if (skipConsistencyChecks) {
+      onLoadingDataComplete(data)
     } else {
-      checkDataConsistency(consistencyCheckData, onWarning, onError)
+      onLoadingDataInProgress({
+        activeStep: LoadingStep.ConsistencyChecks,
+        data,
+      })
     }
-    onLoadingDataComplete(data)
   } catch (e: any) {
     console.error(DATA_LOADING_ERROR, e)
     onLoadingDataFailed(DATA_LOADING_ERROR)
@@ -115,40 +113,3 @@ export const parseFromString = (csv: string) => {
   // use header = false to get string[][] rather than JSON -> extracting header fields ourselves
   return csvParser.parse<string[]>(csv, { header: false, skipEmptyLines: true, delimiter: ',' })
 }
-
-const checkDataConsistencyInWorker = async (
-  data: ConsistencyCheckData,
-  isSkipConsistencyChecksRequested: () => boolean,
-  onWarning: (message: string) => void
-): Promise<void> =>
-  new Promise<void>((resolve, reject) => {
-    const worker = new CheckDataConsistencyWorker()
-    worker.postMessage(data)
-    worker.onmessage = ({ data }: MessageEvent<CheckDataConsistencyWorkerResponse>) => {
-      switch (data.type) {
-        case 'warning':
-          onWarning(data.message)
-          break
-        case 'error':
-          worker.terminate()
-          reject(data)
-          break
-        case 'done':
-          resolve()
-      }
-    }
-    worker.onerror = (e) => {
-      worker.terminate()
-      reject(e)
-    }
-    const terminateIfSkipRequested = () => {
-      if (isSkipConsistencyChecksRequested()) {
-        worker.terminate()
-        resolve()
-      } else {
-        requestAnimationFrame(terminateIfSkipRequested)
-      }
-    }
-
-    requestAnimationFrame(terminateIfSkipRequested)
-  })

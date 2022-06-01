@@ -1,19 +1,8 @@
 import React from 'react'
 import { makeStyles } from '../../utils'
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CircularProgress,
-  Step,
-  StepIcon,
-  StepIconProps,
-  StepLabel,
-  Stepper,
-  Typography,
-} from '@mui/material'
-import { LoadingStep } from '../loading'
+import { CircularProgress, Step, StepIcon, StepIconProps, StepLabel, Stepper } from '@mui/material'
+import { LoadingProgress as LoadingProgressState, LoadingStep } from '../loading'
+import { ConsistencyChecks } from '../containers/ConsistencyChecks'
 
 const STEPS = ['Loading Patients', 'Loading Events', 'Loading Similarities', 'Checking Consistency']
 
@@ -32,12 +21,12 @@ const useStyles = makeStyles()((theme) => ({
 }))
 
 export interface Props {
-  readonly activeStep: LoadingStep
-  readonly onSkipPressed: () => void
+  readonly loadingProgress: LoadingProgressState
 }
 
-export const LoadingProgress = ({ activeStep, onSkipPressed }: Props) => {
+export const LoadingProgress = ({ loadingProgress }: Props) => {
   const { classes } = useStyles()
+  const { activeStep } = loadingProgress
   return (
     <div className={classes.centered}>
       <Stepper activeStep={activeStep} orientation={'vertical'}>
@@ -47,7 +36,7 @@ export const LoadingProgress = ({ activeStep, onSkipPressed }: Props) => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === LoadingStep.ConsistencyChecks && <SkipConsistencyChecksInfo onSkipPressed={onSkipPressed} />}
+      {activeStep === LoadingStep.ConsistencyChecks && <ConsistencyChecks data={loadingProgress.data} />}
     </div>
   )
 }
@@ -55,25 +44,3 @@ export const LoadingProgress = ({ activeStep, onSkipPressed }: Props) => {
 const CustomStepIcon = (props: StepIconProps) => {
   return props.active ? <CircularProgress size={24} disableShrink={true} /> : <StepIcon {...props} />
 }
-
-interface SkipConsistencyChecksInfoProps {
-  readonly onSkipPressed: () => void
-}
-
-const SkipConsistencyChecksInfo = ({ onSkipPressed }: SkipConsistencyChecksInfoProps) => (
-  <Card raised={true} sx={{ mt: 3, maxWidth: 400 }}>
-    <CardContent>
-      <Typography variant={'button'} color="text.secondary">
-        {'Taking too long?'}
-      </Typography>
-      <Typography sx={{ mt: 1 }} variant={'body2'}>
-        {'If you have previously loaded and checked your data, you can safely skip this last step.'}
-      </Typography>
-    </CardContent>
-    <CardActions sx={{ justifyContent: 'end' }}>
-      <Button size="small" onClick={onSkipPressed}>
-        {'Skip Checks'}
-      </Button>
-    </CardActions>
-  </Card>
-)

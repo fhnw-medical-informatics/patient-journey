@@ -1,15 +1,15 @@
 import { PatientData, PatientDataColumn, PatientId } from './patients'
 import { EventData, EventDataColumn } from './events'
 import { DataEntity, Entity, EntityId } from './entities'
+import { HEADER_ROW_COUNT } from './loading'
 
 export type ConsistencyCheckData = Readonly<{
-  headerRowCount: number
   patientData: PatientData
   eventData: EventData
 }>
 
 export const checkDataConsistency = (
-  { patientData, eventData, headerRowCount }: ConsistencyCheckData,
+  { patientData, eventData }: ConsistencyCheckData,
   onWarning: (message: string) => void,
   onError: (message: string) => void
 ): void => {
@@ -28,8 +28,8 @@ export const checkDataConsistency = (
   if (nonMatchingPidRefs.length > 0) {
     onWarning(`Event data table contains invalid pid references: [${nonMatchingPidRefs}]`)
   }
-  checkDateFormats(patientData, 'Patient', headerRowCount, onError)
-  checkDateFormats(eventData, 'Event', headerRowCount, onError)
+  checkDateFormats(patientData, 'Patient', HEADER_ROW_COUNT, onError)
+  checkDateFormats(eventData, 'Event', HEADER_ROW_COUNT, onError)
 }
 
 // Checks that all date values of columns that are of type 'date' use the format dd.MM.yyyy

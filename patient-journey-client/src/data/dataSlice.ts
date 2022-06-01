@@ -86,11 +86,6 @@ const dataSlice = createSlice({
       type: 'loading-in-progress',
       ...action.payload,
     }),
-    skipConsistencyChecks: (state: Draft<DataState>) => {
-      if (state.type === 'loading-in-progress') {
-        state.isSkipConsistencyChecksRequested = true
-      }
-    },
     loadingDataFailed: (_state: DataState, action: PayloadAction<string>): DataState => ({
       type: 'loading-failed',
       errorMessage: action.payload,
@@ -193,7 +188,6 @@ const mutateFilterData = (
 export const dataReducer = dataSlice.reducer
 export const {
   loadingDataInProgress,
-  skipConsistencyChecks,
   loadingDataFailed,
   loadingDataComplete,
   setSelectedEntity,
@@ -210,25 +204,20 @@ export const {
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
 export const loadData =
   (
-    hasWorkerSupport: boolean = true,
     patientDataUrl: string = PATIENT_DATA_FILE_URL,
     eventDataUrl: string = EVENT_DATA_FILE_URL,
-    similarityDataUrl: string = SIMILARITY_DATA_FILE_URL
+    similarityDataUrl: string = SIMILARITY_DATA_FILE_URL,
+    skipConsistencyChecks: boolean = false
   ) =>
-  async (dispatch: Dispatch<AnyAction>, getState: () => { data: DataState }) => {
+  async (dispatch: Dispatch<AnyAction>) => {
     return await loadDataImpl(
       patientDataUrl,
       eventDataUrl,
       similarityDataUrl,
-      hasWorkerSupport,
+      skipConsistencyChecks,
       (progress: LoadingProgress) => dispatch(loadingDataInProgress(progress)),
       (data) => dispatch(loadingDataComplete(data)),
       (message) => dispatch(loadingDataFailed(message)),
-      (alerts) => dispatch(addAlerts(alerts)),
-      () => {
-        // not using selectors here to prevent circular dependencies
-        const s = getState()
-        return s.data.type === 'loading-in-progress' && (s.data.isSkipConsistencyChecksRequested ?? false)
-      }
+      (alerts) => dispatch(addAlerts(alerts))
     )
   }
