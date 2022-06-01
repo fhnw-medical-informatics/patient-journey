@@ -16,6 +16,6 @@ export const StepConsistencyChecks = Template.bind({})
 StepConsistencyChecks.args = {
   loadingProgress: {
     activeStep: LoadingStep.ConsistencyChecks,
-    data: { patientData: EMPTY_PATIENT_DATA, eventData: EMPTY_EVENT_DATA, similarityData: {} },
+    data: { patientData: EMPTY_PATIENT_DATA, eventData: EMPTY_EVENT_DATA, similarityData: [] },
   },
 }

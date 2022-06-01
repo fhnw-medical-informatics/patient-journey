@@ -35,12 +35,7 @@ export const createStoreWithMockData = async () => {
         },
       ],
     },
-    similarityData: {
-      '0': {
-        indexPatient: '0' as PatientId,
-        '0': '1',
-      },
-    },
+    similarityData: [],
   }
   await store.dispatch(loadingDataComplete(loadedData))
   return { store, loadedData }

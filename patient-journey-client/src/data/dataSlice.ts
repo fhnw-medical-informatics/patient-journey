@@ -7,7 +7,6 @@ import {
   LoadedData,
   LoadingProgress,
   PATIENT_DATA_FILE_URL,
-  SIMILARITY_DATA_FILE_URL,
 } from './loading'
 import { addAlerts } from '../alert/alertSlice'
 import { Dispatch } from 'redux'
@@ -206,14 +205,12 @@ export const loadData =
   (
     patientDataUrl: string = PATIENT_DATA_FILE_URL,
     eventDataUrl: string = EVENT_DATA_FILE_URL,
-    similarityDataUrl: string = SIMILARITY_DATA_FILE_URL,
     skipConsistencyChecks: boolean = false
   ) =>
   async (dispatch: Dispatch<AnyAction>) => {
     return await loadDataImpl(
       patientDataUrl,
       eventDataUrl,
-      similarityDataUrl,
       skipConsistencyChecks,
       (progress: LoadingProgress) => dispatch(loadingDataInProgress(progress)),
       (data) => dispatch(loadingDataComplete(data)),

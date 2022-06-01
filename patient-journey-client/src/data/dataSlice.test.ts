@@ -34,7 +34,6 @@ import {
 import { EntityIdNone } from './entities'
 
 const PID_1 = 'PID_1' as PatientId
-const PID_2 = 'PID_2' as PatientId
 
 const TEST_PATIENTS_CSV = 'Col_1,Id,Col_2\nstring,PiD,string\nCell_11,PID_1,Cell_12\n\nCell_21,PID_2,Cell_22'
 const TEST_PATIENTS_CSV_MISSING_PID = 'Name\nstring\nJane'
@@ -45,7 +44,6 @@ const TEST_EVENTS_CSV_MISSING_PID = 'Event ID,Timestamp\neid,timestamp\nEID_1,1\
 const TEST_EVENTS_CSV_MISSING_EID = 'Patient ID,Timestamp\npid,timestamp\nPID_1,42'
 const TEST_EVENTS_CSV_INVALID_COLUMN_TYPE = 'Event ID,Patient ID,Invalid\neid,pid,invalid\nEID_1,PID_1,1\nEID_2,PID_2,2'
 const TEST_EVENTS_CSV_HEADERS_ONLY = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp'
-const TEST_SIMILARITIES_CSV = '↓ Other Patient | Index Patient →,PID_1,PID_2\nPID_1,1,42\nPID_2,99,1'
 
 describe('dataSlice', () => {
   const patientDataUrl = 'patientDataUrl'
@@ -58,8 +56,6 @@ describe('dataSlice', () => {
   const eventDataUrlInvalidColumnType = 'eventDataUrlInvalidColumnType'
   const eventDataUrlHeadersOnly = 'eventDataUrlHeadersOnly'
   const successEventDataUrlMissingPid = 'successEventDataUrlMissingPid'
-
-  const similarityDataUrl = 'similarityDataUrl'
 
   const emptyUrl = 'emptyUrl'
   const errorUrl = 'errorUrl'
@@ -114,11 +110,6 @@ describe('dataSlice', () => {
             ok: true,
             text: () => Promise.resolve(TEST_EVENTS_CSV_MISSING_PID),
           })
-        case `${similarityDataUrl}`:
-          return Promise.resolve({
-            ok: true,
-            text: () => Promise.resolve(TEST_SIMILARITIES_CSV),
-          })
         case `${emptyUrl}`:
           return Promise.resolve({
             ok: true,
@@ -134,7 +125,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl, similarityDataUrl, true)(store.dispatch)
+    await loadData(patientDataUrl, eventDataUrl, true)(store.dispatch)
 
     expect(store.getState().alert.alerts).toEqual([])
     const data = selectData(store.getState())
@@ -166,24 +157,13 @@ describe('dataSlice', () => {
 
     // similarities
     const similarityData = data.similarityData
-    expect(similarityData).toEqual({
-      PID_1: {
-        indexPatient: PID_1,
-        PID_1: '1',
-        PID_2: '99',
-      },
-      PID_2: {
-        indexPatient: PID_2,
-        PID_1: '42',
-        PID_2: '1',
-      },
-    })
+    expect(similarityData).toEqual([])
   })
 
   // TODO: test consistency checking
   it.skip('loadData loading-complete patient data table missing pid', async () => {
     const store = createStore()
-    await loadData(patientDataUrlMissingPid, eventDataUrl, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrlMissingPid, eventDataUrl)(store.dispatch)
 
     const state = store.getState()
     const patientData = selectData(state).patientData
@@ -202,7 +182,7 @@ describe('dataSlice', () => {
   // TODO: test consistency checking
   it.skip('loadData loading-complete patient data table invalid column type', async () => {
     const store = createStore()
-    await loadData(patientDataUrlInvalidColumnType, eventDataUrl, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrlInvalidColumnType, eventDataUrl)(store.dispatch)
     expect(store.getState().alert.alerts.length).toEqual(1)
     expect(store.getState().alert.alerts[0].message).toEqual(
       "Invalid column type 'invalid' found in patient data table. Falling back to 'string'."
@@ -212,7 +192,7 @@ describe('dataSlice', () => {
   // TODO: test consistency checking
   it.skip('loadData loading-complete event data table missing eid', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrlMissingEid, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrl, eventDataUrlMissingEid)(store.dispatch)
 
     const state = store.getState()
     const eventData = selectData(state).eventData
@@ -231,7 +211,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete event data table invalid column type', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrlInvalidColumnType, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrl, eventDataUrlInvalidColumnType)(store.dispatch)
     expect(store.getState().alert.alerts.length).toEqual(1)
     expect(store.getState().alert.alerts[0].message).toEqual(
       "Invalid column type 'invalid' found in event data table. Falling back to 'string'."

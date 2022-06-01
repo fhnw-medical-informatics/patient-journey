@@ -2,7 +2,7 @@ import { createPatientData, PatientData } from './patients'
 import { createEventData, EventData } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
-import { createSimilarityData, SimilarityData } from './similarities'
+import { SimilarityData } from './similarities'
 
 export type LoadingProgress =
   | { activeStep: Exclude<LoadingStep, LoadingStep.ConsistencyChecks> }
@@ -14,7 +14,6 @@ export type LoadingProgress =
 export enum LoadingStep {
   Patients,
   Events,
-  Similarities,
   ConsistencyChecks,
 }
 
@@ -37,7 +36,6 @@ export interface LoadedData {
 export const loadData = async (
   patientDataUrl: string,
   eventDataUrl: string,
-  similarityDataUrl: string,
   skipConsistencyChecks: boolean,
   onLoadingDataInProgress: (progress: LoadingProgress) => void,
   onLoadingDataComplete: (data: LoadedData) => void,
@@ -59,15 +57,7 @@ export const loadData = async (
     onLoadingDataInProgress({ activeStep: LoadingStep.Events })
     const eventData = createEventData(await parseEntityDataFromUrl(eventDataUrl, 'Event'), HEADER_ROW_COUNT, onWarning)
 
-    // loading similarities
-    onLoadingDataInProgress({ activeStep: LoadingStep.Similarities })
-    const similarityData = createSimilarityData(
-      patientData.allEntities.map((e) => e.pid),
-      await parseDataFromUrl(similarityDataUrl).then((r) => r.data),
-      onWarning
-    )
-
-    const data = { patientData, eventData, similarityData }
+    const data = { patientData, eventData, similarityData: [] }
 
     if (skipConsistencyChecks) {
       onLoadingDataComplete(data)
