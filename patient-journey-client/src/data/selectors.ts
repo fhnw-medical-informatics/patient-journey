@@ -41,18 +41,39 @@ export const selectDataLoadingErrorMessage = (s: RootState): string => {
 
 const selectPatientData = createSelector(selectData, (data) => data.patientData)
 
+export const selectPatientCount = createSelector(selectPatientData, (data) => data.allEntities.length)
+
 export const selectIndexPatientId = createSelector(selectData, (data) => data.indexPatientId)
 
+export const selectIndexPatientIdIndex = createSelector(selectData, selectIndexPatientId, (data, indexPatientId) =>
+  data.similarityData.patientIdMap.get(indexPatientId)
+)
+
+export const selectSimilarityDataLoadingState = createSelector(
+  selectData,
+  (data) => data.similarityData.indexPatientSimilarities.type
+)
+
+export const selectSimilarityDataLoadingErrorMessage = createSelector(selectData, (data) => {
+  if (data.similarityData.indexPatientSimilarities.type === 'loading-failed') {
+    return data.similarityData.indexPatientSimilarities.errorMessage
+  } else {
+    return ''
+  }
+})
+
 const selectSimilarityData = createSelector(selectData, selectIndexPatientId, (data, indexPatientId) =>
-  indexPatientId !== PatientIdNone ? data.similarityData[indexPatientId] : null
+  indexPatientId !== PatientIdNone && data.similarityData.indexPatientSimilarities.type === 'loading-complete'
+    ? data.similarityData.indexPatientSimilarities.similarities
+    : null
 )
 
 const selectPatientDataRows = createSelector(selectPatientData, selectSimilarityData, (patientData, similarityData) =>
   similarityData === null
     ? patientData.allEntities
-    : patientData.allEntities.map((entity) => ({
+    : patientData.allEntities.map((entity, idx) => ({
         ...entity,
-        values: [...entity.values, `${similarityData[entity.pid]}`],
+        values: [...entity.values, `${similarityData[idx]}`],
       }))
 )
 

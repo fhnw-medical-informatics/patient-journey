@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useColor } from '../../color/hooks'
 import { DataTable as DataTableComponent } from '../components/DataTable'
 import {
@@ -7,6 +7,8 @@ import {
   useFilteredActiveData,
   useActiveSelectedEntity,
   useIndexPatientId,
+  useIndexPatientIdIndex,
+  usePatientCount,
 } from '../../data/hooks'
 import { useActiveTableSorting } from '../hooks'
 import { useAppDispatch, useAppSelector } from '../../store'
@@ -14,8 +16,7 @@ import { setSorting } from '../tableSlice'
 import { selectDataView } from '../../data/selectors'
 import { ColumnSortingState } from '../../data/sorting'
 import { ColorByColumnNone } from '../../color/colorSlice'
-import { PatientId } from '../../data/patients'
-import { resetIndexPatient, setIndexPatient } from '../../data/dataSlice'
+import { loadSimilarityData, resetIndexPatient } from '../../data/dataSlice'
 
 export const DataTable = React.memo(() => {
   const view = useAppSelector(selectDataView)
@@ -26,7 +27,10 @@ export const DataTable = React.memo(() => {
 
   const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
   const selectedEntityId = useActiveSelectedEntity()
+
   const indexPatientId = useIndexPatientId()
+  const indexPatientIndex = useIndexPatientIdIndex()
+  const patientCount = usePatientCount()
 
   const dispatch = useAppDispatch()
 
@@ -35,16 +39,16 @@ export const DataTable = React.memo(() => {
     [dispatch, view]
   )
 
-  const onSetIndexPatient = useCallback(
-    (pid: PatientId) => {
-      dispatch(setIndexPatient(pid))
-    },
-    [dispatch]
-  )
-
   const onResetIndexPatient = useCallback(() => {
     dispatch(resetIndexPatient())
   }, [dispatch])
+
+  // TODO: This should be handled by the data slice (middleware)
+  useEffect(() => {
+    if (indexPatientIndex !== undefined) {
+      dispatch(loadSimilarityData(indexPatientIndex, patientCount, indexPatientId))
+    }
+  }, [indexPatientIndex, indexPatientId, patientCount, dispatch])
 
   return (
     <DataTableComponent
@@ -58,7 +62,6 @@ export const DataTable = React.memo(() => {
       colorByColumn={view === colorByColumn.type ? colorByColumn : ColorByColumnNone}
       colorByColumnFn={colorByColumnFn}
       indexPatientId={indexPatientId}
-      onSetIndexPatient={onSetIndexPatient}
       onResetIndexPatient={onResetIndexPatient}
       enableIndexPatientColumn={view === 'patients'}
     />

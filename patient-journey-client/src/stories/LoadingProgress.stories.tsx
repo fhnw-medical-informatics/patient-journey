@@ -2,7 +2,7 @@ import { Meta, Story } from '@storybook/react'
 import React from 'react'
 import { LoadingProgress, Props } from '../data/components/LoadingProgress'
 import { LoadingStep } from '../data/loading'
-import { EMPTY_PATIENT_DATA } from '../data/patients'
+import { EMPTY_PATIENT_DATA, PatientId } from '../data/patients'
 import { EMPTY_EVENT_DATA } from '../data/events'
 
 export default {
@@ -16,6 +16,15 @@ export const StepConsistencyChecks = Template.bind({})
 StepConsistencyChecks.args = {
   loadingProgress: {
     activeStep: LoadingStep.ConsistencyChecks,
-    data: { patientData: EMPTY_PATIENT_DATA, eventData: EMPTY_EVENT_DATA, similarityData: {} },
+    data: {
+      patientData: EMPTY_PATIENT_DATA,
+      eventData: EMPTY_EVENT_DATA,
+      similarityData: {
+        patientIdMap: new Map<PatientId, number>(),
+        indexPatientSimilarities: {
+          type: 'loading-pending',
+        },
+      },
+    },
   },
 }

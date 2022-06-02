@@ -1,17 +1,12 @@
 import { AnyAction, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
+import { Dispatch } from 'redux'
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
-import {
-  EVENT_DATA_FILE_URL,
-  loadData as loadDataImpl,
-  LoadedData,
-  LoadingProgress,
-  PATIENT_DATA_FILE_URL,
-  SIMILARITY_DATA_FILE_URL,
-} from './loading'
+import { loadData as loadDataImpl, LoadedData, LoadingProgress } from './loading'
+import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './constants'
 import { addAlerts } from '../alert/alertSlice'
-import { Dispatch } from 'redux'
 import { PatientId, PatientIdNone } from './patients'
+import { LoadedSimilarities, parseSpecificRowFromSimilarityFile } from './similarities'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -146,6 +141,9 @@ const dataSlice = createSlice({
     setIndexPatient: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutateLoadedDataState(state, (s) => {
         s.indexPatientId = action.payload as PatientId
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-pending',
+        }
       })
     },
     resetIndexPatient: (state: Draft<DataState>) => {
@@ -157,12 +155,41 @@ const dataSlice = createSlice({
         if (similarityFilter !== -1) {
           s.filters.splice(similarityFilter, 1)
         }
+
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-pending',
+        }
       })
     },
     setSplitPaneResizing: (state: Draft<DataState>, action: PayloadAction<SplitPane>) => {
       mutateLoadedDataState(state, (s) => {
         s.isResizing = action.payload.isResizing
       })
+    },
+    loadingSimilaritiesInProgress: (state: Draft<DataState>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-in-progress',
+        }
+      })
+    },
+    loadingSimilaritiesDataFailed: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-failed',
+          errorMessage: action.payload,
+        }
+      })
+    },
+    loadingSimilaritiesComplete: (state: Draft<DataState>, action: PayloadAction<LoadedSimilarities>): DataState => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityData.indexPatientSimilarities = {
+          type: 'loading-complete',
+          ...freeze(action.payload, true),
+        }
+      })
+
+      return state
     },
   },
 })
@@ -199,23 +226,38 @@ export const {
   setIndexPatient,
   resetIndexPatient,
   setSplitPaneResizing,
+  loadingSimilaritiesInProgress,
+  loadingSimilaritiesDataFailed,
+  loadingSimilaritiesComplete,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
 export const loadData =
-  (
-    patientDataUrl: string = PATIENT_DATA_FILE_URL,
-    eventDataUrl: string = EVENT_DATA_FILE_URL,
-    similarityDataUrl: string = SIMILARITY_DATA_FILE_URL
-  ) =>
+  (patientDataUrl: string = PATIENT_DATA_FILE_URL, eventDataUrl: string = EVENT_DATA_FILE_URL) =>
   async (dispatch: Dispatch<AnyAction>) => {
     return await loadDataImpl(
       patientDataUrl,
       eventDataUrl,
-      similarityDataUrl,
       (progress: LoadingProgress) => dispatch(loadingDataInProgress(progress)),
       (data) => dispatch(loadingDataComplete(data)),
       (message) => dispatch(loadingDataFailed(message)),
       (alerts) => dispatch(addAlerts(alerts))
+    )
+  }
+
+export const loadSimilarityData =
+  (rowIndex: number, totalNumberOfRows: number, patientId: PatientId) => async (dispatch: Dispatch<AnyAction>) => {
+    dispatch(loadingSimilaritiesInProgress())
+
+    parseSpecificRowFromSimilarityFile(
+      rowIndex,
+      totalNumberOfRows,
+      patientId,
+      (data) => dispatch(loadingSimilaritiesComplete(data)),
+      (warning) => dispatch(addAlerts([{ type: 'warning', topic: 'Index Patient', message: warning }])),
+      (message) => {
+        dispatch(loadingSimilaritiesDataFailed(message))
+        dispatch(addAlerts([{ type: 'error', topic: 'Index Patient', message }]))
+      }
     )
   }

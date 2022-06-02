@@ -28,6 +28,10 @@ import {
   selectIndexPatientId,
   selectDataLoadingProgress,
   selectSplitPaneResizing,
+  selectSimilarityDataLoadingState,
+  selectSimilarityDataLoadingErrorMessage,
+  selectIndexPatientIdIndex,
+  selectPatientCount,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -105,5 +109,10 @@ export const useEventDataTimestampValuesFormatted = () => useAppSelector(selectE
 export const useCurrentColorColumnNumberRange = () => useAppSelector(selectCurrentColorColumnNumberRange)
 
 export const useIndexPatientId = () => useAppSelector(selectIndexPatientId)
+export const useSimilarityDataLoadingState = () => useAppSelector(selectSimilarityDataLoadingState)
+export const useSimilarityDataLoadingErrorMessage = () => useAppSelector(selectSimilarityDataLoadingErrorMessage)
+export const useIndexPatientIdIndex = () => useAppSelector(selectIndexPatientIdIndex)
+
+export const usePatientCount = () => useAppSelector(selectPatientCount)
 
 export const useSplitPlaneResizing = () => useAppSelector(selectSplitPaneResizing)

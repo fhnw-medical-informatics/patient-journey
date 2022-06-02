@@ -4,6 +4,9 @@ import {
   DataStateLoadingFailed,
   loadData,
   loadingDataInProgress,
+  loadingSimilaritiesComplete,
+  loadingSimilaritiesDataFailed,
+  loadingSimilaritiesInProgress,
   removeDataFilter,
   resetDataFilter,
   resetIndexPatient,
@@ -43,7 +46,6 @@ const TEST_EVENTS_CSV_MISSING_PID = 'Event ID,Timestamp\neid,timestamp\nEID_1,1\
 const TEST_EVENTS_CSV_MISSING_EID = 'Patient ID,Timestamp\npid,timestamp\nPID_1,42'
 const TEST_EVENTS_CSV_INVALID_COLUMN_TYPE = 'Event ID,Patient ID,Invalid\neid,pid,invalid\nEID_1,PID_1,1\nEID_2,PID_2,2'
 const TEST_EVENTS_CSV_HEADERS_ONLY = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp'
-const TEST_SIMILARITIES_CSV = '↓ Other Patient | Index Patient →,PID_1,PID_2\nPID_1,1,42\nPID_2,99,1'
 
 const selectData = (s: RootState): LoadedData => {
   if (s.data.type === 'loading-in-progress' && s.data.activeStep === LoadingStep.ConsistencyChecks) {
@@ -66,8 +68,6 @@ describe('dataSlice', () => {
   const eventDataUrlInvalidColumnType = 'eventDataUrlInvalidColumnType'
   const eventDataUrlHeadersOnly = 'eventDataUrlHeadersOnly'
   const successEventDataUrlMissingPid = 'successEventDataUrlMissingPid'
-
-  const similarityDataUrl = 'similarityDataUrl'
 
   const emptyUrl = 'emptyUrl'
   const errorUrl = 'errorUrl'
@@ -122,11 +122,6 @@ describe('dataSlice', () => {
             ok: true,
             text: () => Promise.resolve(TEST_EVENTS_CSV_MISSING_PID),
           })
-        case `${similarityDataUrl}`:
-          return Promise.resolve({
-            ok: true,
-            text: () => Promise.resolve(TEST_SIMILARITIES_CSV),
-          })
         case `${emptyUrl}`:
           return Promise.resolve({
             ok: true,
@@ -142,7 +137,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
 
     expect(store.getState().alert.alerts).toEqual([])
     const data = selectData(store.getState())
@@ -174,22 +169,19 @@ describe('dataSlice', () => {
     // similarities
     const similarityData = data.similarityData
     expect(similarityData).toEqual({
-      PID_1: {
-        indexPatient: PID_1,
-        PID_1: '1',
-        PID_2: '99',
-      },
-      PID_2: {
-        indexPatient: PID_2,
-        PID_1: '42',
-        PID_2: '1',
+      patientIdMap: new Map([
+        [PID_1, 0],
+        [PID_2, 1],
+      ]),
+      indexPatientSimilarities: {
+        type: 'loading-pending',
       },
     })
   })
 
   it('loadData loading-complete patient data table missing pid', async () => {
     const store = createStore()
-    await loadData(patientDataUrlMissingPid, eventDataUrl, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrlMissingPid, eventDataUrl)(store.dispatch)
 
     const state = store.getState()
     const loadedData = selectData(state)
@@ -200,7 +192,7 @@ describe('dataSlice', () => {
       values: ['Jane'],
     }
     expect(patientData.allEntities[0]).toEqual(expectedPatient)
-    expect(state.alert.alerts.length).toBeGreaterThan(1)
+    expect(state.alert.alerts.length).toEqual(1)
     expect(state.alert.alerts[0].message).toEqual(
       "No 'pid' column type found in patient data table. Using row index to identify patients."
     )
@@ -208,7 +200,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete patient data table invalid column type', async () => {
     const store = createStore()
-    await loadData(patientDataUrlInvalidColumnType, eventDataUrl, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrlInvalidColumnType, eventDataUrl)(store.dispatch)
     expect(store.getState().alert.alerts.length).toEqual(1)
     expect(store.getState().alert.alerts[0].message).toEqual(
       "Invalid column type 'invalid' found in patient data table. Falling back to 'string'."
@@ -217,7 +209,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete event data table missing eid', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrlMissingEid, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrl, eventDataUrlMissingEid)(store.dispatch)
 
     const state = store.getState()
     const eventData = selectData(state).eventData
@@ -236,7 +228,7 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete event data table invalid column type', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrlInvalidColumnType, similarityDataUrl)(store.dispatch)
+    await loadData(patientDataUrl, eventDataUrlInvalidColumnType)(store.dispatch)
     expect(store.getState().alert.alerts.length).toEqual(1)
     expect(store.getState().alert.alerts[0].message).toEqual(
       "Invalid column type 'invalid' found in event data table. Falling back to 'string'."
@@ -543,5 +535,98 @@ describe('dataSlice', () => {
     expect(getSplitPaneResizing()).toEqual(false)
     store.dispatch(setSplitPaneResizing({ isResizing: true }))
     expect(getSplitPaneResizing()).toEqual(true)
+  })
+
+  it(`handles the ${loadingSimilaritiesInProgress.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(loadingSimilaritiesInProgress())
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-in-progress',
+    })
+  })
+
+  it(`handles the ${loadingSimilaritiesDataFailed.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(loadingSimilaritiesDataFailed('error message'))
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-failed',
+      errorMessage: 'error message',
+    })
+  })
+
+  it(`handles the ${loadingSimilaritiesComplete.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(
+      loadingSimilaritiesComplete({
+        similarities: ['0.1', '0.2'],
+      })
+    )
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-complete',
+      similarities: ['0.1', '0.2'],
+    })
+  })
+
+  it(`sets index patient similarities type to 'loading-pending' when index patient id changes`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(loadingSimilaritiesInProgress())
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-in-progress',
+    })
+
+    store.dispatch(setIndexPatient('PID_1'))
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+  })
+
+  it(`sets index patient similarities type to 'loading-pending' when index patient id is reset`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getIndexPatientSimilarities = () => selectData(store.getState()).similarityData.indexPatientSimilarities
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
+
+    store.dispatch(loadingSimilaritiesInProgress())
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-in-progress',
+    })
+
+    store.dispatch(resetIndexPatient())
+
+    expect(getIndexPatientSimilarities()).toEqual({
+      type: 'loading-pending',
+    })
   })
 })

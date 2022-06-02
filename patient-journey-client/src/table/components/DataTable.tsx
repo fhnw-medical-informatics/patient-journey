@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react'
 
-import { Button, darken, IconButton, lighten, Paper, Tooltip, Typography, useTheme } from '@mui/material'
+import { Button, darken, lighten, Paper, Typography, useTheme } from '@mui/material'
 
-import StarIcon from '@mui/icons-material/Star'
-import StarOutlinedIcon from '@mui/icons-material/StarOutline'
 import CloseIcon from '@mui/icons-material/Close'
 
 import { DataGridPro, GridColumns, GridFooterContainer, GridRow, GridRowProps, LicenseInfo } from '@mui/x-data-grid-pro'
@@ -18,6 +16,7 @@ import { ColumnSortingState, stableSort } from '../../data/sorting'
 import { ColoredCircle } from '../../color/components/ColoredCircle'
 import { PatientId, PatientIdNone } from '../../data/patients'
 import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
+import { IndexPatientButton } from '../containers/IndexPatientButton'
 
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
@@ -50,7 +49,6 @@ interface Props {
   readonly sorting: ColumnSortingState
   readonly onSortingChange: (sortingState: ColumnSortingState) => void
   readonly indexPatientId: PatientId
-  readonly onSetIndexPatient: (pid: PatientId) => void
   readonly onResetIndexPatient: () => void
   readonly enableIndexPatientColumn: boolean
 }
@@ -66,7 +64,6 @@ export const DataTable = ({
   colorByColumn,
   colorByColumnFn,
   indexPatientId,
-  onSetIndexPatient,
   onResetIndexPatient,
   enableIndexPatientColumn,
 }: Props) => {
@@ -89,38 +86,7 @@ export const DataTable = ({
           headerName: '',
           sortable: false,
           width: 10,
-          renderCell: ({ row }) => {
-            const isIndexPatient = indexPatientId === row.uid
-
-            return (
-              <Tooltip
-                enterDelay={150}
-                enterNextDelay={1500}
-                placement="right"
-                arrow
-                title={isIndexPatient ? 'Unset index patient' : 'Set as index patient'}
-              >
-                <IconButton
-                  size="small"
-                  className={isIndexPatient ? '' : 'idx-patient'}
-                  onClick={(e) => {
-                    e.stopPropagation()
-
-                    if (isIndexPatient) {
-                      onResetIndexPatient()
-                    } else {
-                      onSetIndexPatient(row.uid)
-                    }
-                  }}
-                  sx={{
-                    color: theme.entityColors.indexPatient,
-                  }}
-                >
-                  {isIndexPatient ? <StarIcon fontSize="inherit" /> : <StarOutlinedIcon fontSize="inherit" />}
-                </IconButton>
-              </Tooltip>
-            )
-          },
+          renderCell: ({ row }) => <IndexPatientButton patientId={row.uid} />,
         },
         ...cols,
       ]
@@ -140,16 +106,7 @@ export const DataTable = ({
     }
 
     return cols
-  }, [
-    columns,
-    colorByColumn.type,
-    colorByColumnFn,
-    onSetIndexPatient,
-    indexPatientId,
-    enableIndexPatientColumn,
-    onResetIndexPatient,
-    theme.entityColors.indexPatient,
-  ])
+  }, [columns, colorByColumn.type, colorByColumnFn, enableIndexPatientColumn])
 
   // Use our own sorting logic for better performance (in combination with sortingMode: 'server' below)
   // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773
