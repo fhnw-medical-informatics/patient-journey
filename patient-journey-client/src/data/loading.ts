@@ -3,6 +3,7 @@ import { createEventData, EventData } from './events'
 import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createPatientIdToSimilarityIndexMap, SimilarityData } from './similarities'
+import { HEADER_ROW_COUNT } from './consistency'
 
 export type LoadingProgress =
   | { activeStep: Exclude<LoadingStep, LoadingStep.ConsistencyChecks> }
@@ -26,8 +27,6 @@ export const SIMILARITY_DATA_FILE_URL = `${DATA_FOLDER}/similarities.csv`
 export const DATA_LOADING_ERROR = 'Data Loading Error'
 export const DATA_LOADING_WARNING = 'Data Loading Warning'
 
-export const HEADER_ROW_COUNT = 2
-
 export interface LoadedData {
   readonly patientData: PatientData
   readonly eventData: EventData
@@ -37,7 +36,6 @@ export interface LoadedData {
 export const loadData = async (
   patientDataUrl: string,
   eventDataUrl: string,
-  skipConsistencyChecks: boolean,
   onLoadingDataInProgress: (progress: LoadingProgress) => void,
   onLoadingDataComplete: (data: LoadedData) => void,
   onLoadingDataFailed: (message: string) => void,
@@ -69,14 +67,10 @@ export const loadData = async (
 
     const data = { patientData, eventData, similarityData }
 
-    if (skipConsistencyChecks) {
-      onLoadingDataComplete(data)
-    } else {
-      onLoadingDataInProgress({
-        activeStep: LoadingStep.ConsistencyChecks,
-        data,
-      })
-    }
+    onLoadingDataInProgress({
+      activeStep: LoadingStep.ConsistencyChecks,
+      data,
+    })
   } catch (e: any) {
     console.error(DATA_LOADING_ERROR, e)
     onLoadingDataFailed(DATA_LOADING_ERROR)

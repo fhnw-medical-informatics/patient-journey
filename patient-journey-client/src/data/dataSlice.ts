@@ -238,16 +238,11 @@ export const {
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
 export const loadData =
-  (
-    patientDataUrl: string = PATIENT_DATA_FILE_URL,
-    eventDataUrl: string = EVENT_DATA_FILE_URL,
-    skipConsistencyChecks: boolean = false
-  ) =>
+  (patientDataUrl: string = PATIENT_DATA_FILE_URL, eventDataUrl: string = EVENT_DATA_FILE_URL) =>
   async (dispatch: Dispatch<AnyAction>) => {
     return await loadDataImpl(
       patientDataUrl,
       eventDataUrl,
-      skipConsistencyChecks,
       (progress: LoadingProgress) => dispatch(loadingDataInProgress(progress)),
       (data) => dispatch(loadingDataComplete(data)),
       (message) => dispatch(loadingDataFailed(message)),

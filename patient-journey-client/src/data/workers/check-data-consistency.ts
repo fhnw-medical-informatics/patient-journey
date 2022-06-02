@@ -1,4 +1,4 @@
-import { checkDataConsistency, ConsistencyCheckData } from '../checkDataConsistency'
+import { checkDataConsistency, ConsistencyCheckData } from '../consistency'
 
 type IdleResponse = Readonly<{
   type: 'idle'
@@ -21,11 +21,12 @@ onmessage = (e: MessageEvent<ConsistencyCheckData>) => {
   const onWarning = (message: string) => {
     warnings.push(message)
   }
-  const onError = (message: string) => {
-    const errorResponse: ErrorResponse = { type: 'error', message }
+  try {
+    checkDataConsistency(e.data, onWarning)
+    const successResponse: SuccessResponse = { type: 'success', warnings }
+    postMessage(successResponse)
+  } catch (e: any) {
+    const errorResponse: ErrorResponse = { type: 'error', message: e.message }
     postMessage(errorResponse)
   }
-  checkDataConsistency(e.data, onWarning, onError)
-  const successResponse: SuccessResponse = { type: 'success', warnings }
-  postMessage(successResponse)
 }

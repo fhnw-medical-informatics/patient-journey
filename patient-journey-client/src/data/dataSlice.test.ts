@@ -17,18 +17,16 @@ import {
   setSplitPaneResizing,
 } from './dataSlice'
 
-import { createStore } from '../store'
-
+import { createStore, RootState } from '../store'
 import { Filter } from './filtering'
 import { Patient, PatientId, PatientIdNone } from './patients'
 import { EventId, PatientJourneyEvent } from './events'
-import { DATA_LOADING_ERROR, LoadingStep } from './loading'
+import { DATA_LOADING_ERROR, LoadedData, LoadingStep } from './loading'
 import { createStoreWithMockData } from '../test/createStoreWithMockData'
 import {
   selectActiveHoveredEventEntity,
   selectActiveSelectedEntity,
   selectAllFilters,
-  selectData,
   selectDataLoadingProgress,
   selectDataView,
   selectIndexPatientId,
@@ -48,6 +46,16 @@ const TEST_EVENTS_CSV_MISSING_PID = 'Event ID,Timestamp\neid,timestamp\nEID_1,1\
 const TEST_EVENTS_CSV_MISSING_EID = 'Patient ID,Timestamp\npid,timestamp\nPID_1,42'
 const TEST_EVENTS_CSV_INVALID_COLUMN_TYPE = 'Event ID,Patient ID,Invalid\neid,pid,invalid\nEID_1,PID_1,1\nEID_2,PID_2,2'
 const TEST_EVENTS_CSV_HEADERS_ONLY = 'Event ID,Patient ID,Timestamp\neid,pid,timestamp'
+
+const selectData = (s: RootState): LoadedData => {
+  if (s.data.type === 'loading-in-progress' && s.data.activeStep === LoadingStep.ConsistencyChecks) {
+    return s.data.data
+  } else if (s.data.type === 'loading-complete') {
+    return s.data
+  } else {
+    fail('Illegal data loading state')
+  }
+}
 
 describe('dataSlice', () => {
   const patientDataUrl = 'patientDataUrl'
@@ -129,11 +137,10 @@ describe('dataSlice', () => {
 
   it('loadData loading-complete', async () => {
     const store = createStore()
-    await loadData(patientDataUrl, eventDataUrl, true)(store.dispatch)
+    await loadData(patientDataUrl, eventDataUrl)(store.dispatch)
 
     expect(store.getState().alert.alerts).toEqual([])
     const data = selectData(store.getState())
-    expect(data.type).toEqual('loading-complete')
 
     // patients
     const patientData = data.patientData
@@ -172,13 +179,13 @@ describe('dataSlice', () => {
     })
   })
 
-  // TODO: test consistency checking
-  it.skip('loadData loading-complete patient data table missing pid', async () => {
+  it('loadData loading-complete patient data table missing pid', async () => {
     const store = createStore()
     await loadData(patientDataUrlMissingPid, eventDataUrl)(store.dispatch)
 
     const state = store.getState()
-    const patientData = selectData(state).patientData
+    const loadedData = selectData(state)
+    const patientData = loadedData.patientData
     const expectedPatient: Patient = {
       pid: '0' as PatientId,
       uid: '0' as PatientId,
@@ -191,8 +198,7 @@ describe('dataSlice', () => {
     )
   })
 
-  // TODO: test consistency checking
-  it.skip('loadData loading-complete patient data table invalid column type', async () => {
+  it('loadData loading-complete patient data table invalid column type', async () => {
     const store = createStore()
     await loadData(patientDataUrlInvalidColumnType, eventDataUrl)(store.dispatch)
     expect(store.getState().alert.alerts.length).toEqual(1)
@@ -201,8 +207,7 @@ describe('dataSlice', () => {
     )
   })
 
-  // TODO: test consistency checking
-  it.skip('loadData loading-complete event data table missing eid', async () => {
+  it('loadData loading-complete event data table missing eid', async () => {
     const store = createStore()
     await loadData(patientDataUrl, eventDataUrlMissingEid)(store.dispatch)
 

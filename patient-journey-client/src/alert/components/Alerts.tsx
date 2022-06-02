@@ -112,7 +112,7 @@ export const Alerts = ({ alerts, unreadCount, onMarkAlertsRead }: Props) => {
                   </ListItemAvatar>
                   <ListItemText
                     primary={alert.topic}
-                    secondary={<div className={classes.listItemText}>{alert.message}</div>}
+                    secondary={<span className={classes.listItemText}>{alert.message}</span>}
                   />
                 </ListItem>
                 {index < alerts.length - 1 && <Divider component="li" />}

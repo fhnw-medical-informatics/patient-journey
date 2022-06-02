@@ -25,7 +25,7 @@ export const useWorker = <D, R>(_Worker: new () => Worker, data: D, initialValue
         const handleWorkerResponse = (e: MessageEvent<R>) => {
           setResult(e.data)
           isBusy.current = false
-          flushPopData() // TODO: Remove? Won't do anything if isBusy.current is false
+          flushPopData()
         }
 
         workerInstance.addEventListener('message', handleWorkerResponse)
