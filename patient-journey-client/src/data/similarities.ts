@@ -3,7 +3,6 @@ import * as csvParser from 'papaparse'
 import { SIMILARITY_DATA_FILE_URL } from './loading'
 import { PatientData, PatientId } from './patients'
 
-import { getChunkSize } from '../utils'
 import { scaleLinear } from 'd3-scale'
 
 export type SimilaritiesStateLoadingPending = Readonly<{

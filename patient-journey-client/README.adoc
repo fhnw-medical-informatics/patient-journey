@@ -87,18 +87,19 @@ The first column of type `pid` is used to link events to patients.
 
 === Similarities Matrix (Optional)
 
-Patient similarities are defined as a CSV matrix (without headers):
+Patient similarities are defined as a CSV matrix:
 
 ----
-1,0.2,0.3
-0.2,1,0.4
-0.3,0.4,1
+,p1,p2,p3
+p1,1,0.2,0.3
+p2,0.2,1,0.4
+p3,0.3,0.4,1
 ----
 
 Values can be any valid numerical value (convertable via unary + operator).
 
 [IMPORTANT]
-Columns and rows need to be sorted in the same order as the respective patient data file (pid).
+Columns and rows MUST be sorted in the same order as the respective patient data file (pid).
 
 [TIP]
 Rows define _index_ patients, while columns define _other_ patients (only relevant if matrix it not symmetrical).
