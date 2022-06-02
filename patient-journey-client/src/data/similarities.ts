@@ -65,7 +65,13 @@ export const parseSpecificRowFromSimilarityFile = async (
       download: false,
       worker: true,
       complete: () => {
-        onLoadingDataComplete({ similarities: result })
+        if (result.length === totalNumberOfRows) {
+          onLoadingDataComplete({ similarities: result })
+        } else {
+          onLoadingDataFailed(
+            `Similarity file is incomplete. Expected ${totalNumberOfRows} similarity scores for ${patientId}, but got ${result.length}.`
+          )
+        }
       },
       error: (error: any) => onLoadingDataFailed(error.message),
       step: (results, parser) => {
