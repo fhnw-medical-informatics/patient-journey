@@ -54,7 +54,8 @@ export const parseSpecificRowFromSimilarityFile = async (
   // Get chunk size (chunk size should be great enough to contain multiple rows)
   const chunkSize = Math.round((fileSize / totalNumberOfRows) * 10)
 
-  const [bytesFrom, bytesTo] = getByteRangeFromRowIndex(rowIndex, chunkSize, totalNumberOfRows, fileSize)
+  // fileSize - 1 because content-length is inclusive of the last byte
+  const [bytesFrom, bytesTo] = getByteRangeFromRowIndex(rowIndex, chunkSize, totalNumberOfRows, fileSize - 1)
 
   const csvPart = await getRemoteFileChunk(SIMILARITY_DATA_FILE_URL, bytesFrom, bytesTo)
 
