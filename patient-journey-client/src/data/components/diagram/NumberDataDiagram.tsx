@@ -114,7 +114,8 @@ export const NumberDataDiagram = ({
     const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${
       data.binEnd !== undefined ? data.binEnd : ''
     }  (${value})`
-    return <Tooltip text={dateRange} color={color} />
+    const isFirstHalf = !data.binIndex || data.binIndex <= allTicketBins.length / 2 - 1
+    return <Tooltip text={dateRange} color={color} isFirstHalf={isFirstHalf} />
   }, [])
 
   const handleBinClick = useCallback(

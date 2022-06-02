@@ -1,5 +1,12 @@
 import React, { useCallback, useMemo } from 'react'
-import { BarDatum, BarTooltipProps, ComputedDatum, ResponsiveBarCanvas } from '@nivo/bar'
+import {
+  BarCanvasLayer,
+  BarDatum,
+  BarTooltipProps,
+  canvasDefaultProps,
+  ComputedDatum,
+  ResponsiveBarCanvas,
+} from '@nivo/bar'
 import { format } from '../../columns'
 import { barColors, DataDiagramsProps, greyColor } from './shared'
 import { makeStyles } from '../../../utils'
@@ -11,6 +18,8 @@ import { FilterColumn } from '../../filtering'
 import DateBinWorker from '../../workers/create-date-bins?worker'
 import { DateBinWorkerData, DateBinWorkerResponse } from '../../workers/create-date-bins'
 import { useWorker } from '../../workers/hooks'
+import { CustomSlicesLayer } from '../filter/custom-slices/CustomSlicesLayer'
+import { Layers } from '@mui/icons-material'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -109,7 +118,8 @@ export const DateDataDiagram = ({
       } - ${
         data.binEnd !== undefined ? format(data.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
       } (${value})`
-      return <Tooltip text={dateRange} color={color} />
+      const isFirstHalf = !data.binIndex || data.binIndex <= allTicketBins.length / 2 - 1
+      return <Tooltip text={dateRange} color={color} isFirstHalf={isFirstHalf} />
     },
     [column]
   )
@@ -145,6 +155,14 @@ export const DateDataDiagram = ({
         enableLabel={false}
         enableGridY={false}
         onClick={handleBinClick}
+        layers={[
+          ...(canvasDefaultProps.layers as BarCanvasLayer<BarDatum>[]),
+          (ctx) => {
+            ctx.beginPath()
+            ctx.arc(100, 75, 50, 0, 2 * Math.PI)
+            ctx.stroke()
+          },
+        ]}
       />
     </div>
   )

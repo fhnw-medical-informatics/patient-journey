@@ -95,7 +95,8 @@ export const CategoryDataDiagram = ({
 
   const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(({ data, value, color }) => {
     const title = `${data.category} (${value})`
-    return <Tooltip text={title} color={color} />
+    const isFirstHalf = !data.binIndex || data.binIndex <= uniqueCategories.length / 2 - 1
+    return <Tooltip text={title} color={color} isFirstHalf={isFirstHalf} />
   }, [])
 
   const handleBinClick = useCallback(
