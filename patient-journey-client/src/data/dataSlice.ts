@@ -264,6 +264,10 @@ export const loadSimilarityData =
       totalNumberOfRows,
       patientId,
       (data) => dispatch(loadingSimilaritiesComplete(data)),
-      (message) => dispatch(loadingSimilaritiesDataFailed(message))
+      (warning) => dispatch(addAlerts([{ type: 'warning', topic: 'Index Patient', message: warning }])),
+      (message) => {
+        dispatch(loadingSimilaritiesDataFailed(message))
+        dispatch(addAlerts([{ type: 'error', topic: 'Index Patient', message }]))
+      }
     )
   }

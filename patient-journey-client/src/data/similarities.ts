@@ -44,38 +44,47 @@ export const parseSpecificRowFromSimilarityFile = async (
   totalNumberOfRows: number,
   patientId: PatientId,
   onLoadingDataComplete: (data: LoadedSimilarities) => void,
+  onLoadingDataWarning: (message: string) => void,
   onLoadingDataFailed: (message: string) => void
 ) => {
   let result: string[] = []
 
   // Get similarity file size
   const fileSize = await getRemoteFileSize(SIMILARITY_DATA_FILE_URL)
-  // Get chunk size (chunk size should be great enough to contain multiple rows)
-  const chunkSize = Math.round((fileSize / totalNumberOfRows) * 10)
 
-  // fileSize - 1 because content-length is inclusive of the last byte
-  const [bytesFrom, bytesTo] = getByteRangeFromRowIndex(rowIndex, chunkSize, totalNumberOfRows, fileSize - 1)
+  if (fileSize > 0) {
+    // Get chunk size (chunk size should be great enough to contain multiple rows)
+    const chunkSize = Math.round((fileSize / totalNumberOfRows) * 10)
 
-  const csvPart = await getRemoteFileChunk(SIMILARITY_DATA_FILE_URL, bytesFrom, bytesTo)
+    // fileSize - 1 because content-length is inclusive of the last byte
+    const [bytesFrom, bytesTo] = getByteRangeFromRowIndex(rowIndex, chunkSize, totalNumberOfRows, fileSize - 1)
 
-  csvParser.parse<Array<string>>(csvPart, {
-    download: false,
-    worker: true,
-    complete: () => {
-      onLoadingDataComplete({ similarities: result })
-    },
-    error: (error: any) => onLoadingDataFailed(error.message),
-    step: (results, parser) => {
-      if (results.data[0] === patientId) {
-        result = results.data.slice(1)
-        parser.abort()
-      }
-    },
-    header: false,
-    skipEmptyLines: true,
-    delimiter: ',',
-    fastMode: true,
-  })
+    const csvPart = await getRemoteFileChunk(SIMILARITY_DATA_FILE_URL, bytesFrom, bytesTo)
+
+    csvParser.parse<Array<string>>(csvPart, {
+      download: false,
+      worker: true,
+      complete: () => {
+        onLoadingDataComplete({ similarities: result })
+      },
+      error: (error: any) => onLoadingDataFailed(error.message),
+      step: (results, parser) => {
+        if (results.data[0] === patientId) {
+          result = results.data.slice(1)
+          parser.abort()
+        }
+      },
+      header: false,
+      skipEmptyLines: true,
+      delimiter: ',',
+      fastMode: true,
+    })
+  } else {
+    onLoadingDataWarning(
+      `Similarity file '${SIMILARITY_DATA_FILE_URL}' is empty or missing. Consider not using the similarity functionality or provide a valid similarity file.`
+    )
+    onLoadingDataComplete({ similarities: result })
+  }
 }
 
 export const getByteRangeFromRowIndex = (
