@@ -192,7 +192,7 @@ describe('dataSlice', () => {
       values: ['Jane'],
     }
     expect(patientData.allEntities[0]).toEqual(expectedPatient)
-    expect(state.alert.alerts.length).toBeGreaterThan(1)
+    expect(state.alert.alerts.length).toEqual(1)
     expect(state.alert.alerts[0].message).toEqual(
       "No 'pid' column type found in patient data table. Using row index to identify patients."
     )
