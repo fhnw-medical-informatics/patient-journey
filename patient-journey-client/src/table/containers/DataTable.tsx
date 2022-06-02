@@ -8,6 +8,7 @@ import {
   useActiveSelectedEntity,
   useIndexPatientId,
   useIndexPatientIdIndex,
+  usePatientCount,
 } from '../../data/hooks'
 import { useActiveTableSorting } from '../hooks'
 import { useAppDispatch, useAppSelector } from '../../store'
@@ -26,9 +27,10 @@ export const DataTable = React.memo(() => {
 
   const { onEntityClick, onEntityHover } = useActiveEntityInteraction()
   const selectedEntityId = useActiveSelectedEntity()
-  const indexPatientId = useIndexPatientId()
 
+  const indexPatientId = useIndexPatientId()
   const indexPatientIndex = useIndexPatientIdIndex()
+  const patientCount = usePatientCount()
 
   const dispatch = useAppDispatch()
 
@@ -44,9 +46,9 @@ export const DataTable = React.memo(() => {
   // TODO: This should be handled by the data slice (middleware)
   useEffect(() => {
     if (indexPatientIndex !== undefined) {
-      dispatch(loadSimilarityData(indexPatientIndex))
+      dispatch(loadSimilarityData(indexPatientIndex, patientCount, indexPatientId))
     }
-  }, [indexPatientIndex, dispatch])
+  }, [indexPatientIndex, indexPatientId, patientCount, dispatch])
 
   return (
     <DataTableComponent

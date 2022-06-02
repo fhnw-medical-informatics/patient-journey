@@ -255,12 +255,15 @@ export const loadData =
     )
   }
 
-export const loadSimilarityData = (rowIndex: number) => async (dispatch: Dispatch<AnyAction>) => {
-  dispatch(loadingSimilaritiesInProgress())
+export const loadSimilarityData =
+  (rowIndex: number, totalNumberOfRows: number, patientId: PatientId) => async (dispatch: Dispatch<AnyAction>) => {
+    dispatch(loadingSimilaritiesInProgress())
 
-  parseSpecificRowFromSimilarityFile(
-    rowIndex,
-    (data) => dispatch(loadingSimilaritiesComplete(data)),
-    (message) => dispatch(loadingSimilaritiesDataFailed(message))
-  )
-}
+    parseSpecificRowFromSimilarityFile(
+      rowIndex,
+      totalNumberOfRows,
+      patientId,
+      (data) => dispatch(loadingSimilaritiesComplete(data)),
+      (message) => dispatch(loadingSimilaritiesDataFailed(message))
+    )
+  }

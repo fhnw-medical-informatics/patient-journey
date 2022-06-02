@@ -41,9 +41,13 @@ export const selectDataLoadingErrorMessage = (s: RootState): string => {
 
 const selectPatientData = createSelector(selectData, (data) => data.patientData)
 
+export const selectPatientCount = createSelector(selectPatientData, (data) => data.allEntities.length)
+
 export const selectIndexPatientId = createSelector(selectData, (data) => data.indexPatientId)
 
-export const selectIndexPatientIdIndex = createSelector(selectData, selectIndexPatientId, (data, indexPatientId) => data.similarityData.patientIdMap.get(indexPatientId))
+export const selectIndexPatientIdIndex = createSelector(selectData, selectIndexPatientId, (data, indexPatientId) =>
+  data.similarityData.patientIdMap.get(indexPatientId)
+)
 
 export const selectSimilarityDataLoadingState = createSelector(
   selectData,
