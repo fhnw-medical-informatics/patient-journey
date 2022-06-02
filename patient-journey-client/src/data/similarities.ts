@@ -1,6 +1,6 @@
 import * as csvParser from 'papaparse'
 
-import { SIMILARITY_DATA_FILE_URL } from './loading'
+import { SIMILARITY_DATA_FILE_URL } from './constants'
 import { PatientData, PatientId } from './patients'
 
 import { scaleLinear } from 'd3-scale'

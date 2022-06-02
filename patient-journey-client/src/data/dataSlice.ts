@@ -2,13 +2,8 @@ import { AnyAction, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/t
 import { Dispatch } from 'redux'
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
-import {
-  EVENT_DATA_FILE_URL,
-  loadData as loadDataImpl,
-  LoadedData,
-  LoadingProgress,
-  PATIENT_DATA_FILE_URL,
-} from './loading'
+import { loadData as loadDataImpl, LoadedData, LoadingProgress } from './loading'
+import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './constants'
 import { addAlerts } from '../alert/alertSlice'
 import { PatientId, PatientIdNone } from './patients'
 import { LoadedSimilarities, parseSpecificRowFromSimilarityFile } from './similarities'
