@@ -127,6 +127,7 @@ export const CategoryDataDiagram = ({
         enableLabel={false}
         enableGridY={false}
         onClick={handleBinClick}
+        layers={['bars']}
       />
     </div>
   )

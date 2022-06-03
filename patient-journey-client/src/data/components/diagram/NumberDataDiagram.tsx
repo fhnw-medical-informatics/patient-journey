@@ -148,6 +148,7 @@ export const NumberDataDiagram = ({
         enableLabel={false}
         enableGridY={false}
         onClick={handleBinClick}
+        layers={['bars']}
       />
     </div>
   )
