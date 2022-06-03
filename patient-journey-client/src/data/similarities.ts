@@ -57,7 +57,11 @@ export const parseSpecificRowFromSimilarityFile = async (
   // Get similarity file size
   const fileSize = await getRemoteFileSize(SIMILARITY_DATA_FILE_URL)
 
-  if (fileSize > 0) {
+  if (fileSize === undefined) {
+    onLoadingDataFailed(
+      `Similarity file '${SIMILARITY_DATA_FILE_URL}' is missing or your web server does not support range requests. If you have provided a similarity file, please use a web server that supports HTTP range requests like RangeHTTPServer (https://pypi.org/project/rangehttpserver/) for python or 'npx serve' for node.js.`
+    )
+  } else if (fileSize > 0) {
     // Get chunk size (chunk size should be great enough to contain multiple rows)
     const chunkSize = Math.round((fileSize / totalNumberOfRows) * 10)
 
@@ -92,7 +96,7 @@ export const parseSpecificRowFromSimilarityFile = async (
     })
   } else {
     onLoadingDataWarning(
-      `Similarity file '${SIMILARITY_DATA_FILE_URL}' is empty or missing. Consider not using the similarity functionality or provide a valid similarity file.`
+      `Similarity file '${SIMILARITY_DATA_FILE_URL}' is empty. Consider not using the similarity functionality or provide a valid similarity file.`
     )
     onLoadingDataComplete({ similarities: result })
   }
@@ -126,7 +130,14 @@ export const getByteRangeFromRowIndex = (
 
 const getRemoteFileSize = async (url: string) => {
   const res = await fetch(url, { headers: { Range: 'bytes=0-1' } })
-  return +(res.headers.get('content-range')?.split('/')[1] ?? 0)
+  const rangeHeader = res.headers.get('content-range')
+
+  if (rangeHeader) {
+    const fileSize = rangeHeader.split('/')[1]
+    return +fileSize
+  } else {
+    return undefined
+  }
 }
 
 const getRemoteFileChunk = async (url: string, start: number, end: number) => {
