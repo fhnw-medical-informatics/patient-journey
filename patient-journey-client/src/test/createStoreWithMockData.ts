@@ -36,7 +36,7 @@ export const createStoreWithMockData = async () => {
       ],
     },
     similarityData: {
-      patientIdMap: new Map<PatientId, number>(),
+      patientIdMap: {},
       indexPatientSimilarities: {
         type: 'loading-pending',
       },
