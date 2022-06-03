@@ -9,7 +9,7 @@ import { useDates } from '../diagram/hooks'
 import { CustomSliderThumb } from './slider/CustomSliderThumb'
 import { CustomSlider } from './slider/CustomSlider'
 
-const CONTROL_TIMESTAMP_FORMAT = 'yyyy-MM-dd HH:mm'
+const CONTROL_TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm"
 const CONTROL_DATE_FORMAT = 'yyyy-MM-dd'
 
 const useStyles = makeStyles()(() => ({
