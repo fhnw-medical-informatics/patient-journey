@@ -28,7 +28,7 @@ export type SimilaritiesStateLoadingComplete = Readonly<{
   LoadedSimilarities
 
 export type SimilarityData = {
-  readonly patientIdMap: Map<PatientId, number>
+  readonly patientIdMap: Record<string, number>
   readonly indexPatientSimilarities:
     | SimilaritiesStateLoadingPending
     | SimilaritiesStateLoadingInProgress
@@ -36,8 +36,13 @@ export type SimilarityData = {
     | SimilaritiesStateLoadingComplete
 }
 
-export const createPatientIdToSimilarityIndexMap = (patients: PatientData['allEntities']): Map<PatientId, number> =>
-  new Map<PatientId, number>(patients.map((p, idx) => [p.pid, idx]))
+export const createPatientIdToSimilarityIndexMap = (patients: PatientData['allEntities']): Record<string, number> => {
+  const patientIdMap: Record<string, number> = {}
+  patients.forEach((patient, i) => {
+    patientIdMap[patient.pid] = i
+  })
+  return patientIdMap
+}
 
 export const parseSpecificRowFromSimilarityFile = async (
   rowIndex: number,

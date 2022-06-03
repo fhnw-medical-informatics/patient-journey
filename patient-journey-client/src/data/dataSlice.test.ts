@@ -169,10 +169,10 @@ describe('dataSlice', () => {
     // similarities
     const similarityData = data.similarityData
     expect(similarityData).toEqual({
-      patientIdMap: new Map([
-        [PID_1, 0],
-        [PID_2, 1],
-      ]),
+      patientIdMap: {
+        [PID_1]: 0,
+        [PID_2]: 1,
+      },
       indexPatientSimilarities: {
         type: 'loading-pending',
       },
