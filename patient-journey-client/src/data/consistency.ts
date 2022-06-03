@@ -56,9 +56,16 @@ const checkDateFormats = <T extends DataEntity<Entity, PatientDataColumn | Event
   }
 }
 
-const findDuplicateIds = (uids: ReadonlyArray<EntityId>): ReadonlyArray<EntityId> => [
-  ...new Set(uids.filter((e, i, a) => a.indexOf(e) !== i)),
-]
+const findDuplicateIds = (uids: ReadonlyArray<EntityId>): ReadonlyArray<EntityId> => {
+  const sortedUids = [...uids].sort()
+  const duplicateUids: Array<EntityId> = []
+  for (let i = 0; i < sortedUids.length - 1; i++) {
+    if (sortedUids[i] === sortedUids[i + 1]) {
+      duplicateUids.push(sortedUids[i])
+    }
+  }
+  return duplicateUids
+}
 
 const findNonMatchingPidRefs = (knownPids: ReadonlySet<PatientId>, pidRefs: ReadonlyArray<PatientId>) => [
   ...new Set(pidRefs.filter((pidRef) => !knownPids.has(pidRef))),
