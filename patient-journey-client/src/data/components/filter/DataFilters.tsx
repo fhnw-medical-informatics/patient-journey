@@ -1,5 +1,5 @@
 import React from 'react'
-import FilterAltIcon from '@mui/icons-material/FilterAlt'
+import FilterAltIcon from '@mui/icons-material/FilterAltOutlined'
 import { makeStyles } from '../../../utils'
 import { Filter, FilterColumn, GenericFilter } from '../../filtering'
 import { Button, Grid, Typography } from '@mui/material'

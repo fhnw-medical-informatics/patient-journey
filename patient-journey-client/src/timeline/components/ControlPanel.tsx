@@ -12,7 +12,7 @@ import {
   Typography,
 } from '@mui/material'
 import { makeStyles } from '../../utils'
-import HelpIcon from '@mui/icons-material/Help'
+import HelpIcon from '@mui/icons-material/HelpOutline'
 import { TimelineColumn, TimelineColumnNone } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
