@@ -82,7 +82,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
                 variant="filled"
                 size="small"
                 type={'number'}
-                value={!isNaN(value.from) ? value.from : 'NaN'}
+                value={!isNaN(value.from) ? value.from : ''}
                 onChange={(event) => {
                   handleChange(event.target.value ? +event.target.value : NaN, null)
                 }}
@@ -101,7 +101,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
                 variant="filled"
                 size="small"
                 type={'number'}
-                value={!isNaN(value.to) ? value.to : 'NaN'}
+                value={!isNaN(value.to) ? value.to : ''}
                 onChange={(event) => {
                   handleChange(null, event.target.value ? +event.target.value : NaN)
                 }}
