@@ -173,9 +173,6 @@ export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingCont
 
   // Check if the canvas is not the same size.
   if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-    console.log(
-      `Resizing canvas from ${canvas.width} x ${canvas.height} to ${displayWidth} x ${displayHeight} (${dpr} dpr)`
-    )
     // Make the canvas the same size
     canvas.width = displayWidth
     canvas.height = displayHeight
