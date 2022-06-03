@@ -30,7 +30,6 @@ export const ConsistencyChecks = ({ data }: Props) => {
 
   const dispatch = useAppDispatch()
   useEffect(() => {
-    console.log({ response })
     switch (response.type) {
       case 'success':
         dispatch(loadingDataComplete(data))
