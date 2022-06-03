@@ -31,7 +31,7 @@ export const App = () => {
   return (
     <CacheProvider value={muiCache}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
+        <CssBaseline enableColorScheme />
         {import.meta.env.DEV && browserName !== 'Chrome' ? (
           <Grid container justifyContent="center">
             <Grid item xs="auto" sx={{ padding: theme.spacing(4) }}>
