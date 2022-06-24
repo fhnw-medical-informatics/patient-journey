@@ -5,6 +5,10 @@ describe('getByteRangeFromRowIndex', () => {
     expect(getByteRangeFromRowIndex(0, 10, 100, 1000)).toEqual([0, 10])
     expect(getByteRangeFromRowIndex(50, 10, 100, 1000)).toEqual([500, 511])
   })
+  it('Gets correct byte range with skipped bytes', () => {
+    expect(getByteRangeFromRowIndex(0, 10, 100, 1100, 100)).toEqual([95, 105])
+    expect(getByteRangeFromRowIndex(50, 10, 100, 1100, 100)).toEqual([600, 611])
+  })
   it('Gets correct byte range when chunk size is equal to file size', () => {
     expect(getByteRangeFromRowIndex(0, 1000, 100, 1000)).toEqual([0, 1000])
     expect(getByteRangeFromRowIndex(50, 1000, 100, 1000)).toEqual([0, 1000])
