@@ -93,10 +93,13 @@ export const CategoryDataDiagram = ({
     })
   }, [filteredCategoryCount, uniqueCategories, allCategoryCount])
 
-  const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(({ data, value, color }) => {
-    const title = `${data.category} (${value})`
-    return <Tooltip text={title} color={color} />
-  }, [])
+  const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(
+    ({ data, value, color, index }) => {
+      const title = `${data.category} (${value})`
+      return <Tooltip text={title} color={color} index={index} total={uniqueCategories.length - 1} />
+    },
+    [uniqueCategories.length]
+  )
 
   const handleBinClick = useCallback(
     (bin: ComputedDatum<any>) => {

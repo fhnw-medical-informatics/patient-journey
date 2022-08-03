@@ -110,12 +110,15 @@ export const NumberDataDiagram = ({
     )
   }, [allTicketBins, filteredTicketBins])
 
-  const tooltip = useCallback<React.FC<BarTooltipProps<BarDatum>>>(({ data, value, color }) => {
-    const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${
-      data.binEnd !== undefined ? data.binEnd : ''
-    }  (${value})`
-    return <Tooltip text={dateRange} color={color} />
-  }, [])
+  const tooltip = useCallback<React.FC<BarTooltipProps<BarDatum>>>(
+    ({ data, value, color, index }) => {
+      const dateRange = `${data.binStart !== undefined ? data.binStart : ''} - ${
+        data.binEnd !== undefined ? data.binEnd : ''
+      }  (${value})`
+      return <Tooltip text={dateRange} color={color} index={index} total={allTicketBins.length - 1} />
+    },
+    [allTicketBins.length]
+  )
 
   const handleBinClick = useCallback(
     (bin: ComputedDatum<BarDatum>) => {
