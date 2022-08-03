@@ -101,7 +101,7 @@ export const DateDataDiagram = ({
   }, [allTicketBins, filteredTicketBins])
 
   const tooltip = useCallback<React.FC<BarTooltipProps<any>>>(
-    ({ data, value, color }) => {
+    ({ data, value, color, index }) => {
       const dateRange = `${
         data.binStart !== undefined
           ? format(data.binStart, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm')
@@ -109,9 +109,10 @@ export const DateDataDiagram = ({
       } - ${
         data.binEnd !== undefined ? format(data.binEnd, column.type === 'date' ? 'dd.MM.yyyy' : 'dd.MM.yyyy HH:mm') : ''
       } (${value})`
-      return <Tooltip text={dateRange} color={color} />
+
+      return <Tooltip text={dateRange} color={color} index={index} total={allTicketBins.length - 1} />
     },
-    [column]
+    [column, allTicketBins.length]
   )
 
   const handleBinClick = useCallback(

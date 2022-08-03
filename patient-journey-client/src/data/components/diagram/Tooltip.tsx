@@ -1,3 +1,4 @@
+import { scaleLinear } from 'd3-scale'
 import React from 'react'
 import { makeStyles } from '../../../utils'
 
@@ -20,12 +21,17 @@ const useStyles = makeStyles()((theme) => ({
 interface TooltipProps {
   text: string
   color: string
+  index: number
+  total: number
 }
 
-export const Tooltip = ({ text, color }: TooltipProps) => {
+export const Tooltip = ({ text, color, index, total = 10 }: TooltipProps) => {
   const { classes } = useStyles()
+
+  const positionScale = scaleLinear().domain([0, total]).range([45, -45])
+
   return (
-    <div className={classes.tooltipContainer}>
+    <div className={classes.tooltipContainer} style={{ transform: `translate(${positionScale(index)}%)` }}>
       <div style={{ backgroundColor: color, width: '10px', height: '10px', marginRight: '5px' }} />
       <div className={classes.tooltipText}>{text}</div>
     </div>
