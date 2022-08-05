@@ -8,7 +8,7 @@ import { scaleSqrt } from 'd3-scale'
 import { makeStyles } from '../../utils'
 
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
-import { calcMarkSize, TIMELINE_MARK_STROKE_WIDTH } from './SvgMark'
+import { calcMarkSize, TIMELINE_MARK_MIN_SIZE_FANCY, TIMELINE_MARK_STROKE_WIDTH } from './SvgMark'
 
 import { useWorker } from '../../data/workers/hooks'
 
@@ -99,12 +99,15 @@ export const TimelineCanvasMarks = <
 
       ctx.clearRect(0, 0, width, height)
 
-      ctx.strokeStyle = theme.palette.background.paper
-      ctx.lineWidth = TIMELINE_MARK_STROKE_WIDTH
+      const markSize = calcMarkSize(laneDisplayMode, yScale.bandwidth())
+
+      if (markSize >= TIMELINE_MARK_MIN_SIZE_FANCY) {
+        ctx.strokeStyle = theme.palette.background.paper
+        ctx.lineWidth = TIMELINE_MARK_STROKE_WIDTH
+      }
 
       // Draw Clusters
       const [clusterSizeDomainMin, clusterSizeDomainMax] = extent(eventClusters.map((c) => c.size))
-      const markSize = calcMarkSize(laneDisplayMode, yScale.bandwidth())
       const clusterRadiusMin = markSize / 2
       const clusterRadiusMax = laneDisplayMode === 'expanded' ? markSize : Math.min(height / 2, 2 * markSize)
 
@@ -120,9 +123,16 @@ export const TimelineCanvasMarks = <
         changeCanvasFillStyle(ctx, theme.palette.primary.main)
 
         ctx.beginPath()
-        ctx.arc(x, y, Math.round(clusterScale(cluster.size)), 0, 6.28)
+        if (markSize >= TIMELINE_MARK_MIN_SIZE_FANCY) {
+          ctx.arc(x, y, Math.round(clusterScale(cluster.size)), 0, 6.28)
+        } else {
+          ctx.rect(Math.round(x - markSize / 2), Math.round(y - markSize / 2), markSize, markSize)
+        }
         ctx.fill()
-        ctx.stroke()
+
+        if (markSize >= TIMELINE_MARK_MIN_SIZE_FANCY) {
+          ctx.stroke()
+        }
         // ctx.closePath() - ctx.fill() automatically closes the path
       })
 
@@ -133,9 +143,21 @@ export const TimelineCanvasMarks = <
         // grouping events by color and then beginPath()ing
         // and filling/stroking only once per color.
         ctx.beginPath()
-        ctx.arc(visibleEvent.x, visibleEvent.y, Math.round(markSize / 2), 0, 6.28)
+        if (markSize >= TIMELINE_MARK_MIN_SIZE_FANCY) {
+          ctx.arc(visibleEvent.x, visibleEvent.y, Math.round(markSize / 2), 0, 6.28)
+        } else {
+          ctx.rect(
+            Math.round(visibleEvent.x - markSize / 2),
+            Math.round(visibleEvent.y - markSize / 2),
+            markSize,
+            markSize
+          )
+        }
         ctx.fill()
-        ctx.stroke()
+
+        if (markSize >= TIMELINE_MARK_MIN_SIZE_FANCY) {
+          ctx.stroke()
+        }
         // ctx.closePath() - ctx.fill() automatically closes the path
       }
 
