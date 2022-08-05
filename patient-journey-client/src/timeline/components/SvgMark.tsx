@@ -4,6 +4,8 @@ import { LaneDisplayMode } from 'react-svg-timeline'
 export const TIMELINE_MARK_SIZE_DEFAULT = 20
 export const TIMELINE_MARK_SIZE_TO_LANE_HEIGHT_RATIO = 0.85
 export const TIMELINE_MARK_STROKE_WIDTH = 2
+export const TIMELINE_MARK_MIN_SIZE = 2
+export const TIMELINE_MARK_MIN_SIZE_FANCY = 10
 
 interface SvgMarkProps {
   readonly size: number
@@ -30,6 +32,9 @@ export const SvgMark = ({ size, color, stroke, onClick, onMouseEnter, onMouseLea
 
 export const calcMarkSize = (laneDisplayMode: LaneDisplayMode | undefined, laneHeight: number) => {
   return laneDisplayMode === 'expanded'
-    ? Math.min(laneHeight * TIMELINE_MARK_SIZE_TO_LANE_HEIGHT_RATIO, TIMELINE_MARK_SIZE_DEFAULT)
+    ? Math.max(
+        Math.floor(Math.min(laneHeight * TIMELINE_MARK_SIZE_TO_LANE_HEIGHT_RATIO, TIMELINE_MARK_SIZE_DEFAULT)),
+        TIMELINE_MARK_MIN_SIZE
+      )
     : TIMELINE_MARK_SIZE_DEFAULT
 }
