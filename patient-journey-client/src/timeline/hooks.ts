@@ -13,6 +13,7 @@ import {
   selectShowTimeGrid,
   selectFilteredEventDataAsTimelineEvents,
   selectFilteredEventDataAsTimelineLanes,
+  selectFilteredEventDataAsTimelineEventsWithoutColor,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -35,6 +36,9 @@ export const useActiveDataAsEvents = (
   useAppSelector((state) =>
     selectFilteredEventDataAsTimelineEvents(state, colorByColumnFn, filteredOutColor, indexPatientColor)
   )
+
+export const useActiveDataAsEventsWithoutColor = () =>
+  useAppSelector(selectFilteredEventDataAsTimelineEventsWithoutColor)
 
 export const useSelectedActiveEvent = () => useAppSelector(selectSelectedActiveEvent)
 

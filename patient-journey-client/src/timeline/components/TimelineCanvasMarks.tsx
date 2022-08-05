@@ -15,7 +15,7 @@ import { useWorker } from '../../data/workers/hooks'
 import CreateVisibleEventsWorker from '../workers/create-visible-events?worker'
 import { VisibleEventsWorkerData, VisibleEventsWorkerResponse } from '../workers/create-visible-events'
 
-type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
+export type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
 
 const useStyles = makeStyles()({
   layer: {
@@ -204,7 +204,7 @@ export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingCont
 }
 
 // Canvas state changes are expensive, only change if needed
-function changeCanvasFillStyle(ctx: CanvasRenderingContext2D, color: string): void {
+export function changeCanvasFillStyle(ctx: CanvasRenderingContext2D, color: string): void {
   if (ctx.fillStyle !== color) {
     ctx.fillStyle = color
   }

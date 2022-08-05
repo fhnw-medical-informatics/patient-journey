@@ -16,6 +16,7 @@ import { MouseAwareSvg } from './MouseAwareSvg'
 import { CursorPosition, CursorPositionNone } from '../timelineSlice'
 import { TimelineActiveMarksLayer } from '../containers/TimelineActiveMarks'
 import { TimelineLanesLayer } from '../containers/TimelineLanes'
+import { TimelineJourneysLayer } from '../containers/TimelineJourneys'
 
 const INVISIBLE_LAYER = () => null
 
@@ -71,6 +72,7 @@ export const TimelineView = ({
                 layers={[
                   showTimeGrid ? 'grid' : INVISIBLE_LAYER,
                   TimelineLanesLayer,
+                  TimelineJourneysLayer,
                   TimelineCanvasMarksLayer,
                   'interaction',
                   TimelineCanvasMarksInteractionLayer,
