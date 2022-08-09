@@ -76,6 +76,7 @@ export const useColor = (type: 'all' | EntityType = 'all'): ColorBy => {
         case 'number':
           return colorByNumberFn(+getFieldValue(entity, colorByColumn.column))
         case 'boolean':
+          return colorByCategoryFn(getFieldValue(entity, colorByColumn.column).toLowerCase())
         case 'string':
         case 'category':
           return colorByCategoryFn(getFieldValue(entity, colorByColumn.column))
@@ -127,5 +128,14 @@ export const useColorByInfo = (type: FocusEntity['type']) => {
         formattedValue,
       }
     }
+  }
+}
+
+export const useBooleanColor = (column: FilterColumn): { trueColor: string; falseColor: string } => {
+  const { colorByColumn, colorByCategoryFn } = useColor()
+  if (column !== colorByColumn.column) {
+    return { trueColor: 'transparent', falseColor: 'transparent' }
+  } else {
+    return { trueColor: colorByCategoryFn('true'), falseColor: colorByCategoryFn('false') }
   }
 }

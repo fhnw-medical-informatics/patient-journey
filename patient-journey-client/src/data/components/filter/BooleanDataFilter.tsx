@@ -5,6 +5,7 @@ import Check from '@mui/icons-material/Check'
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
 
 import { TrilianNone, createFilter, Filter } from '../../filtering'
+import { useBooleanColor } from '../../../color/hooks'
 
 export interface BooleanDataFilterProps extends Filter<'boolean'> {
   onChange: (filter: Filter<'boolean'>) => void
@@ -23,15 +24,16 @@ export const BooleanDataFilter = ({ column, type, value, onChange, onRemove }: B
       }
     }
   }
+  const { trueColor, falseColor } = useBooleanColor(column)
 
   return (
     <FormGroup>
       <ToggleButtonGroup value={value.isTrue} exclusive onChange={handleChange} aria-label="device" size="small">
         <ToggleButton value={TrilianNone}>None</ToggleButton>
-        <ToggleButton value={true}>
+        <ToggleButton value={true} style={{ borderBottom: '5px solid ' + trueColor }}>
           <Check />
         </ToggleButton>
-        <ToggleButton value={false}>
+        <ToggleButton value={false} style={{ borderBottom: '5px solid ' + falseColor }}>
           <CheckBoxOutlineBlankIcon />
         </ToggleButton>
       </ToggleButtonGroup>
