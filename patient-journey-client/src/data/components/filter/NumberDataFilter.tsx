@@ -8,11 +8,12 @@ import { Entity } from '../../entities'
 import { useNumbers } from '../diagram/hooks'
 import { CustomSliderThumb } from './slider/CustomSliderThumb'
 import { CustomSlider } from './slider/CustomSlider'
+import { ColorLegendGradient } from '../../../color/containers/ColorLegendGradient'
 
 const useStyles = makeStyles()(() => ({
   input: {
     width: '100%',
-    maxWidth: '100px',
+    maxWidth: '80px',
   },
 }))
 
@@ -73,6 +74,7 @@ export const NumberDataFilter = ({ allActiveData, column, type, value, onChange,
         {...numberProps}
         disabled={isDisabled}
       />
+      <ColorLegendGradient column={column} min={niceMin} max={niceMax} />
       <Grid container spacing={1} direction="row">
         <Grid item xs={6}>
           <Grid container justifyContent="flex-start">
