@@ -8,6 +8,7 @@ import { Entity } from '../../entities'
 import { useDates } from '../diagram/hooks'
 import { CustomSliderThumb } from './slider/CustomSliderThumb'
 import { CustomSlider } from './slider/CustomSlider'
+import { ColorLegendGradient } from '../../../color/containers/ColorLegendGradient'
 
 const CONTROL_TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm"
 const CONTROL_DATE_FORMAT = 'yyyy-MM-dd'
@@ -89,6 +90,7 @@ export const DateDataFilter = ({ allActiveData, column, type, value, onChange, o
           Thumb: CustomSliderThumb,
         }}
       />
+      <ColorLegendGradient column={column} min={niceMinMillis} max={niceMaxMillis} />
       <Grid container spacing={1} direction="row">
         <Grid item xs={6}>
           <Grid container justifyContent="flex-start">
