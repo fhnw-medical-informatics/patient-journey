@@ -9,6 +9,7 @@ import { Checkbox, FormControl, InputLabel, ListItemText } from '@mui/material'
 import { useCategories } from '../diagram/hooks'
 import { Entity } from '../../entities'
 import { makeStyles } from '../../../utils'
+import { ColorLegendCategoryCircle } from '../../../color/containers/ColorLegendCategoryCircle'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
@@ -76,6 +77,7 @@ export const CategoryDataFilter = ({
             <MenuItem key={c} value={c}>
               <Checkbox checked={checked} />
               <ListItemText primary={c} />
+              <ColorLegendCategoryCircle column={column} category={c} />
             </MenuItem>
           )
         })}
