@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { group } from 'd3-array'
 
 import { useTheme } from '@mui/material'
@@ -11,10 +11,14 @@ import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 
 // import CreateVisibleEventsWorker from '../workers/create-visible-events?worker'
 // import { VisibleEventsWorkerData, VisibleEventsWorkerResponse } from '../workers/create-visible-events'
-import { RenderInfo, resizeCanvas } from './TimelineCanvasMarks'
+import { resizeCanvas } from './TimelineCanvasMarks'
 import { TimelineEventWithPID } from '../containers/TimelineJourneys'
+import { useCanvas } from '../hooks'
 
-type Journey = ReadonlyArray<{ x: number; y: number }>
+type Journey = {
+  color: string
+  events: ReadonlyArray<{ x: number; y: number }>
+}
 
 const useStyles = makeStyles()({
   layer: {
@@ -50,7 +54,7 @@ export const TimelineJourneys = <
   const { classes } = useStyles()
   const theme = useTheme()
 
-  const [renderInfo, setRenderInfo] = useState<RenderInfo>()
+  const { canvasRef, renderInfo } = useCanvas()
 
   // TODO: Do this in a worker
   const patientJourneys: ReadonlyArray<Journey> = useMemo(() => {
@@ -58,34 +62,31 @@ export const TimelineJourneys = <
 
     const pidGroups = group(eventsWithPID, (event) => event.pid)
 
+    const getJourneyForPID = (pid: PatientId, color: string): Journey => ({
+      color,
+      events:
+        pidGroups.get(pid)?.map((event) => ({ x: xScale(event.startTimeMillis), y: yScale(event.laneId) ?? 0 })) ?? [],
+    })
+
     // TODO: Render indexPatient journey with special color
     if (pidGroups && pidGroups.has(focusPatientId)) {
-      patientJourneys.push(
-        pidGroups
-          .get(focusPatientId)
-          ?.map((event) => ({ x: xScale(event.startTimeMillis), y: yScale(event.laneId) })) as Journey
-      )
+      patientJourneys.push(getJourneyForPID(focusPatientId, theme.entityColors.journeyStroke))
+    }
+
+    if (pidGroups && pidGroups.has(indexPatientId)) {
+      patientJourneys.push(getJourneyForPID(indexPatientId, theme.entityColors.indexPatient))
     }
 
     return patientJourneys
-  }, [xScale, yScale, eventsWithPID, focusPatientId])
-
-  // TODO: Share logic with marks layer
-  const canvasRef = useCallback(
-    (canvasElement: HTMLCanvasElement) => {
-      if (canvasElement) {
-        const ctx = canvasElement.getContext('2d')
-        if (ctx) {
-          const renderInfo = {
-            ctx,
-            canvas: canvasElement,
-          }
-          setRenderInfo(renderInfo)
-        }
-      }
-    },
-    [setRenderInfo]
-  )
+  }, [
+    xScale,
+    yScale,
+    eventsWithPID,
+    focusPatientId,
+    indexPatientId,
+    theme.entityColors.journeyStroke,
+    theme.entityColors.indexPatient,
+  ])
 
   // Draw the marks
   useEffect(() => {
@@ -96,15 +97,12 @@ export const TimelineJourneys = <
 
       ctx.clearRect(0, 0, width, height)
 
-      ctx.strokeStyle = '#FF0000' // TODO: From theme
-      ctx.lineWidth = 2
+      ctx.lineWidth = 4
 
       const drawJourney = (journey: Journey) => {
-        // Note: We could further optimize this, by
-        // grouping events by color and then beginPath()ing
-        // and filling/stroking only once per color.
+        ctx.strokeStyle = journey.color
         ctx.beginPath()
-        journey.forEach((dot, index) => {
+        journey.events.forEach((dot, index) => {
           if (index === 0) {
             ctx.moveTo(dot.x, dot.y)
           } else {
@@ -112,7 +110,6 @@ export const TimelineJourneys = <
           }
         })
         ctx.stroke()
-        // ctx.closePath() - ctx.fill() automatically closes the path
       }
 
       // Draw visible events

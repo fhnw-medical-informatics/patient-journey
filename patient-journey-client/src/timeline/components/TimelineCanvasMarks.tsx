@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 import { useTheme } from '@mui/material'
 
@@ -14,8 +14,7 @@ import { useWorker } from '../../data/workers/hooks'
 
 import CreateVisibleEventsWorker from '../workers/create-visible-events?worker'
 import { VisibleEventsWorkerData, VisibleEventsWorkerResponse } from '../workers/create-visible-events'
-
-export type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
+import { useCanvas } from '../hooks'
 
 const useStyles = makeStyles()({
   layer: {
@@ -72,23 +71,7 @@ export const TimelineCanvasMarks = <
     VisibleEventsWorkerResponse
   >(CreateVisibleEventsWorker, workerProps, { visibleEventsWithCoordinates: [], pinnedEventsWithCoordinates: [] })
 
-  const [renderInfo, setRenderInfo] = useState<RenderInfo>()
-
-  const canvasRef = useCallback(
-    (canvasElement: HTMLCanvasElement) => {
-      if (canvasElement) {
-        const ctx = canvasElement.getContext('2d')
-        if (ctx) {
-          const renderInfo = {
-            ctx,
-            canvas: canvasElement,
-          }
-          setRenderInfo(renderInfo)
-        }
-      }
-    },
-    [setRenderInfo]
-  )
+  const { canvasRef, renderInfo } = useCanvas()
 
   // Draw the marks
   useEffect(() => {
