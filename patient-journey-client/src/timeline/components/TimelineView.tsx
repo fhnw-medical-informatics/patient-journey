@@ -72,8 +72,8 @@ export const TimelineView = ({
                 layers={[
                   showTimeGrid ? 'grid' : INVISIBLE_LAYER,
                   TimelineLanesLayer,
-                  TimelineJourneysLayer,
                   TimelineCanvasMarksLayer,
+                  TimelineJourneysLayer,
                   'interaction',
                   TimelineCanvasMarksInteractionLayer,
                   TimelineActiveMarksLayer,
