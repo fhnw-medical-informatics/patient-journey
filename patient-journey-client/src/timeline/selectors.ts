@@ -16,6 +16,7 @@ import {
   selectIndexPatientId,
 } from '../data/selectors'
 import { RootState } from '../store'
+import { TimelineEventWithPID } from './model'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
 
 export const selectTimelineCluster = (s: RootState): boolean => s.timeline.cluster
@@ -70,7 +71,8 @@ const convertEntityToTimelineEvent = (
           viewByColumn.type === 'date'
             ? stringToMillis(event.values[viewByColumn.index])
             : +event.values[viewByColumn.index],
-      })) as ReadonlyArray<TimelineEvent<EntityId, any>>)
+        pid: event.pid,
+      })) as ReadonlyArray<TimelineEventWithPID<EntityId, any>>)
     : []
 }
 

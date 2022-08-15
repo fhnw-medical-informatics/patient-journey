@@ -2,7 +2,7 @@ import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline
 import { TimelineLanes as TimelineLanesComponent } from '../components/TimelineLanes'
 import { useFocusLaneId } from '../hooks'
 
-const HIDE_LANE_DETAILS_HEIGHT_THRESHOLD = 10
+export const HIDE_LANE_DETAILS_HEIGHT_THRESHOLD = 10
 
 interface Props<EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>
   extends CustomLayerProps<EID, PatientId, E> {}

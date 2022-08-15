@@ -11,6 +11,7 @@ declare module '@mui/material/styles' {
       selected: string
       indexPatient: string
       stroke: string
+      journeyStroke: string
     }
   }
 
@@ -23,6 +24,7 @@ declare module '@mui/material/styles' {
       selected?: string
       indexPatient?: string
       stroke?: string
+      journeyStroke?: string
     }
   }
 }
@@ -40,6 +42,7 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
       filteredOut: mode === 'light' ? grey[200] : grey[700],
       selected: selectionColor,
       indexPatient: mode === 'light' ? pink[600] : yellow[700],
+      journeyStroke: selectionColor,
     },
     components: {
       MuiTableRow: {
