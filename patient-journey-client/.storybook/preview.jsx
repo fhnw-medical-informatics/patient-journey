@@ -6,6 +6,7 @@ import { store } from '../src/store'
 import { darkTheme, lightTheme } from '../src/theme/useCustomTheme'
 import { muiCache } from '../src/app/containers/App'
 import { CacheProvider } from '@emotion/react'
+import { toggleTheme } from '../src/theme/themeSlice'
 
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
@@ -20,6 +21,11 @@ export const parameters = {
 const withMuiTheme = (Story, { args }) => {
   const darkMode = useDarkMode() || args.theme === 'dark'
   const theme = darkMode ? darkTheme : lightTheme
+
+  // sync redux state to storybook theme
+  if (theme.palette.mode !== store.getState().theme) {
+    store.dispatch(toggleTheme())
+  }
 
   return (
     <Provider store={store}>
