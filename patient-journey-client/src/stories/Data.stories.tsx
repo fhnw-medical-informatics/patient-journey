@@ -2,6 +2,9 @@ import React from 'react'
 
 import { Meta, Story } from '@storybook/react'
 import { Data, Props } from '../data/components/Data'
+import { useAppDispatch } from '../store'
+import { loadingDataInProgress } from '../data/dataSlice'
+import { LoadingStep } from '../data/loading'
 
 export default {
   title: 'Data',
@@ -27,6 +30,13 @@ DataLoadingInProgress.args = {
   type: 'loading-in-progress',
   errorMessage: '',
 }
+DataLoadingInProgress.decorators = [
+  (story) => {
+    const dispatch = useAppDispatch()
+    dispatch(loadingDataInProgress({ activeStep: LoadingStep.Patients }))
+    return story()
+  },
+]
 
 export const DataLoadingFailed = Template.bind({})
 DataLoadingFailed.args = {
