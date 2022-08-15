@@ -8,11 +8,6 @@ import { TimelineJourneys as TimelineJourneysComponent } from '../components/Tim
 import { useActiveDataAsEventsWithoutColor, useExpandByColumn } from '../hooks'
 import { TimelineColumnNone } from '../timelineSlice'
 
-export interface TimelineEventWithPID<EID extends string, PatientId extends string>
-  extends TimelineEvent<EID, PatientId> {
-  pid: PatientId
-}
-
 // TODO: Type this properly to avoid injecting events with pid
 // type CustomLayerWithPID = <EID extends string, LID extends string, E extends TimelineEventWithPID<EID, LID>>(
 //   props: CustomLayerProps<EID, LID, E>

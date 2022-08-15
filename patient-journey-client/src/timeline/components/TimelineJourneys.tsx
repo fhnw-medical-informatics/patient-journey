@@ -12,7 +12,7 @@ import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 // import CreateVisibleEventsWorker from '../workers/create-visible-events?worker'
 // import { VisibleEventsWorkerData, VisibleEventsWorkerResponse } from '../workers/create-visible-events'
 import { resizeCanvas, TimelineCanvasMarks } from './TimelineCanvasMarks'
-import { TimelineEventWithPID } from '../containers/TimelineJourneys'
+import { TimelineEventWithPID } from '../model'
 import { useCanvas } from '../hooks'
 
 type Journey = {

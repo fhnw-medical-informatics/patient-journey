@@ -16,7 +16,7 @@ import {
   selectIndexPatientId,
 } from '../data/selectors'
 import { RootState } from '../store'
-import { TimelineEventWithPID } from './containers/TimelineJourneys'
+import { TimelineEventWithPID } from './model'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
 
 export const selectTimelineCluster = (s: RootState): boolean => s.timeline.cluster
