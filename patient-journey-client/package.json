@@ -121,6 +121,8 @@
     "vite": "^2.9.8",
     "vite-plugin-checker": "^0.4.6",
     "vitest": "^0.12.3",
+    "vitest-canvas-mock": "^0.2.0",
     "whatwg-fetch": "^3.6.2"
-  }
+  },
+  "packageManager": "yarn@3.2.2"
 }
