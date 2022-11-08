@@ -62,6 +62,9 @@ export const createEventData = (
     columns,
     allEntities: data.slice(headerRowCount).map((row: string[], index) => {
       const id = isMissingEventIdColumn ? String(index) : row[eventIdColumnIndex]
+
+      validateEventRow(index + 1 + headerRowCount, row, columnNames, columnTypes as EventDataColumnType[], onWarning)
+
       return {
         uid: id as EntityId,
         eid: id as EventId,
@@ -70,6 +73,35 @@ export const createEventData = (
       }
     }),
   }
+}
+
+const validateEventRow = (
+  rowNr: number,
+  row: string[],
+  columnNames: string[],
+  columnTypes: EventDataColumnType[],
+  onWarning: (message: string) => void = noOp
+) => {
+  const columnCount = columnNames.length
+
+  if (row.length !== columnCount || columnTypes.length !== columnCount) {
+    onWarning(`Invalid number of columns in row: ${rowNr} (expected ${columnCount})`)
+  }
+
+  columnTypes.forEach((type, index) => {
+    const value = row[index]
+
+    switch (type) {
+      case 'date':
+      case 'timestamp':
+        if (value === undefined || value === '' || value === null) {
+          onWarning(`Invalid date or timestamp value '${value}' for column '${columnNames[index]}' in row: ${rowNr}`)
+        }
+        break
+      default:
+        break
+    }
+  })
 }
 
 export const isEventDataColumnType = (columnType: string): boolean =>

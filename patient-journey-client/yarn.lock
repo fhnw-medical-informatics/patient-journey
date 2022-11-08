@@ -12931,7 +12931,7 @@ __metadata:
     react-dom: 18.1.0
     react-redux: 8.0.1
     react-split-pane: 0.1.92
-    react-svg-timeline: ^0.23.3
+    react-svg-timeline: ^0.23.5
     react-virtualized-auto-sizer: ^1.0.6
     storybook-dark-mode: ^1.1.0
     tss-react: ^3.6.2
@@ -13764,19 +13764,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-svg-timeline@npm:^0.23.3":
-  version: 0.23.3
-  resolution: "react-svg-timeline@npm:0.23.3"
+"react-svg-timeline@npm:^0.23.5":
+  version: 0.23.5
+  resolution: "react-svg-timeline@npm:0.23.5"
   dependencies:
     d3-array: ^2.11.0
     d3-scale: ^3.0.1
     date-fns: ^2.2.1
     react-svg-tooltip: ^0.0.11
-    ts-deepmerge: ^1.0.7
+    ts-deepmerge: ^2.0.2
   peerDependencies:
     react: ">=16.3"
     react-dom: ">=16.3"
-  checksum: 3c1756f37c0cdeb07faf4d2c9a2ee2b7dc022f3b663b5bd1f37a81f269bd2148bfd9d0d5c6ee966272cee050ba55bee621778121440b9c5cc1bfb8a545174c47
+  checksum: b4aeaa7ac208c0363f0b7bde4b83271bea754d867f3f6853b687e088a3cb2938e322165ba98d3eda01e276e031069bca060f4299583acbe1fb174c8737831729
   languageName: node
   linkType: hard
 
@@ -15739,10 +15739,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-deepmerge@npm:^1.0.7":
-  version: 1.1.0
-  resolution: "ts-deepmerge@npm:1.1.0"
-  checksum: 96a555b303e5c3a91c175bbe74244c5186f83aebe0d6bf63bd248d6875995c08f6c9f82446def725a0ca36be70e9f4e4e2fab653d553c506ef479c60f137f46b
+"ts-deepmerge@npm:^2.0.2":
+  version: 2.0.7
+  resolution: "ts-deepmerge@npm:2.0.7"
+  checksum: c78d6b35ad17048c72181bd1e2941860dce9ab2fb882f357da5265bbb52224c35f45edd2e0b2646a6d6936623003702f83dabceca07785ed187082fe93670a0e
   languageName: node
   linkType: hard
 
