@@ -1,20 +1,34 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 
-import Select, { SelectChangeEvent } from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
+import Checkbox from '@mui/material/Checkbox'
+import TextField from '@mui/material/TextField'
+import Autocomplete from '@mui/material/Autocomplete'
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
+import CheckBoxIcon from '@mui/icons-material/CheckBox'
 
 import { createFilter, Filter } from '../../filtering'
 import { DataColumn } from '../../columns'
-import { Checkbox, FormControl, InputLabel, ListItemText } from '@mui/material'
+import { Chip, FormControl } from '@mui/material'
 import { useCategories } from '../diagram/hooks'
 import { Entity } from '../../entities'
 import { makeStyles } from '../../../utils'
 import { ColorLegendCategoryCircle } from '../../../color/containers/ColorLegendCategoryCircle'
+import { useColor } from '../../../color/hooks'
 
 const useStyles = makeStyles()((theme) => ({
   container: {
     width: '100%',
     marginTop: theme.spacing(2),
+  },
+  listItem: {
+    display: 'grid',
+    alignItems: 'center',
+    gridTemplateColumns: 'auto 1fr auto',
+    paddingRight: theme.spacing(1),
+  },
+  chipAvatar: {
+    marginLeft: theme.spacing(1),
+    marginTop: theme.spacing(0.5),
   },
 }))
 
@@ -34,54 +48,66 @@ export const CategoryDataFilter = ({
 }: CategoryDataFilterProps) => {
   const { classes } = useStyles()
   const { uniqueCategories } = useCategories(allActiveData, column as DataColumn<'category'>)
+  const { colorByColumn } = useColor()
 
-  const handleChange = (event: SelectChangeEvent<unknown>) => {
-    const selected = event.target.value as unknown as string[]
-    const filter = createFilter(column, type, { categories: selected })
+  const handleChange = useCallback(
+    (selected: string[]) => {
+      const filter = createFilter(column, type, { categories: selected })
 
-    if (selected.length > 0) {
-      onChange(filter)
-    } else {
-      onRemove(filter)
-    }
-  }
+      if (selected.length > 0) {
+        onChange(filter)
+      } else {
+        onRemove(filter)
+      }
+    },
+    [onChange, onRemove, column, type]
+  )
 
-  const renderValue = () => {
-    switch (value.categories.length) {
-      case 0:
-        return null
-      case 1:
-        return value.categories[0]
-      default:
-        return <i>{`${activeFilterCategories.length} Selected`}</i>
-    }
-  }
-
-  const activeFilterCategories = value.categories.length !== 0 ? value.categories : []
+  const activeFilterCategories = useMemo(
+    () => (value.categories.length !== 0 ? value.categories : []),
+    [value.categories]
+  )
 
   return (
     <FormControl variant="filled" size="small" className={classes.container}>
-      <InputLabel id={column.name}>{column.name}</InputLabel>
-      <Select
+      <Autocomplete
         multiple
         value={activeFilterCategories}
-        onChange={handleChange}
-        label={column.name}
-        labelId={column.name}
-        renderValue={renderValue}
-        displayEmpty={true}
-      >
-        {uniqueCategories.map((c) => {
-          const checked = activeFilterCategories.indexOf(c) > -1
-          return (
-            <MenuItem key={c} value={c}>
-              <Checkbox checked={checked} />
-              <ListItemText primary={c} />
-              <ColorLegendCategoryCircle column={column} category={c} />
-            </MenuItem>
-          )
-        })}
-      </Select>
+        onChange={(e, selected) => {
+          handleChange(selected)
+        }}
+        options={uniqueCategories}
+        disableCloseOnSelect
+        getOptionLabel={(option) => option}
+        renderOption={(props, option, { selected }) => (
+          <li {...props} className={classes.listItem}>
+            <Checkbox
+              icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+              checkedIcon={<CheckBoxIcon fontSize="small" />}
+              style={{ marginRight: 8 }}
+              checked={selected}
+            />
+            {option}
+            <ColorLegendCategoryCircle column={column} category={option} />
+          </li>
+        )}
+        renderInput={(params) => <TextField {...params} variant="filled" label={column.name} placeholder="Select…" />}
+        renderTags={(value: readonly string[], getTagProps) =>
+          value.map((option: string, index: number) => (
+            <Chip
+              avatar={
+                column === colorByColumn.column ? (
+                  <div className={classes.chipAvatar}>
+                    <ColorLegendCategoryCircle column={column} category={option} />
+                  </div>
+                ) : undefined
+              }
+              label={option}
+              {...getTagProps({ index })}
+            />
+          ))
+        }
+      />
     </FormControl>
   )
 }
