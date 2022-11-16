@@ -80,7 +80,7 @@
     "react-dom": "18.1.0",
     "react-redux": "8.0.1",
     "react-split-pane": "0.1.92",
-    "react-svg-timeline": "^0.23.5",
+    "react-svg-timeline": "^0.23.8",
     "react-virtualized-auto-sizer": "^1.0.6",
     "tss-react": "^3.6.2"
   },
