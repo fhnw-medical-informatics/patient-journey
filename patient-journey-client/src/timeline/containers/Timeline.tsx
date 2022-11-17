@@ -13,6 +13,7 @@ import {
   setViewByColumn,
   TimelineColumn,
   TimelineColumnNone,
+  toggleAllowInteraction,
   toggleTimeGrid,
 } from '../timelineSlice'
 import {
@@ -31,6 +32,7 @@ import {
   useExpandByColumn,
   useShowFilteredOut,
   useShowTimeGrid,
+  useAllowInteraction,
 } from '../hooks'
 import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
@@ -47,6 +49,7 @@ export const Timeline = React.memo(() => {
   const lanes = useActiveDataAsLanes(colorByCategoryFn)
   const cluster = useTimelineCluster()
   const showTimeGrid = useShowTimeGrid()
+  const allowInteraction = useAllowInteraction()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
   const activeColumns = useTimelineDataColumns()
@@ -63,6 +66,7 @@ export const Timeline = React.memo(() => {
   const onSetTimelineCluster = useCallback(() => dispatch(setTimelineCluster()), [dispatch])
   const onSetShowFilteredOut = useCallback(() => dispatch(setShowFilteredOut()), [dispatch])
   const onToggleTimeGrid = useCallback(() => dispatch(toggleTimeGrid()), [dispatch])
+  const onToggleAllowInteraction = useCallback(() => dispatch(toggleAllowInteraction()), [dispatch])
 
   const onChangeColorByColumn = useCallback(
     (colorByColumn: ColorByColumn) => dispatch(setColorByColumn(colorByColumn)),
@@ -107,6 +111,8 @@ export const Timeline = React.memo(() => {
       onCursorPositionChange={onCursorPositionChange}
       showTimeGrid={showTimeGrid}
       onToggleTimeGrid={onToggleTimeGrid}
+      allowInteraction={allowInteraction}
+      onToggleAllowInteraction={onToggleAllowInteraction}
       onInteractionEnd={onInteractionEnd}
       hasActiveEventFilters={eventFilters.length > 0}
     />

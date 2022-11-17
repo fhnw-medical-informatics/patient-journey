@@ -34,6 +34,8 @@ interface TimelineProps {
   onSetShowFilteredOut: () => void
   showTimeGrid: boolean
   onToggleTimeGrid: () => void
+  allowInteraction: boolean
+  onToggleAllowInteraction: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   eventDataColumns: ReadonlyArray<EventDataColumn>
   patientDataColumns: ReadonlyArray<PatientDataColumn>
@@ -59,6 +61,8 @@ export const Timeline = ({
   onSetShowFilteredOut,
   showTimeGrid,
   onToggleTimeGrid,
+  allowInteraction,
+  onToggleAllowInteraction,
   availableColumns,
   eventDataColumns,
   patientDataColumns,
@@ -80,6 +84,8 @@ export const Timeline = ({
         cluster={cluster}
         showTimeGrid={showTimeGrid}
         onToggleTimeGrid={onToggleTimeGrid}
+        allowInteraction={allowInteraction}
+        onToggleAllowInteraction={onToggleAllowInteraction}
         onSetTimelineCluster={onSetTimelineCluster}
         showFilteredOut={showFilteredOut}
         onSetShowFilteredOut={onSetShowFilteredOut}
@@ -97,6 +103,7 @@ export const Timeline = ({
         laneDisplayMode={laneDisplayMode}
         enableClustering={cluster}
         showTimeGrid={showTimeGrid}
+        allowInteraction={allowInteraction}
         onCursorPositionChange={onCursorPositionChange}
         onInteractionEnd={onInteractionEnd}
       />

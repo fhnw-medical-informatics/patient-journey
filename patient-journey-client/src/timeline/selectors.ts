@@ -23,6 +23,8 @@ export const selectTimelineCluster = (s: RootState): boolean => s.timeline.clust
 
 export const selectShowTimeGrid = (s: RootState) => s.timeline.showTimeGrid
 
+export const selectAllowInteraction = (s: RootState): boolean => s.timeline.allowInteraction
+
 export const selectShowFilteredOut = (s: RootState): boolean => s.timeline.showFilteredOut
 
 export const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.viewByColumn

@@ -18,6 +18,7 @@ export type TimelineState = {
   cluster: boolean
   showFilteredOut: boolean
   showTimeGrid: boolean
+  allowInteraction: boolean
   cursorPosition: CursorPosition
 }
 
@@ -25,6 +26,7 @@ export const initialTimelineState: TimelineState = {
   cluster: true,
   showFilteredOut: false,
   showTimeGrid: true,
+  allowInteraction: false,
   viewByColumn: TimelineColumnNone,
   expandByColumn: TimelineColumnNone,
   cursorPosition: CursorPositionNone,
@@ -55,6 +57,9 @@ const timelineSlice = createSlice({
     toggleTimeGrid: (state: Draft<TimelineState>) => {
       state.showTimeGrid = !state.showTimeGrid
     },
+    toggleAllowInteraction: (state: Draft<TimelineState>) => {
+      state.allowInteraction = !state.allowInteraction
+    },
   },
 })
 
@@ -67,4 +72,5 @@ export const {
   setCursorPosition,
   resetCursorPosition,
   toggleTimeGrid,
+  toggleAllowInteraction,
 } = timelineSlice.actions

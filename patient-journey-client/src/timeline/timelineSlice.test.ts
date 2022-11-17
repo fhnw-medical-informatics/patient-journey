@@ -10,6 +10,7 @@ import {
   CursorPosition,
   toggleTimeGrid,
   setShowFilteredOut,
+  toggleAllowInteraction,
 } from './timelineSlice'
 
 import { createStore } from '../store'
@@ -78,6 +79,14 @@ describe('Timeline Slice', () => {
     expect(getShowTimeGrid()).toEqual(true)
     store.dispatch(toggleTimeGrid())
     expect(getShowTimeGrid()).toEqual(false)
+  })
+
+  it(`handles ${toggleAllowInteraction} action`, async () => {
+    const store = createStore()
+    const getAllowInteraction = () => store.getState().timeline.allowInteraction
+    expect(getAllowInteraction()).toEqual(false)
+    store.dispatch(toggleAllowInteraction())
+    expect(getAllowInteraction()).toEqual(true)
   })
 
   it('handles setCursorPosition action', async () => {

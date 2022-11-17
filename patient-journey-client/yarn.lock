@@ -12931,7 +12931,7 @@ __metadata:
     react-dom: 18.1.0
     react-redux: 8.0.1
     react-split-pane: 0.1.92
-    react-svg-timeline: ^0.23.8
+    react-svg-timeline: ^0.24.1
     react-virtualized-auto-sizer: ^1.0.6
     storybook-dark-mode: ^1.1.0
     tss-react: ^3.6.2
@@ -13764,9 +13764,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-svg-timeline@npm:^0.23.8":
-  version: 0.23.8
-  resolution: "react-svg-timeline@npm:0.23.8"
+"react-svg-timeline@npm:^0.24.1":
+  version: 0.24.1
+  resolution: "react-svg-timeline@npm:0.24.1"
   dependencies:
     d3-array: ^2.11.0
     d3-scale: ^3.0.1
@@ -13777,7 +13777,7 @@ __metadata:
   peerDependencies:
     react: ">=18.2.0"
     react-dom: ">=18.2.0"
-  checksum: a6e50479248cfe37b9895955538bb99a9c33257afd897b50d413233fff41935e7939d79da14a84140f6002a909e13cb58fa334d625df305eac1aacf73e5ecef9
+  checksum: 7a22257f41f83751baa49ca226026e085d2ade8582979a0556bf527b6b2958d584b097a47b35c0a1de66f6cbcf146cf636b3f2c0088c2d7a1e5370ba7436eb4a
   languageName: node
   linkType: hard
 

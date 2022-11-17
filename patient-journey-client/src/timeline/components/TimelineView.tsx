@@ -2,6 +2,7 @@ import React from 'react'
 import { PatientId } from '../../data/patients'
 import {
   deriveTimelineTheme,
+  InteractionModeType,
   LaneDisplayMode,
   Timeline as SVGTimeline,
   TimelineEvent,
@@ -27,6 +28,7 @@ interface TimelineProps {
   laneDisplayMode: LaneDisplayMode
   enableClustering: boolean
   showTimeGrid: boolean
+  allowInteraction: boolean
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
   onInteractionEnd: () => void
 }
@@ -38,6 +40,7 @@ export const TimelineView = ({
   laneDisplayMode,
   enableClustering,
   showTimeGrid,
+  allowInteraction,
   onCursorPositionChange,
   onInteractionEnd,
 }: TimelineProps) => {
@@ -78,6 +81,16 @@ export const TimelineView = ({
                   TimelineCanvasMarksInteractionLayer,
                   TimelineActiveMarksLayer,
                 ]}
+                enabledInteractions={
+                  allowInteraction
+                    ? [
+                        InteractionModeType.Hover,
+                        InteractionModeType.Zoom,
+                        InteractionModeType.Pan,
+                        InteractionModeType.RubberBand,
+                      ]
+                    : [InteractionModeType.Hover]
+                }
                 onInteractionEnd={onInteractionEnd}
               />
             </MouseAwareSvg>
