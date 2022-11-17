@@ -47,6 +47,8 @@ interface ControlPanelProps {
   onSetShowFilteredOut: () => void
   showTimeGrid: boolean
   onToggleTimeGrid: () => void
+  allowInteraction: boolean
+  onToggleAllowInteraction: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   eventDataColumns: ReadonlyArray<EventDataColumn>
   patientDataColumns: ReadonlyArray<PatientDataColumn>
@@ -63,6 +65,8 @@ export const ControlPanel = ({
   cluster,
   showTimeGrid,
   onToggleTimeGrid,
+  allowInteraction,
+  onToggleAllowInteraction,
   onSetTimelineCluster,
   showFilteredOut,
   onSetShowFilteredOut,
@@ -252,46 +256,58 @@ export const ControlPanel = ({
                 label="Grid"
               />
             </Grid>
+            <Grid item>
+              <FormControlLabel
+                control={
+                  <Switch checked={allowInteraction} onChange={onToggleAllowInteraction} color="primary" size="small" />
+                }
+                label="Zoom"
+              />
+            </Grid>
           </Grid>
         </Grid>
         <Grid item xs="auto">
           <Grid container alignItems={'flex-start'} spacing={1} className={classes.help}>
             <Grid item>
-              <Tooltip
-                title={
-                  <div>
-                    <Typography color="inherit">Timeline keyboard shortcuts</Typography>
-                    <table>
-                      <tbody>
-                        <tr>
-                          <td>Zoom In:</td>
-                          <td>Click</td>
-                        </tr>
-                        <tr>
-                          <td>Zoom Out:</td>
-                          <td>Alt + Click</td>
-                        </tr>
-                        <tr>
-                          <td>Zoom Custom:</td>
-                          <td>Shift + Click + Drag</td>
-                        </tr>
-                        <tr>
-                          <td>Pan:</td>
-                          <td>Click + Drag</td>
-                        </tr>
-                        <tr>
-                          <td>Reset:</td>
-                          <td>Esc</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                }
-                placement="left"
-                arrow
-              >
-                <HelpIcon />
-              </Tooltip>
+              {allowInteraction ? (
+                <Tooltip
+                  title={
+                    <div>
+                      <Typography color="inherit">Timeline keyboard shortcuts</Typography>
+                      <table>
+                        <tbody>
+                          <tr>
+                            <td>Zoom In:</td>
+                            <td>Click</td>
+                          </tr>
+                          <tr>
+                            <td>Zoom Out:</td>
+                            <td>Alt + Click</td>
+                          </tr>
+                          <tr>
+                            <td>Zoom Custom:</td>
+                            <td>Shift + Click + Drag</td>
+                          </tr>
+                          <tr>
+                            <td>Pan:</td>
+                            <td>Click + Drag</td>
+                          </tr>
+                          <tr>
+                            <td>Reset:</td>
+                            <td>Esc</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                  placement="left"
+                  arrow
+                >
+                  <HelpIcon />
+                </Tooltip>
+              ) : (
+                <HelpIcon color="disabled" />
+              )}
             </Grid>
           </Grid>
         </Grid>

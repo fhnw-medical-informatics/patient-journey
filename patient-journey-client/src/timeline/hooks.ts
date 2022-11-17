@@ -15,11 +15,14 @@ import {
   selectFilteredEventDataAsTimelineEvents,
   selectFilteredEventDataAsTimelineLanes,
   selectFilteredEventDataAsTimelineEventsWithoutColor,
+  selectAllowInteraction,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
 
 export const useShowTimeGrid = () => useAppSelector(selectShowTimeGrid)
+
+export const useAllowInteraction = () => useAppSelector(selectAllowInteraction)
 
 export const useViewByColumn = () => useAppSelector(selectViewByColumn)
 
