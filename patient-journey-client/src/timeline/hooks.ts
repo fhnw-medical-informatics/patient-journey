@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { ColorByColumn } from '../color/colorSlice'
 import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { useAppSelector } from '../store'
 
@@ -48,8 +49,14 @@ export const useSelectedActiveEvent = () => useAppSelector(selectSelectedActiveE
 
 export const useHoveredActiveEvent = () => useAppSelector(selectHoveredActiveEvent)
 
-export const useActiveDataAsLanes = (colorByCategoryFn: ColorByCategoryFn) =>
-  useAppSelector((state) => selectFilteredEventDataAsTimelineLanes(state, colorByCategoryFn))
+export const useActiveDataAsLanes = (
+  colorByColumnFn: ColorByColumnFn,
+  colorByCategoryFn: ColorByCategoryFn,
+  colorByColumn: ColorByColumn
+) =>
+  useAppSelector((state) =>
+    selectFilteredEventDataAsTimelineLanes(state, colorByColumnFn, colorByCategoryFn, colorByColumn)
+  )
 
 export const useFocusLaneId = () => useAppSelector(selectFocusLaneId)
 

@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
+import { ColorByColumn } from '../color/colorSlice'
 import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
@@ -14,6 +15,7 @@ import {
   selectFocusEntity,
   selectCrossFilteredEventDataOnlyFilteredOutEvents,
   selectIndexPatientId,
+  selectCrossFilteredPatientData,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { TimelineEventWithPID } from './model'
@@ -221,25 +223,57 @@ const selectCrossFilteredEventDataWithFilteredOutEvents = createSelector(
   }
 )
 
-const selectColorByCategoryFn = (s: RootState, colorByCategoryFn: ColorByCategoryFn): ColorByCategoryFn =>
-  colorByCategoryFn
+const selectLaneColorByColumnFn = (s: RootState, colorByColumnFn: ColorByColumnFn): ColorByColumnFn => colorByColumnFn
+
+const selectColorByCategoryFn = (
+  s: RootState,
+  colorByColumnFn: ColorByColumnFn,
+  colorByCategoryFn: ColorByCategoryFn
+): ColorByCategoryFn => colorByCategoryFn
+
+const selectColorByColumn = (
+  s: RootState,
+  colorByColumnFn: ColorByColumnFn,
+  colorByCategory: ColorByCategoryFn,
+  colorByColumn: ColorByColumn
+): ColorByColumn => colorByColumn
 
 export const selectFilteredEventDataAsTimelineLanes = createSelector(
   selectExpandByColumn,
+  selectCrossFilteredPatientData,
   selectCrossFilteredEventDataWithFilteredOutEvents,
+  selectLaneColorByColumnFn,
   selectColorByCategoryFn,
-  (expandByColumn, activeData, colorByCategoryFn) =>
-    Array.from(
-      new Set(
-        (activeData as ReadonlyArray<Entity & { pid: PatientId }>).map((event) =>
-          expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index]
+  selectColorByColumn,
+  (expandByColumn, activePatientData, activeEventData, colorByColumnFn, colorByCategoryFn, colorByColumn) => {
+    if (expandByColumn === TimelineColumnNone) {
+      // No expand by column, so we just have one lane
+      return []
+    } else if (expandByColumn.type === 'pid') {
+      // Expand by patient ID, so we have one lane per patient
+      // use patient entities so we can color the lanes if a patient
+      // column is select as color by column
+      return activePatientData.map((patient) => ({
+        laneId: patient.pid,
+        label: patient.pid, // TODO: Proper label
+        color: colorByColumnFn(patient),
+      })) as ReadonlyArray<TimelineLane<any>>
+    } else {
+      // Expand by event column, so we have one lane per unique value of that column
+      // only color the lanes if the same column is selected as color by column
+      return Array.from(
+        new Set(
+          (activeEventData as ReadonlyArray<Entity & { pid: PatientId }>).map(
+            (event) => event.values[expandByColumn.index]
+          )
         )
-      )
-    ).map((value) => ({
-      laneId: value,
-      label: value, // TODO: Proper label
-      color: expandByColumn !== TimelineColumnNone ? colorByCategoryFn(value) : undefined,
-    })) as ReadonlyArray<TimelineLane<any>>
+      ).map((value) => ({
+        laneId: value,
+        label: value, // TODO: Proper label
+        color: colorByColumn.column === expandByColumn ? colorByCategoryFn(value) : undefined,
+      })) as ReadonlyArray<TimelineLane<any>>
+    }
+  }
 )
 
 export const selectCursorPosition = (s: RootState): CursorPosition => s.timeline.cursorPosition

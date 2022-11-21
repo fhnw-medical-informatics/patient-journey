@@ -36,17 +36,22 @@ import {
 } from '../hooks'
 import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
-import { useColorByColumn } from '../../color/hooks'
 import { useTheme } from '@mui/material'
 import { EntityIdNone } from '../../data/entities'
 
 export const Timeline = React.memo(() => {
   const theme = useTheme()
 
-  const { colorByColumnFn, colorByCategoryFn } = useColor('events')
+  const { colorByColumnFn: eventsColorByColumnFn } = useColor('events')
+  const { colorByColumnFn: patientsColorByColumnFn, colorByCategoryFn, colorByColumn } = useColor('patients')
+
   const showFilteredOut = useShowFilteredOut()
-  const events = useActiveDataAsEvents(colorByColumnFn, theme.entityColors.filteredOut, theme.entityColors.indexPatient)
-  const lanes = useActiveDataAsLanes(colorByCategoryFn)
+  const events = useActiveDataAsEvents(
+    eventsColorByColumnFn,
+    theme.entityColors.filteredOut,
+    theme.entityColors.indexPatient
+  )
+  const lanes = useActiveDataAsLanes(patientsColorByColumnFn, colorByCategoryFn, colorByColumn)
   const cluster = useTimelineCluster()
   const showTimeGrid = useShowTimeGrid()
   const allowInteraction = useAllowInteraction()
@@ -55,7 +60,6 @@ export const Timeline = React.memo(() => {
   const activeColumns = useTimelineDataColumns()
   const eventDataColumns = useEventDataColumns()
   const patientDataColumns = usePatientDataColumns()
-  const colorByColumn = useColorByColumn()
   const eventFilters = useEventFilters()
 
   const dispatch = useAppDispatch()

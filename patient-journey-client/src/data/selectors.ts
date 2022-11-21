@@ -243,7 +243,7 @@ const selectFilteredEventsPIDs = createSelector(
 )
 
 // Only select patients, that are references in the currently filtered events
-const selectCrossFilteredPatientData = createSelector(
+export const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
   selectFilteredEventsPIDs,
   (filteredPatientData, filteredEventPIDSet) =>
