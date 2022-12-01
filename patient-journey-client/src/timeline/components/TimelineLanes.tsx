@@ -5,6 +5,7 @@ import { Axis } from './Axis'
 interface Props<EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>
   extends CustomLayerProps<EID, PatientId, E> {
   readonly focusLaneId: PatientId
+  readonly selectedEntityId: PatientId
   readonly isHideLaneDetails: boolean
 }
 
@@ -12,12 +13,20 @@ export const TimelineLanes = <EID extends string, PatientId extends string, E ex
   laneDisplayMode,
   lanes,
   focusLaneId,
+  selectedEntityId,
   yScale,
   height,
   isHideLaneDetails,
 }: Props<EID, PatientId, E>) => {
   return laneDisplayMode === 'expanded' ? (
-    <Axes key="axes" yScale={yScale} lanes={lanes} focusLaneId={focusLaneId} isHideLaneDetails={isHideLaneDetails} />
+    <Axes
+      key="axes"
+      yScale={yScale}
+      lanes={lanes}
+      focusLaneId={focusLaneId}
+      selectedEntityId={selectedEntityId}
+      isHideLaneDetails={isHideLaneDetails}
+    />
   ) : (
     <Axis key="axis" y={height / 2} />
   )

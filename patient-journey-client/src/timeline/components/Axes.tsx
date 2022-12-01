@@ -8,6 +8,7 @@ const MAX_LABEL_FONT_SIZE = 18
 
 export interface AxesProps<PatientId extends string> {
   readonly focusLaneId: PatientId
+  readonly selectedEntityId: PatientId
   readonly lanes: ReadonlyArray<TimelineLane<PatientId>>
   readonly yScale: ScaleBand<PatientId>
   readonly isHideLaneDetails: boolean
@@ -15,6 +16,7 @@ export interface AxesProps<PatientId extends string> {
 
 export const Axes = <PatientId extends string>({
   focusLaneId,
+  selectedEntityId,
   lanes,
   yScale,
   isHideLaneDetails,
@@ -34,13 +36,15 @@ export const Axes = <PatientId extends string>({
       {lanes.map((lane: TimelineLane<PatientId>) => {
         const y = yScale(lane.laneId)!
         const isFocused = lane.laneId === focusLaneId
+        const isSelected = lane.laneId === selectedEntityId
         const fontWeight = isFocused ? 800 : 600
-        const opacity = isFocused ? 0.8 : 0.4
+        const opacity = isFocused || isSelected ? 0.8 : 0.4
         const isEnabled = isFocused || !isHideLaneDetails
+        const color = isSelected ? muiTheme.entityColors.selected : lane.color
         return (
           isEnabled && (
             <g key={`axis-${lane.laneId}`}>
-              <Axis y={y} color={lane.color} isFocused={isFocused} opacity={opacity} />
+              <Axis y={y} color={color} isFocused={isFocused || isSelected} opacity={opacity} />
               <rect
                 x={labelXOffset - 3}
                 width={textBackgroundRectWidth}
@@ -58,7 +62,7 @@ export const Axes = <PatientId extends string>({
                 fontSize={fontSize}
                 x={labelXOffset}
                 y={y}
-                fill={lane.color || theme.lane.labelColor}
+                fill={color || theme.lane.labelColor}
               >
                 {lane.label}
               </text>
