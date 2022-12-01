@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
-import { ColorByColumn } from '../color/colorSlice'
+import { ColorByColumn, ColorByColumnNone } from '../color/colorSlice'
 import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { stringToMillis } from '../data/columns'
 import { Entity, EntityId } from '../data/entities'
@@ -256,7 +256,7 @@ export const selectFilteredEventDataAsTimelineLanes = createSelector(
       return activePatientData.map((patient) => ({
         laneId: patient.pid,
         label: patient.pid, // TODO: Proper label
-        color: colorByColumnFn(patient),
+        color: colorByColumn !== ColorByColumnNone ? colorByColumnFn(patient) : undefined,
       })) as ReadonlyArray<TimelineLane<any>>
     } else {
       // Expand by event column, so we have one lane per unique value of that column

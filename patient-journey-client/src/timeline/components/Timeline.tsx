@@ -75,7 +75,7 @@ export const Timeline = ({
   const { classes } = useStyles()
 
   return (
-    <Paper className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <ControlPanel
         viewByColumn={viewByColumn}
         onSetViewByColumn={onSetViewByColumn}

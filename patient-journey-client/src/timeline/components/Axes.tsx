@@ -19,7 +19,7 @@ export const Axes = <PatientId extends string>({
   yScale,
   isHideLaneDetails,
 }: AxesProps<PatientId>) => {
-  const isDarkMode = useTheme().palette.mode === 'dark'
+  const muiTheme = useTheme()
   const theme = useTimelineTheme()
 
   // TODO: Improve font handling
@@ -40,13 +40,13 @@ export const Axes = <PatientId extends string>({
         return (
           isEnabled && (
             <g key={`axis-${lane.laneId}`}>
-              <Axis y={y} color={lane.color} isFocused={isFocused} />
+              <Axis y={y} color={lane.color} isFocused={isFocused} opacity={opacity} />
               <rect
                 x={labelXOffset - 3}
                 width={textBackgroundRectWidth}
                 height={theme.lane.labelFontSize}
                 y={y - theme.lane.labelFontSize / 2}
-                fill={isDarkMode ? 'rgb(30,30,30)' : theme.base.backgroundColor}
+                fill={muiTheme.palette.background.paper}
               ></rect>
               <text
                 style={{

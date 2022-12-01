@@ -113,7 +113,7 @@ export const DataTable = ({
   const sortedRows = useMemo(() => stableSort(rows, sorting).map((row) => ({ ...row, id: row.uid })), [rows, sorting])
 
   return (
-    <Paper className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <div className={classes.maxed}>
         <DataGridPro
           rows={sortedRows}

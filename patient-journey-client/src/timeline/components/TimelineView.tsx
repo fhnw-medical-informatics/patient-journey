@@ -45,7 +45,13 @@ export const TimelineView = ({
   onInteractionEnd,
 }: TimelineProps) => {
   const muiTheme = useTheme()
-  const timelineTheme = deriveTimelineTheme(muiTheme.palette.mode, muiTheme)
+  const timelineTheme = deriveTimelineTheme(muiTheme.palette.mode, muiTheme, {
+    lane: {
+      middleLineColor: muiTheme.palette.text.primary,
+      labelColor: muiTheme.palette.text.primary,
+      middleLineWidth: 1,
+    },
+  })
 
   if (events.length === 0) {
     return null
