@@ -162,15 +162,13 @@ export const DataTable = ({
                 onMouseLeave={() => onEntityHover(EntityIdNone)}
                 style={{
                   ...props.style,
-                  backgroundColor:
+                  color:
                     props.row.pid === indexPatientId
                       ? theme.palette.mode === 'dark'
                         ? darken(theme.entityColors.indexPatient, DARKENING_FACTOR)
                         : lighten(theme.entityColors.indexPatient, LIGHTENING_FACTOR)
                       : colorByColumn.type !== 'none'
-                      ? theme.palette.mode === 'dark'
-                        ? darken(colorByColumnFn(props.row), DARKENING_FACTOR)
-                        : lighten(colorByColumnFn(props.row), LIGHTENING_FACTOR)
+                      ? colorByColumnFn(props.row)
                       : '',
                 }}
               />
