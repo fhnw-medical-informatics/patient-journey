@@ -138,6 +138,7 @@ export const selectFilteredEventDataAsTimelineEvents = createSelector(
 // Using a separate selector here, so that we can memoize this better, since
 // we are calling it from TimelineActiveMarks with a new colorByColumnFn vs.
 // in Timeline.tsx
+// ---
 const selectFilteredEventDataAsTimelineEventsForActiveMarks = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
@@ -151,6 +152,21 @@ const selectFilteredEventDataAsTimelineEventsForActiveMarks = createSelector(
   selectIndexPatientColor,
   selectEventDataAsTimelineEvents
 )
+
+export const selectFilteredEventDataAsTimelineEventsForJourney = createSelector(
+  selectViewByColumn,
+  selectExpandByColumn,
+  selectEventDataColumns,
+  selectCrossFilteredEventData,
+  selectColorByColumnFn,
+  selectCrossFilteredEventDataOnlyFilteredOutEvents,
+  selectShowFilteredOut,
+  selectFilteredOutColor,
+  selectIndexPatientId,
+  selectIndexPatientColor,
+  selectEventDataAsTimelineEvents
+)
+// ---
 
 export const selectFilteredEventDataAsTimelineEventsWithoutColor = createSelector(
   selectViewByColumn,

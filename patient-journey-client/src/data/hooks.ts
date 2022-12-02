@@ -32,6 +32,7 @@ import {
   selectSimilarityDataLoadingErrorMessage,
   selectIndexPatientIdIndex,
   selectPatientCount,
+  selectPatientDataRowMap,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -116,3 +117,5 @@ export const useIndexPatientIdIndex = () => useAppSelector(selectIndexPatientIdI
 export const usePatientCount = () => useAppSelector(selectPatientCount)
 
 export const useSplitPlaneResizing = () => useAppSelector(selectSplitPaneResizing)
+
+export const usePatientDataRowAsMap = () => useAppSelector(selectPatientDataRowMap)

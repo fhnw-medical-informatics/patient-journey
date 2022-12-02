@@ -18,6 +18,7 @@ import {
   selectAllowInteraction,
   selectHoveredEntityLaneId,
   selectSelectedEntityLaneId,
+  selectFilteredEventDataAsTimelineEventsForJourney,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -41,6 +42,15 @@ export const useActiveDataAsEvents = (
 ) =>
   useAppSelector((state) =>
     selectFilteredEventDataAsTimelineEvents(state, colorByColumnFn, filteredOutColor, indexPatientColor)
+  )
+
+export const useActiveDataAsEventsForJourney = (
+  colorByColumnFn: ColorByColumnFn,
+  filteredOutColor: string,
+  indexPatientColor: string
+) =>
+  useAppSelector((state) =>
+    selectFilteredEventDataAsTimelineEventsForJourney(state, colorByColumnFn, filteredOutColor, indexPatientColor)
   )
 
 export const useActiveDataAsEventsWithoutColor = () =>
