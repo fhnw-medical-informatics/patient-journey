@@ -67,7 +67,7 @@ const LIGHT_SELECTION_COLOR = yellow[400]
 const DARK_SELECTION_COLOR = deepPurple[400]
 
 const LIGHT_DEFAULT_COLOR = grey[400]
-const DARK_DEFAULT_COLOR = grey[400]
+const DARK_DEFAULT_COLOR = grey[700]
 
 export const lightTheme = createCustomTheme('light', LIGHT_SELECTION_COLOR, LIGHT_DEFAULT_COLOR)
 export const darkTheme = createCustomTheme('dark', DARK_SELECTION_COLOR, DARK_DEFAULT_COLOR)

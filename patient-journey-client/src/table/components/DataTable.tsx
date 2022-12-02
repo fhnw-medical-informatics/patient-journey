@@ -205,17 +205,14 @@ export const DataTable = ({
           }}
           sx={{
             '& .MuiDataGrid-row.Mui-selected': {
-              backgroundColor: `${theme.entityColors.selected} !important`, // override colored background from row
+              backgroundColor: 'transparent !important',
+              color: `${theme.entityColors.selected} !important`, // override colored background from row
             },
             '& .MuiDataGrid-row.Mui-selected:hover': {
-              backgroundColor: `${theme.entityColors.selected} !important`,
+              backgroundColor: `${theme.entityColors.default} !important`,
             },
             '& .MuiDataGrid-row:hover': {
-              backgroundColor: `${
-                theme.palette.mode === 'dark'
-                  ? darken(theme.entityColors.selected, DARKENING_FACTOR)
-                  : lighten(theme.entityColors.selected, LIGHTENING_FACTOR)
-              } !important`,
+              backgroundColor: `${theme.entityColors.default} !important`,
             },
             '& .MuiDataGrid-cell:focus, .MuiDataGrid-columnHeader:focus, .MuiDataGrid-columnHeader:focus-within': {
               outline: 'none',

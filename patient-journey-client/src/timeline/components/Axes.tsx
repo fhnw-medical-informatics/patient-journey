@@ -2,7 +2,8 @@ import React from 'react'
 import { ScaleBand } from 'd3-scale'
 import { TimelineLane, useTimelineTheme } from 'react-svg-timeline'
 import { Axis } from './Axis'
-import { useTheme } from '@mui/material'
+import { darken, lighten, useTheme } from '@mui/material'
+import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
 
 const MAX_LABEL_FONT_SIZE = 18
 
@@ -35,16 +36,25 @@ export const Axes = <PatientId extends string>({
     <>
       {lanes.map((lane: TimelineLane<PatientId>) => {
         const y = yScale(lane.laneId)!
+
         const isFocused = lane.laneId === focusLaneId
         const isSelected = lane.laneId === selectedEntityId
+
         const fontWeight = isFocused ? 800 : 600
-        const opacity = isFocused || isSelected ? 0.8 : 0.4
-        const isEnabled = isFocused || !isHideLaneDetails
-        const color = isSelected ? muiTheme.entityColors.selected : lane.color
+
+        const isEnabled = isFocused || isSelected || !isHideLaneDetails
+
+        const color = isSelected ? muiTheme.entityColors.selected : lane.color ?? theme.lane.middleLineColor
+        const augmentedColor = isFocused
+          ? muiTheme.palette.mode === 'dark'
+            ? lighten(color, LIGHTENING_FACTOR)
+            : darken(color, DARKENING_FACTOR)
+          : color
+
         return (
           isEnabled && (
             <g key={`axis-${lane.laneId}`}>
-              <Axis y={y} color={color} isFocused={isFocused || isSelected} opacity={opacity} />
+              <Axis y={y} color={augmentedColor} isFocused={isFocused || isSelected} />
               <rect
                 x={labelXOffset - 3}
                 width={textBackgroundRectWidth}
@@ -56,13 +66,12 @@ export const Axes = <PatientId extends string>({
                 style={{
                   fontFamily: theme.base.fontFamily,
                   fontWeight,
-                  opacity,
                   dominantBaseline: 'central',
                 }}
                 fontSize={fontSize}
                 x={labelXOffset}
                 y={y}
-                fill={color || theme.lane.labelColor}
+                fill={augmentedColor}
               >
                 {lane.label}
               </text>
