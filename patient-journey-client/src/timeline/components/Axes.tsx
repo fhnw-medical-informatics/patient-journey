@@ -2,8 +2,8 @@ import React from 'react'
 import { ScaleBand } from 'd3-scale'
 import { TimelineLane, useTimelineTheme } from 'react-svg-timeline'
 import { Axis } from './Axis'
-import { darken, lighten, useTheme } from '@mui/material'
-import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
+import { useTheme } from '@mui/material'
+import { createFocusColor } from '../../theme/useCustomTheme'
 
 const MAX_LABEL_FONT_SIZE = 18
 
@@ -45,11 +45,7 @@ export const Axes = <PatientId extends string>({
         const isEnabled = isFocused || isSelected || !isHideLaneDetails
 
         const color = isSelected ? muiTheme.entityColors.selected : lane.color ?? theme.lane.middleLineColor
-        const augmentedColor = isFocused
-          ? muiTheme.palette.mode === 'dark'
-            ? lighten(color, LIGHTENING_FACTOR)
-            : darken(color, DARKENING_FACTOR)
-          : color
+        const augmentedColor = isFocused ? createFocusColor(muiTheme, color) : color
 
         return (
           isEnabled && (
