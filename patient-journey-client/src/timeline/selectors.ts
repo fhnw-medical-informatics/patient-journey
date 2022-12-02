@@ -3,6 +3,7 @@ import { TimelineEvent, TimelineLane } from 'react-svg-timeline'
 import { ColorByColumn, ColorByColumnNone } from '../color/colorSlice'
 import { ColorByCategoryFn, ColorByColumnFn } from '../color/hooks'
 import { stringToMillis } from '../data/columns'
+import { FocusEntity } from '../data/dataSlice'
 import { Entity, EntityId } from '../data/entities'
 import { EventDataColumn, PatientJourneyEvent } from '../data/events'
 import { PatientId, PatientIdNone } from '../data/patients'
@@ -12,10 +13,11 @@ import {
   selectCrossFilteredEventData,
   selectActiveHoveredEventEntity,
   selectActiveSelectedEventEntity,
-  selectFocusEntity,
   selectCrossFilteredEventDataOnlyFilteredOutEvents,
   selectIndexPatientId,
   selectCrossFilteredPatientData,
+  selectHoveredEntity,
+  selectSelectedEntity,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { TimelineEventWithPID } from './model'
@@ -195,19 +197,27 @@ export const selectHoveredActiveEvent = createSelector(
   (eventMap, hoveredEntity) => eventMap.get(hoveredEntity)
 )
 
-export const selectFocusLaneId = createSelector(
-  selectFilteredActiveEventsAsMap,
-  selectFocusEntity,
-  (eventMap, focusEntity): PatientId => {
-    switch (focusEntity.type) {
-      case 'patients':
-        return focusEntity.uid
-      case 'events':
-        return (eventMap.get(focusEntity.uid)?.laneId as PatientId) ?? PatientIdNone
-      default:
-        return PatientIdNone
-    }
+const selectLaneIdFromEntity = (eventMap: ReadonlyMap<EntityId, TimelineEvent<EntityId, any>>, entity: FocusEntity) => {
+  switch (entity.type) {
+    case 'patients':
+      return entity.uid
+    case 'events':
+      return (eventMap.get(entity.uid)?.laneId as PatientId) ?? PatientIdNone
+    default:
+      return PatientIdNone
   }
+}
+
+export const selectHoveredEntityLaneId = createSelector(
+  selectFilteredActiveEventsAsMap,
+  selectHoveredEntity,
+  selectLaneIdFromEntity
+)
+
+export const selectSelectedEntityLaneId = createSelector(
+  selectFilteredActiveEventsAsMap,
+  selectSelectedEntity,
+  selectLaneIdFromEntity
 )
 
 const selectCrossFilteredEventDataWithFilteredOutEvents = createSelector(

@@ -11,12 +11,13 @@ import {
   selectCursorPosition,
   selectSelectedActiveEvent,
   selectHoveredActiveEvent,
-  selectFocusLaneId,
   selectShowTimeGrid,
   selectFilteredEventDataAsTimelineEvents,
   selectFilteredEventDataAsTimelineLanes,
   selectFilteredEventDataAsTimelineEventsWithoutColor,
   selectAllowInteraction,
+  selectHoveredEntityLaneId,
+  selectSelectedEntityLaneId,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -58,7 +59,8 @@ export const useActiveDataAsLanes = (
     selectFilteredEventDataAsTimelineLanes(state, colorByColumnFn, colorByCategoryFn, colorByColumn)
   )
 
-export const useFocusLaneId = () => useAppSelector(selectFocusLaneId)
+export const useHoveredLaneId = () => useAppSelector(selectHoveredEntityLaneId)
+export const useSelectedLaneId = () => useAppSelector(selectSelectedEntityLaneId)
 
 export type RenderInfo = { ctx: CanvasRenderingContext2D; canvas: HTMLCanvasElement }
 
