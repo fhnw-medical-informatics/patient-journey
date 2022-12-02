@@ -7,16 +7,26 @@ import { useHoveredActiveEvent, useSelectedActiveEvent } from '../hooks'
 import { TimelineActiveMarks as TimelineActiveMarksComponent } from '../components/TimelineActiveMarks'
 import { useTheme } from '@mui/material'
 import { useEntityInteraction } from '../../data/hooks'
+import { useColor } from '../../color/hooks'
 
 const TimelineActiveMarks = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>(
   props: CustomLayerProps<EID, PatientId, E>
 ) => {
   const theme = useTheme()
 
+  const { colorByColumnFn } = useColor('events')
   const { onEntityClick, onEntityHover } = useEntityInteraction('events')
 
-  const selectedEvent = useSelectedActiveEvent()
-  const hoveredEvent = useHoveredActiveEvent()
+  const selectedEvent = useSelectedActiveEvent(
+    colorByColumnFn,
+    theme.entityColors.filteredOut,
+    theme.entityColors.indexPatient
+  )
+  const hoveredEvent = useHoveredActiveEvent(
+    colorByColumnFn,
+    theme.entityColors.filteredOut,
+    theme.entityColors.indexPatient
+  )
 
   return (
     <TimelineActiveMarksComponent

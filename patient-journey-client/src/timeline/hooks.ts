@@ -46,9 +46,17 @@ export const useActiveDataAsEvents = (
 export const useActiveDataAsEventsWithoutColor = () =>
   useAppSelector(selectFilteredEventDataAsTimelineEventsWithoutColor)
 
-export const useSelectedActiveEvent = () => useAppSelector(selectSelectedActiveEvent)
+export const useSelectedActiveEvent = (
+  colorByColumnFn: ColorByColumnFn,
+  filteredOutColor: string,
+  indexPatientColor: string
+) => useAppSelector((state) => selectSelectedActiveEvent(state, colorByColumnFn, filteredOutColor, indexPatientColor))
 
-export const useHoveredActiveEvent = () => useAppSelector(selectHoveredActiveEvent)
+export const useHoveredActiveEvent = (
+  colorByColumnFn: ColorByColumnFn,
+  filteredOutColor: string,
+  indexPatientColor: string
+) => useAppSelector((state) => selectHoveredActiveEvent(state, colorByColumnFn, filteredOutColor, indexPatientColor))
 
 export const useActiveDataAsLanes = (
   colorByColumnFn: ColorByColumnFn,

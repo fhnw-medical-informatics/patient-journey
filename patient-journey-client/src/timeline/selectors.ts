@@ -82,6 +82,45 @@ const convertEntityToTimelineEvent = (
     : []
 }
 
+const selectEventDataAsTimelineEvents = (
+  viewByColumn: TimelineColumn,
+  expandByColumn: TimelineColumn,
+  activeColumns: ReadonlyArray<EventDataColumn>,
+  filteredEventData: ReadonlyArray<PatientJourneyEvent>,
+  colorByColumnFn: ColorByColumnFn,
+  filteredOutEventData: ReadonlyArray<PatientJourneyEvent>,
+  showFilteredOut: boolean,
+  filteredOutColor: string,
+  indexPatientId: PatientId,
+  indexPatientColor: string
+) => {
+  const filteredEventDataAsTimelineEvents = convertEntityToTimelineEvent(
+    viewByColumn,
+    expandByColumn,
+    activeColumns,
+    filteredEventData,
+    indexPatientId,
+    indexPatientColor,
+    colorByColumnFn
+  )
+
+  if (showFilteredOut) {
+    const filteredOutEventDataAsTimelineEvents = convertEntityToTimelineEvent(
+      viewByColumn,
+      expandByColumn,
+      activeColumns,
+      filteredOutEventData,
+      indexPatientId,
+      indexPatientColor,
+      () => filteredOutColor
+    )
+
+    return [...filteredEventDataAsTimelineEvents, ...filteredOutEventDataAsTimelineEvents]
+  } else {
+    return filteredEventDataAsTimelineEvents
+  }
+}
+
 export const selectFilteredEventDataAsTimelineEvents = createSelector(
   selectViewByColumn,
   selectExpandByColumn,
@@ -93,44 +132,24 @@ export const selectFilteredEventDataAsTimelineEvents = createSelector(
   selectFilteredOutColor,
   selectIndexPatientId,
   selectIndexPatientColor,
-  (
-    viewByColumn,
-    expandByColumn,
-    activeColumns,
-    filteredEventData,
-    colorByColumnFn,
-    filteredOutEventData,
-    showFilteredOut,
-    filteredOutColor,
-    indexPatientId,
-    indexPatientColor
-  ) => {
-    const filteredEventDataAsTimelineEvents = convertEntityToTimelineEvent(
-      viewByColumn,
-      expandByColumn,
-      activeColumns,
-      filteredEventData,
-      indexPatientId,
-      indexPatientColor,
-      colorByColumnFn
-    )
+  selectEventDataAsTimelineEvents
+)
 
-    if (showFilteredOut) {
-      const filteredOutEventDataAsTimelineEvents = convertEntityToTimelineEvent(
-        viewByColumn,
-        expandByColumn,
-        activeColumns,
-        filteredOutEventData,
-        indexPatientId,
-        indexPatientColor,
-        () => filteredOutColor
-      )
-
-      return [...filteredEventDataAsTimelineEvents, ...filteredOutEventDataAsTimelineEvents]
-    } else {
-      return filteredEventDataAsTimelineEvents
-    }
-  }
+// Using a separate selector here, so that we can memoize this better, since
+// we are calling it from TimelineActiveMarks with a new colorByColumnFn vs.
+// in Timeline.tsx
+const selectFilteredEventDataAsTimelineEventsForActiveMarks = createSelector(
+  selectViewByColumn,
+  selectExpandByColumn,
+  selectEventDataColumns,
+  selectCrossFilteredEventData,
+  selectColorByColumnFn,
+  selectCrossFilteredEventDataOnlyFilteredOutEvents,
+  selectShowFilteredOut,
+  selectFilteredOutColor,
+  selectIndexPatientId,
+  selectIndexPatientColor,
+  selectEventDataAsTimelineEvents
 )
 
 export const selectFilteredEventDataAsTimelineEventsWithoutColor = createSelector(
@@ -174,15 +193,20 @@ export const selectFilteredEventDataAsTimelineEventsWithoutColor = createSelecto
   }
 )
 
-const selectFilteredActiveEventsAsMap = createSelector(
+const selectFilteredActiveEventsWithoutColorAsMap = createSelector(
   selectFilteredEventDataAsTimelineEventsWithoutColor,
   (events): ReadonlyMap<EntityId, TimelineEvent<EntityId, any>> => new Map(events.map((e) => [e.eventId, e]))
 )
 
 export const selectSelectedActiveEntityAsEvent = createSelector(
-  selectFilteredActiveEventsAsMap,
+  selectFilteredActiveEventsWithoutColorAsMap,
   selectActiveSelectedEntity,
   (eventMap, selectedEntity) => eventMap.get(selectedEntity)
+)
+
+const selectFilteredActiveEventsAsMap = createSelector(
+  selectFilteredEventDataAsTimelineEventsForActiveMarks,
+  (events): ReadonlyMap<EntityId, TimelineEvent<EntityId, any>> => new Map(events.map((e) => [e.eventId, e]))
 )
 
 export const selectSelectedActiveEvent = createSelector(
@@ -209,13 +233,13 @@ const selectLaneIdFromEntity = (eventMap: ReadonlyMap<EntityId, TimelineEvent<En
 }
 
 export const selectHoveredEntityLaneId = createSelector(
-  selectFilteredActiveEventsAsMap,
+  selectFilteredActiveEventsWithoutColorAsMap,
   selectHoveredEntity,
   selectLaneIdFromEntity
 )
 
 export const selectSelectedEntityLaneId = createSelector(
-  selectFilteredActiveEventsAsMap,
+  selectFilteredActiveEventsWithoutColorAsMap,
   selectSelectedEntity,
   selectLaneIdFromEntity
 )
