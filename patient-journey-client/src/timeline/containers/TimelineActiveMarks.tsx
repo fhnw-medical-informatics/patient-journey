@@ -6,7 +6,7 @@ import { useHoveredActiveEvent, useSelectedActiveEvent } from '../hooks'
 
 import { TimelineActiveMarks as TimelineActiveMarksComponent } from '../components/TimelineActiveMarks'
 import { useTheme } from '@mui/material'
-import { useEntityInteraction } from '../../data/hooks'
+import { useEntityInteraction, useIndexPatientEvents } from '../../data/hooks'
 import { useColor } from '../../color/hooks'
 
 const TimelineActiveMarks = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>(
@@ -19,8 +19,7 @@ const TimelineActiveMarks = <EID extends string, PatientId extends string, E ext
 
   const selectedEvent = useSelectedActiveEvent(colorByColumnFn, theme.entityColors.filteredOut)
   const hoveredEvent = useHoveredActiveEvent(colorByColumnFn, theme.entityColors.filteredOut)
-
-  // TODO: Index patient event?
+  const indexPatientEvents = useIndexPatientEvents()
 
   return (
     <TimelineActiveMarksComponent
@@ -28,6 +27,7 @@ const TimelineActiveMarks = <EID extends string, PatientId extends string, E ext
       selectedEvent={selectedEvent as TimelineEvent<any, any>}
       hoveredEvent={hoveredEvent as TimelineEvent<any, any>}
       selectedColor={theme.entityColors.selected}
+      indexPatientEvents={indexPatientEvents}
       onHover={onEntityHover}
       onSelect={onEntityClick}
     />
