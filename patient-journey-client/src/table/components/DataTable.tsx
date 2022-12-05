@@ -163,7 +163,7 @@ export const DataTable = ({
                 style={{
                   ...props.style,
                   color:
-                    props.row.pid === indexPatientId
+                    props.row.uid === indexPatientId
                       ? theme.palette.mode === 'dark'
                         ? darken(theme.entityColors.indexPatient, DARKENING_FACTOR)
                         : lighten(theme.entityColors.indexPatient, LIGHTENING_FACTOR)
