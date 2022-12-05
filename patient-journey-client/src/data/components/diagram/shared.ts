@@ -1,5 +1,4 @@
 import { Theme } from '@mui/material'
-import { grey } from '@mui/material/colors'
 import { Entity } from '../../entities'
 import { ColorByColumn } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
@@ -16,6 +15,6 @@ export interface DataDiagramsProps<T extends FilterColumn['type']> {
   colorByCategoryFn: ColorByCategoryFn
 }
 
-export const greyColor = (theme: Theme) => (theme.palette.mode === 'light' ? grey[200] : grey[800])
+export const greyColor = (theme: Theme) => theme.entityColors.filteredOut
 
 export const barColors = (theme: Theme) => [theme.palette.primary.main, greyColor(theme)]
