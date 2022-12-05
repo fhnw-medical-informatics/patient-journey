@@ -13,7 +13,10 @@ export const FilterCard = ({ label, isActive, onRemove, children }: FilterCardPr
   const theme = useTheme()
 
   return (
-    <Card raised={theme.palette.mode === 'dark' ? !isActive : isActive} sx={{ overflow: 'visible' }}>
+    <Card
+      elevation={theme.palette.mode === 'dark' ? (!isActive ? 3 : 0) : isActive ? 9 : 1}
+      sx={{ overflow: 'visible' }}
+    >
       <Grid container direction={'row'} alignItems={'center'} padding={1}>
         <Grid item xs>
           <div>

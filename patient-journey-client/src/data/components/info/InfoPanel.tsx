@@ -50,7 +50,7 @@ interface Props {
 export const InfoPanel = ({ focusEntityInfo, colorByInfo }: Props) => {
   const { classes } = useStyles()
   return (
-    <Card className={classes.root}>
+    <Card variant="outlined" className={classes.root}>
       {focusEntityInfo.type !== 'no-info' && (
         <TextField
           size={'small'}

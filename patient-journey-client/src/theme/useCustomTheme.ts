@@ -40,7 +40,7 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
     },
     entityColors: {
       default: defaultColor,
-      filteredOut: mode === 'light' ? grey[200] : grey[700],
+      filteredOut: mode === 'light' ? grey[200] : grey[800],
       selected: selectionColor,
       indexPatient: mode === 'light' ? pink[600] : yellow[700],
       journeyStroke: selectionColor,
@@ -67,7 +67,7 @@ const LIGHT_SELECTION_COLOR = yellow[400]
 const DARK_SELECTION_COLOR = deepPurple[400]
 
 const LIGHT_DEFAULT_COLOR = grey[400]
-const DARK_DEFAULT_COLOR = grey[700]
+const DARK_DEFAULT_COLOR = grey[600]
 
 export const lightTheme = createCustomTheme('light', LIGHT_SELECTION_COLOR, LIGHT_DEFAULT_COLOR)
 export const darkTheme = createCustomTheme('dark', DARK_SELECTION_COLOR, DARK_DEFAULT_COLOR)
