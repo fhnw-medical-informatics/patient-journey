@@ -46,11 +46,7 @@ export const Timeline = React.memo(() => {
   const { colorByColumnFn: patientsColorByColumnFn, colorByCategoryFn, colorByColumn } = useColor('patients')
 
   const showFilteredOut = useShowFilteredOut()
-  const events = useActiveDataAsEvents(
-    eventsColorByColumnFn,
-    theme.entityColors.filteredOut,
-    theme.entityColors.indexPatient
-  )
+  const events = useActiveDataAsEvents(eventsColorByColumnFn, theme.entityColors.filteredOut)
   const lanes = useActiveDataAsLanes(patientsColorByColumnFn, colorByCategoryFn, colorByColumn)
   const cluster = useTimelineCluster()
   const showTimeGrid = useShowTimeGrid()

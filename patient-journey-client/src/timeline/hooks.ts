@@ -35,38 +35,20 @@ export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
 
 export const useTimelineCursorPosition = () => useAppSelector(selectCursorPosition)
 
-export const useActiveDataAsEvents = (
-  colorByColumnFn: ColorByColumnFn,
-  filteredOutColor: string,
-  indexPatientColor: string
-) =>
-  useAppSelector((state) =>
-    selectFilteredEventDataAsTimelineEvents(state, colorByColumnFn, filteredOutColor, indexPatientColor)
-  )
+export const useActiveDataAsEvents = (colorByColumnFn: ColorByColumnFn, filteredOutColor: string) =>
+  useAppSelector((state) => selectFilteredEventDataAsTimelineEvents(state, colorByColumnFn, filteredOutColor))
 
-export const useActiveDataAsEventsForJourney = (
-  colorByColumnFn: ColorByColumnFn,
-  filteredOutColor: string,
-  indexPatientColor: string
-) =>
-  useAppSelector((state) =>
-    selectFilteredEventDataAsTimelineEventsForJourney(state, colorByColumnFn, filteredOutColor, indexPatientColor)
-  )
+export const useActiveDataAsEventsForJourney = (colorByColumnFn: ColorByColumnFn, filteredOutColor: string) =>
+  useAppSelector((state) => selectFilteredEventDataAsTimelineEventsForJourney(state, colorByColumnFn, filteredOutColor))
 
 export const useActiveDataAsEventsWithoutColor = () =>
   useAppSelector(selectFilteredEventDataAsTimelineEventsWithoutColor)
 
-export const useSelectedActiveEvent = (
-  colorByColumnFn: ColorByColumnFn,
-  filteredOutColor: string,
-  indexPatientColor: string
-) => useAppSelector((state) => selectSelectedActiveEvent(state, colorByColumnFn, filteredOutColor, indexPatientColor))
+export const useSelectedActiveEvent = (colorByColumnFn: ColorByColumnFn, filteredOutColor: string) =>
+  useAppSelector((state) => selectSelectedActiveEvent(state, colorByColumnFn, filteredOutColor))
 
-export const useHoveredActiveEvent = (
-  colorByColumnFn: ColorByColumnFn,
-  filteredOutColor: string,
-  indexPatientColor: string
-) => useAppSelector((state) => selectHoveredActiveEvent(state, colorByColumnFn, filteredOutColor, indexPatientColor))
+export const useHoveredActiveEvent = (colorByColumnFn: ColorByColumnFn, filteredOutColor: string) =>
+  useAppSelector((state) => selectHoveredActiveEvent(state, colorByColumnFn, filteredOutColor))
 
 export const useActiveDataAsLanes = (
   colorByColumnFn: ColorByColumnFn,

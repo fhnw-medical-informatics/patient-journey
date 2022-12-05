@@ -1,4 +1,5 @@
 import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
+import { useIndexPatientId } from '../../data/hooks'
 import { PatientIdNone } from '../../data/patients'
 import { TimelineLanes as TimelineLanesComponent } from '../components/TimelineLanes'
 import { useExpandByColumn, useHoveredLaneId, useSelectedLaneId } from '../hooks'
@@ -14,6 +15,7 @@ export const TimelineLanes = <EID extends string, PatientId extends string, E ex
 ) => {
   const hoveredLaneId = useHoveredLaneId()
   const selectedLaneId = useSelectedLaneId()
+  const indexPatientId = useIndexPatientId()
   const expandByColumn = useExpandByColumn()
 
   const isHideLaneDetails = props.yScale.bandwidth() < HIDE_LANE_DETAILS_HEIGHT_THRESHOLD
@@ -27,6 +29,7 @@ export const TimelineLanes = <EID extends string, PatientId extends string, E ex
       selectedEntityId={
         expandByColumn !== TimelineColumnNone && expandByColumn.type === 'pid' ? selectedLaneId : PatientIdNone
       }
+      indexPatientId={indexPatientId}
       isHideLaneDetails={isHideLaneDetails}
     />
   )

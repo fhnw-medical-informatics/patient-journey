@@ -80,10 +80,14 @@ export const TimelineJourneys = <EID extends string, PatientId extends string, E
 
     const getEventsForPID = (pid: PatientId): TimelineEvent<EID, PatientId>[] => pidGroups.get(pid) ?? []
 
-    // TODO: Render indexPatient journey with special color
+    // Extract the hovered patient's journey and color
+    // the journey lane based on it's selection or index status
     if (pidGroups && pidGroups.has(hoveredPatientId)) {
+      // TODO: Sync this logic with TimelineLanes.tsx
       const focusPatientColor =
-        hoveredPatientId === selectedPatientId
+        hoveredPatientId === indexPatientId
+          ? theme.entityColors.indexPatient
+          : hoveredPatientId === selectedPatientId
           ? theme.entityColors.selected
           : colorByColumnFn(patientMap.get(hoveredPatientId) as Entity)
 
@@ -93,14 +97,21 @@ export const TimelineJourneys = <EID extends string, PatientId extends string, E
       patientJourneyEvents.push(...getEventsForPID(hoveredPatientId))
     }
 
-    if (pidGroups && hoveredPatientId !== selectedPatientId && pidGroups.has(selectedPatientId)) {
-      patientJourneys.push(getJourneyForPID(selectedPatientId, theme.entityColors.selected))
-      patientJourneyEvents.push(...getEventsForPID(selectedPatientId))
-    }
-
-    if (pidGroups && pidGroups.has(indexPatientId)) {
+    // Extract the index patient's journey, if it's not the same as the hovered patient
+    if (pidGroups && hoveredPatientId !== indexPatientId && pidGroups.has(indexPatientId)) {
       patientJourneys.push(getJourneyForPID(indexPatientId, theme.entityColors.indexPatient))
       patientJourneyEvents.push(...getEventsForPID(indexPatientId))
+    }
+
+    // Extract the selected patient's journey, if it's not the same as the hovered or index patient
+    if (
+      pidGroups &&
+      hoveredPatientId !== selectedPatientId &&
+      indexPatientId !== selectedPatientId &&
+      pidGroups.has(selectedPatientId)
+    ) {
+      patientJourneys.push(getJourneyForPID(selectedPatientId, theme.entityColors.selected))
+      patientJourneyEvents.push(...getEventsForPID(selectedPatientId))
     }
 
     return [patientJourneys, patientJourneyEvents]

@@ -33,11 +33,7 @@ const TimelineJourneys = <EID extends string, PatientId extends string, E extend
 
   const isPaneResizing = useSplitPlaneResizing()
   const expandByColumn = useExpandByColumn()
-  const events = useActiveDataAsEventsForJourney(
-    colorByColumnFn,
-    theme.entityColors.filteredOut,
-    theme.entityColors.indexPatient
-  )
+  const events = useActiveDataAsEventsForJourney(colorByColumnFn, theme.entityColors.filteredOut)
   const hoveredEntity = useHoveredEntity()
   const selectedEntity = useSelectedEntity()
   const indexPatientId = useIndexPatientId()

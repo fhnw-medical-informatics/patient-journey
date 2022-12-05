@@ -17,16 +17,10 @@ const TimelineActiveMarks = <EID extends string, PatientId extends string, E ext
   const { colorByColumnFn } = useColor('events')
   const { onEntityClick, onEntityHover } = useEntityInteraction('events')
 
-  const selectedEvent = useSelectedActiveEvent(
-    colorByColumnFn,
-    theme.entityColors.filteredOut,
-    theme.entityColors.indexPatient
-  )
-  const hoveredEvent = useHoveredActiveEvent(
-    colorByColumnFn,
-    theme.entityColors.filteredOut,
-    theme.entityColors.indexPatient
-  )
+  const selectedEvent = useSelectedActiveEvent(colorByColumnFn, theme.entityColors.filteredOut)
+  const hoveredEvent = useHoveredActiveEvent(colorByColumnFn, theme.entityColors.filteredOut)
+
+  // TODO: Index patient event?
 
   return (
     <TimelineActiveMarksComponent

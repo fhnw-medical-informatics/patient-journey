@@ -6,6 +6,7 @@ interface Props<EID extends string, PatientId extends string, E extends Timeline
   extends CustomLayerProps<EID, PatientId, E> {
   readonly focusLaneId: PatientId
   readonly selectedEntityId: PatientId
+  readonly indexPatientId: PatientId
   readonly isHideLaneDetails: boolean
 }
 
@@ -14,6 +15,7 @@ export const TimelineLanes = <EID extends string, PatientId extends string, E ex
   lanes,
   focusLaneId,
   selectedEntityId,
+  indexPatientId,
   yScale,
   height,
   isHideLaneDetails,
@@ -25,6 +27,7 @@ export const TimelineLanes = <EID extends string, PatientId extends string, E ex
       lanes={lanes}
       focusLaneId={focusLaneId}
       selectedEntityId={selectedEntityId}
+      indexPatientId={indexPatientId}
       isHideLaneDetails={isHideLaneDetails}
     />
   ) : (

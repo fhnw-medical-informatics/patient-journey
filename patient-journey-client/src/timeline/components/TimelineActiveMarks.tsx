@@ -62,6 +62,7 @@ export const TimelineActiveMarks = <
     )
   }
 
+  // TODO: Index patient color?
   return (
     <>
       {selectedEvent && selectedEvent === hoveredEvent ? (

@@ -39,23 +39,11 @@ export const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline
 const selectColorByColumnFn = (
   s: RootState,
   colorByColumnFn: ColorByColumnFn,
-  filteredOutColor: string,
-  indexPatientColor: string
+  filteredOutColor: string
 ): ColorByColumnFn => colorByColumnFn
 
-const selectFilteredOutColor = (
-  s: RootState,
-  colorByColumnFn: ColorByColumnFn,
-  filteredOutColor: string,
-  indexPatientColor: string
-): string => filteredOutColor
-
-const selectIndexPatientColor = (
-  s: RootState,
-  colorByColumnFn: ColorByColumnFn,
-  filteredOutColor: string,
-  indexPatientColor: string
-): string => indexPatientColor
+const selectFilteredOutColor = (s: RootState, colorByColumnFn: ColorByColumnFn, filteredOutColor: string): string =>
+  filteredOutColor
 
 const convertEntityToTimelineEvent = (
   viewByColumn: TimelineColumn,
@@ -63,7 +51,6 @@ const convertEntityToTimelineEvent = (
   activeColumns: ReadonlyArray<EventDataColumn>,
   activeData: ReadonlyArray<PatientJourneyEvent>,
   indexPatientId: PatientId,
-  indexPatientColor?: string,
   colorByColumnFn?: ColorByColumnFn
 ) => {
   return viewByColumn !== TimelineColumnNone &&
@@ -72,7 +59,7 @@ const convertEntityToTimelineEvent = (
         eventId: event.uid,
         laneId: expandByColumn === TimelineColumnNone ? event.pid : event.values[expandByColumn.index],
         isPinned: event.pid === indexPatientId,
-        color: event.pid === indexPatientId ? indexPatientColor : colorByColumnFn ? colorByColumnFn(event) : undefined,
+        color: colorByColumnFn ? colorByColumnFn(event) : undefined,
         startTimeMillis:
           viewByColumn.type === 'date'
             ? stringToMillis(event.values[viewByColumn.index])
@@ -91,8 +78,7 @@ const selectEventDataAsTimelineEvents = (
   filteredOutEventData: ReadonlyArray<PatientJourneyEvent>,
   showFilteredOut: boolean,
   filteredOutColor: string,
-  indexPatientId: PatientId,
-  indexPatientColor: string
+  indexPatientId: PatientId
 ) => {
   const filteredEventDataAsTimelineEvents = convertEntityToTimelineEvent(
     viewByColumn,
@@ -100,7 +86,6 @@ const selectEventDataAsTimelineEvents = (
     activeColumns,
     filteredEventData,
     indexPatientId,
-    indexPatientColor,
     colorByColumnFn
   )
 
@@ -111,7 +96,6 @@ const selectEventDataAsTimelineEvents = (
       activeColumns,
       filteredOutEventData,
       indexPatientId,
-      indexPatientColor,
       () => filteredOutColor
     )
 
@@ -131,7 +115,6 @@ export const selectFilteredEventDataAsTimelineEvents = createSelector(
   selectShowFilteredOut,
   selectFilteredOutColor,
   selectIndexPatientId,
-  selectIndexPatientColor,
   selectEventDataAsTimelineEvents
 )
 
@@ -149,7 +132,6 @@ const selectFilteredEventDataAsTimelineEventsForActiveMarks = createSelector(
   selectShowFilteredOut,
   selectFilteredOutColor,
   selectIndexPatientId,
-  selectIndexPatientColor,
   selectEventDataAsTimelineEvents
 )
 
@@ -163,7 +145,6 @@ export const selectFilteredEventDataAsTimelineEventsForJourney = createSelector(
   selectShowFilteredOut,
   selectFilteredOutColor,
   selectIndexPatientId,
-  selectIndexPatientColor,
   selectEventDataAsTimelineEvents
 )
 // ---
