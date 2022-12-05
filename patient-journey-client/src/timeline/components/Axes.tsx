@@ -43,7 +43,7 @@ export const Axes = <PatientId extends string>({
         const isSelected = lane.laneId === selectedEntityId
         const isIndexPatient = lane.laneId === indexPatientId
 
-        const fontWeight = isFocused ? 800 : 600
+        const fontWeight = isFocused || isSelected || isIndexPatient ? 800 : 400
 
         const isEnabled = isFocused || isSelected || isIndexPatient || !isHideLaneDetails
 

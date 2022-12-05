@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 
-import { Button, darken, lighten, Paper, Typography, useTheme } from '@mui/material'
+import { Button, Paper, Typography, useTheme } from '@mui/material'
 
 import CloseIcon from '@mui/icons-material/Close'
 
@@ -15,7 +15,6 @@ import { ColorByColumnFn } from '../../color/hooks'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
 import { ColoredCircle } from '../../color/components/ColoredCircle'
 import { PatientId, PatientIdNone } from '../../data/patients'
-import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
 import { IndexPatientButton } from '../containers/IndexPatientButton'
 
 // https://mui.com/x/advanced-components/#license-key-installation
@@ -164,12 +163,11 @@ export const DataTable = ({
                   ...props.style,
                   color:
                     props.row.uid === indexPatientId
-                      ? theme.palette.mode === 'dark'
-                        ? darken(theme.entityColors.indexPatient, DARKENING_FACTOR)
-                        : lighten(theme.entityColors.indexPatient, LIGHTENING_FACTOR)
+                      ? theme.entityColors.indexPatient
                       : colorByColumn.type !== 'none'
                       ? colorByColumnFn(props.row)
                       : '',
+                  fontWeight: props.row.uid === indexPatientId || props.row.uid === selectedEntity ? 'bold' : 'normal',
                 }}
               />
             ),

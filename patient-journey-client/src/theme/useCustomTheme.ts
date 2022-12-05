@@ -1,6 +1,6 @@
 import { createTheme, darken, lighten, Theme } from '@mui/material'
 import { useAppSelector } from '../store'
-import { deepPurple, yellow, grey, pink } from '@mui/material/colors'
+import { yellow, grey, pink, red } from '@mui/material/colors'
 import { AppTheme } from './themeSlice'
 
 declare module '@mui/material/styles' {
@@ -64,7 +64,7 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
   })
 
 const LIGHT_SELECTION_COLOR = yellow[400]
-const DARK_SELECTION_COLOR = deepPurple[400]
+const DARK_SELECTION_COLOR = red['A200']
 
 const LIGHT_DEFAULT_COLOR = grey[400]
 const DARK_DEFAULT_COLOR = grey[600]
@@ -77,7 +77,7 @@ export const useCustomTheme = () =>
     return s.theme === 'light' ? lightTheme : darkTheme
   })
 
-export const LIGHTENING_FACTOR = 0.6
+export const LIGHTENING_FACTOR = 0.3
 export const DARKENING_FACTOR = 0.6
 
 export const createFocusColor = (theme: Theme, color: string) =>
