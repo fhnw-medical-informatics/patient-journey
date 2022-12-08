@@ -1,7 +1,6 @@
 import React, { useEffect, useCallback } from 'react'
 import {
   Button,
-  ButtonGroup,
   FormControl,
   FormControlLabel,
   Grid,
@@ -21,6 +20,7 @@ import { EventDataColumn } from '../../data/events'
 import { ColorByColumn, ColorByColumnNone, ColorByColumnOptionNone } from '../../color/colorSlice'
 import { doesContainColumn } from '../../data/columns'
 import { ColumnSortingState, ColumnSortingStateNeutral } from '../../data/sorting'
+import { ArrowDownward, ArrowUpward } from '@mui/icons-material'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -238,39 +238,39 @@ export const ControlPanel = ({
               <Typography variant="overline" display="block">
                 Sort lanes by
               </Typography>
-              <FormControl disabled={expandByColumn === TimelineColumnNone}>
-                <Select
-                  value={sortByState.type !== 'neutral' ? sortByState.column.name : TimelineColumnNone}
-                  onChange={handleChangeSortByColumn}
-                  size="small"
-                >
-                  <MenuItem value={TimelineColumnNone}>
-                    <i>{'Collapsed'}</i>
-                  </MenuItem>
-                  {availableSortColumns.map((column) => (
-                    <MenuItem key={column.name} value={column.name}>
-                      {column.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <ButtonGroup
-                size="small"
-                disabled={expandByColumn === TimelineColumnNone || sortByState.type === 'neutral'}
-              >
-                <Button
-                  onClick={() => handleChangeSortByDirection('asc')}
-                  variant={sortByState.type === 'asc' ? 'contained' : 'outlined'}
-                >
-                  ASC
-                </Button>
-                <Button
-                  onClick={() => handleChangeSortByDirection('desc')}
-                  variant={sortByState.type === 'desc' ? 'contained' : 'outlined'}
-                >
-                  DESC
-                </Button>
-              </ButtonGroup>
+              <Grid container alignItems="center">
+                <Grid item>
+                  <FormControl disabled={expandByColumn === TimelineColumnNone}>
+                    <Select
+                      value={sortByState.type !== 'neutral' ? sortByState.column.name : TimelineColumnNone}
+                      onChange={handleChangeSortByColumn}
+                      size="small"
+                    >
+                      <MenuItem value={TimelineColumnNone}>
+                        <i>{'Collapsed'}</i>
+                      </MenuItem>
+                      {availableSortColumns.map((column) => (
+                        <MenuItem key={column.name} value={column.name}>
+                          {column.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                {sortByState.type !== 'neutral' && (
+                  <Grid item>
+                    <Button
+                      onClick={() => handleChangeSortByDirection(sortByState.type === 'asc' ? 'desc' : 'asc')}
+                      variant="text"
+                      color="inherit"
+                      size="small"
+                      startIcon={sortByState.type === 'asc' ? <ArrowUpward /> : <ArrowDownward />}
+                    >
+                      {sortByState.type === 'asc' ? 'ASC' : 'DESC'}
+                    </Button>
+                  </Grid>
+                )}
+              </Grid>
             </Grid>
             <Grid item>
               <Typography variant="overline" display="block">
