@@ -9,6 +9,7 @@ import {
   setCursorPosition,
   setExpandByColumn,
   setShowFilteredOut,
+  setSortByColumn,
   setTimelineCluster,
   setViewByColumn,
   TimelineColumn,
@@ -33,6 +34,7 @@ import {
   useShowFilteredOut,
   useShowTimeGrid,
   useAllowInteraction,
+  useSortByColumn,
 } from '../hooks'
 import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
@@ -53,6 +55,7 @@ export const Timeline = React.memo(() => {
   const allowInteraction = useAllowInteraction()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
+  const sortByColumn = useSortByColumn()
   const activeColumns = useTimelineDataColumns()
   const eventDataColumns = useEventDataColumns()
   const patientDataColumns = usePatientDataColumns()
@@ -62,6 +65,7 @@ export const Timeline = React.memo(() => {
 
   const onSetViewByColumn = useCallback((column: TimelineColumn) => dispatch(setViewByColumn(column)), [dispatch])
   const onSetExpandByColumn = useCallback((column: TimelineColumn) => dispatch(setExpandByColumn(column)), [dispatch])
+  const onSetSortByColumn = useCallback((column: TimelineColumn) => dispatch(setSortByColumn(column)), [dispatch])
 
   const onSetTimelineCluster = useCallback(() => dispatch(setTimelineCluster()), [dispatch])
   const onSetShowFilteredOut = useCallback(() => dispatch(setShowFilteredOut()), [dispatch])
@@ -102,6 +106,8 @@ export const Timeline = React.memo(() => {
       onSetViewByColumn={onSetViewByColumn}
       expandByColumn={expandByColumn}
       onSetExpandByColumn={onSetExpandByColumn}
+      sortByColumn={sortByColumn}
+      onSetSortByColumn={onSetSortByColumn}
       cluster={cluster}
       onSetTimelineCluster={onSetTimelineCluster}
       showFilteredOut={showFilteredOut}

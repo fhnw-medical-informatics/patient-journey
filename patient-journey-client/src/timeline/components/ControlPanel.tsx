@@ -41,6 +41,8 @@ interface ControlPanelProps {
   onSetViewByColumn: (column: TimelineColumn) => void
   expandByColumn: TimelineColumn
   onSetExpandByColumn: (column: TimelineColumn) => void
+  sortByColumn: TimelineColumn
+  onSetSortByColumn: (column: TimelineColumn) => void
   cluster: boolean
   onSetTimelineCluster: () => void
   showFilteredOut: boolean
@@ -62,6 +64,8 @@ export const ControlPanel = ({
   onSetViewByColumn,
   expandByColumn,
   onSetExpandByColumn,
+  sortByColumn,
+  onSetSortByColumn,
   cluster,
   showTimeGrid,
   onToggleTimeGrid,
@@ -116,12 +120,25 @@ export const ControlPanel = ({
     }
   }, [onChangeColorByColumn, eventDataColumns, patientDataColumns, colorByColumn])
 
+  // Reset sortByColumn when availableColumns change
+  // TODO: Availabe columns are different for sort columns
+  useEffect(() => {
+    if (sortByColumn !== TimelineColumnNone && !doesContainColumn(availableColumns, sortByColumn)) {
+      onSetSortByColumn(TimelineColumnNone)
+    }
+  }, [onSetSortByColumn, sortByColumn, availableColumns])
+
   const handleChangeViewByColumn = (event: SelectChangeEvent) => {
     onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
 
   const handleChangeExpandByColumn = (event: SelectChangeEvent) => {
     onSetExpandByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
+  }
+
+  const handleChangeSortByColumn = (event: SelectChangeEvent) => {
+    // TODO: Availabe columns are different for sort columns
+    onSetSortByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
 
   const handleChangeColorByColumn = (event: SelectChangeEvent) => {
@@ -180,6 +197,30 @@ export const ControlPanel = ({
                   <MenuItem value={TimelineColumnNone}>
                     <i>{'Collapsed'}</i>
                   </MenuItem>
+                  {availableColumns
+                    .filter((column) => ['pid', 'boolean', 'string', 'category'].includes(column.type))
+                    .map((column) => (
+                      <MenuItem key={column.name} value={column.name}>
+                        {column.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <Typography variant="overline" display="block">
+                Sort lanes by
+              </Typography>
+              <FormControl disabled={expandByColumn === TimelineColumnNone}>
+                <Select
+                  value={sortByColumn !== TimelineColumnNone ? sortByColumn.name : TimelineColumnNone}
+                  onChange={handleChangeSortByColumn}
+                  size="small"
+                >
+                  <MenuItem value={TimelineColumnNone}>
+                    <i>{'Collapsed'}</i>
+                  </MenuItem>
+                  {/* TODO: Availabe columns are different for sort columns */}
                   {availableColumns
                     .filter((column) => ['pid', 'boolean', 'string', 'category'].includes(column.type))
                     .map((column) => (

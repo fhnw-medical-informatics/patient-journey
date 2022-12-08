@@ -28,6 +28,8 @@ interface TimelineProps {
   onSetViewByColumn: (column: TimelineColumn) => void
   expandByColumn: TimelineColumn
   onSetExpandByColumn: (column: TimelineColumn) => void
+  sortByColumn: TimelineColumn
+  onSetSortByColumn: (column: TimelineColumn) => void
   cluster: boolean
   onSetTimelineCluster: () => void
   showFilteredOut: boolean
@@ -55,6 +57,8 @@ export const Timeline = ({
   onSetViewByColumn,
   expandByColumn,
   onSetExpandByColumn,
+  sortByColumn,
+  onSetSortByColumn,
   cluster,
   onSetTimelineCluster,
   showFilteredOut,
@@ -81,6 +85,8 @@ export const Timeline = ({
         onSetViewByColumn={onSetViewByColumn}
         expandByColumn={expandByColumn}
         onSetExpandByColumn={onSetExpandByColumn}
+        sortByColumn={sortByColumn}
+        onSetSortByColumn={onSetSortByColumn}
         cluster={cluster}
         showTimeGrid={showTimeGrid}
         onToggleTimeGrid={onToggleTimeGrid}
