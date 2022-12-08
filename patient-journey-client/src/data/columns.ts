@@ -9,7 +9,7 @@ export interface DataColumn<T> {
 
 export const GENERIC_COLUMN_TYPES = ['string', 'boolean', 'number', 'date', 'timestamp', 'category'] as const
 
-const isEmpty = (s: string) => s.trim().length === 0
+const isEmpty = (s: string) => !s || s.trim().length === 0
 
 export const stringToNumber = (s: string) => {
   // treat empty as NaN (rather than 0)
