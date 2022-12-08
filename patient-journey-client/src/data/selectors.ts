@@ -8,7 +8,7 @@ import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dat
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { FilterColumn, filterReducer } from './filtering'
 import { Patient, PatientDataColumn, PatientDataColumnType, PatientId, PatientIdNone } from './patients'
-import { Entity, EntityIdNone } from './entities'
+import { Entity, EntityId, EntityIdNone } from './entities'
 import { LoadingProgress } from './loading'
 
 export const selectData = (s: RootState): DataStateLoadingComplete => {
@@ -83,9 +83,16 @@ const selectEventData = createSelector(selectData, (data) => data.eventData)
 
 export const selectEventDataRows = createSelector(selectEventData, (eventData) => eventData.allEntities)
 
-const entitiesToMap = (entities: ReadonlyArray<Entity>) => new Map(entities.map((e) => [e.uid, e]))
+export const selectIndexPatientEvents = createSelector(
+  selectIndexPatientId,
+  selectEventDataRows,
+  (indexPatientId, eventDataRows) =>
+    eventDataRows.filter((e) => e.pid === indexPatientId) as ReadonlyArray<PatientJourneyEvent>
+)
 
-const selectPatientDataRowMap = createSelector(selectPatientDataRows, entitiesToMap)
+const entitiesToMap = (entities: ReadonlyArray<Entity>) => new Map<EntityId, Entity>(entities.map((e) => [e.uid, e]))
+
+export const selectPatientDataRowMap = createSelector(selectPatientDataRows, entitiesToMap)
 const selectEventDataRowMap = createSelector(selectEventDataRows, entitiesToMap)
 
 export const selectActiveData = createSelector(
@@ -132,20 +139,31 @@ export const selectFocusEntity = createSelector(selectHoveredEntity, selectSelec
   hovered.type !== 'none' ? hovered : selected
 )
 
-const selectActiveEntity = (view: ActiveDataViewType, entity: FocusEntity) => {
+const selectActiveEntity = (eventMap: Map<EntityId, Entity>, view: ActiveDataViewType, entity: FocusEntity) => {
   if ((view === 'patients' && entity.type === 'patients') || (view === 'events' && entity.type === 'events')) {
     return entity.uid
+  } else if (view === 'patients' && entity.type === 'events') {
+    return (eventMap.get(entity.uid) as PatientJourneyEvent)?.pid ?? PatientIdNone
   } else {
     return EntityIdNone
   }
 }
 
-export const selectActiveSelectedEntity = createSelector(selectDataView, selectSelectedEntity, selectActiveEntity)
-export const selectActiveSelectedEventEntity = createSelector(selectSelectedEntity, (entity) =>
-  selectActiveEntity('events', entity)
+export const selectActiveSelectedEntity = createSelector(
+  selectEventDataRowMap,
+  selectDataView,
+  selectSelectedEntity,
+  selectActiveEntity
 )
-export const selectActiveHoveredEventEntity = createSelector(selectHoveredEntity, (entity) =>
-  selectActiveEntity('events', entity)
+export const selectActiveSelectedEventEntity = createSelector(
+  selectEventDataRowMap,
+  selectSelectedEntity,
+  (eventMap, entity) => selectActiveEntity(eventMap, 'events', entity)
+)
+export const selectActiveHoveredEventEntity = createSelector(
+  selectEventDataRowMap,
+  selectHoveredEntity,
+  (eventMap, entity) => selectActiveEntity(eventMap, 'events', entity)
 )
 
 const selectPatientDataColumnType = (s: RootState, columnType: PatientDataColumnType) => columnType
@@ -243,7 +261,7 @@ const selectFilteredEventsPIDs = createSelector(
 )
 
 // Only select patients, that are references in the currently filtered events
-const selectCrossFilteredPatientData = createSelector(
+export const selectCrossFilteredPatientData = createSelector(
   selectFilteredPatientData,
   selectFilteredEventsPIDs,
   (filteredPatientData, filteredEventPIDSet) =>

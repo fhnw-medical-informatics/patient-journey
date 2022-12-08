@@ -1,11 +1,21 @@
+import { useTheme } from '@mui/material'
 import React from 'react'
 
 import { CustomLayer, CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
-import { useEventDataPidValues, useFocusEntity, useIndexPatientId, useSplitPlaneResizing } from '../../data/hooks'
+import { useColor } from '../../color/hooks'
+import { Entity } from '../../data/entities'
+import {
+  useEventDataPidValues,
+  useHoveredEntity,
+  useIndexPatientId,
+  usePatientDataRowAsMap,
+  useSelectedEntity,
+  useSplitPlaneResizing,
+} from '../../data/hooks'
 import { PatientIdNone } from '../../data/patients'
 
 import { TimelineJourneys as TimelineJourneysComponent } from '../components/TimelineJourneys'
-import { useActiveDataAsEventsWithoutColor, useExpandByColumn } from '../hooks'
+import { useActiveDataAsEventsForJourney, useExpandByColumn } from '../hooks'
 import { TimelineColumnNone } from '../timelineSlice'
 
 // TODO: Type this properly to avoid injecting events with pid
@@ -16,12 +26,20 @@ import { TimelineColumnNone } from '../timelineSlice'
 const TimelineJourneys = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>(
   props: CustomLayerProps<EID, PatientId, E>
 ) => {
+  const theme = useTheme()
+
+  const { colorByColumnFn } = useColor('events')
+  const { colorByColumnFn: colorByColumnPatientsFn } = useColor('patients')
+
   const isPaneResizing = useSplitPlaneResizing()
   const expandByColumn = useExpandByColumn()
-  const events = useActiveDataAsEventsWithoutColor()
-  const focusEntity = useFocusEntity()
+  const events = useActiveDataAsEventsForJourney(colorByColumnFn, theme.entityColors.filteredOut)
+  const hoveredEntity = useHoveredEntity()
+  const selectedEntity = useSelectedEntity()
   const indexPatientId = useIndexPatientId()
   const eventDataPidValueFn = useEventDataPidValues()
+
+  const patientDataAsMap = usePatientDataRowAsMap() as Map<PatientId, Entity>
 
   return (
     <TimelineJourneysComponent
@@ -29,14 +47,24 @@ const TimelineJourneys = <EID extends string, PatientId extends string, E extend
       isPaneResizing={isPaneResizing}
       isExpandedByPatientId={expandByColumn !== TimelineColumnNone && expandByColumn.type === 'pid'}
       eventsWithPID={events}
-      focusPatientId={
-        focusEntity.type === 'patients'
-          ? focusEntity.uid
-          : focusEntity.type === 'events'
-          ? eventDataPidValueFn(focusEntity.uid)
+      hoveredPatientId={
+        hoveredEntity.type === 'patients'
+          ? hoveredEntity.uid
+          : hoveredEntity.type === 'events'
+          ? eventDataPidValueFn(hoveredEntity.uid)
+          : PatientIdNone
+      }
+      // TODO: REmove duplicate code
+      selectedPatientId={
+        selectedEntity.type === 'patients'
+          ? selectedEntity.uid
+          : selectedEntity.type === 'events'
+          ? eventDataPidValueFn(selectedEntity.uid)
           : PatientIdNone
       }
       indexPatientId={indexPatientId}
+      colorByColumnFn={colorByColumnPatientsFn}
+      patientMap={patientDataAsMap}
     />
   )
 }

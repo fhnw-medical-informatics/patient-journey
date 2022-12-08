@@ -14,6 +14,9 @@ import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { resizeCanvas, TimelineCanvasMarks } from './TimelineCanvasMarks'
 import { TimelineEventWithPID } from '../model'
 import { useCanvas } from '../hooks'
+import { ColorByColumnFn } from '../../color/hooks'
+import { Entity } from '../../data/entities'
+import { createFocusColor } from '../../theme/useCustomTheme'
 
 type Journey = {
   color: string
@@ -32,8 +35,11 @@ interface TimelineJourneysProps<EID extends string, PatientId extends string, E 
   isPaneResizing: boolean
   isExpandedByPatientId: boolean
   eventsWithPID: ReadonlyArray<TimelineEventWithPID<any, any>>
-  focusPatientId: PatientId
+  hoveredPatientId: PatientId
+  selectedPatientId: PatientId
   indexPatientId: PatientId
+  colorByColumnFn: ColorByColumnFn
+  patientMap: Map<PatientId, Entity>
 }
 
 export const TimelineJourneys = <EID extends string, PatientId extends string, E extends TimelineEvent<EID, PatientId>>(
@@ -47,8 +53,11 @@ export const TimelineJourneys = <EID extends string, PatientId extends string, E
     yScale,
     isExpandedByPatientId,
     eventsWithPID,
-    focusPatientId,
+    hoveredPatientId,
+    selectedPatientId,
     indexPatientId,
+    colorByColumnFn,
+    patientMap,
   } = props
 
   const { classes } = useStyles()
@@ -69,29 +78,53 @@ export const TimelineJourneys = <EID extends string, PatientId extends string, E
         pidGroups.get(pid)?.map((event) => ({ x: xScale(event.startTimeMillis), y: yScale(event.laneId) ?? 0 })) ?? [],
     })
 
-    const getEventsForPID = (pid: PatientId, color: string): TimelineEvent<EID, PatientId>[] =>
-      pidGroups.get(pid)?.map((event) => ({ ...event, color })) ?? []
+    const getEventsForPID = (pid: PatientId): TimelineEvent<EID, PatientId>[] => pidGroups.get(pid) ?? []
 
-    // TODO: Render indexPatient journey with special color
-    if (pidGroups && pidGroups.has(focusPatientId)) {
-      patientJourneys.push(getJourneyForPID(focusPatientId, theme.entityColors.journeyStroke))
-      patientJourneyEvents.push(...getEventsForPID(focusPatientId, theme.entityColors.journeyStroke))
+    // Extract the hovered patient's journey and color
+    // the journey lane based on it's selection or index status
+    if (pidGroups && pidGroups.has(hoveredPatientId)) {
+      // TODO: Sync this logic with TimelineLanes.tsx
+      const focusPatientColor =
+        hoveredPatientId === indexPatientId
+          ? theme.entityColors.indexPatient
+          : hoveredPatientId === selectedPatientId
+          ? theme.entityColors.selected
+          : colorByColumnFn(patientMap.get(hoveredPatientId) as Entity)
+
+      const augmentedColor = createFocusColor(theme, focusPatientColor)
+
+      patientJourneys.push(getJourneyForPID(hoveredPatientId, augmentedColor))
+      patientJourneyEvents.push(...getEventsForPID(hoveredPatientId))
     }
 
-    if (pidGroups && pidGroups.has(indexPatientId)) {
+    // Extract the index patient's journey, if it's not the same as the hovered patient
+    if (pidGroups && hoveredPatientId !== indexPatientId && pidGroups.has(indexPatientId)) {
       patientJourneys.push(getJourneyForPID(indexPatientId, theme.entityColors.indexPatient))
-      patientJourneyEvents.push(...getEventsForPID(indexPatientId, theme.entityColors.indexPatient))
+      patientJourneyEvents.push(...getEventsForPID(indexPatientId))
+    }
+
+    // Extract the selected patient's journey, if it's not the same as the hovered or index patient
+    if (
+      pidGroups &&
+      hoveredPatientId !== selectedPatientId &&
+      indexPatientId !== selectedPatientId &&
+      pidGroups.has(selectedPatientId)
+    ) {
+      patientJourneys.push(getJourneyForPID(selectedPatientId, theme.entityColors.selected))
+      patientJourneyEvents.push(...getEventsForPID(selectedPatientId))
     }
 
     return [patientJourneys, patientJourneyEvents]
   }, [
+    theme,
     xScale,
     yScale,
     eventsWithPID,
-    focusPatientId,
+    hoveredPatientId,
+    selectedPatientId,
     indexPatientId,
-    theme.entityColors.journeyStroke,
-    theme.entityColors.indexPatient,
+    colorByColumnFn,
+    patientMap,
   ])
 
   // Draw the marks

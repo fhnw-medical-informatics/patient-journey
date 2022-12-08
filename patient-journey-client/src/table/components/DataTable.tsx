@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 
-import { Button, darken, lighten, Paper, Typography, useTheme } from '@mui/material'
+import { Button, Paper, Typography, useTheme } from '@mui/material'
 
 import CloseIcon from '@mui/icons-material/Close'
 
@@ -15,7 +15,6 @@ import { ColorByColumnFn } from '../../color/hooks'
 import { ColumnSortingState, stableSort } from '../../data/sorting'
 import { ColoredCircle } from '../../color/components/ColoredCircle'
 import { PatientId, PatientIdNone } from '../../data/patients'
-import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
 import { IndexPatientButton } from '../containers/IndexPatientButton'
 
 // https://mui.com/x/advanced-components/#license-key-installation
@@ -113,7 +112,7 @@ export const DataTable = ({
   const sortedRows = useMemo(() => stableSort(rows, sorting).map((row) => ({ ...row, id: row.uid })), [rows, sorting])
 
   return (
-    <Paper className={classes.root}>
+    <Paper variant="outlined" className={classes.root}>
       <div className={classes.maxed}>
         <DataGridPro
           rows={sortedRows}
@@ -162,16 +161,13 @@ export const DataTable = ({
                 onMouseLeave={() => onEntityHover(EntityIdNone)}
                 style={{
                   ...props.style,
-                  backgroundColor:
-                    props.row.pid === indexPatientId
-                      ? theme.palette.mode === 'dark'
-                        ? darken(theme.entityColors.indexPatient, DARKENING_FACTOR)
-                        : lighten(theme.entityColors.indexPatient, LIGHTENING_FACTOR)
+                  color:
+                    props.row.uid === indexPatientId
+                      ? theme.entityColors.indexPatient
                       : colorByColumn.type !== 'none'
-                      ? theme.palette.mode === 'dark'
-                        ? darken(colorByColumnFn(props.row), DARKENING_FACTOR)
-                        : lighten(colorByColumnFn(props.row), LIGHTENING_FACTOR)
+                      ? colorByColumnFn(props.row)
                       : '',
+                  fontWeight: props.row.uid === indexPatientId || props.row.uid === selectedEntity ? 'bold' : 'normal',
                 }}
               />
             ),
@@ -205,17 +201,14 @@ export const DataTable = ({
           }}
           sx={{
             '& .MuiDataGrid-row.Mui-selected': {
-              backgroundColor: `${theme.entityColors.selected} !important`, // override colored background from row
+              backgroundColor: 'transparent !important',
+              color: `${theme.entityColors.selected} !important`, // override colored background from row
             },
             '& .MuiDataGrid-row.Mui-selected:hover': {
-              backgroundColor: `${theme.entityColors.selected} !important`,
+              backgroundColor: `${theme.entityColors.default} !important`,
             },
             '& .MuiDataGrid-row:hover': {
-              backgroundColor: `${
-                theme.palette.mode === 'dark'
-                  ? darken(theme.entityColors.selected, DARKENING_FACTOR)
-                  : lighten(theme.entityColors.selected, LIGHTENING_FACTOR)
-              } !important`,
+              backgroundColor: `${theme.entityColors.default} !important`,
             },
             '& .MuiDataGrid-cell:focus, .MuiDataGrid-columnHeader:focus, .MuiDataGrid-columnHeader:focus-within': {
               outline: 'none',

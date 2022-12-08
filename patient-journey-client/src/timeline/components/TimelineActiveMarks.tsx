@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react'
-import { darken, lighten, useTheme } from '@mui/material'
+import { useTheme } from '@mui/material'
 
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { EntityId, EntityIdNone } from '../../data/entities'
 import { calcMarkSize, SvgMark } from './SvgMark'
-import { DARKENING_FACTOR, LIGHTENING_FACTOR } from '../../theme/useCustomTheme'
+import { createFocusColor } from '../../theme/useCustomTheme'
+import { PatientJourneyEvent } from '../../data/events'
 
 // drawing active mark slightly bigger, to pronounce interactivity (micro-animate the size-up?)
 const TIMELINE_MARK_INTERACTIVITY_GROWTH_FACTOR = 1.2
@@ -16,6 +17,7 @@ interface TimelineActiveMarksProps<
 > extends CustomLayerProps<EID, PatientId, E> {
   selectedEvent: TimelineEvent<EID, PatientId> | undefined
   hoveredEvent: TimelineEvent<EID, PatientId> | undefined
+  indexPatientEvents: ReadonlyArray<PatientJourneyEvent>
   selectedColor: string
   onHover: (eventId: EntityId) => void
   onSelect: (eventId: EntityId) => void
@@ -33,6 +35,7 @@ export const TimelineActiveMarks = <
   selectedEvent,
   hoveredEvent,
   selectedColor,
+  indexPatientEvents,
   onHover,
   onSelect,
 }: TimelineActiveMarksProps<EID, PatientId, E>) => {
@@ -44,7 +47,7 @@ export const TimelineActiveMarks = <
     [laneDisplayMode, laneHeight]
   )
 
-  const createCirce = (event: TimelineEvent<EID, PatientId>, color: string) => {
+  const createCirce = (event: TimelineEvent<EID, PatientId>, strokeColor: string) => {
     const x = Math.round(xScale(event.startTimeMillis))
     const y = Math.round(laneDisplayMode === 'collapsed' ? height / 2 : yScale(event.laneId) ?? height / 2)
 
@@ -52,8 +55,8 @@ export const TimelineActiveMarks = <
       <g transform={`translate(${x}, ${y})`}>
         <SvgMark
           size={markSize}
-          color={color}
-          stroke={theme.palette.mode === 'dark' ? lighten(color, LIGHTENING_FACTOR) : darken(color, DARKENING_FACTOR)}
+          color={event.color ?? theme.entityColors.default}
+          stroke={strokeColor}
           onClick={() => onSelect(event.eventId as EntityId)}
           onMouseEnter={() => onHover(event.eventId as EntityId)}
           onMouseLeave={() => onHover(EntityIdNone)}
@@ -64,14 +67,23 @@ export const TimelineActiveMarks = <
 
   return (
     <>
-      {hoveredEvent &&
-        createCirce(
-          hoveredEvent,
-          theme.palette.mode === 'dark'
-            ? darken(selectedColor, DARKENING_FACTOR)
-            : lighten(selectedColor, LIGHTENING_FACTOR)
-        )}
-      {selectedEvent && createCirce(selectedEvent, selectedColor)}
+      {selectedEvent && selectedEvent === hoveredEvent ? (
+        <>{createCirce(selectedEvent, createFocusColor(theme, selectedColor))}</>
+      ) : (
+        <>
+          {hoveredEvent &&
+            createCirce(
+              hoveredEvent,
+              createFocusColor(
+                theme,
+                indexPatientEvents.findIndex((e) => e.eid === hoveredEvent.eventId) !== -1
+                  ? theme.entityColors.indexPatient
+                  : hoveredEvent.color ?? theme.entityColors.default
+              )
+            )}
+          {selectedEvent && createCirce(selectedEvent, selectedColor)}
+        </>
+      )}
     </>
   )
 }

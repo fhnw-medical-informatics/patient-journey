@@ -5,12 +5,13 @@ interface Props {
   readonly y: number
   readonly color?: string
   readonly isFocused?: boolean
+  readonly opacity?: number
 }
 
-export const Axis = ({ y, color, isFocused }: Props) => {
+export const Axis = ({ y, color, isFocused, opacity = 1 }: Props) => {
   const theme = useTimelineTheme()
   const defaultStrokeWidth = theme.lane.middleLineWidth
-  const strokeWidth = isFocused ? defaultStrokeWidth + 1 : defaultStrokeWidth
+  const strokeWidth = isFocused ? defaultStrokeWidth * 3 : defaultStrokeWidth
   return (
     <line
       x1={0}
@@ -20,6 +21,7 @@ export const Axis = ({ y, color, isFocused }: Props) => {
       style={{
         stroke: color ?? theme.lane.middleLineColor,
         strokeWidth,
+        opacity,
       }}
     />
   )

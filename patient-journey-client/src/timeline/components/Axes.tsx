@@ -3,11 +3,14 @@ import { ScaleBand } from 'd3-scale'
 import { TimelineLane, useTimelineTheme } from 'react-svg-timeline'
 import { Axis } from './Axis'
 import { useTheme } from '@mui/material'
+import { createFocusColor } from '../../theme/useCustomTheme'
 
 const MAX_LABEL_FONT_SIZE = 18
 
 export interface AxesProps<PatientId extends string> {
   readonly focusLaneId: PatientId
+  readonly selectedEntityId: PatientId
+  readonly indexPatientId: PatientId
   readonly lanes: ReadonlyArray<TimelineLane<PatientId>>
   readonly yScale: ScaleBand<PatientId>
   readonly isHideLaneDetails: boolean
@@ -15,11 +18,13 @@ export interface AxesProps<PatientId extends string> {
 
 export const Axes = <PatientId extends string>({
   focusLaneId,
+  selectedEntityId,
+  indexPatientId,
   lanes,
   yScale,
   isHideLaneDetails,
 }: AxesProps<PatientId>) => {
-  const isDarkMode = useTheme().palette.mode === 'dark'
+  const muiTheme = useTheme()
   const theme = useTimelineTheme()
 
   // TODO: Improve font handling
@@ -33,32 +38,43 @@ export const Axes = <PatientId extends string>({
     <>
       {lanes.map((lane: TimelineLane<PatientId>) => {
         const y = yScale(lane.laneId)!
+
         const isFocused = lane.laneId === focusLaneId
-        const fontWeight = isFocused ? 800 : 600
-        const opacity = isFocused ? 0.8 : 0.4
-        const isEnabled = isFocused || !isHideLaneDetails
+        const isSelected = lane.laneId === selectedEntityId
+        const isIndexPatient = lane.laneId === indexPatientId
+
+        const fontWeight = isFocused || isSelected || isIndexPatient ? 800 : 400
+
+        const isEnabled = isFocused || isSelected || isIndexPatient || !isHideLaneDetails
+
+        const color = isIndexPatient
+          ? muiTheme.entityColors.indexPatient
+          : isSelected
+          ? muiTheme.entityColors.selected
+          : lane.color ?? theme.lane.middleLineColor
+        const augmentedColor = isFocused ? createFocusColor(muiTheme, color) : color
+
         return (
           isEnabled && (
             <g key={`axis-${lane.laneId}`}>
-              <Axis y={y} color={lane.color} isFocused={isFocused} />
+              <Axis y={y} color={augmentedColor} isFocused={isFocused || isIndexPatient || isSelected} />
               <rect
                 x={labelXOffset - 3}
                 width={textBackgroundRectWidth}
                 height={theme.lane.labelFontSize}
                 y={y - theme.lane.labelFontSize / 2}
-                fill={isDarkMode ? 'rgb(30,30,30)' : theme.base.backgroundColor}
+                fill={muiTheme.palette.background.paper}
               ></rect>
               <text
                 style={{
                   fontFamily: theme.base.fontFamily,
                   fontWeight,
-                  opacity,
                   dominantBaseline: 'central',
                 }}
                 fontSize={fontSize}
                 x={labelXOffset}
                 y={y}
-                fill={lane.color || theme.lane.labelColor}
+                fill={augmentedColor}
               >
                 {lane.label}
               </text>
