@@ -6,7 +6,7 @@ import { stringToMillis } from '../data/columns'
 import { FocusEntity } from '../data/dataSlice'
 import { Entity, EntityId } from '../data/entities'
 import { EventDataColumn, PatientJourneyEvent } from '../data/events'
-import { PatientId, PatientIdNone } from '../data/patients'
+import { Patient, PatientId, PatientIdNone } from '../data/patients'
 import {
   selectActiveSelectedEntity,
   selectEventDataColumns,
@@ -20,7 +20,7 @@ import {
   selectSelectedEntity,
   selectPatientDataColumns,
 } from '../data/selectors'
-import { ColumnSortingState } from '../data/sorting'
+import { ColumnSortingState, stableSort } from '../data/sorting'
 import { RootState } from '../store'
 import { TimelineEventWithPID } from './model'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -275,12 +275,21 @@ const selectColorByColumn = (
 
 export const selectFilteredEventDataAsTimelineLanes = createSelector(
   selectExpandByColumn,
+  selectSortByState,
   selectCrossFilteredPatientData,
   selectCrossFilteredEventDataWithFilteredOutEvents,
   selectLaneColorByColumnFn,
   selectColorByCategoryFn,
   selectColorByColumn,
-  (expandByColumn, activePatientData, activeEventData, colorByColumnFn, colorByCategoryFn, colorByColumn) => {
+  (
+    expandByColumn,
+    sortByState,
+    activePatientData,
+    activeEventData,
+    colorByColumnFn,
+    colorByCategoryFn,
+    colorByColumn
+  ) => {
     if (expandByColumn === TimelineColumnNone) {
       // No expand by column, so we just have one lane
       return []
@@ -288,7 +297,7 @@ export const selectFilteredEventDataAsTimelineLanes = createSelector(
       // Expand by patient ID, so we have one lane per patient
       // use patient entities so we can color the lanes if a patient
       // column is select as color by column
-      return activePatientData.map((patient) => ({
+      return (stableSort(activePatientData, sortByState) as Patient[]).map((patient) => ({
         laneId: patient.pid,
         label: patient.pid, // TODO: Proper label
         color: colorByColumn !== ColorByColumnNone ? colorByColumnFn(patient) : undefined,
