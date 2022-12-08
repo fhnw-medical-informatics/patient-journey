@@ -19,6 +19,7 @@ import {
   selectHoveredEntityLaneId,
   selectSelectedEntityLaneId,
   selectFilteredEventDataAsTimelineEventsForJourney,
+  selectSortByColumn,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -30,6 +31,8 @@ export const useAllowInteraction = () => useAppSelector(selectAllowInteraction)
 export const useViewByColumn = () => useAppSelector(selectViewByColumn)
 
 export const useExpandByColumn = () => useAppSelector(selectExpandByColumn)
+
+export const useSortByColumn = () => useAppSelector(selectSortByColumn)
 
 export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
 

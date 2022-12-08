@@ -35,6 +35,8 @@ export const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.v
 
 export const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expandByColumn
 
+export const selectSortByColumn = (s: RootState): TimelineColumn => s.timeline.sortByColumn
+
 // https://redux.js.org/usage/deriving-data-selectors#createselector-behavior
 const selectColorByColumnFn = (
   s: RootState,

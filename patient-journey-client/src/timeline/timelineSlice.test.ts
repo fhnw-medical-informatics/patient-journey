@@ -1,6 +1,7 @@
 import {
   setViewByColumn,
   setExpandByColumn,
+  setSortByColumn,
   setTimelineCluster,
   setCursorPosition,
   resetCursorPosition,
@@ -49,6 +50,23 @@ describe('Timeline Slice', () => {
 
     store.dispatch(setExpandByColumn(testColumn))
     expect(getExpandByColumn()).toEqual(testColumn)
+  })
+
+  it('handles setSortByColumn action', async () => {
+    const store = createStore()
+
+    const getSortByColumn = () => store.getState().timeline.sortByColumn
+
+    expect(getSortByColumn()).toEqual(TimelineColumnNone)
+
+    const testColumn: TimelineColumn = {
+      name: 'Col_1',
+      type: 'string',
+      index: 0,
+    }
+
+    store.dispatch(setSortByColumn(testColumn))
+    expect(getSortByColumn()).toEqual(testColumn)
   })
 
   it('handles setTimelineCluster action', async () => {
