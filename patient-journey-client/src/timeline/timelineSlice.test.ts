@@ -52,6 +52,31 @@ describe('Timeline Slice', () => {
     expect(getExpandByColumn()).toEqual(testColumn)
   })
 
+  it('resets sortByColumn, when setExpandByColumn action is called', async () => {
+    const store = createStore()
+
+    const getExpandByColumn = () => store.getState().timeline.expandByColumn
+    const getSortByColumn = () => store.getState().timeline.sortByColumn
+
+    expect(getExpandByColumn()).toEqual(TimelineColumnNone)
+    expect(getSortByColumn()).toEqual(TimelineColumnNone)
+
+    const testColumn: TimelineColumn = {
+      name: 'Col_1',
+      type: 'string',
+      index: 0,
+    }
+
+    store.dispatch(setExpandByColumn(testColumn))
+    store.dispatch(setSortByColumn(testColumn))
+    expect(getExpandByColumn()).toEqual(testColumn)
+    expect(getSortByColumn()).toEqual(testColumn)
+
+    store.dispatch(setExpandByColumn(TimelineColumnNone))
+    expect(getExpandByColumn()).toEqual(TimelineColumnNone)
+    expect(getSortByColumn()).toEqual(TimelineColumnNone)
+  })
+
   it('handles setSortByColumn action', async () => {
     const store = createStore()
 
@@ -65,8 +90,26 @@ describe('Timeline Slice', () => {
       index: 0,
     }
 
+    store.dispatch(setExpandByColumn(testColumn))
     store.dispatch(setSortByColumn(testColumn))
     expect(getSortByColumn()).toEqual(testColumn)
+  })
+
+  it('only sets sortByColumn, when expandByColumn is set', async () => {
+    const store = createStore()
+
+    const getSortByColumn = () => store.getState().timeline.sortByColumn
+
+    expect(getSortByColumn()).toEqual(TimelineColumnNone)
+
+    const testColumn: TimelineColumn = {
+      name: 'Col_1',
+      type: 'string',
+      index: 0,
+    }
+
+    store.dispatch(setSortByColumn(testColumn))
+    expect(getSortByColumn()).toEqual(TimelineColumnNone)
   })
 
   it('handles setTimelineCluster action', async () => {

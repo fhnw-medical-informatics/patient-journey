@@ -43,9 +43,12 @@ const timelineSlice = createSlice({
     },
     setExpandByColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
       state.expandByColumn = action.payload
+      state.sortByColumn = TimelineColumnNone
     },
     setSortByColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
-      state.sortByColumn = action.payload
+      if (state.expandByColumn !== TimelineColumnNone) {
+        state.sortByColumn = action.payload
+      }
     },
     setTimelineCluster: (state: Draft<TimelineState>) => {
       state.cluster = !state.cluster
