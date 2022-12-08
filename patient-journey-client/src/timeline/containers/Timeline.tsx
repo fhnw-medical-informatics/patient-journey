@@ -9,7 +9,7 @@ import {
   setCursorPosition,
   setExpandByColumn,
   setShowFilteredOut,
-  setSortByColumn,
+  setSortByState,
   setTimelineCluster,
   setViewByColumn,
   TimelineColumn,
@@ -28,7 +28,7 @@ import {
   useShowFilteredOut,
   useShowTimeGrid,
   useAllowInteraction,
-  useSortByColumn,
+  useSortByState,
   useTimelineDataColumns,
   useTimelineSortDataColumns,
 } from '../hooks'
@@ -36,6 +36,7 @@ import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
 import { useTheme } from '@mui/material'
 import { EntityIdNone } from '../../data/entities'
+import { ColumnSortingState } from '../../data/sorting'
 
 export const Timeline = React.memo(() => {
   const theme = useTheme()
@@ -51,7 +52,7 @@ export const Timeline = React.memo(() => {
   const allowInteraction = useAllowInteraction()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
-  const sortByColumn = useSortByColumn()
+  const sortByState = useSortByState()
   const activeColumns = useTimelineDataColumns()
   const sortColumns = useTimelineSortDataColumns()
   const eventDataColumns = useEventDataColumns()
@@ -62,7 +63,10 @@ export const Timeline = React.memo(() => {
 
   const onSetViewByColumn = useCallback((column: TimelineColumn) => dispatch(setViewByColumn(column)), [dispatch])
   const onSetExpandByColumn = useCallback((column: TimelineColumn) => dispatch(setExpandByColumn(column)), [dispatch])
-  const onSetSortByColumn = useCallback((column: TimelineColumn) => dispatch(setSortByColumn(column)), [dispatch])
+  const onSetSortByState = useCallback(
+    (sortState: ColumnSortingState) => dispatch(setSortByState(sortState)),
+    [dispatch]
+  )
 
   const onSetTimelineCluster = useCallback(() => dispatch(setTimelineCluster()), [dispatch])
   const onSetShowFilteredOut = useCallback(() => dispatch(setShowFilteredOut()), [dispatch])
@@ -103,8 +107,8 @@ export const Timeline = React.memo(() => {
       onSetViewByColumn={onSetViewByColumn}
       expandByColumn={expandByColumn}
       onSetExpandByColumn={onSetExpandByColumn}
-      sortByColumn={sortByColumn}
-      onSetSortByColumn={onSetSortByColumn}
+      sortByState={sortByState}
+      onSetSortByState={onSetSortByState}
       availableSortColumns={sortColumns}
       cluster={cluster}
       onSetTimelineCluster={onSetTimelineCluster}

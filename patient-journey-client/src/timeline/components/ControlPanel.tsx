@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import {
+  Button,
+  ButtonGroup,
   FormControl,
   FormControlLabel,
   Grid,
@@ -18,6 +20,7 @@ import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
 import { ColorByColumn, ColorByColumnNone, ColorByColumnOptionNone } from '../../color/colorSlice'
 import { doesContainColumn } from '../../data/columns'
+import { ColumnSortingState, ColumnSortingStateNeutral } from '../../data/sorting'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -41,8 +44,8 @@ interface ControlPanelProps {
   onSetViewByColumn: (column: TimelineColumn) => void
   expandByColumn: TimelineColumn
   onSetExpandByColumn: (column: TimelineColumn) => void
-  sortByColumn: TimelineColumn
-  onSetSortByColumn: (column: TimelineColumn) => void
+  sortByState: ColumnSortingState
+  onSetSortByState: (state: ColumnSortingState) => void
   availableSortColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   cluster: boolean
   onSetTimelineCluster: () => void
@@ -65,9 +68,9 @@ export const ControlPanel = ({
   onSetViewByColumn,
   expandByColumn,
   onSetExpandByColumn,
-  sortByColumn,
+  sortByState,
   availableSortColumns,
-  onSetSortByColumn,
+  onSetSortByState,
   cluster,
   showTimeGrid,
   onToggleTimeGrid,
@@ -122,12 +125,12 @@ export const ControlPanel = ({
     }
   }, [onChangeColorByColumn, eventDataColumns, patientDataColumns, colorByColumn])
 
-  // Reset sortByColumn when availableSortColumns change
+  // Reset sortByState when availableSortColumns change
   useEffect(() => {
-    if (sortByColumn !== TimelineColumnNone && !doesContainColumn(availableSortColumns, sortByColumn)) {
-      onSetSortByColumn(TimelineColumnNone)
+    if (sortByState.type !== 'neutral' && !doesContainColumn(availableSortColumns, sortByState.column)) {
+      onSetSortByState(ColumnSortingStateNeutral)
     }
-  }, [onSetSortByColumn, sortByColumn, availableSortColumns])
+  }, [onSetSortByState, sortByState, availableSortColumns])
 
   const handleChangeViewByColumn = (event: SelectChangeEvent) => {
     onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
@@ -137,9 +140,33 @@ export const ControlPanel = ({
     onSetExpandByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
 
-  const handleChangeSortByColumn = (event: SelectChangeEvent) => {
-    onSetSortByColumn(availableSortColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
-  }
+  const handleChangeSortByColumn = useCallback(
+    (event: SelectChangeEvent) => {
+      const column = availableSortColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone
+
+      if (column === TimelineColumnNone) {
+        onSetSortByState(ColumnSortingStateNeutral)
+      } else {
+        onSetSortByState({
+          type: sortByState.type === 'neutral' ? 'asc' : sortByState.type,
+          column,
+        })
+      }
+    },
+    [onSetSortByState, sortByState, availableSortColumns]
+  )
+
+  const handleChangeSortByDirection = useCallback(
+    (direction: 'asc' | 'desc') => {
+      if (sortByState.type !== 'neutral') {
+        onSetSortByState({
+          type: direction,
+          column: sortByState.column,
+        })
+      }
+    },
+    [onSetSortByState, sortByState]
+  )
 
   const handleChangeColorByColumn = (event: SelectChangeEvent) => {
     if (event.target.value.startsWith('patients_')) {
@@ -213,7 +240,7 @@ export const ControlPanel = ({
               </Typography>
               <FormControl disabled={expandByColumn === TimelineColumnNone}>
                 <Select
-                  value={sortByColumn !== TimelineColumnNone ? sortByColumn.name : TimelineColumnNone}
+                  value={sortByState.type !== 'neutral' ? sortByState.column.name : TimelineColumnNone}
                   onChange={handleChangeSortByColumn}
                   size="small"
                 >
@@ -227,6 +254,23 @@ export const ControlPanel = ({
                   ))}
                 </Select>
               </FormControl>
+              <ButtonGroup
+                size="small"
+                disabled={expandByColumn === TimelineColumnNone || sortByState.type === 'neutral'}
+              >
+                <Button
+                  onClick={() => handleChangeSortByDirection('asc')}
+                  variant={sortByState.type === 'asc' ? 'contained' : 'outlined'}
+                >
+                  ASC
+                </Button>
+                <Button
+                  onClick={() => handleChangeSortByDirection('desc')}
+                  variant={sortByState.type === 'desc' ? 'contained' : 'outlined'}
+                >
+                  DESC
+                </Button>
+              </ButtonGroup>
             </Grid>
             <Grid item>
               <Typography variant="overline" display="block">

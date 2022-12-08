@@ -20,6 +20,7 @@ import {
   selectSelectedEntity,
   selectPatientDataColumns,
 } from '../data/selectors'
+import { ColumnSortingState } from '../data/sorting'
 import { RootState } from '../store'
 import { TimelineEventWithPID } from './model'
 import { CursorPosition, TimelineColumn, TimelineColumnNone } from './timelineSlice'
@@ -36,7 +37,7 @@ export const selectViewByColumn = (s: RootState): TimelineColumn => s.timeline.v
 
 export const selectExpandByColumn = (s: RootState): TimelineColumn => s.timeline.expandByColumn
 
-export const selectSortByColumn = (s: RootState): TimelineColumn => s.timeline.sortByColumn
+export const selectSortByState = (s: RootState): ColumnSortingState => s.timeline.sortByState
 
 // https://redux.js.org/usage/deriving-data-selectors#createselector-behavior
 const selectColorByColumnFn = (

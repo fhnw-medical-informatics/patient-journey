@@ -1,6 +1,7 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { EventDataColumn } from '../data/events'
 import { PatientDataColumn } from '../data/patients'
+import { ColumnSortingState, ColumnSortingStateNeutral } from '../data/sorting'
 
 export type TimelineColumn = EventDataColumn | PatientDataColumn | NoTimelineColumn
 
@@ -15,7 +16,7 @@ export type CursorPosition = { x: number; y: number } | NoCursorPosition
 export type TimelineState = {
   viewByColumn: TimelineColumn
   expandByColumn: TimelineColumn
-  sortByColumn: TimelineColumn
+  sortByState: ColumnSortingState
   cluster: boolean
   showFilteredOut: boolean
   showTimeGrid: boolean
@@ -30,7 +31,7 @@ export const initialTimelineState: TimelineState = {
   allowInteraction: false,
   viewByColumn: TimelineColumnNone,
   expandByColumn: TimelineColumnNone,
-  sortByColumn: TimelineColumnNone,
+  sortByState: ColumnSortingStateNeutral,
   cursorPosition: CursorPositionNone,
 }
 
@@ -43,11 +44,11 @@ const timelineSlice = createSlice({
     },
     setExpandByColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
       state.expandByColumn = action.payload
-      state.sortByColumn = TimelineColumnNone
+      state.sortByState = ColumnSortingStateNeutral
     },
-    setSortByColumn: (state: Draft<TimelineState>, action: PayloadAction<TimelineColumn>) => {
+    setSortByState: (state: Draft<TimelineState>, action: PayloadAction<ColumnSortingState>) => {
       if (state.expandByColumn !== TimelineColumnNone) {
-        state.sortByColumn = action.payload
+        state.sortByState = action.payload
       }
     },
     setTimelineCluster: (state: Draft<TimelineState>) => {
@@ -75,7 +76,7 @@ export const timelineReducer = timelineSlice.reducer
 export const {
   setViewByColumn,
   setExpandByColumn,
-  setSortByColumn,
+  setSortByState,
   setShowFilteredOut,
   setTimelineCluster,
   setCursorPosition,
