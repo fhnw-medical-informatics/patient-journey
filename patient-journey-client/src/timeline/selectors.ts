@@ -18,6 +18,7 @@ import {
   selectCrossFilteredPatientData,
   selectHoveredEntity,
   selectSelectedEntity,
+  selectPatientDataColumns,
 } from '../data/selectors'
 import { RootState } from '../store'
 import { TimelineEventWithPID } from './model'
@@ -310,3 +311,20 @@ export const selectFilteredEventDataAsTimelineLanes = createSelector(
 )
 
 export const selectCursorPosition = (s: RootState): CursorPosition => s.timeline.cursorPosition
+
+export const selectTimelineDataColumns = createSelector(selectEventDataColumns, (eventDataColumns) => eventDataColumns)
+
+export const selectTimelineSortDataColumns = createSelector(
+  selectExpandByColumn,
+  selectPatientDataColumns,
+  (expandByColumn, patientColumns) => {
+    if (expandByColumn === TimelineColumnNone) {
+      return []
+    } else if (expandByColumn.type === 'pid') {
+      return patientColumns
+    } else {
+      // TODO: Return derived event columns
+      return []
+    }
+  }
+)

@@ -43,6 +43,7 @@ interface ControlPanelProps {
   onSetExpandByColumn: (column: TimelineColumn) => void
   sortByColumn: TimelineColumn
   onSetSortByColumn: (column: TimelineColumn) => void
+  availableSortColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   cluster: boolean
   onSetTimelineCluster: () => void
   showFilteredOut: boolean
@@ -65,6 +66,7 @@ export const ControlPanel = ({
   expandByColumn,
   onSetExpandByColumn,
   sortByColumn,
+  availableSortColumns,
   onSetSortByColumn,
   cluster,
   showTimeGrid,
@@ -120,13 +122,12 @@ export const ControlPanel = ({
     }
   }, [onChangeColorByColumn, eventDataColumns, patientDataColumns, colorByColumn])
 
-  // Reset sortByColumn when availableColumns change
-  // TODO: Availabe columns are different for sort columns
+  // Reset sortByColumn when availableSortColumns change
   useEffect(() => {
-    if (sortByColumn !== TimelineColumnNone && !doesContainColumn(availableColumns, sortByColumn)) {
+    if (sortByColumn !== TimelineColumnNone && !doesContainColumn(availableSortColumns, sortByColumn)) {
       onSetSortByColumn(TimelineColumnNone)
     }
-  }, [onSetSortByColumn, sortByColumn, availableColumns])
+  }, [onSetSortByColumn, sortByColumn, availableSortColumns])
 
   const handleChangeViewByColumn = (event: SelectChangeEvent) => {
     onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
@@ -137,8 +138,7 @@ export const ControlPanel = ({
   }
 
   const handleChangeSortByColumn = (event: SelectChangeEvent) => {
-    // TODO: Availabe columns are different for sort columns
-    onSetSortByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
+    onSetSortByColumn(availableSortColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
 
   const handleChangeColorByColumn = (event: SelectChangeEvent) => {
@@ -220,14 +220,11 @@ export const ControlPanel = ({
                   <MenuItem value={TimelineColumnNone}>
                     <i>{'Collapsed'}</i>
                   </MenuItem>
-                  {/* TODO: Availabe columns are different for sort columns */}
-                  {availableColumns
-                    .filter((column) => ['pid', 'boolean', 'string', 'category'].includes(column.type))
-                    .map((column) => (
-                      <MenuItem key={column.name} value={column.name}>
-                        {column.name}
-                      </MenuItem>
-                    ))}
+                  {availableSortColumns.map((column) => (
+                    <MenuItem key={column.name} value={column.name}>
+                      {column.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>

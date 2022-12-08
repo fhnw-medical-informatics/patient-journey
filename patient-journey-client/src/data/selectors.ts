@@ -131,8 +131,6 @@ export const selectActiveDataColumns = createSelector(
   (view, patientDataColumns, eventDataColumns) => (view === 'patients' ? patientDataColumns : eventDataColumns)
 )
 
-export const selectTimelineDataColumns = createSelector(selectEventDataColumns, (eventDataColumns) => eventDataColumns)
-
 export const selectHoveredEntity = createSelector(selectData, (data) => data.hovered)
 export const selectSelectedEntity = createSelector(selectData, (data) => data.selected)
 export const selectFocusEntity = createSelector(selectHoveredEntity, selectSelectedEntity, (hovered, selected) =>

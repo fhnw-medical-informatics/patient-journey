@@ -20,6 +20,8 @@ import {
   selectSelectedEntityLaneId,
   selectFilteredEventDataAsTimelineEventsForJourney,
   selectSortByColumn,
+  selectTimelineDataColumns,
+  selectTimelineSortDataColumns,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -88,3 +90,6 @@ export const useCanvas = () => {
 
   return { canvasRef, renderInfo }
 }
+
+export const useTimelineDataColumns = () => useAppSelector(selectTimelineDataColumns)
+export const useTimelineSortDataColumns = () => useAppSelector(selectTimelineSortDataColumns)

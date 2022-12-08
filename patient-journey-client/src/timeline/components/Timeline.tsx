@@ -30,6 +30,7 @@ interface TimelineProps {
   onSetExpandByColumn: (column: TimelineColumn) => void
   sortByColumn: TimelineColumn
   onSetSortByColumn: (column: TimelineColumn) => void
+  availableSortColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   cluster: boolean
   onSetTimelineCluster: () => void
   showFilteredOut: boolean
@@ -59,6 +60,7 @@ export const Timeline = ({
   onSetExpandByColumn,
   sortByColumn,
   onSetSortByColumn,
+  availableSortColumns,
   cluster,
   onSetTimelineCluster,
   showFilteredOut,
@@ -85,6 +87,7 @@ export const Timeline = ({
         onSetViewByColumn={onSetViewByColumn}
         expandByColumn={expandByColumn}
         onSetExpandByColumn={onSetExpandByColumn}
+        availableSortColumns={availableSortColumns}
         sortByColumn={sortByColumn}
         onSetSortByColumn={onSetSortByColumn}
         cluster={cluster}

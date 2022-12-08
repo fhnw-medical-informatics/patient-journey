@@ -17,13 +17,7 @@ import {
   toggleAllowInteraction,
   toggleTimeGrid,
 } from '../timelineSlice'
-import {
-  useEntityInteraction,
-  useEventDataColumns,
-  useEventFilters,
-  usePatientDataColumns,
-  useTimelineDataColumns,
-} from '../../data/hooks'
+import { useEntityInteraction, useEventDataColumns, useEventFilters, usePatientDataColumns } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import {
   useActiveDataAsEvents,
@@ -35,6 +29,8 @@ import {
   useShowTimeGrid,
   useAllowInteraction,
   useSortByColumn,
+  useTimelineDataColumns,
+  useTimelineSortDataColumns,
 } from '../hooks'
 import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
@@ -57,6 +53,7 @@ export const Timeline = React.memo(() => {
   const expandByColumn = useExpandByColumn()
   const sortByColumn = useSortByColumn()
   const activeColumns = useTimelineDataColumns()
+  const sortColumns = useTimelineSortDataColumns()
   const eventDataColumns = useEventDataColumns()
   const patientDataColumns = usePatientDataColumns()
   const eventFilters = useEventFilters()
@@ -108,6 +105,7 @@ export const Timeline = React.memo(() => {
       onSetExpandByColumn={onSetExpandByColumn}
       sortByColumn={sortByColumn}
       onSetSortByColumn={onSetSortByColumn}
+      availableSortColumns={sortColumns}
       cluster={cluster}
       onSetTimelineCluster={onSetTimelineCluster}
       showFilteredOut={showFilteredOut}
