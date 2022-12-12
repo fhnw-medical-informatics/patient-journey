@@ -8,6 +8,7 @@ import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
 import { ColorByColumn } from '../../color/colorSlice'
+import { ColumnSortingState } from '../../data/sorting'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -28,6 +29,9 @@ interface TimelineProps {
   onSetViewByColumn: (column: TimelineColumn) => void
   expandByColumn: TimelineColumn
   onSetExpandByColumn: (column: TimelineColumn) => void
+  sortByState: ColumnSortingState
+  onSetSortByState: (state: ColumnSortingState) => void
+  availableSortColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   cluster: boolean
   onSetTimelineCluster: () => void
   showFilteredOut: boolean
@@ -55,6 +59,9 @@ export const Timeline = ({
   onSetViewByColumn,
   expandByColumn,
   onSetExpandByColumn,
+  sortByState,
+  onSetSortByState,
+  availableSortColumns,
   cluster,
   onSetTimelineCluster,
   showFilteredOut,
@@ -81,6 +88,9 @@ export const Timeline = ({
         onSetViewByColumn={onSetViewByColumn}
         expandByColumn={expandByColumn}
         onSetExpandByColumn={onSetExpandByColumn}
+        availableSortColumns={availableSortColumns}
+        sortByState={sortByState}
+        onSetSortByState={onSetSortByState}
         cluster={cluster}
         showTimeGrid={showTimeGrid}
         onToggleTimeGrid={onToggleTimeGrid}

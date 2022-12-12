@@ -23,7 +23,6 @@ import {
   selectPatientDataColumns,
   selectPatientDataPidColumn,
   selectSelectedEntity,
-  selectTimelineDataColumns,
   selectEventFilters,
   selectIndexPatientId,
   selectDataLoadingProgress,
@@ -51,7 +50,6 @@ export const useDataByEntityIdMap = (type: FocusEntity['type']) =>
 export const useFilteredActiveData = () => useAppSelector(selectFilteredActiveData)
 
 export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns)
-export const useTimelineDataColumns = () => useAppSelector(selectTimelineDataColumns)
 
 export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
 export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)

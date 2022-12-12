@@ -3,10 +3,13 @@
 import { DataColumn, stringToBoolean, stringToMillis, stringToNumber } from './columns'
 import { Entity } from './entities'
 
+type NeutralSortingState = Readonly<{
+  type: 'neutral' // import order
+}>
+export const ColumnSortingStateNeutral: NeutralSortingState = { type: 'neutral' }
+
 export type ColumnSortingState =
-  | Readonly<{
-      type: 'neutral' // import order
-    }>
+  | NeutralSortingState
   | Readonly<{
       type: 'asc' | 'desc'
       column: DataColumn<string>

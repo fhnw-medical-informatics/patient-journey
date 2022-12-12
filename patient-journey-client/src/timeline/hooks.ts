@@ -19,6 +19,9 @@ import {
   selectHoveredEntityLaneId,
   selectSelectedEntityLaneId,
   selectFilteredEventDataAsTimelineEventsForJourney,
+  selectSortByState,
+  selectTimelineDataColumns,
+  selectTimelineSortDataColumns,
 } from './selectors'
 
 export const useTimelineCluster = () => useAppSelector(selectTimelineCluster)
@@ -30,6 +33,8 @@ export const useAllowInteraction = () => useAppSelector(selectAllowInteraction)
 export const useViewByColumn = () => useAppSelector(selectViewByColumn)
 
 export const useExpandByColumn = () => useAppSelector(selectExpandByColumn)
+
+export const useSortByState = () => useAppSelector(selectSortByState)
 
 export const useShowFilteredOut = () => useAppSelector(selectShowFilteredOut)
 
@@ -85,3 +90,6 @@ export const useCanvas = () => {
 
   return { canvasRef, renderInfo }
 }
+
+export const useTimelineDataColumns = () => useAppSelector(selectTimelineDataColumns)
+export const useTimelineSortDataColumns = () => useAppSelector(selectTimelineSortDataColumns)

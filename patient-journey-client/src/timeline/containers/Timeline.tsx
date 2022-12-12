@@ -9,6 +9,7 @@ import {
   setCursorPosition,
   setExpandByColumn,
   setShowFilteredOut,
+  setSortByState,
   setTimelineCluster,
   setViewByColumn,
   TimelineColumn,
@@ -16,13 +17,7 @@ import {
   toggleAllowInteraction,
   toggleTimeGrid,
 } from '../timelineSlice'
-import {
-  useEntityInteraction,
-  useEventDataColumns,
-  useEventFilters,
-  usePatientDataColumns,
-  useTimelineDataColumns,
-} from '../../data/hooks'
+import { useEntityInteraction, useEventDataColumns, useEventFilters, usePatientDataColumns } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import {
   useActiveDataAsEvents,
@@ -33,11 +28,15 @@ import {
   useShowFilteredOut,
   useShowTimeGrid,
   useAllowInteraction,
+  useSortByState,
+  useTimelineDataColumns,
+  useTimelineSortDataColumns,
 } from '../hooks'
 import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
 import { useTheme } from '@mui/material'
 import { EntityIdNone } from '../../data/entities'
+import { ColumnSortingState } from '../../data/sorting'
 
 export const Timeline = React.memo(() => {
   const theme = useTheme()
@@ -53,7 +52,9 @@ export const Timeline = React.memo(() => {
   const allowInteraction = useAllowInteraction()
   const viewByColumn = useViewByColumn()
   const expandByColumn = useExpandByColumn()
+  const sortByState = useSortByState()
   const activeColumns = useTimelineDataColumns()
+  const sortColumns = useTimelineSortDataColumns()
   const eventDataColumns = useEventDataColumns()
   const patientDataColumns = usePatientDataColumns()
   const eventFilters = useEventFilters()
@@ -62,6 +63,10 @@ export const Timeline = React.memo(() => {
 
   const onSetViewByColumn = useCallback((column: TimelineColumn) => dispatch(setViewByColumn(column)), [dispatch])
   const onSetExpandByColumn = useCallback((column: TimelineColumn) => dispatch(setExpandByColumn(column)), [dispatch])
+  const onSetSortByState = useCallback(
+    (sortState: ColumnSortingState) => dispatch(setSortByState(sortState)),
+    [dispatch]
+  )
 
   const onSetTimelineCluster = useCallback(() => dispatch(setTimelineCluster()), [dispatch])
   const onSetShowFilteredOut = useCallback(() => dispatch(setShowFilteredOut()), [dispatch])
@@ -102,6 +107,9 @@ export const Timeline = React.memo(() => {
       onSetViewByColumn={onSetViewByColumn}
       expandByColumn={expandByColumn}
       onSetExpandByColumn={onSetExpandByColumn}
+      sortByState={sortByState}
+      onSetSortByState={onSetSortByState}
+      availableSortColumns={sortColumns}
       cluster={cluster}
       onSetTimelineCluster={onSetTimelineCluster}
       showFilteredOut={showFilteredOut}

@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import {
+  Button,
   FormControl,
   FormControlLabel,
   Grid,
@@ -18,6 +19,8 @@ import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
 import { ColorByColumn, ColorByColumnNone, ColorByColumnOptionNone } from '../../color/colorSlice'
 import { doesContainColumn } from '../../data/columns'
+import { ColumnSortingState, ColumnSortingStateNeutral } from '../../data/sorting'
+import { ArrowDownward, ArrowUpward } from '@mui/icons-material'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -41,6 +44,9 @@ interface ControlPanelProps {
   onSetViewByColumn: (column: TimelineColumn) => void
   expandByColumn: TimelineColumn
   onSetExpandByColumn: (column: TimelineColumn) => void
+  sortByState: ColumnSortingState
+  onSetSortByState: (state: ColumnSortingState) => void
+  availableSortColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
   cluster: boolean
   onSetTimelineCluster: () => void
   showFilteredOut: boolean
@@ -62,6 +68,9 @@ export const ControlPanel = ({
   onSetViewByColumn,
   expandByColumn,
   onSetExpandByColumn,
+  sortByState,
+  availableSortColumns,
+  onSetSortByState,
   cluster,
   showTimeGrid,
   onToggleTimeGrid,
@@ -116,6 +125,13 @@ export const ControlPanel = ({
     }
   }, [onChangeColorByColumn, eventDataColumns, patientDataColumns, colorByColumn])
 
+  // Reset sortByState when availableSortColumns change
+  useEffect(() => {
+    if (sortByState.type !== 'neutral' && !doesContainColumn(availableSortColumns, sortByState.column)) {
+      onSetSortByState(ColumnSortingStateNeutral)
+    }
+  }, [onSetSortByState, sortByState, availableSortColumns])
+
   const handleChangeViewByColumn = (event: SelectChangeEvent) => {
     onSetViewByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
@@ -123,6 +139,34 @@ export const ControlPanel = ({
   const handleChangeExpandByColumn = (event: SelectChangeEvent) => {
     onSetExpandByColumn(availableColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone)
   }
+
+  const handleChangeSortByColumn = useCallback(
+    (event: SelectChangeEvent) => {
+      const column = availableSortColumns.find((column) => column.name === event.target.value) ?? TimelineColumnNone
+
+      if (column === TimelineColumnNone) {
+        onSetSortByState(ColumnSortingStateNeutral)
+      } else {
+        onSetSortByState({
+          type: sortByState.type === 'neutral' ? 'asc' : sortByState.type,
+          column,
+        })
+      }
+    },
+    [onSetSortByState, sortByState, availableSortColumns]
+  )
+
+  const handleChangeSortByDirection = useCallback(
+    (direction: 'asc' | 'desc') => {
+      if (sortByState.type !== 'neutral') {
+        onSetSortByState({
+          type: direction,
+          column: sortByState.column,
+        })
+      }
+    },
+    [onSetSortByState, sortByState]
+  )
 
   const handleChangeColorByColumn = (event: SelectChangeEvent) => {
     if (event.target.value.startsWith('patients_')) {
@@ -189,6 +233,44 @@ export const ControlPanel = ({
                     ))}
                 </Select>
               </FormControl>
+            </Grid>
+            <Grid item>
+              <Typography variant="overline" display="block">
+                Sort by
+              </Typography>
+              <Grid container alignItems="center" gap={1}>
+                <Grid item>
+                  <FormControl disabled={expandByColumn === TimelineColumnNone}>
+                    <Select
+                      value={sortByState.type !== 'neutral' ? sortByState.column.name : TimelineColumnNone}
+                      onChange={handleChangeSortByColumn}
+                      size="small"
+                    >
+                      <MenuItem value={TimelineColumnNone}>
+                        <i>{'None'}</i>
+                      </MenuItem>
+                      {availableSortColumns.map((column) => (
+                        <MenuItem key={column.name} value={column.name}>
+                          {column.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                {sortByState.type !== 'neutral' && (
+                  <Grid item>
+                    <Button
+                      onClick={() => handleChangeSortByDirection(sortByState.type === 'asc' ? 'desc' : 'asc')}
+                      variant="text"
+                      color="inherit"
+                      size="small"
+                      startIcon={sortByState.type === 'asc' ? <ArrowUpward /> : <ArrowDownward />}
+                    >
+                      {sortByState.type === 'asc' ? 'ASC' : 'DESC'}
+                    </Button>
+                  </Grid>
+                )}
+              </Grid>
             </Grid>
             <Grid item>
               <Typography variant="overline" display="block">
