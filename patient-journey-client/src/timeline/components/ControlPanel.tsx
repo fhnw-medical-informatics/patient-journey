@@ -236,9 +236,9 @@ export const ControlPanel = ({
             </Grid>
             <Grid item>
               <Typography variant="overline" display="block">
-                Sort lanes by
+                Sort by
               </Typography>
-              <Grid container alignItems="center">
+              <Grid container alignItems="center" gap={1}>
                 <Grid item>
                   <FormControl disabled={expandByColumn === TimelineColumnNone}>
                     <Select
@@ -247,7 +247,7 @@ export const ControlPanel = ({
                       size="small"
                     >
                       <MenuItem value={TimelineColumnNone}>
-                        <i>{'Collapsed'}</i>
+                        <i>{'None'}</i>
                       </MenuItem>
                       {availableSortColumns.map((column) => (
                         <MenuItem key={column.name} value={column.name}>
