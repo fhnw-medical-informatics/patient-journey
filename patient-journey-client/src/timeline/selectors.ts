@@ -290,6 +290,11 @@ const selectCrossFilteredEventDataWithFilteredOutEventsAsExpandedColumnMap = cre
     expandByColumn !== TimelineColumnNone ? group(events, (e) => e.values[expandByColumn.index]) : new Map()
 )
 
+/**
+ * A selector that returns the event data with derived columns added.
+ * The derived columns are defined in the `selectDerivedEventDataColumns` selector.
+ * The derived columns are added to the event data if the `sortByState` is set to a derived column.
+ */
 const selectCrossFilteredEventDataWithFilteredOutEventsAndWithDerivedColumns = createSelector(
   selectSortByState,
   selectExpandByColumn,
@@ -468,7 +473,6 @@ export const selectCursorPosition = (s: RootState): CursorPosition => s.timeline
 
 export const selectTimelineDataColumns = createSelector(selectEventDataColumns, (eventDataColumns) => eventDataColumns)
 
-// TODO: Also return derived columns
 export const selectTimelineSortDataColumns = createSelector(
   selectExpandByColumn,
   selectPatientDataColumns,
@@ -480,7 +484,6 @@ export const selectTimelineSortDataColumns = createSelector(
     } else if (expandByColumn.type === 'pid') {
       return [...patientColumns, ...derivedPatientColumns]
     } else {
-      // TODO: Return derived event columns
       return derivedEventColumns
     }
   }
