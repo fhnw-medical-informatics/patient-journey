@@ -259,15 +259,75 @@ const selectCrossFilteredEventDataWithFilteredOutEvents = createSelector(
   }
 )
 
-// TODO
-// selectDerivedEventDataAttributeColumns
+// Define and return derived event data columns for sorting
+const selectDerivedEventDataColums = createSelector(
+  selectEventDataColumns,
+  selectExpandByColumn,
+  (eventDataColumns, expandByColumn): ReadonlyArray<EventDataColumn> => {
+    if (expandByColumn !== TimelineColumnNone && expandByColumn.type !== 'pid') {
+      return [
+        {
+          ...expandByColumn,
+          name: 'Alphabetically',
+        },
+        {
+          index: eventDataColumns[eventDataColumns.length - 1].index + 1,
+          name: 'Number of Events',
+          type: 'number',
+        },
+      ]
+    } else {
+      return []
+    }
+  }
+)
 
-// TODO
-// selectExpandByColumnDataWithStats
-// A selector that returns the values for the expandByColumn, but with stats like number of occurrences, etc…
+// Group events by their value of the selected expandByColumn
+const selectCrossFilteredEventDataWithFilteredOutEventsAsExpandedColumnMap = createSelector(
+  selectExpandByColumn,
+  selectCrossFilteredEventDataWithFilteredOutEvents,
+  (expandByColumn, events): ReadonlyMap<string, ReadonlyArray<PatientJourneyEvent>> =>
+    expandByColumn !== TimelineColumnNone ? group(events, (e) => e.values[expandByColumn.index]) : new Map()
+)
 
-// TODO
-// selectDerivedPatientDataColumns
+const selectCrossFilteredEventDataWithFilteredOutEventsAndWithDerivedColumns = createSelector(
+  selectSortByState,
+  selectExpandByColumn,
+  selectDerivedEventDataColums,
+  selectCrossFilteredEventDataWithFilteredOutEvents,
+  selectCrossFilteredEventDataWithFilteredOutEventsAsExpandedColumnMap,
+  (
+    sortByState,
+    expandByColumn,
+    derivedEventDataColumns,
+    crossFilteredEventDataWithFilteredOutEvents,
+    crossFilteredEventDataWithFilteredOutEventsAsExpandedColumnMap
+  ) => {
+    if (
+      expandByColumn !== TimelineColumnNone &&
+      sortByState.type !== 'neutral' &&
+      derivedEventDataColumns.includes(sortByState.column as EventDataColumn)
+    ) {
+      return crossFilteredEventDataWithFilteredOutEvents.map((eventData) => {
+        const expandByEventData =
+          crossFilteredEventDataWithFilteredOutEventsAsExpandedColumnMap.get(eventData.values[expandByColumn.index]) ??
+          []
+
+        const derivedColumnValues: string[] = [`${expandByEventData.length}`]
+
+        return {
+          ...eventData,
+          values: [...eventData.values, ...derivedColumnValues],
+        }
+      })
+    } else {
+      // Not sorting by derived column, so just return the crossFilteredEventDataWithFilteredOutEvents
+      return crossFilteredEventDataWithFilteredOutEvents
+    }
+  }
+)
+
+// Define and return derived patient data columns for sorting
 const selectDerivedPatientDataColumns = createSelector(selectPatientDataColumns, (patientDataColumns) => {
   const derivedPatientDataColumns: PatientDataColumn[] = []
 
@@ -361,7 +421,7 @@ export const selectFilteredEventDataAsTimelineLanes = createSelector(
   selectExpandByColumn,
   selectSortByState,
   selectCrossFilteredPatientDataWithDerivedColumns,
-  selectCrossFilteredEventDataWithFilteredOutEvents,
+  selectCrossFilteredEventDataWithFilteredOutEventsAndWithDerivedColumns,
   selectLaneColorByColumnFn,
   selectColorByCategoryFn,
   selectColorByColumn,
@@ -391,7 +451,7 @@ export const selectFilteredEventDataAsTimelineLanes = createSelector(
       // only color the lanes if the same column is selected as color by column
       return Array.from(
         new Set(
-          (activeEventData as ReadonlyArray<Entity & { pid: PatientId }>).map(
+          (stableSort(activeEventData, sortByState) as ReadonlyArray<Entity & { pid: PatientId }>).map(
             (event) => event.values[expandByColumn.index]
           )
         )
@@ -413,14 +473,15 @@ export const selectTimelineSortDataColumns = createSelector(
   selectExpandByColumn,
   selectPatientDataColumns,
   selectDerivedPatientDataColumns,
-  (expandByColumn, patientColumns, derivedPatientColumns) => {
+  selectDerivedEventDataColums,
+  (expandByColumn, patientColumns, derivedPatientColumns, derivedEventColumns) => {
     if (expandByColumn === TimelineColumnNone) {
       return []
     } else if (expandByColumn.type === 'pid') {
       return [...patientColumns, ...derivedPatientColumns]
     } else {
       // TODO: Return derived event columns
-      return []
+      return derivedEventColumns
     }
   }
 )
