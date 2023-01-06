@@ -19,7 +19,7 @@ export type ColorState = ColorByColumn
 const initialState: ColorState = ColorByColumnNone
 
 const colorSlice = createSlice({
-  name: 'theme',
+  name: 'color',
   initialState,
   reducers: {
     setColorByColumn: (state: Draft<ColorState>, action: PayloadAction<ColorByColumn>): ColorState => ({
