@@ -113,4 +113,16 @@ To deploy the application, follow these steps:
 3. Follow the instructions to deploy the application
 4. Access the application via https://pub.ima.lifesciences.fhnw.ch/pj/app/[https://pub.ima.lifesciences.fhnw.ch/pj/app/]
 
+== Release
+
+To release a new version of the application, follow these steps:
+
+1. Update the version in `package.json`
+2. Commit and push the changes
+3. `git tag vX.Y.Z`
+4. `git push --tags`
+5. Create a new release on GitHub, using the auto-generated changelog
+6. `yarn build`
+7. ZIP the contents of `build/` and send it to the customer 
+
 &copy; FHNW Medical Decision Support Systems Group 2022 – link:LICENSE[MIT License]
