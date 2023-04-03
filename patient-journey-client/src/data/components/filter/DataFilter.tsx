@@ -28,12 +28,13 @@ export const DataFilter = <T extends FilterColumn['type']>({
   onRemoveFilter,
 }: DataFilterProps<T>) => {
   switch (type) {
+    case 'pid':
     case 'string':
       return (
         <TextDataFilter
           column={column}
           type={type}
-          value={(filter as Filter<'string'> | undefined)?.value ?? { text: '' }}
+          value={(filter as Filter<'string' | 'pid'> | undefined)?.value ?? { text: '' }}
           onChange={onAddFilter}
           onRemove={onRemoveFilter}
         />

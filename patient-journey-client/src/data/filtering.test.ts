@@ -6,11 +6,11 @@ import { PatientDataColumn } from './patients'
 const mockData: ReadonlyArray<Entity> = [
   {
     uid: '1' as EntityId,
-    values: ['Jessica', '25', 'false', '31.12.2019', '1648555453169', 'A'],
+    values: ['Jessica', '25', 'false', '31.12.2019', '1648555453169', 'A', '100'],
   },
   {
     uid: '2' as EntityId,
-    values: ['Peter', '31', 'true', '31.12.2018', '1648552453169', 'B'],
+    values: ['Peter', '31', 'true', '31.12.2018', '1648552453169', 'B', '101'],
   },
 ]
 
@@ -44,6 +44,11 @@ const mockColumns: ReadonlyArray<PatientDataColumn> = [
     name: 'Blood Type',
     type: 'category',
     index: 5,
+  },
+  {
+    name: 'Patient ID',
+    type: 'pid',
+    index: 6,
   },
 ]
 
@@ -83,6 +88,18 @@ describe('Filter Reducer', () => {
     expect(filteredData.length).toBe(2)
     expect(filteredData[0].uid).toBe('1')
     expect(filteredData[1].uid).toBe('2')
+  })
+
+  it('should handle a pid filter', () => {
+    const pidFilter: Filter<'pid'> = {
+      column: mockColumns[6],
+      type: 'pid',
+      value: { text: '100' },
+    }
+
+    const filteredData = filterReducer(mockData, pidFilter)
+    expect(filteredData.length).toBe(1)
+    expect(filteredData[0].uid).toBe('1')
   })
 
   it('should handle a number filter', () => {
