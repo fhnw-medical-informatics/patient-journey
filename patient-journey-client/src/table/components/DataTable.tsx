@@ -4,7 +4,15 @@ import { Button, Paper, Typography, useTheme } from '@mui/material'
 
 import CloseIcon from '@mui/icons-material/Close'
 
-import { DataGridPro, GridColumns, GridFooterContainer, GridRow, GridRowProps, LicenseInfo } from '@mui/x-data-grid-pro'
+import {
+  DataGridPro,
+  GridColumns,
+  GridFooterContainer,
+  GridPinnedRowsProp,
+  GridRow,
+  GridRowProps,
+  LicenseInfo,
+} from '@mui/x-data-grid-pro'
 
 import { makeStyles } from '../../utils'
 
@@ -111,11 +119,21 @@ export const DataTable = ({
   // https://github.com/fhnw-medical-informatics/patient-journey/issues/71#issuecomment-1098061773
   const sortedRows = useMemo(() => stableSort(rows, sorting).map((row) => ({ ...row, id: row.uid })), [rows, sorting])
 
+  const pinnedRows = useMemo(() => {
+    const pinnedRows: GridPinnedRowsProp = {
+      top: sortedRows.filter((row) => row.uid === indexPatientId || row.uid === selectedEntity),
+    }
+
+    return pinnedRows
+  }, [sortedRows, selectedEntity, indexPatientId])
+
   return (
     <Paper variant="outlined" className={classes.root}>
       <div className={classes.maxed}>
         <DataGridPro
           rows={sortedRows}
+          pinnedRows={pinnedRows}
+          experimentalFeatures={{ rowPinning: true }}
           columns={dataGridColumns}
           disableColumnFilter
           disableColumnMenu
@@ -159,11 +177,15 @@ export const DataTable = ({
                 {...props}
                 onMouseEnter={() => onEntityHover((props.row as Entity).uid)}
                 onMouseLeave={() => onEntityHover(EntityIdNone)}
+                // Separate onClick-handler because selectionModel does not work for pinned Entities
+                onClick={() => props.row.uid === selectedEntity && onEntityClick((props.row as Entity).uid)}
                 style={{
                   ...props.style,
                   color:
                     props.row.uid === indexPatientId
                       ? theme.entityColors.indexPatient
+                      : props.row.uid === selectedEntity
+                      ? theme.entityColors.selected
                       : colorByColumn.type !== 'none'
                       ? colorByColumnFn(props.row)
                       : '',
