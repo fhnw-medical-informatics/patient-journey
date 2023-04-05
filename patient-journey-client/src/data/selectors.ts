@@ -164,6 +164,12 @@ export const selectActiveHoveredEventEntity = createSelector(
   (eventMap, entity) => selectActiveEntity(eventMap, 'events', entity)
 )
 
+export const selectSelectedEventEntityPID = createSelector(
+  selectEventDataRowMap,
+  selectSelectedEntity,
+  (eventMap, entity) => selectActiveEntity(eventMap, 'patients', entity)
+)
+
 const selectPatientDataColumnType = (s: RootState, columnType: PatientDataColumnType) => columnType
 
 export const selectPatientDataColumn = createSelector(

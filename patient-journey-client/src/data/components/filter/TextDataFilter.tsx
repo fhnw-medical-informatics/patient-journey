@@ -4,9 +4,9 @@ import { TextField } from '@mui/material'
 
 import { createFilter, Filter } from '../../filtering'
 
-export interface TextDataFilterProps extends Filter<'string' | 'pid'> {
-  onChange: (filter: Filter<'string' | 'pid'>) => void
-  onRemove: (filter: Filter<'string' | 'pid'>) => void
+export interface TextDataFilterProps extends Filter<'string'> {
+  onChange: (filter: Filter<'string'>) => void
+  onRemove: (filter: Filter<'string'>) => void
 }
 
 export const TextDataFilter = ({ column, type, value, onChange, onRemove }: TextDataFilterProps) => {
