@@ -4,17 +4,18 @@ import { Button } from '@mui/material'
 import { EntityId } from '../../data/entities'
 import { GridApiPro } from '@mui/x-data-grid-pro/models/gridApiPro'
 
-import AdjustIcon from '@mui/icons-material/Adjust'
+import VerticalAlignCenterIcon from '@mui/icons-material/VerticalAlignCenter'
 
 interface ScrollToButtonProps {
   label: string
+  title?: string
   entityId: EntityId
   rows: { id: EntityId }[]
   color: string
   gridApiRef: React.MutableRefObject<GridApiPro>
 }
 
-export const ScrollToButton = ({ gridApiRef, label, rows, entityId, color }: ScrollToButtonProps) => {
+export const ScrollToButton = ({ gridApiRef, label, title, rows, entityId, color }: ScrollToButtonProps) => {
   const scrollToRow = useCallback(() => {
     const rowIndex = rows.findIndex((row) => row.id === entityId)
     gridApiRef.current.scrollToIndexes({ rowIndex })
@@ -31,7 +32,15 @@ export const ScrollToButton = ({ gridApiRef, label, rows, entityId, color }: Scr
 
   return (
     <div style={{ color }}>
-      <Button onClick={scrollToRow} variant="outlined" size="small" endIcon={<AdjustIcon />} color="inherit">
+      <Button
+        onClick={scrollToRow}
+        variant="outlined"
+        size="small"
+        endIcon={<VerticalAlignCenterIcon />}
+        color="inherit"
+        title={title}
+        sx={{ lineHeight: 1 }}
+      >
         {label}
       </Button>
     </div>

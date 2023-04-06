@@ -206,6 +206,8 @@ export const DataTable = ({
                         size="small"
                         endIcon={<CloseIcon />}
                         color="inherit"
+                        title="Reset Index Patient"
+                        sx={{ lineHeight: 1 }}
                       >
                         Index Patient: {indexPatientId}
                       </Button>
@@ -220,6 +222,7 @@ export const DataTable = ({
                       entityId={selectedEntity}
                       label={`Selected Entity: ${selectedEntity}`}
                       color={theme.entityColors.selected}
+                      title="Scroll to Selected Entity"
                     />
                   ) : (
                     <span></span>
