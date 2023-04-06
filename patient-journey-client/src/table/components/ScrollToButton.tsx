@@ -13,9 +13,10 @@ interface ScrollToButtonProps {
   rows: { id: EntityId }[]
   color: string
   gridApiRef: React.MutableRefObject<GridApiPro>
+  onClick?: (entityId: EntityId) => void
 }
 
-export const ScrollToButton = ({ gridApiRef, label, title, rows, entityId, color }: ScrollToButtonProps) => {
+export const ScrollToButton = ({ gridApiRef, label, title, rows, entityId, color, onClick }: ScrollToButtonProps) => {
   const scrollToRow = useCallback(() => {
     const rowIndex = rows.findIndex((row) => row.id === entityId)
     gridApiRef.current.scrollToIndexes({ rowIndex })
@@ -33,7 +34,10 @@ export const ScrollToButton = ({ gridApiRef, label, title, rows, entityId, color
   return (
     <div style={{ color }}>
       <Button
-        onClick={scrollToRow}
+        onClick={() => {
+          scrollToRow()
+          onClick?.(entityId)
+        }}
         variant="outlined"
         size="small"
         endIcon={<VerticalAlignCenterIcon />}
