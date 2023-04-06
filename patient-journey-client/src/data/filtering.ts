@@ -75,6 +75,14 @@ export const createFilter = <T extends FilterColumn['type']>(
 
 export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter): ReadonlyArray<Entity> => {
   switch (filter.type) {
+    case 'pid':
+      return data.filter((row) => {
+        const fieldValue = getFieldValue(row, filter)
+
+        return (
+          fieldValue.isValid && fieldValue.value.toLowerCase() === (filter as Filter<'pid'>).value.text.toLowerCase()
+        )
+      })
     case 'string':
       return data.filter((row) => {
         const fieldValue = getFieldValue(row, filter)

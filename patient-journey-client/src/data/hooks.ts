@@ -33,6 +33,7 @@ import {
   selectPatientCount,
   selectPatientDataRowMap,
   selectIndexPatientEvents,
+  selectSelectedEventEntityPID,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -64,6 +65,8 @@ export const useFocusEntity = () => useAppSelector(selectFocusEntity)
 export const useActiveSelectedEntity = () => useAppSelector(selectActiveSelectedEntity)
 export const useActiveSelectedEventEntity = () => useAppSelector(selectActiveSelectedEventEntity)
 export const useActiveHoveredEventEntity = () => useAppSelector(selectActiveHoveredEventEntity)
+
+export const useSelectedEntityPID = () => useAppSelector(selectSelectedEventEntityPID)
 
 export interface EntityInteraction {
   readonly onEntityClick: (id: EntityId) => void

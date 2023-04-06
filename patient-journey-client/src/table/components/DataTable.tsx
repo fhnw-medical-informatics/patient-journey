@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 
-import { Button, Paper, Typography, useTheme } from '@mui/material'
+import { Button, Paper, Stack, Typography, useTheme } from '@mui/material'
 
 import CloseIcon from '@mui/icons-material/Close'
 
@@ -12,6 +12,7 @@ import {
   GridRow,
   GridRowProps,
   LicenseInfo,
+  useGridApiRef,
 } from '@mui/x-data-grid-pro'
 
 import { makeStyles } from '../../utils'
@@ -24,6 +25,7 @@ import { ColumnSortingState, stableSort } from '../../data/sorting'
 import { ColoredCircle } from '../../color/components/ColoredCircle'
 import { PatientId, PatientIdNone } from '../../data/patients'
 import { IndexPatientButton } from '../containers/IndexPatientButton'
+import { ScrollToButton } from './ScrollToButton'
 
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
@@ -41,7 +43,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   footer: {
     padding: `0 ${theme.spacing(2)}`,
-    color: theme.entityColors.indexPatient,
   },
 }))
 
@@ -76,6 +77,8 @@ export const DataTable = ({
 }: Props) => {
   const theme = useTheme()
   const { classes } = useStyles()
+
+  const apiRef = useGridApiRef()
 
   const dataGridColumns: GridColumns<Entity> = useMemo(() => {
     let cols: GridColumns<Entity> = columns.map((column) => ({
@@ -121,16 +124,17 @@ export const DataTable = ({
 
   const pinnedRows = useMemo(() => {
     const pinnedRows: GridPinnedRowsProp = {
-      top: sortedRows.filter((row) => row.uid === indexPatientId || row.uid === selectedEntity),
+      top: sortedRows.filter((row) => row.uid === indexPatientId),
     }
 
     return pinnedRows
-  }, [sortedRows, selectedEntity, indexPatientId])
+  }, [sortedRows, indexPatientId])
 
   return (
     <Paper variant="outlined" className={classes.root}>
       <div className={classes.maxed}>
         <DataGridPro
+          apiRef={apiRef}
           rows={sortedRows}
           pinnedRows={pinnedRows}
           experimentalFeatures={{ rowPinning: true }}
@@ -177,8 +181,6 @@ export const DataTable = ({
                 {...props}
                 onMouseEnter={() => onEntityHover((props.row as Entity).uid)}
                 onMouseLeave={() => onEntityHover(EntityIdNone)}
-                // Separate onClick-handler because selectionModel does not work for pinned Entities
-                onClick={() => props.row.uid === selectedEntity && onEntityClick((props.row as Entity).uid)}
                 style={{
                   ...props.style,
                   color:
@@ -195,26 +197,34 @@ export const DataTable = ({
             ),
             Footer: () => (
               <GridFooterContainer className={classes.footer}>
-                {indexPatientId !== PatientIdNone ? (
-                  <Button
-                    onClick={onResetIndexPatient}
-                    variant="outlined"
-                    size="small"
-                    endIcon={<CloseIcon />}
-                    color="inherit"
-                  >
-                    Index Patient: {indexPatientId}
-                  </Button>
-                ) : (
-                  <span></span>
-                )}
-                {selectedEntity !== EntityIdNone ? (
-                  <Typography variant="body2" color={theme.palette.text.primary}>
-                    1 Row selected (id: {selectedEntity})
-                  </Typography>
-                ) : (
-                  <span></span>
-                )}
+                <Stack direction="row" spacing={1}>
+                  {indexPatientId !== PatientIdNone ? (
+                    <div style={{ color: theme.entityColors.indexPatient }}>
+                      <Button
+                        onClick={onResetIndexPatient}
+                        variant="outlined"
+                        size="small"
+                        endIcon={<CloseIcon />}
+                        color="inherit"
+                      >
+                        Index Patient: {indexPatientId}
+                      </Button>
+                    </div>
+                  ) : (
+                    <span></span>
+                  )}
+                  {selectedEntity !== EntityIdNone ? (
+                    <ScrollToButton
+                      gridApiRef={apiRef}
+                      rows={sortedRows}
+                      entityId={selectedEntity}
+                      label={`Selected Entity: ${selectedEntity}`}
+                      color={theme.entityColors.selected}
+                    />
+                  ) : (
+                    <span></span>
+                  )}
+                </Stack>
                 <Typography variant="body2" color={theme.palette.text.primary}>
                   Total Rows: {rows.length}
                 </Typography>

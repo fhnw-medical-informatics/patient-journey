@@ -164,6 +164,12 @@ export const selectActiveHoveredEventEntity = createSelector(
   (eventMap, entity) => selectActiveEntity(eventMap, 'events', entity)
 )
 
+export const selectSelectedEventEntityPID = createSelector(
+  selectEventDataRowMap,
+  selectSelectedEntity,
+  (eventMap, entity) => selectActiveEntity(eventMap, 'patients', entity)
+)
+
 const selectPatientDataColumnType = (s: RootState, columnType: PatientDataColumnType) => columnType
 
 export const selectPatientDataColumn = createSelector(
@@ -224,14 +230,30 @@ export const selectEventDataTimestampValuesFormatted = createSelector(
 export const selectAllFilters = createSelector(selectData, (data) => data.filters)
 
 const selectPatientFilters = createSelector(selectPatientDataColumns, selectAllFilters, (patientDataColumns, filters) =>
-  filters.filter((filter) => patientDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
+  filters.filter(
+    (filter) =>
+      patientDataColumns.findIndex(
+        (column) =>
+          column.name === filter.column.name &&
+          column.index === filter.column.index &&
+          column.type === filter.column.type
+      ) !== -1
+  )
 )
 
 export const selectEventFilters = createSelector(
   selectEventDataColumns,
   selectAllFilters,
   (eventDataColumns, filters) =>
-    filters.filter((filter) => eventDataColumns.findIndex((column) => column.name === filter.column.name) !== -1)
+    filters.filter(
+      (filter) =>
+        eventDataColumns.findIndex(
+          (column) =>
+            column.name === filter.column.name &&
+            column.index === filter.column.index &&
+            column.type === filter.column.type
+        ) !== -1
+    )
 )
 
 const selectFilteredPatientData = createSelector(

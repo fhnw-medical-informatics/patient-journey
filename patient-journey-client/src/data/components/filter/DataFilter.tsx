@@ -9,6 +9,7 @@ import { TextDataFilter } from './TextDataFilter'
 import { CategoryDataFilter } from './CategoryDataFilter'
 import { DataColumn } from '../../columns'
 import { Entity } from '../../entities'
+import { PIDDataFilter } from '../../containers/filter/PIDDataFilter'
 
 export interface DataFilterProps<T extends FilterColumn['type']> {
   allActiveData: ReadonlyArray<Entity>
@@ -28,6 +29,16 @@ export const DataFilter = <T extends FilterColumn['type']>({
   onRemoveFilter,
 }: DataFilterProps<T>) => {
   switch (type) {
+    case 'pid':
+      return (
+        <PIDDataFilter
+          column={column}
+          type={type}
+          value={(filter as Filter<'pid'> | undefined)?.value ?? { text: '' }}
+          onChange={onAddFilter}
+          onRemove={onRemoveFilter}
+        />
+      )
     case 'string':
       return (
         <TextDataFilter
