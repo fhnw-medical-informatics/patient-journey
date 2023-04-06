@@ -12,7 +12,7 @@ interface SvgMarkProps {
   readonly size: number
   readonly color: string
   readonly stroke: string
-  readonly onClick: () => void
+  readonly onClick: (e: React.MouseEvent<SVGCircleElement, MouseEvent>) => void
   readonly onMouseEnter: () => void
   readonly onMouseLeave: () => void
 }

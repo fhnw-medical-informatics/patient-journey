@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
-import { Button, Paper, Stack, Typography, useTheme } from '@mui/material'
+import { Button, Paper, Stack, Typography, keyframes, useTheme } from '@mui/material'
 
 import CloseIcon from '@mui/icons-material/Close'
 
@@ -30,6 +30,24 @@ import { ScrollToButton } from './ScrollToButton'
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
 
+const flash = (color1: string, color2: string) => keyframes`
+0% {
+  color: ${color1};
+}
+25% {
+  color: ${color2};
+}
+50% {
+  color: ${color1};
+}
+75% {
+  color: ${color2};
+}
+100% {
+  color: ${color1};
+}
+`
+
 const useStyles = makeStyles()((theme) => ({
   root: {
     display: 'grid',
@@ -43,6 +61,18 @@ const useStyles = makeStyles()((theme) => ({
   },
   footer: {
     padding: `0 ${theme.spacing(2)}`,
+  },
+  selectedPatientRow: {
+    fontWeight: 'bold',
+    backgroundColor: 'transparent !important',
+  },
+  indexPatientRow: {
+    fontWeight: 'bold',
+  },
+  highlightSelectedPatientRow: {
+    fontWeight: 'bold',
+    animation: `${flash(theme.palette.text.primary, theme.entityColors.selected)} 1s`,
+    backgroundColor: `${theme.entityColors.default} !important`,
   },
 }))
 
@@ -79,6 +109,15 @@ export const DataTable = ({
   const { classes } = useStyles()
 
   const apiRef = useGridApiRef()
+
+  const [flashRow, setFlashRow] = React.useState<EntityId>(EntityIdNone)
+
+  const handleScrollToButtonClick = useCallback(() => {
+    // Add this line to trigger the flash effect
+    setFlashRow(selectedEntity)
+    // Reset the flash state after the animation duration
+    setTimeout(() => setFlashRow(EntityIdNone), 1000)
+  }, [selectedEntity])
 
   const dataGridColumns: GridColumns<Entity> = useMemo(() => {
     let cols: GridColumns<Entity> = columns.map((column) => ({
@@ -175,6 +214,17 @@ export const DataTable = ({
               }
             }
           }}
+          getRowClassName={(params) => {
+            if (params.row.uid === indexPatientId) {
+              return classes.indexPatientRow
+            } else if (params.row.uid === flashRow) {
+              return classes.highlightSelectedPatientRow
+            } else if (params.row.uid === selectedEntity) {
+              return classes.selectedPatientRow
+            } else {
+              return ''
+            }
+          }}
           components={{
             Row: (props: React.HTMLAttributes<HTMLDivElement> & GridRowProps) => (
               <GridRow
@@ -190,8 +240,7 @@ export const DataTable = ({
                       ? theme.entityColors.selected
                       : colorByColumn.type !== 'none'
                       ? colorByColumnFn(props.row)
-                      : '',
-                  fontWeight: props.row.uid === indexPatientId || props.row.uid === selectedEntity ? 'bold' : 'normal',
+                      : theme.palette.text.primary,
                 }}
               />
             ),
@@ -206,6 +255,8 @@ export const DataTable = ({
                         size="small"
                         endIcon={<CloseIcon />}
                         color="inherit"
+                        title="Reset Index Patient"
+                        sx={{ lineHeight: 1 }}
                       >
                         Index Patient: {indexPatientId}
                       </Button>
@@ -220,6 +271,8 @@ export const DataTable = ({
                       entityId={selectedEntity}
                       label={`Selected Entity: ${selectedEntity}`}
                       color={theme.entityColors.selected}
+                      title="Scroll to Selected Entity"
+                      onClick={handleScrollToButtonClick}
                     />
                   ) : (
                     <span></span>
@@ -232,10 +285,6 @@ export const DataTable = ({
             ),
           }}
           sx={{
-            '& .MuiDataGrid-row.Mui-selected': {
-              backgroundColor: 'transparent !important',
-              color: `${theme.entityColors.selected} !important`, // override colored background from row
-            },
             '& .MuiDataGrid-row.Mui-selected:hover': {
               backgroundColor: `${theme.entityColors.default} !important`,
             },

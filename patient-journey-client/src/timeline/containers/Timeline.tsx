@@ -31,6 +31,7 @@ import {
   useSortByState,
   useTimelineDataColumns,
   useTimelineSortDataColumns,
+  useHoveredLaneId,
 } from '../hooks'
 import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
@@ -94,6 +95,15 @@ export const Timeline = React.memo(() => {
   const { onEntityHover } = useEntityInteraction('events')
   const onInteractionEnd = useCallback(() => onEntityHover(EntityIdNone), [onEntityHover])
 
+  const { onEntityClick: onPatientsEntityClick } = useEntityInteraction('patients')
+  const hoveredLaneId = useHoveredLaneId()
+
+  const handleTimelineClick = useCallback(() => {
+    if (expandByColumn !== TimelineColumnNone && expandByColumn.type === 'pid') {
+      onPatientsEntityClick(hoveredLaneId)
+    }
+  }, [onPatientsEntityClick, expandByColumn, hoveredLaneId])
+
   return (
     <TimelineComponent
       dateFormat={formatMillis}
@@ -123,6 +133,7 @@ export const Timeline = React.memo(() => {
       onToggleAllowInteraction={onToggleAllowInteraction}
       onInteractionEnd={onInteractionEnd}
       hasActiveEventFilters={eventFilters.length > 0}
+      onTimelineClick={handleTimelineClick}
     />
   )
 })

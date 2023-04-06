@@ -57,7 +57,12 @@ export const TimelineActiveMarks = <
           size={markSize}
           color={event.color ?? theme.entityColors.default}
           stroke={strokeColor}
-          onClick={() => onSelect(event.eventId as EntityId)}
+          onClick={(e: React.MouseEvent<SVGCircleElement, MouseEvent>) => {
+            // Prevent click propagation, so that timeline click handler
+            // does not get triggered (used for patient selection via lane click)
+            e.stopPropagation()
+            onSelect(event.eventId as EntityId)
+          }}
           onMouseEnter={() => onHover(event.eventId as EntityId)}
           onMouseLeave={() => onHover(EntityIdNone)}
         />
