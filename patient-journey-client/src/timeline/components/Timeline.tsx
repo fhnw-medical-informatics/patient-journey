@@ -48,6 +48,7 @@ interface TimelineProps {
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
   onInteractionEnd: () => void
   hasActiveEventFilters: boolean
+  onTimelineClick: () => void
 }
 
 export const Timeline = ({
@@ -78,6 +79,7 @@ export const Timeline = ({
   onCursorPositionChange,
   onInteractionEnd,
   hasActiveEventFilters,
+  onTimelineClick,
 }: TimelineProps) => {
   const { classes } = useStyles()
 
@@ -116,6 +118,7 @@ export const Timeline = ({
         allowInteraction={allowInteraction}
         onCursorPositionChange={onCursorPositionChange}
         onInteractionEnd={onInteractionEnd}
+        onTimelineClick={onTimelineClick}
       />
     </Paper>
   )

@@ -31,6 +31,7 @@ interface TimelineProps {
   allowInteraction: boolean
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
   onInteractionEnd: () => void
+  onTimelineClick: () => void
 }
 
 export const TimelineView = ({
@@ -43,6 +44,7 @@ export const TimelineView = ({
   allowInteraction,
   onCursorPositionChange,
   onInteractionEnd,
+  onTimelineClick,
 }: TimelineProps) => {
   const muiTheme = useTheme()
   const timelineTheme = deriveTimelineTheme(muiTheme.palette.mode, muiTheme, {
@@ -61,44 +63,47 @@ export const TimelineView = ({
       <AutoSizer>
         {({ width, height }: Size) => {
           return (
-            <MouseAwareSvg
-              height={height}
-              width={width}
-              onMouseMove={({ x, y }) => {
-                onCursorPositionChange(!isNaN(x) && !isNaN(y) ? { x, y } : CursorPositionNone)
-              }}
-            >
-              <SVGTimeline
-                width={width}
+            // A wrapper div to capture clicks on the timeline
+            <div onClick={onTimelineClick}>
+              <MouseAwareSvg
                 height={height}
-                events={events}
-                lanes={lanes}
-                dateFormat={dateFormat}
-                laneDisplayMode={laneDisplayMode}
-                enableEventClustering={enableClustering}
-                theme={timelineTheme}
-                layers={[
-                  showTimeGrid ? 'grid' : INVISIBLE_LAYER,
-                  TimelineLanesLayer,
-                  TimelineCanvasMarksLayer,
-                  TimelineJourneysLayer,
-                  'interaction',
-                  TimelineCanvasMarksInteractionLayer,
-                  TimelineActiveMarksLayer,
-                ]}
-                enabledInteractions={
-                  allowInteraction
-                    ? [
-                        InteractionModeType.Hover,
-                        InteractionModeType.Zoom,
-                        InteractionModeType.Pan,
-                        InteractionModeType.RubberBand,
-                      ]
-                    : [InteractionModeType.Hover]
-                }
-                onInteractionEnd={onInteractionEnd}
-              />
-            </MouseAwareSvg>
+                width={width}
+                onMouseMove={({ x, y }) => {
+                  onCursorPositionChange(!isNaN(x) && !isNaN(y) ? { x, y } : CursorPositionNone)
+                }}
+              >
+                <SVGTimeline
+                  width={width}
+                  height={height}
+                  events={events}
+                  lanes={lanes}
+                  dateFormat={dateFormat}
+                  laneDisplayMode={laneDisplayMode}
+                  enableEventClustering={enableClustering}
+                  theme={timelineTheme}
+                  layers={[
+                    showTimeGrid ? 'grid' : INVISIBLE_LAYER,
+                    TimelineLanesLayer,
+                    TimelineCanvasMarksLayer,
+                    TimelineJourneysLayer,
+                    'interaction',
+                    TimelineCanvasMarksInteractionLayer,
+                    TimelineActiveMarksLayer,
+                  ]}
+                  enabledInteractions={
+                    allowInteraction
+                      ? [
+                          InteractionModeType.Hover,
+                          InteractionModeType.Zoom,
+                          InteractionModeType.Pan,
+                          InteractionModeType.RubberBand,
+                        ]
+                      : [InteractionModeType.Hover]
+                  }
+                  onInteractionEnd={onInteractionEnd}
+                />
+              </MouseAwareSvg>
+            </div>
           )
         }}
       </AutoSizer>
