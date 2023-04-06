@@ -62,8 +62,17 @@ const useStyles = makeStyles()((theme) => ({
   footer: {
     padding: `0 ${theme.spacing(2)}`,
   },
-  flashAnimation: {
+  selectedPatientRow: {
+    fontWeight: 'bold',
+    backgroundColor: 'transparent !important',
+  },
+  indexPatientRow: {
+    fontWeight: 'bold',
+  },
+  highlightSelectedPatientRow: {
+    fontWeight: 'bold',
     animation: `${flash(theme.palette.text.primary, theme.entityColors.selected)} 1s`,
+    backgroundColor: `${theme.entityColors.default} !important`,
   },
 }))
 
@@ -205,6 +214,17 @@ export const DataTable = ({
               }
             }
           }}
+          getRowClassName={(params) => {
+            if (params.row.uid === indexPatientId) {
+              return classes.indexPatientRow
+            } else if (params.row.uid === flashRow) {
+              return classes.highlightSelectedPatientRow
+            } else if (params.row.uid === selectedEntity) {
+              return classes.selectedPatientRow
+            } else {
+              return ''
+            }
+          }}
           components={{
             Row: (props: React.HTMLAttributes<HTMLDivElement> & GridRowProps) => (
               <GridRow
@@ -221,9 +241,7 @@ export const DataTable = ({
                       : colorByColumn.type !== 'none'
                       ? colorByColumnFn(props.row)
                       : theme.palette.text.primary,
-                  fontWeight: props.row.uid === indexPatientId || props.row.uid === selectedEntity ? 'bold' : 'normal',
                 }}
-                className={props.row.uid === flashRow ? classes.flashAnimation : ''}
               />
             ),
             Footer: () => (
@@ -267,9 +285,6 @@ export const DataTable = ({
             ),
           }}
           sx={{
-            '& .MuiDataGrid-row.Mui-selected': {
-              backgroundColor: 'transparent !important',
-            },
             '& .MuiDataGrid-row.Mui-selected:hover': {
               backgroundColor: `${theme.entityColors.default} !important`,
             },
