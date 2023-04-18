@@ -73,7 +73,7 @@ export const loadData = async (
   }
 }
 
-async function parseDataFromUrl(url: string) {
+export async function parseDataFromUrl(url: string) {
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`${response.statusText} (${response.url})`)
