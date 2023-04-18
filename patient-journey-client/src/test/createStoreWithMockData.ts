@@ -41,6 +41,14 @@ export const createStoreWithMockData = async () => {
         type: 'loading-pending',
       },
     },
+    embeddingsData: {
+      patientDataEmbeddings: {
+        type: 'loading-pending',
+      },
+      queryEmbeddings: {
+        type: 'loading-pending',
+      },
+    },
   }
   await store.dispatch(loadingDataComplete(loadedData))
   return { store, loadedData }

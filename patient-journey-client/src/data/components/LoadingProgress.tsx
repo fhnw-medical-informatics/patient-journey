@@ -4,7 +4,13 @@ import { CircularProgress, Step, StepIcon, StepIconProps, StepLabel, Stepper } f
 import { LoadingProgress as LoadingProgressState, LoadingStep } from '../loading'
 import { ConsistencyChecks } from '../containers/ConsistencyChecks'
 
-const STEPS = ['Loading Patients', 'Loading Events', 'Loading Similarities', 'Checking Consistency']
+const STEPS = [
+  'Loading Patients',
+  'Loading Events',
+  'Loading Similarities',
+  'Loading Embeddings',
+  'Checking Consistency',
+]
 
 const useStyles = makeStyles()((theme) => ({
   centered: {
