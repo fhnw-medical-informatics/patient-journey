@@ -6,12 +6,14 @@ import { timelineReducer } from '../timeline/timelineSlice'
 import { colorReducer } from '../color/colorSlice'
 import { alertReducer } from '../alert/alertSlice'
 import { tableReducer } from '../table/tableSlice'
+import { plotReducer } from '../plot/plotSlice'
 
 export const reducer = combineReducers({
   theme: themeReducer,
   data: dataReducer,
   table: tableReducer,
   timeline: timelineReducer,
+  plot: plotReducer,
   color: colorReducer,
   alert: alertReducer,
 })

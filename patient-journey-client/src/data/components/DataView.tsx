@@ -3,9 +3,9 @@ import React, { useState } from 'react'
 import { makeStyles } from '../../utils'
 import SplitPane from 'react-split-pane'
 import { DataFilters } from '../containers/filter/DataFilters'
-import { Timeline } from '../../timeline/containers/Timeline'
 import { DataTable } from '../../table/containers/DataTable'
 import { InfoPanel } from '../containers/info/InfoPanel'
+import { ScatterPlot } from '../../plot/containers/ScatterPlot'
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '20%'
 const DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE = '60%'
@@ -125,7 +125,7 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
           <DataTable />
         </div>
         <div className={classes.timeline}>
-          <Timeline />
+          <ScatterPlot />
         </div>
       </SplitPane>
     </SplitPane>
