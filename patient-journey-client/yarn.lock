@@ -2275,6 +2275,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nem035/gpt-3-encoder@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "@nem035/gpt-3-encoder@npm:1.1.7"
+  checksum: f5e3ff77ff8482d0ca4b5406b66421557003b686ed481056ca3c32497db823536485a91cc571bd91b5a437e7bd93ed005f75d0a5465e2d687274273c501c3335
+  languageName: node
+  linkType: hard
+
 "@nivo/annotations@npm:0.79.1":
   version: 0.79.1
   resolution: "@nivo/annotations@npm:0.79.1"
@@ -5484,6 +5491,15 @@ __metadata:
   version: 4.4.3
   resolution: "axe-core@npm:4.4.3"
   checksum: c3ea000d9ace3ba0bc747c8feafc24b0de62a0f7d93021d0f77b19c73fca15341843510f6170da563d51535d6cfb7a46c5fc0ea36170549dbb44b170208450a2
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.26.0":
+  version: 0.26.1
+  resolution: "axios@npm:0.26.1"
+  dependencies:
+    follow-redirects: ^1.14.8
+  checksum: d9eb58ff4bc0b36a04783fc9ff760e9245c829a5a1052ee7ca6013410d427036b1d10d04e7380c02f3508c5eaf3485b1ae67bd2adbfec3683704745c8d7a6e1a
   languageName: node
   linkType: hard
 
@@ -9015,6 +9031,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"follow-redirects@npm:^1.14.8":
+  version: 1.15.2
+  resolution: "follow-redirects@npm:1.15.2"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: faa66059b66358ba65c234c2f2a37fcec029dc22775f35d9ad6abac56003268baf41e55f9ee645957b32c7d9f62baf1f0b906e68267276f54ec4b4c597c2b190
+  languageName: node
+  linkType: hard
+
 "for-in@npm:^1.0.2":
   version: 1.0.2
   resolution: "for-in@npm:1.0.2"
@@ -12478,6 +12504,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"openai@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "openai@npm:3.2.1"
+  dependencies:
+    axios: ^0.26.0
+    form-data: ^4.0.0
+  checksum: ef3942e9b527cf27273c4355bb8fb9ebd94ae3a88c12eec0ac51c4ef0ad8c18864683759471597390816bcd822bdc9f2f1cea7a3eb1e432c9101f568f7c6d19a
+  languageName: node
+  linkType: hard
+
 "optionator@npm:^0.8.1":
   version: 0.8.3
   resolution: "optionator@npm:0.8.3"
@@ -12888,6 +12924,7 @@ __metadata:
     "@mui/icons-material": ^5.6.2
     "@mui/material": ^5.6.4
     "@mui/x-data-grid-pro": ^5.10.0
+    "@nem035/gpt-3-encoder": ^1.1.7
     "@nivo/bar": ^0.79.1
     "@nivo/core": ^0.79.0
     "@reduxjs/toolkit": ^1.8.1
@@ -12923,6 +12960,7 @@ __metadata:
     jsdom: latest
     lint-staged: 12.4.1
     lodash: ^4.17.21
+    openai: ^3.2.1
     papaparse: ^5.3.2
     prettier: 2.6.2
     prettier-plugin-packagejson: 2.2.17
