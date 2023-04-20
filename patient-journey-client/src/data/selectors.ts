@@ -1,5 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { max, min } from 'd3-array'
+import similarity from 'compute-cosine-similarity'
+
 import { ColorByColumnOptionNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
@@ -45,6 +47,8 @@ export const selectPatientCount = createSelector(selectPatientData, (data) => da
 
 export const selectIndexPatientId = createSelector(selectData, (data) => data.indexPatientId)
 
+export const selectSimilarityProvider = createSelector(selectData, (data) => data.similarityProvider)
+
 export const selectIndexPatientIdIndex = createSelector(
   selectData,
   selectIndexPatientId,
@@ -70,13 +74,43 @@ const selectSimilarityData = createSelector(selectData, selectIndexPatientId, (d
     : null
 )
 
-const selectPatientDataRows = createSelector(selectPatientData, selectSimilarityData, (patientData, similarityData) =>
-  similarityData === null
-    ? patientData.allEntities
-    : patientData.allEntities.map((entity, idx) => ({
-        ...entity,
-        values: [...entity.values, `${similarityData[idx]}`],
-      }))
+const selectEmbeddingsData = createSelector(selectData, selectIndexPatientId, (data, indexPatientId) =>
+  indexPatientId !== PatientIdNone && data.embeddingsData.patientDataEmbeddings.type === 'loading-complete'
+    ? data.embeddingsData.patientDataEmbeddings.embeddings
+    : null
+)
+
+const selectComputedSimilarities = createSelector(
+  selectSimilarityData,
+  selectEmbeddingsData,
+  selectIndexPatientId,
+  selectSimilarityProvider,
+  selectPatientData,
+  (similarityData, embeddingsData, indexPatientId, similarityProvider, patientData) => {
+    if (indexPatientId !== PatientIdNone) {
+      if (similarityProvider === 'matrix' && similarityData) {
+        return similarityData
+      } else if (similarityProvider === 'embeddings' && embeddingsData) {
+        const indexPatientEmbeddings = embeddingsData[indexPatientId]
+
+        return patientData.allEntities.map((patient) => similarity(indexPatientEmbeddings, embeddingsData[patient.pid]))
+      }
+    }
+
+    return null
+  }
+)
+
+const selectPatientDataRows = createSelector(
+  selectPatientData,
+  selectComputedSimilarities,
+  (patientData, computedSimilarityData) =>
+    computedSimilarityData === null
+      ? patientData.allEntities
+      : patientData.allEntities.map((entity, idx) => ({
+          ...entity,
+          values: [...entity.values, `${computedSimilarityData[idx]}`],
+        }))
 )
 
 const selectEventData = createSelector(selectData, (data) => data.eventData)

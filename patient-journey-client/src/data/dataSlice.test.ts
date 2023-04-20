@@ -15,6 +15,7 @@ import {
   setIndexPatient,
   setSelectedEntity,
   setSplitPaneResizing,
+  setSimilarityProvider,
 } from './dataSlice'
 
 import { createStore, RootState } from '../store'
@@ -30,6 +31,7 @@ import {
   selectDataLoadingProgress,
   selectDataView,
   selectIndexPatientId,
+  selectSimilarityProvider,
   selectSplitPaneResizing,
 } from './selectors'
 import { EntityIdNone } from './entities'
@@ -628,5 +630,16 @@ describe('dataSlice', () => {
     expect(getIndexPatientSimilarities()).toEqual({
       type: 'loading-pending',
     })
+  })
+
+  it(`handles the ${setSimilarityProvider.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getSimilarityProvider = () => selectSimilarityProvider(store.getState())
+
+    expect(getSimilarityProvider()).toEqual('matrix')
+
+    store.dispatch(setSimilarityProvider('embeddings'))
+
+    expect(getSimilarityProvider()).toEqual('embeddings')
   })
 })

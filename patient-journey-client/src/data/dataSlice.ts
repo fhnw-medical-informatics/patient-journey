@@ -59,8 +59,12 @@ interface Selection {
   readonly selected: FocusEntity
 }
 
+export const SIMILARITY_PROVIDER = ['matrix', 'embeddings'] as const
+export type SimilarityProvider = typeof SIMILARITY_PROVIDER[number]
+
 interface IndexPatient {
   readonly indexPatientId: PatientId
+  readonly similarityProvider: SimilarityProvider
 }
 
 interface SplitPane {
@@ -92,6 +96,7 @@ const dataSlice = createSlice({
       hovered: FOCUS_ENTITY_NONE,
       selected: FOCUS_ENTITY_NONE,
       indexPatientId: PatientIdNone,
+      similarityProvider: 'matrix',
       isResizing: false,
       ...freeze(action.payload, true),
     }),
@@ -191,6 +196,11 @@ const dataSlice = createSlice({
 
       return state
     },
+    setSimilarityProvider: (state: Draft<DataState>, action: PayloadAction<SimilarityProvider>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityProvider = action.payload
+      })
+    },
   },
 })
 
@@ -229,6 +239,7 @@ export const {
   loadingSimilaritiesInProgress,
   loadingSimilaritiesDataFailed,
   loadingSimilaritiesComplete,
+  setSimilarityProvider,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
