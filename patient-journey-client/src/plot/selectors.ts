@@ -1,6 +1,6 @@
 import { RootState } from '../store'
 import { createSelector } from '@reduxjs/toolkit'
-import { ScatterPlotDatum } from './model'
+import { ScatterPlotData, ScatterPlotDatum } from './model'
 import { selectCrossFilteredPatientData } from '../data/selectors'
 import { PlotColumnNone } from './plotSlice'
 import { DataColumn, extractNumberValueSafe } from '../data/columns'
@@ -10,13 +10,13 @@ export const selectScatterPlotState = (s: RootState) => s.plot.scatterPlot
 export const selectScatterPlotData = createSelector(
   selectCrossFilteredPatientData,
   selectScatterPlotState,
-  (patientData, plotState): ScatterPlotDatum[] => {
+  (patientData, plotState): ScatterPlotData => {
     if (plotState.xAxisColumn === PlotColumnNone || plotState.yAxisColumn === PlotColumnNone) {
-      return []
+      return { xAxisLabel: '', yAxisLabel: '', data: [] }
     } else {
       const xCol: DataColumn<'number'> = plotState.xAxisColumn
       const yCol: DataColumn<'number'> = plotState.yAxisColumn
-      return patientData.map<ScatterPlotDatum>((patient) => {
+      const data = patientData.map<ScatterPlotDatum>((patient) => {
         const xSafe = extractNumberValueSafe(xCol)(patient)
         const ySafe = extractNumberValueSafe(yCol)(patient)
         return {
@@ -25,6 +25,7 @@ export const selectScatterPlotData = createSelector(
           y: ySafe.length === 0 ? NaN : ySafe[0],
         }
       })
+      return { xAxisLabel: xCol.name, yAxisLabel: yCol.name, data }
     }
   }
 )

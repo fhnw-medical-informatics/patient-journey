@@ -18,5 +18,5 @@ export const ScatterPlot = () => {
     dispatch(setScatterPlotYAxisColumn(exampleColumn))
   }, [dispatch, exampleColumn])
 
-  return <ScatterPlotComponent data={data} />
+  return <ScatterPlotComponent {...data} />
 }

@@ -1,9 +1,9 @@
-import { Paper } from '@mui/material'
+import { alpha, Paper } from '@mui/material'
 import { ScatterPlotDatum } from '../model'
 import { ScatterPlotCanvas } from '@nivo/scatterplot'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import React from 'react'
-import { extent } from 'd3-array'
+import { useCustomTheme } from '../../theme/useCustomTheme'
 
 const sxRoot = {
   width: 1,
@@ -13,25 +13,36 @@ const sxRoot = {
 }
 
 interface Props {
+  readonly xAxisLabel: string
+  readonly yAxisLabel: string
   readonly data: ScatterPlotDatum[]
 }
 
-export const ScatterPlot = ({ data }: Props) => {
-  const [xMin, xMax] = extent(data.map((d) => d.x))
-  const [yMin, yMax] = extent(data.map((d) => d.y))!
+export const ScatterPlot = ({ xAxisLabel, yAxisLabel, data }: Props) => {
+  const theme = useCustomTheme()
 
   return (
     <Paper sx={sxRoot} variant="outlined">
       <AutoSizer>
-        {({ width, height }: Size) => (
-          <ScatterPlotCanvas
-            width={width}
-            height={height}
-            data={[{ id: 'default', data }]}
-            xScale={{ type: 'linear', min: xMin, max: xMax }}
-            yScale={{ type: 'linear', min: yMin, max: yMax }}
-          />
-        )}
+        {({ width, height }: Size) => {
+          return (
+            <ScatterPlotCanvas
+              width={width}
+              height={height}
+              data={[{ id: 'default', data }]}
+              xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+              axisLeft={{ legend: xAxisLabel, legendPosition: 'middle', legendOffset: -50 }}
+              axisBottom={{ legend: yAxisLabel, legendPosition: 'middle', legendOffset: 40 }}
+              yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+              margin={{ top: 10, right: 20, bottom: 50, left: 70 }}
+              theme={{
+                textColor: theme.palette.text.primary,
+                axis: { legend: { text: { fontWeight: 'bold' } } },
+                grid: { line: { stroke: alpha(theme.palette.text.disabled, 0.2) } },
+              }}
+            />
+          )
+        }}
       </AutoSizer>
     </Paper>
   )
