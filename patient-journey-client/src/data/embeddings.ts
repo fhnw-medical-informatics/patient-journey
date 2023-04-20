@@ -1,9 +1,14 @@
 import { encode } from '@nem035/gpt-3-encoder'
 
 import { EventData } from './events'
-import { PatientId, PatientData } from './patients'
+import { PatientData } from './patients'
 import { openaiAPI } from '../utils/openai'
 import { sha256 } from '../utils'
+import { EMBEDDINGS_DATA_FILE_URL } from './constants'
+
+export type Embeddings = Record<string, ReadonlyArray<number>>
+
+export type EmbeddingsFile = { patientDataHash: string; embeddings: Embeddings }
 
 export type EmbeddingsStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -19,7 +24,7 @@ export type EmbeddingsStateLoadingFailed = Readonly<{
 }>
 
 export interface LoadedEmbeddings {
-  embeddings: Record<PatientId, ReadonlyArray<number>>
+  embeddings: Embeddings
 }
 
 export interface LoadedQueryEmbeddings {
@@ -162,12 +167,12 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
   const patientDataHash = await sha256(JSON.stringify(patientData.allEntities))
 
   // Check if embeddings are already cached in local storage
-  const cachedEmbeddings = localStorage.getItem(patientDataHash)
+  const cachedEmbeddingsFile = await loadEmbeddingsFileFromUrl(EMBEDDINGS_DATA_FILE_URL)
 
-  if (cachedEmbeddings) {
+  if (cachedEmbeddingsFile && cachedEmbeddingsFile.patientDataHash === patientDataHash) {
     console.log('Embeddings loaded from cache in local storage')
 
-    const embeddings = JSON.parse(cachedEmbeddings)
+    const embeddings = cachedEmbeddingsFile.embeddings
 
     console.log('Embeddings', embeddings)
 
@@ -181,9 +186,13 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
       },
     })
   } else {
+    if (cachedEmbeddingsFile && cachedEmbeddingsFile.patientDataHash !== patientDataHash) {
+      console.log('Cached embeddings are for a different patient data set, loading new embeddings from API')
+    }
+
     const patientJourneys = preparePatientJourneys(patientData, eventData)
 
-    const { totalNrOfTokens, patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, 8191)
+    const { totalNrOfTokens, patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, 6000) // 8191 is the max number of tokens per request (but encode library does not seem to be exact)
 
     console.log('Total number of tokens:', totalNrOfTokens)
     console.log('Number of chunks:', patientJourneyChunks.length)
@@ -251,16 +260,19 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
       }
     }
 
-    const patientDataEmbeddings: Record<string, ReadonlyArray<number>> = {}
+    const patientDataEmbeddings: Embeddings = {}
 
     patientData.allEntities.forEach((patient, idx) => {
       patientDataEmbeddings[patient.pid] = patientJourneyEmbeddings[idx]
     })
 
-    // Cache embeddings in local storage
-    // TODO:
-    // Data Loading Error DOMException: Failed to execute 'setItem' on 'Storage': Setting the value of 'e1b0725a92521a43a327b5a5890be77c9aff96299ed6904e72749aa566b0a377' exceeded the quota.
-    localStorage.setItem(patientDataHash, JSON.stringify(patientDataEmbeddings))
+    // Download embeddings as json file and prompt user to save it
+    const blob = new Blob([JSON.stringify({ patientDataHash, embeddings: patientDataEmbeddings })], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    console.log('Download embeddings as json file:', url)
+    // <a href="blob:http://127.0.0.1:3000/77094bbb-5b03-4391-92dc-42796fd8ba3d" download="embeddings.json">Download</a>
 
     console.log('Embeddings cached successfully')
 
@@ -275,5 +287,17 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
         type: 'loading-pending',
       },
     })
+  }
+}
+
+const loadEmbeddingsFileFromUrl = async (url: string): Promise<EmbeddingsFile | undefined> => {
+  const response = await fetch(url)
+
+  if (response.ok) {
+    const json = await response.json()
+
+    return json
+  } else {
+    return undefined
   }
 }
