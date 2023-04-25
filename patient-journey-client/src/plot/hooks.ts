@@ -1,4 +1,10 @@
 import { useSelector } from 'react-redux'
-import { selectScatterPlotData } from './selectors'
+import {
+  selectActiveScatterPlotXAxisColumn,
+  selectActiveScatterPlotYAxisColumn,
+  selectScatterPlotData,
+} from './selectors'
 
 export const useScatterPlotData = () => useSelector(selectScatterPlotData)
+export const useActiveScatterPlotXAxisColumn = () => useSelector(selectActiveScatterPlotXAxisColumn)
+export const useActiveScatterPlotYAxisColumn = () => useSelector(selectActiveScatterPlotYAxisColumn)

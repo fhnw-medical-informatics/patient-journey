@@ -7,8 +7,8 @@ export const PlotColumnNone = 'n/a'
 export type NoPlotColumn = typeof PlotColumnNone
 
 export interface ScatterPlotState {
-  xAxisColumn: ScatterPlotColumn
-  yAxisColumn: ScatterPlotColumn
+  readonly xAxisColumn: ScatterPlotColumn
+  readonly yAxisColumn: ScatterPlotColumn
 }
 
 export interface PlotState {

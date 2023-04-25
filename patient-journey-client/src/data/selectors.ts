@@ -3,7 +3,7 @@ import { max, min } from 'd3-array'
 import { ColorByColumnOptionNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
-import { formatColumnValue, stringToMillis } from './columns'
+import { DataColumn, formatColumnValue, stringToMillis } from './columns'
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { FilterColumn, filterReducer } from './filtering'
@@ -176,6 +176,12 @@ export const selectPatientDataColumn = createSelector(
   selectPatientDataColumns,
   selectPatientDataColumnType,
   (columns, columnType) => columns.find((c) => c.type === columnType)!
+)
+
+export const selectAllNumericPatientDataColumns = createSelector(
+  selectPatientDataColumns,
+  (columns): ReadonlyArray<DataColumn<'number'>> =>
+    columns.filter((c) => c.type === 'number') as ReadonlyArray<DataColumn<'number'>>
 )
 
 export const selectPatientDataPidColumn = (s: RootState) => selectPatientDataColumn(s, 'pid')

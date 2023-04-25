@@ -29,3 +29,6 @@ export const selectScatterPlotData = createSelector(
     }
   }
 )
+
+export const selectActiveScatterPlotXAxisColumn = createSelector(selectScatterPlotState, (s) => s.xAxisColumn)
+export const selectActiveScatterPlotYAxisColumn = createSelector(selectScatterPlotState, (s) => s.yAxisColumn)
