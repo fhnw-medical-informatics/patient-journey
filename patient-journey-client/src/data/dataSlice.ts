@@ -1,4 +1,4 @@
-import { AnyAction, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
+import { AnyAction, createAsyncThunk, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
 import { Dispatch } from 'redux'
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
@@ -7,6 +7,7 @@ import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './constants'
 import { addAlerts } from '../alert/alertSlice'
 import { PatientId, PatientIdNone } from './patients'
 import { LoadedSimilarities, parseSpecificRowFromSimilarityFile } from './similarities'
+import { EmbeddingsData, retryOpenaiAPI } from './embeddings'
 
 type DataStateLoadingPending = Readonly<{
   type: 'loading-pending'
@@ -31,7 +32,8 @@ export type DataStateLoadingComplete = Readonly<{
   Hovering &
   Selection &
   IndexPatient &
-  SplitPane
+  SplitPane &
+  SimilarityPrompt
 
 export const ACTIVE_DATA_VIEWS = ['patients', 'events'] as const
 export type ActiveDataViewType = typeof ACTIVE_DATA_VIEWS[number]
@@ -71,6 +73,10 @@ interface SplitPane {
   isResizing: boolean
 }
 
+interface SimilarityPrompt {
+  readonly similarityPrompt: string
+}
+
 export type DataState =
   | DataStateLoadingPending
   | DataStateLoadingInProgress
@@ -98,6 +104,7 @@ const dataSlice = createSlice({
       indexPatientId: PatientIdNone,
       similarityProvider: 'matrix',
       isResizing: false,
+      similarityPrompt: '',
       ...freeze(action.payload, true),
     }),
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
@@ -201,6 +208,43 @@ const dataSlice = createSlice({
         s.similarityProvider = action.payload
       })
     },
+    setSimilarityPrompt: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityPrompt = action.payload
+        // Set similarity provider to embeddings when prompt is set
+        s.similarityProvider = action.payload ? 'embeddings' : s.similarityProvider
+      })
+    },
+    setPromptEmbeddings: (state: Draft<DataState>, action: PayloadAction<EmbeddingsData['promptEmbeddings']>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.embeddingsData.promptEmbeddings = action.payload
+      })
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchPromptEmbeddings.pending, (state) => {
+      mutateLoadedDataState(state, (s) => {
+        s.embeddingsData.promptEmbeddings = {
+          type: 'loading-in-progress',
+        }
+      })
+    })
+    builder.addCase(fetchPromptEmbeddings.fulfilled, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.embeddingsData.promptEmbeddings = {
+          type: 'loading-complete',
+          embedding: action.payload,
+        }
+      })
+    })
+    builder.addCase(fetchPromptEmbeddings.rejected, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.embeddingsData.promptEmbeddings = {
+          type: 'loading-failed',
+          errorMessage: action.error.message ?? 'Error while loading prompt embeddings',
+        }
+      })
+    })
   },
 })
 
@@ -240,6 +284,8 @@ export const {
   loadingSimilaritiesDataFailed,
   loadingSimilaritiesComplete,
   setSimilarityProvider,
+  setSimilarityPrompt,
+  setPromptEmbeddings,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
@@ -272,3 +318,22 @@ export const loadSimilarityData =
       }
     )
   }
+
+export const fetchPromptEmbeddings = createAsyncThunk(
+  'data/fetchPromptEmbeddings',
+  async (promptAndJourneys: { prompt: string; randomPatientJourneys: string[] }, thunkAPI) => {
+    console.log('Fetching prompt embeddings for prompt and journeys', promptAndJourneys)
+
+    const promptEmbeddings = await retryOpenaiAPI(3, [
+      promptAndJourneys.prompt,
+      ...promptAndJourneys.randomPatientJourneys,
+    ])
+
+    if (promptEmbeddings && promptEmbeddings.data.data.length > 0) {
+      // The first entry is the prompt embedding
+      return promptEmbeddings.data.data[0].embedding
+    } else {
+      throw new Error('Could not fetch prompt embeddings')
+    }
+  }
+)

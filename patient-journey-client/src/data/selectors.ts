@@ -49,6 +49,8 @@ export const selectIndexPatientId = createSelector(selectData, (data) => data.in
 
 export const selectSimilarityProvider = createSelector(selectData, (data) => data.similarityProvider)
 
+export const selectSimilarityPrompt = createSelector(selectData, (data) => data.similarityPrompt)
+
 export const selectIndexPatientIdIndex = createSelector(
   selectData,
   selectIndexPatientId,

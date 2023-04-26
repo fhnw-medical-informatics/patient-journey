@@ -16,6 +16,7 @@ import {
   setSelectedEntity,
   setSplitPaneResizing,
   setSimilarityProvider,
+  setSimilarityPrompt,
 } from './dataSlice'
 
 import { createStore, RootState } from '../store'
@@ -31,6 +32,7 @@ import {
   selectDataLoadingProgress,
   selectDataView,
   selectIndexPatientId,
+  selectSimilarityPrompt,
   selectSimilarityProvider,
   selectSplitPaneResizing,
 } from './selectors'
@@ -640,6 +642,20 @@ describe('dataSlice', () => {
 
     store.dispatch(setSimilarityProvider('embeddings'))
 
+    expect(getSimilarityProvider()).toEqual('embeddings')
+  })
+
+  it(`handles the ${setSimilarityPrompt.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getSimilarityPrompt = () => selectSimilarityPrompt(store.getState())
+    const getSimilarityProvider = () => selectSimilarityProvider(store.getState())
+
+    expect(getSimilarityPrompt()).toEqual('')
+    expect(getSimilarityProvider()).toEqual('matrix')
+
+    store.dispatch(setSimilarityPrompt('test'))
+
+    expect(getSimilarityPrompt()).toEqual('test')
     expect(getSimilarityProvider()).toEqual('embeddings')
   })
 })

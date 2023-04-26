@@ -45,7 +45,7 @@ export const createStoreWithMockData = async () => {
       patientDataEmbeddings: {
         type: 'loading-pending',
       },
-      queryEmbeddings: {
+      promptEmbeddings: {
         type: 'loading-pending',
       },
     },

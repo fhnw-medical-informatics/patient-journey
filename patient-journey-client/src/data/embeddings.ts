@@ -27,8 +27,8 @@ export interface LoadedEmbeddings {
   embeddings: Embeddings
 }
 
-export interface LoadedQueryEmbeddings {
-  queryEmbeddings: ReadonlyArray<number>
+export interface LoadedPromptEmbeddings {
+  embedding: number[]
 }
 
 export type EmbeddingsStateLoadingComplete = Readonly<{
@@ -36,10 +36,10 @@ export type EmbeddingsStateLoadingComplete = Readonly<{
 }> &
   LoadedEmbeddings
 
-export type QueryEmbeddingsStateLoadingComplete = Readonly<{
+export type PromptEmbeddingsStateLoadingComplete = Readonly<{
   type: 'loading-complete'
 }> &
-  LoadedQueryEmbeddings
+  LoadedPromptEmbeddings
 
 export type EmbeddingsData = {
   readonly patientDataEmbeddings:
@@ -47,11 +47,11 @@ export type EmbeddingsData = {
     | EmbeddingsStateLoadingInProgress
     | EmbeddingsStateLoadingFailed
     | EmbeddingsStateLoadingComplete
-  readonly queryEmbeddings:
+  readonly promptEmbeddings:
     | EmbeddingsStateLoadingPending
     | EmbeddingsStateLoadingInProgress
     | EmbeddingsStateLoadingFailed
-    | QueryEmbeddingsStateLoadingComplete
+    | PromptEmbeddingsStateLoadingComplete
 }
 
 export const preparePatientJourneys = (patientData: PatientData, eventData: EventData): Array<string> =>
@@ -78,7 +78,7 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function retryOpenaiAPI(maxRetries: number, inputChunk: Array<string>) {
+export async function retryOpenaiAPI(maxRetries: number, inputChunk: Array<string>) {
   const baseWaitTime = 30000 / 2 ** (maxRetries - 1)
 
   for (let i = 0; i < maxRetries; i++) {
@@ -181,7 +181,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
         type: 'loading-complete',
         embeddings,
       },
-      queryEmbeddings: {
+      promptEmbeddings: {
         type: 'loading-pending',
       },
     })
@@ -222,7 +222,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
               type: 'loading-failed',
               errorMessage: 'Something went wrong while loading the embeddings',
             },
-            queryEmbeddings: {
+            promptEmbeddings: {
               type: 'loading-pending',
             },
           }
@@ -235,7 +235,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
             type: 'loading-failed',
             errorMessage: 'Something went wrong while loading the embeddings',
           },
-          queryEmbeddings: {
+          promptEmbeddings: {
             type: 'loading-pending',
           },
         }
@@ -254,7 +254,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
           type: 'loading-failed',
           errorMessage: 'Something went wrong while loading the embeddings',
         },
-        queryEmbeddings: {
+        promptEmbeddings: {
           type: 'loading-pending',
         },
       }
@@ -283,7 +283,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
         type: 'loading-complete',
         embeddings: patientDataEmbeddings,
       },
-      queryEmbeddings: {
+      promptEmbeddings: {
         type: 'loading-pending',
       },
     })

@@ -35,6 +35,7 @@ import {
   selectIndexPatientEvents,
   selectSelectedEventEntityPID,
   selectSimilarityProvider,
+  selectSimilarityPrompt,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -125,3 +126,5 @@ export const useSplitPlaneResizing = () => useAppSelector(selectSplitPaneResizin
 export const usePatientDataRowAsMap = () => useAppSelector(selectPatientDataRowMap)
 
 export const useActiveSimilarityProvier = () => useAppSelector(selectSimilarityProvider)
+
+export const useSimilarityPrompt = () => useAppSelector(selectSimilarityPrompt)
