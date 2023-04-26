@@ -82,21 +82,37 @@ const selectEmbeddingsData = createSelector(selectData, selectIndexPatientId, (d
     : null
 )
 
+const selectPromptEmbeddingData = createSelector(selectData, (data) =>
+  data.embeddingsData.promptEmbeddings.type === 'loading-complete'
+    ? data.embeddingsData.promptEmbeddings.embedding
+    : null
+)
+
 const selectComputedSimilarities = createSelector(
   selectSimilarityData,
   selectEmbeddingsData,
   selectIndexPatientId,
   selectSimilarityProvider,
   selectPatientData,
-  (similarityData, embeddingsData, indexPatientId, similarityProvider, patientData) => {
-    if (indexPatientId !== PatientIdNone) {
-      if (similarityProvider === 'matrix' && similarityData) {
-        return similarityData
-      } else if (similarityProvider === 'embeddings' && embeddingsData) {
-        const indexPatientEmbeddings = embeddingsData[indexPatientId]
+  selectSimilarityPrompt,
+  selectPromptEmbeddingData,
+  (
+    similarityData,
+    embeddingsData,
+    indexPatientId,
+    similarityProvider,
+    patientData,
+    similarityPrompt,
+    promptEmbeddingData
+  ) => {
+    if (indexPatientId !== PatientIdNone && similarityProvider === 'matrix' && similarityData) {
+      return similarityData
+    } else if (similarityPrompt && promptEmbeddingData && similarityProvider === 'embeddings' && embeddingsData) {
+      return patientData.allEntities.map((patient) => similarity(promptEmbeddingData, embeddingsData[patient.pid]))
+    } else if (indexPatientId !== PatientIdNone && similarityProvider === 'embeddings' && embeddingsData) {
+      const indexPatientEmbeddings = embeddingsData[indexPatientId]
 
-        return patientData.allEntities.map((patient) => similarity(indexPatientEmbeddings, embeddingsData[patient.pid]))
-      }
+      return patientData.allEntities.map((patient) => similarity(indexPatientEmbeddings, embeddingsData[patient.pid]))
     }
 
     return null
