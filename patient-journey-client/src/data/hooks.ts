@@ -34,6 +34,7 @@ import {
   selectPatientDataRowMap,
   selectIndexPatientEvents,
   selectSelectedEventEntityPID,
+  selectSimilarityProvider,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -122,3 +123,5 @@ export const usePatientCount = () => useAppSelector(selectPatientCount)
 export const useSplitPlaneResizing = () => useAppSelector(selectSplitPaneResizing)
 
 export const usePatientDataRowAsMap = () => useAppSelector(selectPatientDataRowMap)
+
+export const useActiveSimilarityProvier = () => useAppSelector(selectSimilarityProvider)
