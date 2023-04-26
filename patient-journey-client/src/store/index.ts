@@ -7,6 +7,8 @@ import { colorReducer } from '../color/colorSlice'
 import { alertReducer } from '../alert/alertSlice'
 import { tableReducer } from '../table/tableSlice'
 
+import { listenerMiddleware } from '../data/similarityPromptMiddleware'
+
 export const reducer = combineReducers({
   theme: themeReducer,
   data: dataReducer,
@@ -26,7 +28,7 @@ export const createStore = () =>
         // https://redux-toolkit.js.org/api/getDefaultMiddleware
         serializableCheck: import.meta.env.VITE_APP_REDUX_TOOLKIT_DEVCHECKS === 'true',
         immutableCheck: import.meta.env.VITE_APP_REDUX_TOOLKIT_DEVCHECKS === 'true',
-      }),
+      }).prepend(listenerMiddleware.middleware),
   })
 
 export const store = createStore()

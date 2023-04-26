@@ -76,10 +76,15 @@ const selectSimilarityData = createSelector(selectData, selectIndexPatientId, (d
     : null
 )
 
-const selectEmbeddingsData = createSelector(selectData, selectIndexPatientId, (data, indexPatientId) =>
-  indexPatientId !== PatientIdNone && data.embeddingsData.patientDataEmbeddings.type === 'loading-complete'
-    ? data.embeddingsData.patientDataEmbeddings.embeddings
-    : null
+const selectEmbeddingsData = createSelector(
+  selectData,
+  selectIndexPatientId,
+  selectSimilarityPrompt,
+  (data, indexPatientId, similarityPrompt) =>
+    (indexPatientId !== PatientIdNone || similarityPrompt) &&
+    data.embeddingsData.patientDataEmbeddings.type === 'loading-complete'
+      ? data.embeddingsData.patientDataEmbeddings.embeddings
+      : null
 )
 
 const selectPromptEmbeddingData = createSelector(selectData, (data) =>
@@ -166,8 +171,9 @@ export const selectDataByEntityIdMap = createSelector(
 export const selectPatientDataColumns = createSelector(
   selectPatientData,
   selectIndexPatientId,
-  (patientData, indexPatientId) =>
-    indexPatientId === PatientIdNone
+  selectSimilarityPrompt,
+  (patientData, indexPatientId, similarityPrompt) =>
+    indexPatientId === PatientIdNone && !similarityPrompt
       ? patientData.columns
       : ([
           ...patientData.columns,
