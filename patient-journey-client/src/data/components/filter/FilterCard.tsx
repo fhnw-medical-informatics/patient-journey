@@ -1,21 +1,22 @@
 import React from 'react'
 
-import { Card, CardContent, Grid, Typography, useTheme, Button } from '@mui/material'
+import { Card, CardContent, Grid, Typography, useTheme, Button, SxProps, Theme } from '@mui/material'
 
 export interface FilterCardProps {
   label: string
   isActive: boolean
   onRemove: () => void
   children: React.ReactNode
+  sx?: SxProps<Theme>
 }
 
-export const FilterCard = ({ label, isActive, onRemove, children }: FilterCardProps) => {
+export const FilterCard = ({ label, isActive, onRemove, children, sx }: FilterCardProps) => {
   const theme = useTheme()
 
   return (
     <Card
       elevation={theme.palette.mode === 'dark' ? (!isActive ? 3 : 0) : isActive ? 9 : 1}
-      sx={{ overflow: 'visible' }}
+      sx={{ overflow: 'visible', ...sx }}
     >
       <Grid container direction={'row'} alignItems={'center'} padding={1}>
         <Grid item xs>

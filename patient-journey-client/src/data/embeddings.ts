@@ -6,6 +6,9 @@ import { openaiAPI } from '../utils/openai'
 import { sha256 } from '../utils'
 import { EMBEDDINGS_DATA_FILE_URL } from './constants'
 
+export const EMBEDDINGS_API_COSTS_PER_1KTOKENS = 0.0004
+export const TOKENS_PER_CHUNK = 6000
+
 export type Embeddings = Record<string, ReadonlyArray<number>>
 
 export type EmbeddingsFile = { patientDataHash: string; embeddings: Embeddings }
@@ -192,15 +195,13 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
 
     const patientJourneys = preparePatientJourneys(patientData, eventData)
 
-    const { totalNrOfTokens, patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, 6000) // 8191 is the max number of tokens per request (but encode library does not seem to be exact)
+    const { totalNrOfTokens, patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, TOKENS_PER_CHUNK) // 8191 is the max number of tokens per request (but encode library does not seem to be exact)
 
     console.log('Total number of tokens:', totalNrOfTokens)
     console.log('Number of chunks:', patientJourneyChunks.length)
     console.log('Number of patient Journeys', patientJourneys.length)
 
-    const costPer1KTokens = 0.0004
-
-    console.log('Estimated cost:', (totalNrOfTokens / 1000) * costPer1KTokens)
+    console.log('Estimated cost:', (totalNrOfTokens / 1000) * EMBEDDINGS_API_COSTS_PER_1KTOKENS)
 
     const patientJourneyEmbeddings: Array<Array<number>> = []
 

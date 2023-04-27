@@ -1,7 +1,7 @@
 import { createListenerMiddleware } from '@reduxjs/toolkit'
 import { RootState } from '../store'
 import { fetchPromptEmbeddings, setPromptEmbeddings, setSimilarityPrompt } from './dataSlice'
-import { createPatientJourneysChunks, preparePatientJourneys } from './embeddings'
+import { TOKENS_PER_CHUNK, createPatientJourneysChunks, preparePatientJourneys } from './embeddings'
 
 // Create the middleware instance and methods
 export const listenerMiddleware = createListenerMiddleware()
@@ -24,7 +24,7 @@ listenerMiddleware.startListening({
           data.eventData
         )
 
-        const { patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, 6000) // 8191 is the max number of tokens per request (but encode library does not seem to be exact)
+        const { patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, TOKENS_PER_CHUNK)
 
         console.log('Resulting number of chunks for getting Prompt embeddings:', patientJourneyChunks.length)
 

@@ -10,7 +10,8 @@ import { FilterCard } from './FilterCard'
 import { ActiveDataViewType } from '../../dataSlice'
 import { ColorByColumn } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
-import SimilarityPrompt from './SimilarityPrompt'
+import SimilarityPrompt from '../../containers/filter/SimilarityPrompt'
+import { deepPurple } from '@mui/material/colors'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -110,21 +111,22 @@ export const DataFilters = ({
           </FilterCard>
         </Grid>
       )}
-      <Grid item xs={12}>
-        <FilterCard
-          label="Prompt based similarity"
-          isActive={similarityPrompt !== ''}
-          onRemove={() => {
-            onSimilarityPromptChange('')
-          }}
-        >
-          <SimilarityPrompt
+      {activeView === 'patients' && (
+        <Grid item xs={12}>
+          <FilterCard
             label="Prompt based similarity"
-            value={similarityPrompt}
-            onSubmit={onSimilarityPromptChange}
-          />
-        </FilterCard>
-      </Grid>
+            isActive={similarityPrompt !== ''}
+            onRemove={() => {
+              onSimilarityPromptChange('')
+            }}
+            sx={{
+              backgroundColor: deepPurple['900'],
+            }}
+          >
+            <SimilarityPrompt value={similarityPrompt} onSubmit={onSimilarityPromptChange} />
+          </FilterCard>
+        </Grid>
+      )}
       {availableColumns
         .filter((col) => ['pid', 'string', 'number', 'boolean', 'date', 'timestamp', 'category'].includes(col.type))
         .map((availableColumn) => {

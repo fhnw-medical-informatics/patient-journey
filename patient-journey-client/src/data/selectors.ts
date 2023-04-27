@@ -412,3 +412,8 @@ export const selectCurrentColorColumnNumberRange = createSelector(
 )
 
 export const selectSplitPaneResizing = createSelector(selectData, (data) => data.isResizing)
+
+export const selectPromptEmbeddingState = createSelector(
+  selectData,
+  (data) => data.embeddingsData.promptEmbeddings.type
+)

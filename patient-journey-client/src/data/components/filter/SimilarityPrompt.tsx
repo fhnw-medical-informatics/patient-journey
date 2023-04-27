@@ -1,13 +1,16 @@
 import React, { useState, useEffect, ChangeEvent } from 'react'
 import { Box, Button, TextareaAutosize, Typography } from '@mui/material'
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
+import { EMBEDDINGS_API_COSTS_PER_1KTOKENS, TOKENS_PER_CHUNK } from '../../embeddings'
+import { deepPurple } from '@mui/material/colors'
 
 interface SimilarityPromptProps {
-  label: string
   value: string
   onSubmit: (text: string) => void
+  isLoading: boolean
 }
 
-const SimilarityPrompt: React.FC<SimilarityPromptProps> = ({ label, value, onSubmit }) => {
+const SimilarityPrompt: React.FC<SimilarityPromptProps> = ({ value, onSubmit, isLoading }) => {
   const [text, setText] = useState(value)
 
   // Update the textarea value based on external state changes
@@ -31,13 +34,19 @@ const SimilarityPrompt: React.FC<SimilarityPromptProps> = ({ label, value, onSub
         width: '100%',
       }}
     >
-      <Typography variant="subtitle1">{label}</Typography>
       <TextareaAutosize
         value={text}
         onChange={handleTextChange}
-        minRows={3}
-        style={{ width: '100%', resize: 'vertical' }}
+        minRows={5}
+        placeholder="Enter a similarity prompt..."
+        style={{ width: '100%', resize: 'vertical', marginBottom: 2 }}
+        disabled={isLoading}
       />
+      <Typography variant="caption" color="GrayText">
+        The prompt should be a short phrase describing a patient journey. Similarity is calculated based on the cosine
+        similarity between the prompt and each patient journey. Each request costs $
+        {Math.round(EMBEDDINGS_API_COSTS_PER_1KTOKENS * (TOKENS_PER_CHUNK / 1000) * 10000) / 10000}.
+      </Typography>
       <Box
         sx={{
           display: 'flex',
@@ -45,8 +54,15 @@ const SimilarityPrompt: React.FC<SimilarityPromptProps> = ({ label, value, onSub
           marginTop: 1,
         }}
       >
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Submit
+        {/* End icon is magic stick */}
+        <Button
+          variant="contained"
+          sx={{ marginTop: 2, backgroundColor: deepPurple[100] }}
+          onClick={handleSubmit}
+          endIcon={<AutoFixHighIcon />}
+          disabled={isLoading}
+        >
+          Get similar patients
         </Button>
       </Box>
     </Box>

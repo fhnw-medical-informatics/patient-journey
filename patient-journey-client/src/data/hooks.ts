@@ -36,6 +36,7 @@ import {
   selectSelectedEventEntityPID,
   selectSimilarityProvider,
   selectSimilarityPrompt,
+  selectPromptEmbeddingState,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -128,3 +129,5 @@ export const usePatientDataRowAsMap = () => useAppSelector(selectPatientDataRowM
 export const useActiveSimilarityProvier = () => useAppSelector(selectSimilarityProvider)
 
 export const useSimilarityPrompt = () => useAppSelector(selectSimilarityPrompt)
+
+export const usePromptEmbeddingsState = () => useAppSelector(selectPromptEmbeddingState)
