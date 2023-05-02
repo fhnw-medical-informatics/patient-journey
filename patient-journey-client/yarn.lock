@@ -11404,6 +11404,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"kmeans-js@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "kmeans-js@npm:0.1.2"
+  checksum: c12bce980aa0a773e943773ab0df5f43ba9a064843bddcfb0f65475b8957be04e8b6a1c8bfdcb7fbc3988902ca356918516f15e130e510e875f9d6848c658a50
+  languageName: node
+  linkType: hard
+
 "language-subtag-registry@npm:~0.3.2":
   version: 0.3.22
   resolution: "language-subtag-registry@npm:0.3.22"
@@ -13268,6 +13275,7 @@ __metadata:
     eslint-config-react-app: ^7.0.1
     husky: ^8.0.1
     jsdom: latest
+    kmeans-js: ^0.1.2
     lint-staged: 12.4.1
     lodash: ^4.17.21
     openai: ^3.2.1

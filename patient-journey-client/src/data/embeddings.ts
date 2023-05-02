@@ -1,5 +1,6 @@
 import { encode } from '@nem035/gpt-3-encoder'
 import TSNE from 'tsne-js'
+import kMeans from 'kmeans-js'
 
 import { EventData } from './events'
 import { PatientData } from './patients'
@@ -35,6 +36,10 @@ export interface ReducedEmbeddings {
   reducedEmbeddings: Embeddings
 }
 
+export interface Clusters {
+  clusters: Record<string, number>
+}
+
 export interface LoadedPromptEmbeddings {
   embedding: number[]
 }
@@ -43,7 +48,8 @@ export type EmbeddingsStateLoadingComplete = Readonly<{
   type: 'loading-complete'
 }> &
   LoadedEmbeddings &
-  ReducedEmbeddings
+  ReducedEmbeddings &
+  Clusters
 
 export type PromptEmbeddingsStateLoadingComplete = Readonly<{
   type: 'loading-complete'
@@ -185,11 +191,15 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
 
     console.log('Embeddings', embeddings)
 
+    const reducedEmbeddings = reduceEmbeddings(embeddings)
+    const clusters = clusterEmbeddings(reducedEmbeddings, 3)
+
     return Promise.resolve({
       patientDataEmbeddings: {
         type: 'loading-complete',
         embeddings,
-        reducedEmbeddings: reduceEmbeddings(embeddings),
+        reducedEmbeddings,
+        clusters,
       },
       promptEmbeddings: {
         type: 'loading-pending',
@@ -286,11 +296,15 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
 
     console.log('Embeddings', patientDataEmbeddings)
 
+    const reducedEmbeddings = reduceEmbeddings(patientDataEmbeddings)
+    const clusters = clusterEmbeddings(reducedEmbeddings, 3)
+
     return Promise.resolve({
       patientDataEmbeddings: {
         type: 'loading-complete',
         embeddings: patientDataEmbeddings,
-        reducedEmbeddings: reduceEmbeddings(patientDataEmbeddings),
+        reducedEmbeddings,
+        clusters,
       },
       promptEmbeddings: {
         type: 'loading-pending',
@@ -357,4 +371,48 @@ const reduceEmbeddings = (embeddings: Embeddings): Embeddings => {
   console.log('Reduced embeddings', reducedEmbeddings)
 
   return reducedEmbeddings
+}
+
+/**
+ * Perform K-means clustering on the reduced embeddings
+ * @param reducedEmbeddings Embeddings reduced to 2 dimensions
+ * @param k Number of clusters
+ * @returns Clustered embeddings
+ */
+const clusterEmbeddings = (reducedEmbeddings: Embeddings, k: number): Record<string, number> => {
+  const data = Object.values(reducedEmbeddings)
+
+  const km = new kMeans({
+    k,
+  })
+
+  km.cluster(data)
+
+  while (km.step()) {
+    km.findClosestCentroids()
+    km.moveCentroids()
+
+    if (km.hasConverged()) break
+  }
+
+  console.log('Cluster centroids', km.centroids)
+
+  // An array of arrays containing the indices of the data points that belong to each cluster
+  console.log('Cluster assignments', km.clusters)
+
+  const clusteredEmbeddings: Record<string, number> = {}
+
+  const patientIds = Object.keys(reducedEmbeddings)
+
+  for (let clusterIdx = 0; clusterIdx < km.clusters.length; clusterIdx++) {
+    const cluster = km.clusters[clusterIdx]
+
+    for (const dataPointIdx of cluster) {
+      clusteredEmbeddings[patientIds[dataPointIdx]] = clusterIdx
+    }
+  }
+
+  console.log('Clustered embeddings', clusteredEmbeddings)
+
+  return clusteredEmbeddings
 }
