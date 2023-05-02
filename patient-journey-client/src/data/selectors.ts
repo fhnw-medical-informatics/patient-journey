@@ -184,6 +184,12 @@ export const selectAllNumericPatientDataColumns = createSelector(
     columns.filter((c) => c.type === 'number') as ReadonlyArray<DataColumn<'number'>>
 )
 
+export const selectAllCategoricalPatientDataColumns = createSelector(
+  selectPatientDataColumns,
+  (columns): ReadonlyArray<DataColumn<'category'>> =>
+    columns.filter((c) => c.type === 'category') as ReadonlyArray<DataColumn<'category'>>
+)
+
 export const selectPatientDataPidColumn = (s: RootState) => selectPatientDataColumn(s, 'pid')
 
 const selectEventDataColumnType = (s: RootState, columnType: EventDataColumnType) => columnType

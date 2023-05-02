@@ -3,13 +3,18 @@ import { useActiveScatterPlotXAxisColumn, useActiveScatterPlotYAxisColumn } from
 import { useAllNumericPatientDataColumns } from '../../data/hooks'
 import { useAppDispatch } from '../../store'
 import { useCallback } from 'react'
-import { PlotColumnNone, ScatterPlotColumn, setScatterPlotXAxisColumn, setScatterPlotYAxisColumn } from '../plotSlice'
+import {
+  PlotColumnNone,
+  ScatterPlotAxisColumn,
+  setScatterPlotXAxisColumn,
+  setScatterPlotYAxisColumn,
+} from '../plotSlice'
 
 interface Props {
   readonly axis: 'x' | 'y'
 }
 
-export const ColumnSelector = ({ axis }: Props) => {
+export const AxisColumnSelector = ({ axis }: Props) => {
   const activeXAxisColumn = useActiveScatterPlotXAxisColumn()
   const activeYAxisColumn = useActiveScatterPlotYAxisColumn()
   const allSelectableColumns = useAllNumericPatientDataColumns()
@@ -17,7 +22,7 @@ export const ColumnSelector = ({ axis }: Props) => {
   const dispatch = useAppDispatch()
 
   const onChange = useCallback(
-    (column: ScatterPlotColumn) => {
+    (column: ScatterPlotAxisColumn) => {
       dispatch(axis === 'x' ? setScatterPlotXAxisColumn(column) : setScatterPlotYAxisColumn(column))
     },
     [axis, dispatch]

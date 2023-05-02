@@ -1,10 +1,12 @@
 import { alpha, Box, Paper } from '@mui/material'
-import { ScatterPlotDatum } from '../model'
+import { ScatterPlotData } from '../model'
 import { ScatterPlotCanvas } from '@nivo/scatterplot'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
 import React from 'react'
 import { useCustomTheme } from '../../theme/useCustomTheme'
-import { ColumnSelector } from '../containers/ColumnSelector'
+import { AxisColumnSelector } from '../containers/AxisColumnSelector'
+import { CategoryColumnSelector } from '../containers/CategoryColumnSelector'
+import { useColorByScatterPlotCategoryFn } from '../hooks'
 
 const sxRoot = {
   width: 1,
@@ -16,25 +18,23 @@ const sxRoot = {
 
 const sxSelectors = {
   display: 'grid',
-  gridTemplateColumns: '30% 30%',
+  gridTemplateColumns: '25% 25% 25%',
   gap: 1,
   margin: 1,
 }
 
-interface Props {
-  readonly xAxisLabel: string
-  readonly yAxisLabel: string
-  readonly data: ScatterPlotDatum[]
-}
+type Props = ScatterPlotData
 
 export const ScatterPlot = ({ xAxisLabel, yAxisLabel, data }: Props) => {
   const theme = useCustomTheme()
+  const colors = useColorByScatterPlotCategoryFn()
 
   return (
     <Paper sx={sxRoot} variant="outlined">
       <Box sx={sxSelectors}>
-        <ColumnSelector axis={'x'} />
-        <ColumnSelector axis={'y'} />
+        <AxisColumnSelector axis={'x'} />
+        <AxisColumnSelector axis={'y'} />
+        <CategoryColumnSelector />
       </Box>
       <div>
         <AutoSizer>
@@ -43,7 +43,8 @@ export const ScatterPlot = ({ xAxisLabel, yAxisLabel, data }: Props) => {
               <ScatterPlotCanvas
                 width={width}
                 height={height}
-                data={[{ id: 'default', data }]}
+                data={data}
+                colors={colors}
                 xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
                 axisLeft={{ legend: xAxisLabel, legendPosition: 'middle', legendOffset: -50 }}
                 axisBottom={{ legend: yAxisLabel, legendPosition: 'middle', legendOffset: 40 }}

@@ -1,17 +1,23 @@
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
-import { PlotColumnNone, ScatterPlotColumn } from '../plotSlice'
+import { PlotColumnNone, ScatterPlotAxisColumn, ScatterPlotCategoryColumn } from '../plotSlice'
 import React from 'react'
 
-interface Props {
+interface Props<C> {
   readonly label: string
-  readonly activeColumn: ScatterPlotColumn
-  readonly allSelectableColumns: ReadonlyArray<ScatterPlotColumn>
-  readonly onChange: (column: ScatterPlotColumn) => void
+  readonly activeColumn: C
+  readonly allSelectableColumns: ReadonlyArray<C>
+  readonly onChange: (column: C) => void
 }
 
-const colToStringValue = (col: ScatterPlotColumn) => (col === PlotColumnNone ? PlotColumnNone : col.name)
+const colToStringValue = (col: ScatterPlotAxisColumn | ScatterPlotCategoryColumn) =>
+  col === PlotColumnNone ? PlotColumnNone : col.name
 
-export const ColumnSelector = ({ label, activeColumn, allSelectableColumns, onChange }: Props) => {
+export const ColumnSelector = <C extends ScatterPlotAxisColumn | ScatterPlotCategoryColumn>({
+  label,
+  activeColumn,
+  allSelectableColumns,
+  onChange,
+}: Props<C>) => {
   const columnsByName = new Map(allSelectableColumns.map((c) => [colToStringValue(c), c]))
 
   return (
@@ -22,7 +28,7 @@ export const ColumnSelector = ({ label, activeColumn, allSelectableColumns, onCh
         size={'small'}
         value={colToStringValue(activeColumn)}
         label={label}
-        onChange={(event) => onChange(columnsByName.get(event.target.value) ?? PlotColumnNone)}
+        onChange={(event) => onChange(columnsByName.get(event.target.value) ?? (PlotColumnNone as C))}
       >
         {allSelectableColumns.map((column) => {
           const v = colToStringValue(column)

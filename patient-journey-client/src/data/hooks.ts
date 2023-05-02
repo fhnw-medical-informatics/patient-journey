@@ -35,6 +35,7 @@ import {
   selectIndexPatientEvents,
   selectSelectedEventEntityPID,
   selectAllNumericPatientDataColumns,
+  selectAllCategoricalPatientDataColumns,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -56,6 +57,7 @@ export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns
 export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
 export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
 export const useAllNumericPatientDataColumns = () => useAppSelector(selectAllNumericPatientDataColumns)
+export const useAllCategoricalPatientDataColumns = () => useAppSelector(selectAllCategoricalPatientDataColumns)
 
 export const useAllFilters = () => useAppSelector(selectAllFilters)
 export const useEventFilters = () => useAppSelector(selectEventFilters)
