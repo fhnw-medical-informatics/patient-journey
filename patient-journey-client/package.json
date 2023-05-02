@@ -85,6 +85,7 @@
     "react-split-pane": "0.1.92",
     "react-svg-timeline": "^0.24.1",
     "react-virtualized-auto-sizer": "^1.0.6",
+    "tsne-js": "^1.0.3",
     "tss-react": "^3.6.2"
   },
   "devDependencies": {

@@ -1,4 +1,5 @@
 import { encode } from '@nem035/gpt-3-encoder'
+import TSNE from 'tsne-js'
 
 import { EventData } from './events'
 import { PatientData } from './patients'
@@ -30,6 +31,10 @@ export interface LoadedEmbeddings {
   embeddings: Embeddings
 }
 
+export interface ReducedEmbeddings {
+  reducedEmbeddings: Embeddings
+}
+
 export interface LoadedPromptEmbeddings {
   embedding: number[]
 }
@@ -37,7 +42,8 @@ export interface LoadedPromptEmbeddings {
 export type EmbeddingsStateLoadingComplete = Readonly<{
   type: 'loading-complete'
 }> &
-  LoadedEmbeddings
+  LoadedEmbeddings &
+  ReducedEmbeddings
 
 export type PromptEmbeddingsStateLoadingComplete = Readonly<{
   type: 'loading-complete'
@@ -183,6 +189,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
       patientDataEmbeddings: {
         type: 'loading-complete',
         embeddings,
+        reducedEmbeddings: reduceEmbeddings(embeddings),
       },
       promptEmbeddings: {
         type: 'loading-pending',
@@ -283,6 +290,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
       patientDataEmbeddings: {
         type: 'loading-complete',
         embeddings: patientDataEmbeddings,
+        reducedEmbeddings: reduceEmbeddings(patientDataEmbeddings),
       },
       promptEmbeddings: {
         type: 'loading-pending',
@@ -301,4 +309,52 @@ const loadEmbeddingsFileFromUrl = async (url: string): Promise<EmbeddingsFile | 
   } else {
     return undefined
   }
+}
+
+/**
+ * Generate reduced 2d embeddings using t-SNE.
+ *
+ * @param embeddings High dimensional embeddings
+ */
+const reduceEmbeddings = (embeddings: Embeddings): Embeddings => {
+  const tsne = new TSNE({
+    dim: 2,
+    perplexity: 30.0,
+    earlyExaggeration: 4.0,
+    learningRate: 100.0,
+    nIter: 500,
+    metric: 'euclidean',
+  })
+
+  const data = Object.values(embeddings)
+
+  tsne.init({
+    data,
+    type: 'dense',
+  })
+
+  tsne.on('progressIter', (iter: number) => {
+    console.log('Iteration', iter)
+  })
+
+  tsne.run()
+
+  // for (let k = 0; k < 500; k++) {
+  //   tsne.rerun()
+  // }
+
+  // Is the rerun necessary?
+  // tsne.rerun()
+
+  const Y = tsne.getOutput()
+
+  const reducedEmbeddings: Embeddings = {}
+
+  Object.keys(embeddings).forEach((pid, idx) => {
+    reducedEmbeddings[pid] = Y[idx]
+  })
+
+  console.log('Reduced embeddings', reducedEmbeddings)
+
+  return reducedEmbeddings
 }
