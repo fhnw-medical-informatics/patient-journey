@@ -124,8 +124,48 @@ const selectComputedSimilarities = createSelector(
   }
 )
 
-const selectPatientDataRows = createSelector(
+const selectReducedEmbeddingsData = createSelector(selectData, (data) =>
+  data.embeddingsData.patientDataEmbeddings.type === 'loading-complete'
+    ? data.embeddingsData.patientDataEmbeddings.reducedEmbeddings
+    : null
+)
+
+const selectClusterData = createSelector(selectData, (data) =>
+  data.embeddingsData.patientDataEmbeddings.type === 'loading-complete'
+    ? data.embeddingsData.patientDataEmbeddings.clusters
+    : null
+)
+
+// Add kMeans-Cluster, tSNE-X and tSNE-Y columns to patient data
+const selectPatientDataWithReducedEmbeddingsAndClusters = createSelector(
   selectPatientData,
+  selectReducedEmbeddingsData,
+  selectClusterData,
+  (patientData, reducedEmbeddingsData, clusterData) =>
+    reducedEmbeddingsData === null || clusterData === null
+      ? patientData
+      : {
+          ...patientData,
+          allEntities: patientData.allEntities.map((entity, idx) => ({
+            ...entity,
+            values: [
+              ...entity.values,
+              `${reducedEmbeddingsData[entity.pid][0]}`,
+              `${reducedEmbeddingsData[entity.pid][1]}`,
+              `${clusterData[entity.pid]}`,
+            ],
+          })),
+          columns: [
+            ...patientData.columns,
+            { name: 't-SNE X', type: 'number', index: patientData.columns.length },
+            { name: 't-SNE Y', type: 'number', index: patientData.columns.length + 1 },
+            { name: 'Cluster', type: 'category', index: patientData.columns.length + 2 },
+          ] as PatientDataColumn[],
+        }
+)
+
+const selectPatientDataRows = createSelector(
+  selectPatientDataWithReducedEmbeddingsAndClusters,
   selectComputedSimilarities,
   (patientData, computedSimilarityData) =>
     computedSimilarityData === null
@@ -169,7 +209,7 @@ export const selectDataByEntityIdMap = createSelector(
 )
 
 export const selectPatientDataColumns = createSelector(
-  selectPatientData,
+  selectPatientDataWithReducedEmbeddingsAndClusters,
   selectIndexPatientId,
   selectSimilarityPrompt,
   (patientData, indexPatientId, similarityPrompt) =>
