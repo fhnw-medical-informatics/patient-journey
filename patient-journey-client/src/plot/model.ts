@@ -15,5 +15,4 @@ export interface ScatterPlotDatum {
   readonly patientId: PatientId
   readonly x: number
   readonly y: number
-  readonly category: string
 }

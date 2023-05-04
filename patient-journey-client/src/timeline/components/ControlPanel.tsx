@@ -1,10 +1,9 @@
-import React, { useEffect, useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import {
   Button,
   FormControl,
   FormControlLabel,
   Grid,
-  ListSubheader,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -17,10 +16,10 @@ import HelpIcon from '@mui/icons-material/HelpOutline'
 import { TimelineColumn, TimelineColumnNone } from '../timelineSlice'
 import { PatientDataColumn } from '../../data/patients'
 import { EventDataColumn } from '../../data/events'
-import { ColorByColumn, ColorByColumnNone, ColorByColumnOptionNone } from '../../color/colorSlice'
 import { doesContainColumn } from '../../data/columns'
 import { ColumnSortingState, ColumnSortingStateNeutral } from '../../data/sorting'
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material'
+import { ColorByColumnSelector } from '../../color/containers/ColorByColumnSelector'
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -56,10 +55,6 @@ interface ControlPanelProps {
   allowInteraction: boolean
   onToggleAllowInteraction: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
-  eventDataColumns: ReadonlyArray<EventDataColumn>
-  patientDataColumns: ReadonlyArray<PatientDataColumn>
-  colorByColumn: ColorByColumn
-  onChangeColorByColumn: (colorByColumn: ColorByColumn) => void
   hasActiveFilters: boolean
 }
 
@@ -80,10 +75,6 @@ export const ControlPanel = ({
   showFilteredOut,
   onSetShowFilteredOut,
   availableColumns,
-  eventDataColumns,
-  patientDataColumns,
-  colorByColumn,
-  onChangeColorByColumn,
   hasActiveFilters,
 }: ControlPanelProps) => {
   const { classes } = useStyles()
@@ -112,18 +103,6 @@ export const ControlPanel = ({
       onSetExpandByColumn(TimelineColumnNone)
     }
   }, [onSetExpandByColumn, expandByColumn, availableColumns])
-
-  // Reset colorByColumn when event or patient data columns change
-  // TODO: Move this logic to extraReducer within colorSlice and
-  // react on dispatched actions that affect columns
-  useEffect(() => {
-    if (
-      colorByColumn.column !== ColorByColumnOptionNone &&
-      !doesContainColumn([...eventDataColumns, ...patientDataColumns], colorByColumn.column)
-    ) {
-      onChangeColorByColumn(ColorByColumnNone)
-    }
-  }, [onChangeColorByColumn, eventDataColumns, patientDataColumns, colorByColumn])
 
   // Reset sortByState when availableSortColumns change
   useEffect(() => {
@@ -167,18 +146,6 @@ export const ControlPanel = ({
     },
     [onSetSortByState, sortByState]
   )
-
-  const handleChangeColorByColumn = (event: SelectChangeEvent) => {
-    if (event.target.value.startsWith('patients_')) {
-      const column = patientDataColumns.find((column) => column.name === event.target.value.replace('patients_', ''))
-      onChangeColorByColumn(column ? { type: 'patients', column } : ColorByColumnNone)
-    } else if (event.target.value.startsWith('events_')) {
-      const column = eventDataColumns.find((column) => column.name === event.target.value.replace('events_', ''))
-      onChangeColorByColumn(column ? { type: 'events', column } : ColorByColumnNone)
-    } else {
-      onChangeColorByColumn(ColorByColumnNone)
-    }
-  }
 
   return (
     <div className={classes.root}>
@@ -271,46 +238,7 @@ export const ControlPanel = ({
                   </Grid>
                 )}
               </Grid>
-            </Grid>
-            <Grid item>
-              <Typography variant="overline" display="block">
-                Color by
-              </Typography>
-              <FormControl>
-                <Select
-                  value={
-                    colorByColumn.type !== 'none' && colorByColumn.column !== ColorByColumnOptionNone
-                      ? `${colorByColumn.type}_${colorByColumn.column.name}`
-                      : `${ColorByColumnNone.type}_${ColorByColumnNone.column}`
-                  }
-                  onChange={handleChangeColorByColumn}
-                  size="small"
-                >
-                  <MenuItem value={`${ColorByColumnNone.type}_${ColorByColumnNone.column}`}>
-                    <i>{'Off'}</i>
-                  </MenuItem>
-                  <ListSubheader>Patient Columns</ListSubheader>
-                  {patientDataColumns
-                    .filter((column) =>
-                      ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
-                    )
-                    .map((column) => (
-                      <MenuItem key={column.name} value={'patients_' + column.name}>
-                        {column.name}
-                      </MenuItem>
-                    ))}
-                  <ListSubheader>Event Columns</ListSubheader>
-                  {eventDataColumns
-                    .filter((column) =>
-                      ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
-                    )
-                    .map((column) => (
-                      <MenuItem key={column.name} value={'events_' + column.name}>
-                        {column.name}
-                      </MenuItem>
-                    ))}
-                </Select>
-              </FormControl>
+              <ColorByColumnSelector includeEventColumns={true} />
             </Grid>
           </Grid>
         </Grid>

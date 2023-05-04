@@ -1,12 +1,14 @@
 import { alpha, Box, Paper } from '@mui/material'
-import { ScatterPlotData } from '../model'
+import { ScatterPlotData, ScatterPlotDatum } from '../model'
 import { ScatterPlotCanvas } from '@nivo/scatterplot'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useCustomTheme } from '../../theme/useCustomTheme'
 import { AxisColumnSelector } from '../containers/AxisColumnSelector'
-import { CategoryColumnSelector } from '../containers/CategoryColumnSelector'
-import { useColorByScatterPlotCategoryFn } from '../hooks'
+import { ColorByColumnSelector } from '../../color/containers/ColorByColumnSelector'
+import { ScatterPlotNodeData } from '@nivo/scatterplot/dist/types/types'
+import { useColor } from '../../color/hooks'
+import { useDataByEntityIdMap } from '../../data/hooks'
 
 const sxRoot = {
   width: 1,
@@ -27,14 +29,25 @@ type Props = ScatterPlotData
 
 export const ScatterPlot = ({ xAxisLabel, yAxisLabel, data }: Props) => {
   const theme = useCustomTheme()
-  const colors = useColorByScatterPlotCategoryFn()
+  const entityById = useDataByEntityIdMap('patients')
+  const { colorByColumnFn } = useColor('patients')
+
+  const renderNode = useCallback(
+    (ctx: CanvasRenderingContext2D, node: ScatterPlotNodeData<ScatterPlotDatum>) => {
+      ctx.beginPath()
+      ctx.arc(node.x, node.y, node.size / 2, 0, 2 * Math.PI)
+      ctx.fillStyle = colorByColumnFn(entityById.get(node.data.patientId)!)
+      ctx.fill()
+    },
+    [entityById, colorByColumnFn]
+  )
 
   return (
     <Paper sx={sxRoot} variant="outlined">
       <Box sx={sxSelectors}>
         <AxisColumnSelector axis={'x'} />
         <AxisColumnSelector axis={'y'} />
-        <CategoryColumnSelector />
+        <ColorByColumnSelector includeEventColumns={false} />
       </Box>
       <div>
         <AutoSizer>
@@ -44,7 +57,7 @@ export const ScatterPlot = ({ xAxisLabel, yAxisLabel, data }: Props) => {
                 width={width}
                 height={height}
                 data={data}
-                colors={colors}
+                renderNode={renderNode}
                 xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
                 axisLeft={{ legend: xAxisLabel, legendPosition: 'middle', legendOffset: -50 }}
                 axisBottom={{ legend: yAxisLabel, legendPosition: 'middle', legendOffset: 40 }}

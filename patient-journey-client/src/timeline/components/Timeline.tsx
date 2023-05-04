@@ -7,7 +7,6 @@ import { CursorPosition, TimelineColumn } from '../timelineSlice'
 import { PatientDataColumn, PatientId } from '../../data/patients'
 import { ControlPanel } from './ControlPanel'
 import { EventDataColumn } from '../../data/events'
-import { ColorByColumn } from '../../color/colorSlice'
 import { ColumnSortingState } from '../../data/sorting'
 
 const useStyles = makeStyles()((theme) => ({
@@ -41,10 +40,6 @@ interface TimelineProps {
   allowInteraction: boolean
   onToggleAllowInteraction: () => void
   availableColumns: ReadonlyArray<EventDataColumn | PatientDataColumn>
-  eventDataColumns: ReadonlyArray<EventDataColumn>
-  patientDataColumns: ReadonlyArray<PatientDataColumn>
-  colorByColumn: ColorByColumn
-  onChangeColorByColumn: (colorByColumn: ColorByColumn) => void
   onCursorPositionChange: (cursorPosition: CursorPosition) => void
   onInteractionEnd: () => void
   hasActiveEventFilters: boolean
@@ -72,10 +67,6 @@ export const Timeline = ({
   allowInteraction,
   onToggleAllowInteraction,
   availableColumns,
-  eventDataColumns,
-  patientDataColumns,
-  colorByColumn,
-  onChangeColorByColumn,
   onCursorPositionChange,
   onInteractionEnd,
   hasActiveEventFilters,
@@ -102,10 +93,6 @@ export const Timeline = ({
         showFilteredOut={showFilteredOut}
         onSetShowFilteredOut={onSetShowFilteredOut}
         availableColumns={availableColumns}
-        eventDataColumns={eventDataColumns}
-        patientDataColumns={patientDataColumns}
-        colorByColumn={colorByColumn}
-        onChangeColorByColumn={onChangeColorByColumn}
         hasActiveFilters={hasActiveEventFilters}
       />
       <TimelineView
