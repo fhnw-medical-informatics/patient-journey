@@ -6,6 +6,7 @@ import { DataFilters } from '../containers/filter/DataFilters'
 import { DataTable } from '../../table/containers/DataTable'
 import { InfoPanel } from '../containers/info/InfoPanel'
 import { ScatterPlot } from '../../plot/containers/ScatterPlot'
+import { Timeline } from '../../timeline/containers/Timeline'
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '20%'
 const DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE = '60%'
@@ -29,10 +30,12 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
     height: '100%',
   },
-  timeline: {
+  plots: {
     padding: theme.spacing(1),
     width: '100%',
     height: '100%',
+    display: 'grid',
+    gridTemplateColumns: '75% 25%',
   },
   resizer: {
     minWidth: 5,
@@ -124,7 +127,9 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
         <div className={classes.table}>
           <DataTable />
         </div>
-        <div className={classes.timeline}>
+        <div className={classes.plots}>
+          {/* TODO: Split pane */}
+          <Timeline />
           <ScatterPlot />
         </div>
       </SplitPane>

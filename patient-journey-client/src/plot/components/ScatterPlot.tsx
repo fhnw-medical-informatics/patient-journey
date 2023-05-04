@@ -1,4 +1,4 @@
-import { alpha, Box, Paper } from '@mui/material'
+import { alpha, Grid, Paper } from '@mui/material'
 import { ScatterPlotData, ScatterPlotDatum } from '../model'
 import { ScatterPlotCanvas } from '@nivo/scatterplot'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
@@ -18,11 +18,9 @@ const sxRoot = {
   gridTemplateRows: 'auto 1fr',
 }
 
-const sxSelectors = {
-  display: 'grid',
-  gridTemplateColumns: '25% 25% 25%',
-  gap: 1,
-  margin: 1,
+const sxToolbar = {
+  p: 2,
+  lineHeight: 1,
 }
 
 type Props = ScatterPlotData
@@ -44,11 +42,11 @@ export const ScatterPlot = ({ xAxisLabel, yAxisLabel, data }: Props) => {
 
   return (
     <Paper sx={sxRoot} variant="outlined">
-      <Box sx={sxSelectors}>
+      <Grid sx={sxToolbar} container alignItems={'flex-end'} spacing={1}>
         <AxisColumnSelector axis={'x'} />
         <AxisColumnSelector axis={'y'} />
-        <ColorByColumnSelector includeEventColumns={false} />
-      </Box>
+        <ColorByColumnSelector />
+      </Grid>
       <div>
         <AutoSizer>
           {({ width, height }: Size) => {

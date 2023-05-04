@@ -5,7 +5,6 @@ import { EventDataColumn } from '../../data/events'
 import { PatientDataColumn } from '../../data/patients'
 
 interface Props {
-  readonly includeEventColumns: boolean
   readonly colorByColumn: ColorByColumn
   readonly eventDataColumns: ReadonlyArray<EventDataColumn>
   readonly patientDataColumns: ReadonlyArray<PatientDataColumn>
@@ -13,7 +12,6 @@ interface Props {
 }
 
 export const ColorByColumnSelector = ({
-  includeEventColumns,
   colorByColumn,
   eventDataColumns,
   patientDataColumns,
@@ -49,7 +47,7 @@ export const ColorByColumnSelector = ({
           <MenuItem value={`${ColorByColumnNone.type}_${ColorByColumnNone.column}`}>
             <i>{'Off'}</i>
           </MenuItem>
-          {includeEventColumns && <ListSubheader>Patient Columns</ListSubheader>}
+          <ListSubheader>Patient Columns</ListSubheader>
           {patientDataColumns
             .filter((column) => ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type))
             .map((column) => (
@@ -57,20 +55,14 @@ export const ColorByColumnSelector = ({
                 {column.name}
               </MenuItem>
             ))}
-          {includeEventColumns && (
-            <div>
-              <ListSubheader>Event Columns</ListSubheader>
-              {eventDataColumns
-                .filter((column) =>
-                  ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type)
-                )
-                .map((column) => (
-                  <MenuItem key={column.name} value={'events_' + column.name}>
-                    {column.name}
-                  </MenuItem>
-                ))}
-            </div>
-          )}
+          <ListSubheader>Event Columns</ListSubheader>
+          {eventDataColumns
+            .filter((column) => ['timestamp', 'date', 'number', 'boolean', 'string', 'category'].includes(column.type))
+            .map((column) => (
+              <MenuItem key={column.name} value={'events_' + column.name}>
+                {column.name}
+              </MenuItem>
+            ))}
         </Select>
       </FormControl>
     </Grid>

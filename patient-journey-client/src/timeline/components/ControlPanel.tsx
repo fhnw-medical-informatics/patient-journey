@@ -238,8 +238,8 @@ export const ControlPanel = ({
                   </Grid>
                 )}
               </Grid>
-              <ColorByColumnSelector includeEventColumns={true} />
             </Grid>
+            <ColorByColumnSelector />
           </Grid>
         </Grid>
         <Grid item xs>

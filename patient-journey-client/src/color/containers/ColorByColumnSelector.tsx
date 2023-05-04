@@ -7,11 +7,7 @@ import { useColor } from '../hooks'
 import { useAppDispatch } from '../../store'
 import { doesContainColumn } from '../../data/columns'
 
-interface Props {
-  readonly includeEventColumns: boolean
-}
-
-export const ColorByColumnSelector = ({ includeEventColumns }: Props) => {
+export const ColorByColumnSelector = () => {
   const { colorByColumn } = useColor('patients')
   const eventDataColumns = useEventDataColumns()
   const patientDataColumns = usePatientDataColumns()
@@ -36,7 +32,6 @@ export const ColorByColumnSelector = ({ includeEventColumns }: Props) => {
 
   return (
     <ColorByColumnSelectorComponent
-      includeEventColumns={includeEventColumns}
       colorByColumn={colorByColumn}
       eventDataColumns={eventDataColumns}
       patientDataColumns={patientDataColumns}

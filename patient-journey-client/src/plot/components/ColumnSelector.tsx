@@ -1,4 +1,4 @@
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
+import { FormControl, Grid, MenuItem, Select, Typography } from '@mui/material'
 import { PlotColumnNone, ScatterPlotAxisColumn } from '../plotSlice'
 import React from 'react'
 
@@ -15,24 +15,26 @@ export const ColumnSelector = ({ label, activeColumn, allSelectableColumns, onCh
   const columnsByName = new Map(allSelectableColumns.map((c) => [colToStringValue(c), c]))
 
   return (
-    <FormControl variant="filled" size="small">
-      <InputLabel id="label-id">{label}</InputLabel>
-      <Select
-        labelId="label-id"
-        size={'small'}
-        value={colToStringValue(activeColumn)}
-        label={label}
-        onChange={(event) => onChange(columnsByName.get(event.target.value) ?? PlotColumnNone)}
-      >
-        {allSelectableColumns.map((column) => {
-          const v = colToStringValue(column)
-          return (
-            <MenuItem key={v} value={v}>
-              {v === PlotColumnNone ? '–' : v}
-            </MenuItem>
-          )
-        })}
-      </Select>
-    </FormControl>
+    <Grid item>
+      <Typography variant="overline" display="block">
+        {label}
+      </Typography>
+      <FormControl>
+        <Select
+          size={'small'}
+          value={colToStringValue(activeColumn)}
+          onChange={(event) => onChange(columnsByName.get(event.target.value) ?? PlotColumnNone)}
+        >
+          {allSelectableColumns.map((column) => {
+            const v = colToStringValue(column)
+            return (
+              <MenuItem key={v} value={v}>
+                {v === PlotColumnNone ? '–' : v}
+              </MenuItem>
+            )
+          })}
+        </Select>
+      </FormControl>
+    </Grid>
   )
 }
