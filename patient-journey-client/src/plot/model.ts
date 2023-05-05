@@ -1,4 +1,4 @@
-import { PatientId } from '../data/patients'
+import { EntityId } from '../data/entities'
 
 export interface ScatterPlotData {
   readonly xAxisLabel: string
@@ -12,7 +12,7 @@ export interface ScatterPlotDataSeries {
 }
 
 export interface ScatterPlotDatum {
-  readonly patientId: PatientId
+  readonly entityId: EntityId
   readonly x: number
   readonly y: number
 }

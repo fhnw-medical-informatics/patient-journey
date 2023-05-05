@@ -20,7 +20,7 @@ export const selectScatterPlotData = createSelector(
         const xSafe = extractNumberValueSafe(xCol)(patient)
         const ySafe = extractNumberValueSafe(yCol)(patient)
         return {
-          patientId: patient.pid,
+          entityId: patient.uid,
           x: xSafe.length === 0 ? NaN : xSafe[0],
           y: ySafe.length === 0 ? NaN : ySafe[0],
         }
