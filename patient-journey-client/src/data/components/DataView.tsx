@@ -11,31 +11,13 @@ import { Timeline } from '../../timeline/containers/Timeline'
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '20%'
 const DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE = '60%'
 const DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE = '65%'
+const DEFAULT_SPLIT_PANE_PLOTS_VERTCIAL_SIZE = '80%'
 
 const useStyles = makeStyles()((theme) => ({
-  filters: {
-    padding: theme.spacing(2),
-    width: '100%',
-    height: '100%',
-    overflowY: 'auto',
-    overflowX: 'hidden',
-  },
-  info: {
+  panel: {
     padding: theme.spacing(1),
     width: '100%',
     height: '100%',
-  },
-  table: {
-    padding: theme.spacing(1),
-    width: '100%',
-    height: '100%',
-  },
-  plots: {
-    padding: theme.spacing(1),
-    width: '100%',
-    height: '100%',
-    display: 'grid',
-    gridTemplateColumns: '75% 25%',
   },
   resizer: {
     minWidth: 5,
@@ -46,6 +28,10 @@ const useStyles = makeStyles()((theme) => ({
     zIndex: 1,
     backgroundClip: 'padding-box',
   },
+  filters: {
+    overflowY: 'auto',
+    overflowX: 'hidden',
+  },
 }))
 
 interface DataViewProps {
@@ -54,11 +40,12 @@ interface DataViewProps {
 }
 
 export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
-  const { classes } = useStyles()
+  const { classes, cx } = useStyles()
 
   const [splitPaneVerticalSize, setSplitPaneVerticalSize] = useState<'default' | number>('default')
   const [splitPaneRightHorizontalSize, setSplitPaneRightHorizontalSize] = useState<'default' | number>('default')
   const [splitPaneLeftHorizontalSize, setSplitPaneLeftHorizontalSize] = useState<'default' | number>('default')
+  const [splitPanePlotsVerticalSize, setSplitPanePlotsVerticalSize] = useState<'default' | number>('default')
 
   return (
     // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-typescript-definitions
@@ -94,10 +81,10 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
         onDragStarted={onResizeStart}
         onDragFinished={onResizeEnd}
       >
-        <div className={classes.filters}>
+        <div className={cx(classes.panel, classes.filters)}>
           <DataFilters />
         </div>
-        <div className={classes.info}>
+        <div className={classes.panel}>
           <InfoPanel />
         </div>
       </SplitPane>
@@ -124,14 +111,39 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
         onDragStarted={onResizeStart}
         onDragFinished={onResizeEnd}
       >
-        <div className={classes.table}>
+        <div className={classes.panel}>
           <DataTable />
         </div>
-        <div className={classes.plots}>
-          {/* TODO: Split pane */}
-          <Timeline />
-          <ScatterPlot />
-        </div>
+        {/* @ts-ignore */}
+        <SplitPane
+          split={'vertical'}
+          resizerClassName={classes.resizer}
+          size={
+            splitPanePlotsVerticalSize === 'default'
+              ? DEFAULT_SPLIT_PANE_PLOTS_VERTCIAL_SIZE
+              : splitPanePlotsVerticalSize
+          }
+          onChange={setSplitPanePlotsVerticalSize}
+          resizerStyle={{
+            cursor: 'ew-resize',
+          }}
+          pane2Style={{
+            display: 'grid',
+            width: '100%',
+            height: '100%',
+          }}
+          minSize={144}
+          maxSize={-12}
+          onDragStarted={onResizeStart}
+          onDragFinished={onResizeEnd}
+        >
+          <div className={classes.panel}>
+            <Timeline />
+          </div>
+          <div className={classes.panel}>
+            <ScatterPlot />
+          </div>
+        </SplitPane>
       </SplitPane>
     </SplitPane>
   )
