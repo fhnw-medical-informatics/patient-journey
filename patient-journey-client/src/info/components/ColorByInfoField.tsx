@@ -1,6 +1,6 @@
 import { InputAdornment, TextField } from '@mui/material'
-import { ColoredCircle } from '../../../color/components/ColoredCircle'
-import { ColorByInfo, ColorByInfoNone } from '../../../color/hooks'
+import { ColoredCircle } from '../../color/components/ColoredCircle'
+import { ColorByInfo, ColorByInfoNone } from '../../color/hooks'
 import React from 'react'
 
 interface Props {

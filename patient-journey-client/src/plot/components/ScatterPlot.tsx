@@ -139,6 +139,7 @@ export const ScatterPlot = ({
                 onMouseMove={(node) => onEntityHover(node.data.entityId)}
                 onMouseLeave={(_) => onEntityHover(EntityIdNone)}
                 onClick={onPlotClick}
+                tooltip={(_) => null} // using info panel instead
               />
             )
           }}

@@ -4,7 +4,7 @@ import { makeStyles } from '../../utils'
 import SplitPane from 'react-split-pane'
 import { DataFilters } from '../containers/filter/DataFilters'
 import { DataTable } from '../../table/containers/DataTable'
-import { InfoPanel } from '../containers/info/InfoPanel'
+import { InfoPanel } from '../../info/containers/InfoPanel'
 import { ScatterPlot } from '../../plot/containers/ScatterPlot'
 import { Timeline } from '../../timeline/containers/Timeline'
 

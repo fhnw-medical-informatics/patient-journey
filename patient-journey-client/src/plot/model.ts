@@ -16,3 +16,12 @@ export interface ScatterPlotDatum {
   readonly x: number
   readonly y: number
 }
+
+export type ScatterPlotInfo =
+  | 'none'
+  | {
+      readonly xAxisLabel: string
+      readonly xValueFormatted: string
+      readonly yAxisLabel: string
+      readonly yValueFormatted: string
+    }
