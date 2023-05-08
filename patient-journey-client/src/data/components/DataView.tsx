@@ -15,7 +15,7 @@ const DIVIDER_SIZE = 12
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '20%'
 const DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE = '60%'
 const DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE = '65%'
-const DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE = '20%'
+const DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE = '25%'
 
 const useStyles = makeStyles()((theme) => ({
   panel: {
@@ -38,6 +38,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   scatterPlotButton: {
     position: 'absolute',
+    borderRadius: 6, // distinguish circle button from timeline event bubble
     zIndex: 2,
     right: 20,
     bottom: 20,
@@ -57,6 +58,23 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
   const [splitPaneLeftHorizontalSize, setSplitPaneLeftHorizontalSize] = useState<'default' | number>('default')
   const [splitPanePlotsVerticalSize, setSplitPanePlotsVerticalSize] = useState<'collapsed' | 'default' | number>(
     'collapsed'
+  )
+
+  const isPlotCollapsed = splitPanePlotsVerticalSize === 'collapsed' || splitPanePlotsVerticalSize < DIVIDER_SIZE
+
+  const timeline = (
+    <div className={classes.panel}>
+      <Timeline />
+      {isPlotCollapsed && (
+        <Fab
+          className={classes.scatterPlotButton}
+          size={'small'}
+          onClick={() => setSplitPanePlotsVerticalSize('default')}
+        >
+          <InsertChartIcon />
+        </Fab>
+      )}
+    </div>
   )
 
   return (
@@ -126,47 +144,33 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
         <div className={classes.panel}>
           <DataTable />
         </div>
-        {/* @ts-ignore */}
-        <SplitPane
-          primary={'second'} // control scatter plot portion of split pane
-          split={'vertical'}
-          resizerClassName={classes.resizer}
-          size={
-            splitPanePlotsVerticalSize === 'collapsed'
-              ? 0
-              : 'default'
-              ? DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE
-              : splitPanePlotsVerticalSize
-          }
-          onChange={setSplitPanePlotsVerticalSize}
-          resizerStyle={{
-            cursor: 'ew-resize',
-          }}
-          pane1Style={{
-            display: 'grid',
-            width: '100%',
-            height: '100%',
-          }}
-          minSize={-DIVIDER_SIZE}
-          onDragStarted={onResizeStart}
-          onDragFinished={onResizeEnd}
-        >
-          <div className={classes.panel}>
-            <Timeline />
-            {(splitPanePlotsVerticalSize === 'collapsed' || splitPanePlotsVerticalSize < 2 * DIVIDER_SIZE) && (
-              <Fab
-                className={classes.scatterPlotButton}
-                size={'small'}
-                onClick={() => setSplitPanePlotsVerticalSize('default')}
-              >
-                <InsertChartIcon />
-              </Fab>
-            )}
-          </div>
-          <div className={classes.panel}>
-            <ScatterPlot />
-          </div>
-        </SplitPane>
+        {isPlotCollapsed ? (
+          timeline
+        ) : (
+          // @ts-ignore
+          <SplitPane
+            primary={'second'} // control scatter plot portion of split pane
+            split={'vertical'}
+            resizerClassName={classes.resizer}
+            size={
+              splitPanePlotsVerticalSize === 'default'
+                ? DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE
+                : splitPanePlotsVerticalSize
+            }
+            onChange={setSplitPanePlotsVerticalSize}
+            resizerStyle={{
+              cursor: 'ew-resize',
+            }}
+            minSize={-DIVIDER_SIZE}
+            onDragStarted={onResizeStart}
+            onDragFinished={onResizeEnd}
+          >
+            {timeline}
+            <div className={classes.panel}>
+              <ScatterPlot />
+            </div>
+          </SplitPane>
+        )}
       </SplitPane>
     </SplitPane>
   )
