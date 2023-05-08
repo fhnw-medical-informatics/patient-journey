@@ -11,6 +11,7 @@ import { useColor } from '../../color/hooks'
 import { useDataByEntityIdMap } from '../../data/hooks'
 import { EntityId, EntityIdNone } from '../../data/entities'
 import { PatientId } from '../../data/patients'
+import { changeCanvasFillStyle } from '../../utils'
 
 const ACTIVE_NODE_SCALE_FACTOR = 1.2
 
@@ -57,7 +58,7 @@ export const ScatterPlot = ({
     (ctx: CanvasRenderingContext2D, x: number, y: number, size: number, entityId: EntityId, strokeStyle: string) => {
       ctx.beginPath()
       ctx.arc(x, y, size, 0, 2 * Math.PI)
-      ctx.fillStyle = colorByColumnFn(entityById.get(entityId)!)
+      changeCanvasFillStyle(ctx, colorByColumnFn(entityById.get(entityId)!))
       ctx.fill()
       ctx.lineWidth = 2
       ctx.strokeStyle = strokeStyle

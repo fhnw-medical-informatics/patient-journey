@@ -14,3 +14,10 @@ export const getChunkSize = (total: number, chunks: number): number => {
 
   return total / _chunks
 }
+
+// Canvas state changes are expensive, only change if needed
+export function changeCanvasFillStyle(ctx: CanvasRenderingContext2D, color: string): void {
+  if (ctx.fillStyle !== color) {
+    ctx.fillStyle = color
+  }
+}
