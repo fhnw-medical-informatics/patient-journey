@@ -16,13 +16,18 @@ export const selectScatterPlotData = createSelector(
     } else {
       const xCol: DataColumn<'number'> = plotState.xAxisColumn
       const yCol: DataColumn<'number'> = plotState.yAxisColumn
-      const data = patientData.map<ScatterPlotDatum>((patient) => {
+      const data = patientData.flatMap<ScatterPlotDatum>((patient) => {
         const xSafe = extractNumberValueSafe(xCol)(patient)
         const ySafe = extractNumberValueSafe(yCol)(patient)
-        return {
-          entityId: patient.uid,
-          x: xSafe.length === 0 ? NaN : xSafe[0],
-          y: ySafe.length === 0 ? NaN : ySafe[0],
+
+        if (xSafe.length === 0 || ySafe.length === 0) {
+          return []
+        } else {
+          return {
+            entityId: patient.uid,
+            x: xSafe[0],
+            y: ySafe[0],
+          }
         }
       })
       return { xAxisLabel: xCol.name, yAxisLabel: yCol.name, data: [{ id: '', data }] }
