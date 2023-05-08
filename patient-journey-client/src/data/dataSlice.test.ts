@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import {
   ActiveDataViewType,
   addDataFilter,
@@ -37,6 +38,19 @@ import {
   selectSplitPaneResizing,
 } from './selectors'
 import { EntityIdNone } from './entities'
+
+import { EmbeddingsData, loadEmbeddings } from './embeddings'
+
+vi.mock('./embeddings', () => ({
+  loadEmbeddings: vi.fn<any, Promise<EmbeddingsData>>().mockResolvedValue({
+    patientDataEmbeddings: {
+      type: 'loading-pending',
+    },
+    promptEmbeddings: {
+      type: 'loading-pending',
+    },
+  }),
+}))
 
 const PID_1 = 'PID_1' as PatientId
 const PID_2 = 'PID_2' as PatientId
@@ -181,6 +195,9 @@ describe('dataSlice', () => {
         type: 'loading-pending',
       },
     })
+
+    // embeddings
+    expect(loadEmbeddings).toHaveBeenCalledWith(patientData, eventData)
   })
 
   it('loadData loading-complete patient data table missing pid', async () => {
