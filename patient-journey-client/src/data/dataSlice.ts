@@ -5,35 +5,54 @@ import { EntityId, EntityIdNone, EntityType } from './entities'
 import { loadData as loadDataImpl, LoadedData, LoadingProgress } from './loading'
 import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './constants'
 import { addAlerts } from '../alert/alertSlice'
-import { PatientId, PatientIdNone } from './patients'
+import { Patient, PatientId, PatientIdNone } from './patients'
 import { LoadedSimilarities, parseSpecificRowFromSimilarityFile } from './similarities'
-import { EmbeddingsData, retryOpenaiAPI } from './embeddings'
+import {
+  createPatientJourneysChunks,
+  EmbeddingsData,
+  preparePatientJourneys,
+  retryOpenaiAPI,
+  TOKENS_PER_CHUNK,
+} from './embeddings'
+import { RootState } from '../store'
+import { openaiAPI } from '../utils/openai'
+import { ChatCompletionRequestMessageRoleEnum } from 'openai'
 
-type DataStateLoadingPending = Readonly<{
+export type DataLoadingPending = Readonly<{
   type: 'loading-pending'
 }>
 
-type DataStateLoadingInProgress = Readonly<{
+export type DataLoadingInProgress = Readonly<{
   type: 'loading-in-progress'
-}> &
-  LoadingProgress
+}>
 
-export type DataStateLoadingFailed = Readonly<{
+export type DataLoadingFailed = Readonly<{
   type: 'loading-failed'
   errorMessage: string
 }>
 
-export type DataStateLoadingComplete = Readonly<{
+export type DataLoadingComplete<T> = Readonly<{
   type: 'loading-complete'
 }> &
+  T
+
+type DataStateLoadingPending = DataLoadingPending
+
+type DataStateLoadingInProgress = DataLoadingInProgress & LoadingProgress
+
+export type DataStateLoadingFailed = DataLoadingFailed
+
+export type DataStateLoadingComplete = DataLoadingComplete<
   LoadedData &
-  ActiveDataView &
-  Filters &
-  Hovering &
-  Selection &
-  IndexPatient &
-  SplitPane &
-  SimilarityPrompt
+    ActiveDataView &
+    Filters &
+    Hovering &
+    Selection &
+    IndexPatient &
+    SplitPane &
+    SimilarityPrompt &
+    CohortExplanation
+>
 
 export const ACTIVE_DATA_VIEWS = ['patients', 'events'] as const
 export type ActiveDataViewType = typeof ACTIVE_DATA_VIEWS[number]
@@ -77,6 +96,17 @@ interface SimilarityPrompt {
   readonly similarityPrompt: string
 }
 
+type CohortExplanationData =
+  | DataLoadingPending
+  | DataLoadingInProgress
+  | DataLoadingFailed
+  | DataLoadingComplete<{ result: string }>
+
+interface CohortExplanation {
+  readonly cohortExplanationPrompt: string
+  readonly cohortExplanationResult: CohortExplanationData
+}
+
 export type DataState =
   | DataStateLoadingPending
   | DataStateLoadingInProgress
@@ -105,6 +135,10 @@ const dataSlice = createSlice({
       similarityProvider: 'matrix',
       isResizing: false,
       similarityPrompt: '',
+      cohortExplanationPrompt: '',
+      cohortExplanationResult: {
+        type: 'loading-pending',
+      },
       ...freeze(action.payload, true),
     }),
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
@@ -245,6 +279,29 @@ const dataSlice = createSlice({
         }
       })
     })
+    builder.addCase(fetchCohortExplanation.pending, (state) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-in-progress',
+        }
+      })
+    })
+    builder.addCase(fetchCohortExplanation.fulfilled, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-complete',
+          result: action.payload ?? '',
+        }
+      })
+    })
+    builder.addCase(fetchCohortExplanation.rejected, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-failed',
+          errorMessage: action.error.message ?? 'Error while loading cohort explanation',
+        }
+      })
+    })
   },
 })
 
@@ -334,6 +391,58 @@ export const fetchPromptEmbeddings = createAsyncThunk(
       return promptEmbeddings.data.data[0].embedding
     } else {
       throw new Error('Could not fetch prompt embeddings')
+    }
+  }
+)
+
+export const fetchCohortExplanation = createAsyncThunk(
+  'data/fetchCohortExplanation',
+  async (cohortExplanationData: { prompt: string; cohort: ReadonlyArray<Patient> }, thunkAPI) => {
+    // A prompt is set, fetch prompt embeddings and add random journeys for context
+    const data = (thunkAPI.getState() as RootState).data
+
+    if (data.type === 'loading-complete') {
+      const patientJourneys = preparePatientJourneys(
+        { ...data.patientData, allEntities: cohortExplanationData.cohort },
+        data.eventData
+      )
+
+      // TODO: Tokens per Chunk should be small enough, so that there is space for the prompt
+      // TODO: When creating the cohort, it should already validated towards the limit
+      const { patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, TOKENS_PER_CHUNK)
+
+      console.log('Fetching ChatGPT response for cohort prompt: ', cohortExplanationData.prompt)
+
+      // TODO
+      const context = `
+
+      `
+
+      const completion = await openaiAPI.createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'user', content: context },
+          ...patientJourneyChunks[0].map((patientJourney, idx) => ({
+            role: 'user' as ChatCompletionRequestMessageRoleEnum,
+            content: `
+          Patient Journey ${idx + 1}:
+          ------
+
+          ${patientJourney}
+        `,
+          })),
+          {
+            role: 'user',
+            content: `${cohortExplanationData.prompt}}`,
+          },
+        ],
+      })
+
+      if (completion.data.choices.length > 0) {
+        return completion.data.choices[0].message?.content.toString()
+      } else {
+        throw new Error('Could not fetch cohort explanation')
+      }
     }
   }
 )
