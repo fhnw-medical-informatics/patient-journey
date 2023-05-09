@@ -1,0 +1,59 @@
+import React, { ChangeEvent } from 'react'
+import { Box, Button, TextareaAutosize, Typography } from '@mui/material'
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
+import { EMBEDDINGS_API_COSTS_PER_1KTOKENS, TOKENS_PER_CHUNK } from '../../embeddings'
+import { deepPurple } from '@mui/material/colors'
+
+interface CohortPromptProps {
+  value: string
+  onChange: (text: string) => void
+  onSubmit: () => void
+  isLoading: boolean
+  result: string
+}
+
+const CohortPrompt: React.FC<CohortPromptProps> = ({ value, onChange, onSubmit, isLoading, result }) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+      }}
+    >
+      <TextareaAutosize
+        value={value}
+        onChange={(event: ChangeEvent<HTMLTextAreaElement>) => onChange(event.target.value)}
+        minRows={5}
+        placeholder="Enter a cohort prompt..."
+        style={{ width: '100%', resize: 'vertical', marginBottom: 2 }}
+        disabled={isLoading}
+      />
+      <Typography variant="caption" color="GrayText">
+        The prompt should be a short question you have regarding your cohort. Each request costs $
+        {Math.round(EMBEDDINGS_API_COSTS_PER_1KTOKENS * (TOKENS_PER_CHUNK / 1000) * 10000) / 10000}.
+      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          marginTop: 1,
+        }}
+      >
+        {/* End icon is magic stick */}
+        <Button
+          variant="contained"
+          sx={{ marginTop: 2, backgroundColor: deepPurple[100] }}
+          onClick={onSubmit}
+          endIcon={<AutoFixHighIcon />}
+          disabled={isLoading}
+        >
+          Get Cohort Information
+        </Button>
+        <Typography variant="caption">{result}</Typography>
+      </Box>
+    </Box>
+  )
+}
+
+export default CohortPrompt

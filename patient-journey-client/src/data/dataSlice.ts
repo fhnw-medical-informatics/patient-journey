@@ -254,6 +254,11 @@ const dataSlice = createSlice({
         s.embeddingsData.promptEmbeddings = action.payload
       })
     },
+    setCohortExplanationPrompt: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationPrompt = action.payload
+      })
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchPromptEmbeddings.pending, (state) => {
@@ -343,6 +348,7 @@ export const {
   setSimilarityProvider,
   setSimilarityPrompt,
   setPromptEmbeddings,
+  setCohortExplanationPrompt,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
@@ -438,6 +444,8 @@ export const fetchCohortExplanation = createAsyncThunk(
           },
         ],
       })
+
+      console.log('Done', completion)
 
       if (completion.data.choices.length > 0) {
         return completion.data.choices[0].message?.content.toString()
