@@ -415,8 +415,9 @@ export const fetchCohortExplanation = createAsyncThunk(
 
       // TODO
       const context = `
-
-      `
+        A large number of patient journeys have previously been processed by the OpenAI Embeddings API.
+        The retrieved embeddings were then processed with the t-SNE algorithm to retrieve clusters of similar patients via k-means clustering.
+        I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
 
       const completion = await openaiAPI.createChatCompletion({
         model: 'gpt-3.5-turbo',
