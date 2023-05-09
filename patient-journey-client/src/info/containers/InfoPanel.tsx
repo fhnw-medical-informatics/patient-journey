@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { FocusEntityInfo, InfoPanel as InfoPanelComponent } from '../../components/info/InfoPanel'
+import { FocusEntityInfo, InfoPanel as InfoPanelComponent } from '../components/InfoPanel'
 import {
   useEventDataEidColumn,
   useEventDataPidColumn,
@@ -8,10 +8,11 @@ import {
   useEventDataTimestampValuesFormatted,
   useFocusEntity,
   usePatientDataPidColumn,
-} from '../../hooks'
-import { PatientId } from '../../patients'
-import { EventId } from '../../events'
-import { useColorByInfo } from '../../../color/hooks'
+} from '../../data/hooks'
+import { PatientId } from '../../data/patients'
+import { EventId } from '../../data/events'
+import { useColorByInfo } from '../../color/hooks'
+import { useScatterPlotInfo } from '../../plot/hooks'
 
 export const InfoPanel = React.memo(() => {
   const patientDataPidColumnName = usePatientDataPidColumn().name
@@ -25,6 +26,7 @@ export const InfoPanel = React.memo(() => {
   const focusEntity = useFocusEntity()
 
   const colorByInfo = useColorByInfo(focusEntity.type)
+  const scatterPlotInfo = useScatterPlotInfo()
 
   const focusEntityInfo: FocusEntityInfo = useMemo(() => {
     switch (focusEntity.type) {
@@ -63,5 +65,11 @@ export const InfoPanel = React.memo(() => {
     eventDataTimestampColumnName,
     eventDataTimestampValueFn,
   ])
-  return <InfoPanelComponent focusEntityInfo={focusEntityInfo} colorByInfo={colorByInfo(focusEntity.uid)} />
+  return (
+    <InfoPanelComponent
+      focusEntityInfo={focusEntityInfo}
+      colorByInfo={colorByInfo(focusEntity.uid)}
+      scatterPlotInfo={scatterPlotInfo}
+    />
+  )
 })

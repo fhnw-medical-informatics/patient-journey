@@ -2405,6 +2405,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nivo/scatterplot@npm:^0.79.0":
+  version: 0.79.1
+  resolution: "@nivo/scatterplot@npm:0.79.1"
+  dependencies:
+    "@nivo/annotations": 0.79.1
+    "@nivo/axes": 0.79.0
+    "@nivo/colors": 0.79.1
+    "@nivo/legends": 0.79.1
+    "@nivo/scales": 0.79.0
+    "@nivo/tooltip": 0.79.0
+    "@nivo/voronoi": 0.79.0
+    "@react-spring/web": 9.3.1
+    d3-scale: ^3.2.3
+    d3-shape: ^1.3.5
+    lodash: ^4.17.21
+  peerDependencies:
+    "@nivo/core": 0.79.0
+    react: ">= 16.14.0 < 18.0.0"
+  checksum: 5a8f38b19f78042de406780fdae9c86a1b9967d1ccc5ca225921dfb72ce1893f8ba6ade5c0683bde425257ecc4c851a8413c25028e2f84acbc3942aa5c0c78e1
+  languageName: node
+  linkType: hard
+
 "@nivo/tooltip@npm:0.79.0":
   version: 0.79.0
   resolution: "@nivo/tooltip@npm:0.79.0"
@@ -2413,6 +2435,19 @@ __metadata:
   peerDependencies:
     "@nivo/core": 0.79.0
   checksum: ae74abebd077f5e77d041d0845340f1ffcbd2461e55112b8ac81fbf68f58a6d475ae30dc314ca11b99a4b85bbeaa5aecbe39191cc6ce55beddf83f43d1edab8b
+  languageName: node
+  linkType: hard
+
+"@nivo/voronoi@npm:0.79.0":
+  version: 0.79.0
+  resolution: "@nivo/voronoi@npm:0.79.0"
+  dependencies:
+    d3-delaunay: ^5.3.0
+    d3-scale: ^3.2.3
+  peerDependencies:
+    "@nivo/core": 0.79.0
+    react: ">= 16.14.0 < 18.0.0"
+  checksum: d479051850a519c328ce8dd6fbbc5998575cb2fc16351e7e516593be5ad21de0f7effe18ad09a2d596abcd90c055a560a21e125b7c8b2a859a309e7737d028e1
   languageName: node
   linkType: hard
 
@@ -7189,6 +7224,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"d3-delaunay@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "d3-delaunay@npm:5.3.0"
+  dependencies:
+    delaunator: 4
+  checksum: 3fa5ae167eb86e62ca0f9c3e8d05470b23572b4b480f05201705c0db976d403834cee1cdf264a41c97e45238e3999d48cc593f97d0da37229a42673a6bb10e95
+  languageName: node
+  linkType: hard
+
 "d3-format@npm:1 - 2":
   version: 2.0.0
   resolution: "d3-format@npm:2.0.0"
@@ -7494,6 +7538,13 @@ __metadata:
     is-descriptor: ^1.0.2
     isobject: ^3.0.1
   checksum: 3217ed53fc9eed06ba8da6f4d33e28c68a82e2f2a8ab4d562c4920d8169a166fe7271453675e6c69301466f36a65d7f47edf0cf7f474b9aa52a5ead9c1b13c99
+  languageName: node
+  linkType: hard
+
+"delaunator@npm:4":
+  version: 4.0.1
+  resolution: "delaunator@npm:4.0.1"
+  checksum: a49f1c23edbcb79079a13577d32fcd46d0db30879c8484f742a0d840923085f2f3de35a9bfbb96eadd12201ffb7c3adf45b0f528d08b71cb547c5f8068b5d61b
   languageName: node
   linkType: hard
 
@@ -13243,6 +13294,7 @@ __metadata:
     "@nem035/gpt-3-encoder": ^1.1.7
     "@nivo/bar": ^0.79.1
     "@nivo/core": ^0.79.0
+    "@nivo/scatterplot": ^0.79.0
     "@reduxjs/toolkit": ^1.8.1
     "@storybook/addon-actions": ^6.5.9
     "@storybook/addon-essentials": ^6.5.9

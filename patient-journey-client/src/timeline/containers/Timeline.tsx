@@ -17,23 +17,22 @@ import {
   toggleAllowInteraction,
   toggleTimeGrid,
 } from '../timelineSlice'
-import { useEntityInteraction, useEventDataColumns, useEventFilters, usePatientDataColumns } from '../../data/hooks'
+import { useEntityInteraction, useEventFilters } from '../../data/hooks'
 import { formatMillis } from '../../data/columns'
 import {
   useActiveDataAsEvents,
   useActiveDataAsLanes,
-  useTimelineCluster,
-  useViewByColumn,
+  useAllowInteraction,
   useExpandByColumn,
+  useHoveredLaneId,
   useShowFilteredOut,
   useShowTimeGrid,
-  useAllowInteraction,
   useSortByState,
+  useTimelineCluster,
   useTimelineDataColumns,
   useTimelineSortDataColumns,
-  useHoveredLaneId,
+  useViewByColumn,
 } from '../hooks'
-import { ColorByColumn, setColorByColumn } from '../../color/colorSlice'
 import { useColor } from '../../color/hooks'
 import { useTheme } from '@mui/material'
 import { EntityIdNone } from '../../data/entities'
@@ -56,8 +55,6 @@ export const Timeline = React.memo(() => {
   const sortByState = useSortByState()
   const activeColumns = useTimelineDataColumns()
   const sortColumns = useTimelineSortDataColumns()
-  const eventDataColumns = useEventDataColumns()
-  const patientDataColumns = usePatientDataColumns()
   const eventFilters = useEventFilters()
 
   const dispatch = useAppDispatch()
@@ -73,11 +70,6 @@ export const Timeline = React.memo(() => {
   const onSetShowFilteredOut = useCallback(() => dispatch(setShowFilteredOut()), [dispatch])
   const onToggleTimeGrid = useCallback(() => dispatch(toggleTimeGrid()), [dispatch])
   const onToggleAllowInteraction = useCallback(() => dispatch(toggleAllowInteraction()), [dispatch])
-
-  const onChangeColorByColumn = useCallback(
-    (colorByColumn: ColorByColumn) => dispatch(setColorByColumn(colorByColumn)),
-    [dispatch]
-  )
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const throttledDispatch = useCallback(
@@ -111,8 +103,6 @@ export const Timeline = React.memo(() => {
       events={events}
       lanes={lanes}
       availableColumns={activeColumns}
-      eventDataColumns={eventDataColumns}
-      patientDataColumns={patientDataColumns}
       viewByColumn={viewByColumn}
       onSetViewByColumn={onSetViewByColumn}
       expandByColumn={expandByColumn}
@@ -124,8 +114,6 @@ export const Timeline = React.memo(() => {
       onSetTimelineCluster={onSetTimelineCluster}
       showFilteredOut={showFilteredOut}
       onSetShowFilteredOut={onSetShowFilteredOut}
-      colorByColumn={colorByColumn}
-      onChangeColorByColumn={onChangeColorByColumn}
       onCursorPositionChange={onCursorPositionChange}
       showTimeGrid={showTimeGrid}
       onToggleTimeGrid={onToggleTimeGrid}

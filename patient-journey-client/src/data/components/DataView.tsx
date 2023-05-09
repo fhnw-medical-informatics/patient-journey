@@ -3,33 +3,22 @@ import React, { useState } from 'react'
 import { makeStyles } from '../../utils'
 import SplitPane from 'react-split-pane'
 import { DataFilters } from '../containers/filter/DataFilters'
-import { Timeline } from '../../timeline/containers/Timeline'
 import { DataTable } from '../../table/containers/DataTable'
-import { InfoPanel } from '../containers/info/InfoPanel'
+import { InfoPanel } from '../../info/containers/InfoPanel'
+import { ScatterPlot } from '../../plot/containers/ScatterPlot'
+import { Timeline } from '../../timeline/containers/Timeline'
+import { Fab } from '@mui/material'
+import InsertChartIcon from '@mui/icons-material/InsertChart'
+
+const DIVIDER_SIZE = 12
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '20%'
 const DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE = '60%'
 const DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE = '65%'
+const DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE = '25%'
 
 const useStyles = makeStyles()((theme) => ({
-  filters: {
-    padding: theme.spacing(2),
-    width: '100%',
-    height: '100%',
-    overflowY: 'auto',
-    overflowX: 'hidden',
-  },
-  info: {
-    padding: theme.spacing(1),
-    width: '100%',
-    height: '100%',
-  },
-  table: {
-    padding: theme.spacing(1),
-    width: '100%',
-    height: '100%',
-  },
-  timeline: {
+  panel: {
     padding: theme.spacing(1),
     width: '100%',
     height: '100%',
@@ -43,6 +32,17 @@ const useStyles = makeStyles()((theme) => ({
     zIndex: 1,
     backgroundClip: 'padding-box',
   },
+  filters: {
+    overflowY: 'auto',
+    overflowX: 'hidden',
+  },
+  scatterPlotButton: {
+    position: 'absolute',
+    borderRadius: 6, // distinguish circle button from timeline event bubble
+    zIndex: 2,
+    right: 20,
+    bottom: 20,
+  },
 }))
 
 interface DataViewProps {
@@ -51,11 +51,31 @@ interface DataViewProps {
 }
 
 export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
-  const { classes } = useStyles()
+  const { classes, cx } = useStyles()
 
   const [splitPaneVerticalSize, setSplitPaneVerticalSize] = useState<'default' | number>('default')
   const [splitPaneRightHorizontalSize, setSplitPaneRightHorizontalSize] = useState<'default' | number>('default')
   const [splitPaneLeftHorizontalSize, setSplitPaneLeftHorizontalSize] = useState<'default' | number>('default')
+  const [splitPanePlotsVerticalSize, setSplitPanePlotsVerticalSize] = useState<'collapsed' | 'default' | number>(
+    'collapsed'
+  )
+
+  const isPlotCollapsed = splitPanePlotsVerticalSize === 'collapsed' || splitPanePlotsVerticalSize < DIVIDER_SIZE
+
+  const timeline = (
+    <div className={classes.panel}>
+      <Timeline />
+      {isPlotCollapsed && (
+        <Fab
+          className={classes.scatterPlotButton}
+          size={'small'}
+          onClick={() => setSplitPanePlotsVerticalSize('default')}
+        >
+          <InsertChartIcon />
+        </Fab>
+      )}
+    </div>
+  )
 
   return (
     // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-typescript-definitions
@@ -68,8 +88,8 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
       resizerStyle={{
         cursor: 'ew-resize',
       }}
-      maxSize={-12}
-      minSize={12}
+      maxSize={-DIVIDER_SIZE}
+      minSize={DIVIDER_SIZE}
       onDragStarted={onResizeStart}
       onDragFinished={onResizeEnd}
     >
@@ -86,15 +106,15 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
         resizerStyle={{
           cursor: 'ns-resize',
         }}
-        minSize={12}
-        maxSize={-12}
+        minSize={DIVIDER_SIZE}
+        maxSize={-DIVIDER_SIZE}
         onDragStarted={onResizeStart}
         onDragFinished={onResizeEnd}
       >
-        <div className={classes.filters}>
+        <div className={cx(classes.panel, classes.filters)}>
           <DataFilters />
         </div>
-        <div className={classes.info}>
+        <div className={classes.panel}>
           <InfoPanel />
         </div>
       </SplitPane>
@@ -117,16 +137,40 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
           height: '100%',
         }}
         minSize={144}
-        maxSize={-12}
+        maxSize={-DIVIDER_SIZE}
         onDragStarted={onResizeStart}
         onDragFinished={onResizeEnd}
       >
-        <div className={classes.table}>
+        <div className={classes.panel}>
           <DataTable />
         </div>
-        <div className={classes.timeline}>
-          <Timeline />
-        </div>
+        {isPlotCollapsed ? (
+          timeline
+        ) : (
+          // @ts-ignore
+          <SplitPane
+            primary={'second'} // control scatter plot portion of split pane
+            split={'vertical'}
+            resizerClassName={classes.resizer}
+            size={
+              splitPanePlotsVerticalSize === 'default'
+                ? DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE
+                : splitPanePlotsVerticalSize
+            }
+            onChange={setSplitPanePlotsVerticalSize}
+            resizerStyle={{
+              cursor: 'ew-resize',
+            }}
+            minSize={-DIVIDER_SIZE}
+            onDragStarted={onResizeStart}
+            onDragFinished={onResizeEnd}
+          >
+            {timeline}
+            <div className={classes.panel}>
+              <ScatterPlot />
+            </div>
+          </SplitPane>
+        )}
       </SplitPane>
     </SplitPane>
   )

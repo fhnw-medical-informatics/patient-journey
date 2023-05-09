@@ -15,6 +15,13 @@ export const getChunkSize = (total: number, chunks: number): number => {
   return total / _chunks
 }
 
+// Canvas state changes are expensive, only change if needed
+export function changeCanvasFillStyle(ctx: CanvasRenderingContext2D, color: string): void {
+  if (ctx.fillStyle !== color) {
+    ctx.fillStyle = color
+  }
+}
+
 export const sha256 = async (message: string): Promise<string> => {
   const msgBuffer = new TextEncoder().encode(message)
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
