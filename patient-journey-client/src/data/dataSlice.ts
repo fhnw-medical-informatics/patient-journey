@@ -1,5 +1,7 @@
 import { AnyAction, createAsyncThunk, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
 import { Dispatch } from 'redux'
+import { ChatCompletionRequestMessageRoleEnum } from 'openai'
+
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
 import { loadData as loadDataImpl, LoadedData, LoadingProgress } from './loading'
@@ -14,27 +16,9 @@ import {
   retryOpenaiAPI,
   TOKENS_PER_CHUNK,
 } from './embeddings'
-import { RootState } from '../store'
 import { openaiAPI } from '../utils/openai'
-import { ChatCompletionRequestMessageRoleEnum } from 'openai'
 
-export type DataLoadingPending = Readonly<{
-  type: 'loading-pending'
-}>
-
-export type DataLoadingInProgress = Readonly<{
-  type: 'loading-in-progress'
-}>
-
-export type DataLoadingFailed = Readonly<{
-  type: 'loading-failed'
-  errorMessage: string
-}>
-
-export type DataLoadingComplete<T> = Readonly<{
-  type: 'loading-complete'
-}> &
-  T
+import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
 
 type DataStateLoadingPending = DataLoadingPending
 
@@ -405,7 +389,7 @@ export const fetchCohortExplanation = createAsyncThunk(
   'data/fetchCohortExplanation',
   async (cohortExplanationData: { prompt: string; cohort: ReadonlyArray<Patient> }, thunkAPI) => {
     // A prompt is set, fetch prompt embeddings and add random journeys for context
-    const data = (thunkAPI.getState() as RootState).data
+    const data = (thunkAPI.getState() as any).data as DataState
 
     if (data.type === 'loading-complete') {
       const patientJourneys = preparePatientJourneys(
@@ -432,11 +416,11 @@ export const fetchCohortExplanation = createAsyncThunk(
           ...patientJourneyChunks[0].map((patientJourney, idx) => ({
             role: 'user' as ChatCompletionRequestMessageRoleEnum,
             content: `
-          Patient Journey ${idx + 1}:
-          ------
+            Patient Journey ${idx + 1}:
+            ------
 
-          ${patientJourney}
-        `,
+            ${patientJourney}
+          `,
           })),
           {
             role: 'user',

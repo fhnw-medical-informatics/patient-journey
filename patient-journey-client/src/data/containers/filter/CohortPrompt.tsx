@@ -8,7 +8,7 @@ import {
   usePatientDataRowAsMap,
 } from '../../hooks'
 import { useAppDispatch } from '../../../store'
-import { PatientId } from '../../patients'
+import { PatientId, Patient } from '../../patients'
 import { fetchCohortExplanation, setCohortExplanationPrompt } from '../../dataSlice'
 
 const CohortPrompt = () => {
@@ -30,10 +30,19 @@ const CohortPrompt = () => {
   )
 
   const handleFetchCohortExplanation = useCallback(() => {
+    // Get the patient data for the cohort, remove patients, with no data
+    const cohort = cohortPIDs.reduce((acc, pid) => {
+      const patient = patientMap.get(pid) as Patient
+      if (patient) {
+        acc.push(patient)
+      }
+      return acc
+    }, [] as Patient[])
+
     dispatch(
       fetchCohortExplanation({
         prompt,
-        cohort: cohortPIDs.map((pid) => patientMap[pid]),
+        cohort,
       })
     )
   }, [dispatch, prompt, cohortPIDs, patientMap])

@@ -4,7 +4,7 @@ import { SIMILARITY_DATA_FILE_URL } from './constants'
 import { PatientData, PatientId } from './patients'
 
 import { scaleLinear } from 'd3-scale'
-import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './dataSlice'
+import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
 
 export type SimilaritiesStateLoadingPending = DataLoadingPending
 

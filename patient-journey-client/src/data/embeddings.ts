@@ -7,7 +7,7 @@ import { PatientData } from './patients'
 import { openaiAPI } from '../utils/openai'
 import { sha256 } from '../utils'
 import { EMBEDDINGS_DATA_FILE_URL } from './constants'
-import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './dataSlice'
+import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
 
 export const EMBEDDINGS_API_COSTS_PER_1KTOKENS = 0.0004
 export const TOKENS_PER_CHUNK = 6000
