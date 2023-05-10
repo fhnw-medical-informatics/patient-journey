@@ -403,15 +403,16 @@ export const fetchCohortExplanation = createAsyncThunk(
 
       console.log('Fetching ChatGPT response for cohort prompt: ', cohortExplanationData.prompt)
 
-      // TODO
-      const context = `
-        A large number of patient journeys have previously been processed by the OpenAI Embeddings API.
-        The retrieved embeddings were then processed with the t-SNE algorithm to retrieve clusters of similar patients via k-means clustering.
-        I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
+      const system_instruction = `You are aware of the OpenAI Embeddings API and all the factors it considers when computing embeddings for a patient journey. You will help the user to understand, why individual patient journeys are similar based on their embeddings and you will point out relevant key factors and characteristics of the patient journeys to the user, so that they can understand the underlying reasoning. You are concise and don't mention general information about the API. `
+
+      const context = `The following patient journeys have been processed by the OpenAI Embeddings API.
+      The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
+      I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
 
       const completion = await openaiAPI.createChatCompletion({
         model: 'gpt-3.5-turbo',
         messages: [
+          { role: 'system', content: system_instruction },
           { role: 'user', content: context },
           ...patientJourneyChunks[0].map((patientJourney, idx) => ({
             role: 'user' as ChatCompletionRequestMessageRoleEnum,
@@ -428,8 +429,6 @@ export const fetchCohortExplanation = createAsyncThunk(
           },
         ],
       })
-
-      console.log('Done', completion)
 
       if (completion.data.choices.length > 0) {
         return completion.data.choices[0].message?.content.toString()

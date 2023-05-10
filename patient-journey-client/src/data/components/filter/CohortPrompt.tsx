@@ -13,6 +13,8 @@ interface CohortPromptProps {
 }
 
 const CohortPrompt: React.FC<CohortPromptProps> = ({ value, onChange, onSubmit, isLoading, result }) => {
+  const paragraphs = result.split('\n')
+
   return (
     <Box
       sx={{
@@ -30,7 +32,8 @@ const CohortPrompt: React.FC<CohortPromptProps> = ({ value, onChange, onSubmit, 
         disabled={isLoading}
       />
       <Typography variant="caption" color="GrayText">
-        The prompt should be a short question you have regarding your cohort. Each request costs $
+        The prompt should be a short question you have regarding your cohort. For example: 'Why are these patients
+        similar? List and interpret the key-factors.'. Each request costs $
         {Math.round(EMBEDDINGS_API_COSTS_PER_1KTOKENS * (TOKENS_PER_CHUNK / 1000) * 10000) / 10000}.
       </Typography>
       <Box
@@ -50,7 +53,17 @@ const CohortPrompt: React.FC<CohortPromptProps> = ({ value, onChange, onSubmit, 
         >
           Get Cohort Information
         </Button>
-        <Typography variant="caption">{result}</Typography>
+      </Box>
+      <Box
+        sx={{
+          marginTop: 4,
+        }}
+      >
+        {paragraphs.map((p) => (
+          <Typography variant="body1" sx={{ marginTop: 2 }}>
+            {p}
+          </Typography>
+        ))}
       </Box>
     </Box>
   )
