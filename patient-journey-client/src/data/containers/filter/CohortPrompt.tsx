@@ -20,7 +20,7 @@ const CohortPrompt = () => {
 
   const dispatch = useAppDispatch()
 
-  const cohortPIDs: PatientId[] = useMemo(() => ['3429035' as PatientId, '3454297' as PatientId], [])
+  const cohortPIDs: PatientId[] = useMemo(() => ['3415100' as PatientId, '3468120' as PatientId], [])
 
   const handlePromptChange = useCallback(
     (text: string) => {
