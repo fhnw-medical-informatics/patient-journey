@@ -26,6 +26,7 @@ import { ColoredCircle } from '../../color/components/ColoredCircle'
 import { PatientId, PatientIdNone } from '../../data/patients'
 import { IndexPatientButton } from '../containers/IndexPatientButton'
 import { ScrollToButton } from './ScrollToButton'
+import { CohortControlButton } from '../../cohort/containers/CohortControlButton'
 
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)
@@ -277,6 +278,7 @@ export const DataTable = ({
                   ) : (
                     <span></span>
                   )}
+                  <CohortControlButton />
                 </Stack>
                 <Typography variant="body2" color={theme.palette.text.primary}>
                   Total Rows: {rows.length}

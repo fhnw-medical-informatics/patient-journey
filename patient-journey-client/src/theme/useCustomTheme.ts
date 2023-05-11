@@ -1,6 +1,6 @@
 import { createTheme, darken, lighten, Theme } from '@mui/material'
 import { useAppSelector } from '../store'
-import { yellow, grey, pink, red, amber } from '@mui/material/colors'
+import { yellow, grey, pink, red, amber, green } from '@mui/material/colors'
 import { AppTheme } from './themeSlice'
 
 declare module '@mui/material/styles' {
@@ -12,6 +12,7 @@ declare module '@mui/material/styles' {
       indexPatient: string
       stroke: string
       journeyStroke: string
+      cohort: string
     }
   }
 
@@ -25,6 +26,7 @@ declare module '@mui/material/styles' {
       indexPatient?: string
       stroke?: string
       journeyStroke?: string
+      cohort?: string
     }
   }
 }
@@ -44,6 +46,7 @@ const createCustomTheme = (mode: AppTheme, selectionColor: string, defaultColor:
       selected: selectionColor,
       indexPatient: mode === 'light' ? amber[500] : yellow[700],
       journeyStroke: selectionColor,
+      cohort: green[300],
     },
     components: {
       MuiTableRow: {
