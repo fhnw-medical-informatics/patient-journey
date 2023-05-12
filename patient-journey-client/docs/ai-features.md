@@ -63,6 +63,12 @@ Questions to explore:
 
 Currently, the "Prompt based Similarity" feature is not performing as expected. It's not clear as to why this is. Maybe due to the token input limit of the Embeddings API, which results in the generation of embeddings for the prompt with missing context. More research is needed to fine-tune this process.
 
+Update: We are currently just searching for similar patient journeys by finding the closest embeddings to the prompt embedding. But this is just the first step, we could then use the LLM to interpret the most similar patient journeys and generate a fitting response (for example it could extract the cluster of the most similar patient journeys and describe it in a further step). Here are some resources that could help us with this:
+
+- https://blog.langchain.dev/tutorial-chatgpt-over-your-data/
+- https://platform.openai.com/docs/guides/embeddings/limitations-risks
+- https://platform.openai.com/docs/tutorials/web-qa-embeddings
+
 Questions to explore:
 
 - How should the prompt be written, so that the Embeddings API can generate accurate embeddings for it, that are comparable to the embeddings of the dataset?
