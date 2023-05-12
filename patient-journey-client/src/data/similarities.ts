@@ -4,28 +4,19 @@ import { SIMILARITY_DATA_FILE_URL } from './constants'
 import { PatientData, PatientId } from './patients'
 
 import { scaleLinear } from 'd3-scale'
+import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
 
-export type SimilaritiesStateLoadingPending = Readonly<{
-  type: 'loading-pending'
-}>
+export type SimilaritiesStateLoadingPending = DataLoadingPending
 
-export type SimilaritiesStateLoadingInProgress = Readonly<{
-  type: 'loading-in-progress'
-}>
+export type SimilaritiesStateLoadingInProgress = DataLoadingInProgress
 
-export type SimilaritiesStateLoadingFailed = Readonly<{
-  type: 'loading-failed'
-  errorMessage: string
-}>
+export type SimilaritiesStateLoadingFailed = DataLoadingFailed
 
 export interface LoadedSimilarities {
   similarities: Array<string>
 }
 
-export type SimilaritiesStateLoadingComplete = Readonly<{
-  type: 'loading-complete'
-}> &
-  LoadedSimilarities
+export type SimilaritiesStateLoadingComplete = DataLoadingComplete<LoadedSimilarities>
 
 export type SimilarityData = {
   readonly patientIdMap: Record<string, number>

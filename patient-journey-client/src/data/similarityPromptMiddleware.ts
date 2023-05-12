@@ -1,5 +1,4 @@
 import { createListenerMiddleware } from '@reduxjs/toolkit'
-import { RootState } from '../store'
 import { fetchPromptEmbeddings, setPromptEmbeddings, setSimilarityPrompt } from './dataSlice'
 import { TOKENS_PER_CHUNK, createPatientJourneysChunks, preparePatientJourneys } from './embeddings'
 
@@ -13,7 +12,7 @@ listenerMiddleware.startListening({
   effect: async (action, listenerApi) => {
     if (action.payload) {
       // A prompt is set, fetch prompt embeddings and add random journeys for context
-      const data = (listenerApi.getState() as RootState).data
+      const data = (listenerApi.getState() as any).data
 
       if (data.type === 'loading-complete') {
         // Select 10 random patients from data.patientData.allEntities

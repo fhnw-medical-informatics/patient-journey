@@ -11,7 +11,8 @@ import { ActiveDataViewType } from '../../dataSlice'
 import { ColorByColumn } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
 import SimilarityPrompt from '../../containers/filter/SimilarityPrompt'
-import { deepPurple } from '@mui/material/colors'
+import { blue, deepPurple } from '@mui/material/colors'
+import CohortPrompt from '../../containers/filter/CohortPrompt'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -112,20 +113,34 @@ export const DataFilters = ({
         </Grid>
       )}
       {activeView === 'patients' && (
-        <Grid item xs={12}>
-          <FilterCard
-            label="Prompt based similarity"
-            isActive={similarityPrompt !== ''}
-            onRemove={() => {
-              onSimilarityPromptChange('')
-            }}
-            sx={{
-              backgroundColor: deepPurple['900'],
-            }}
-          >
-            <SimilarityPrompt value={similarityPrompt} onSubmit={onSimilarityPromptChange} />
-          </FilterCard>
-        </Grid>
+        <>
+          <Grid item xs={12}>
+            <FilterCard
+              label="Prompt based similarity"
+              isActive={similarityPrompt !== ''}
+              onRemove={() => {
+                onSimilarityPromptChange('')
+              }}
+              sx={{
+                backgroundColor: deepPurple['900'],
+              }}
+            >
+              <SimilarityPrompt value={similarityPrompt} onSubmit={onSimilarityPromptChange} />
+            </FilterCard>
+          </Grid>
+          <Grid item xs={12}>
+            <FilterCard
+              label="Cohort explanation"
+              isActive={false}
+              onRemove={() => {}}
+              sx={{
+                backgroundColor: blue['900'],
+              }}
+            >
+              <CohortPrompt />
+            </FilterCard>
+          </Grid>
+        </>
       )}
       {availableColumns
         .filter((col) => ['pid', 'string', 'number', 'boolean', 'date', 'timestamp', 'category'].includes(col.type))

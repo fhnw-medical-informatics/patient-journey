@@ -1,39 +1,42 @@
 import { AnyAction, createAsyncThunk, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
 import { Dispatch } from 'redux'
+import { ChatCompletionRequestMessageRoleEnum } from 'openai'
+
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
 import { loadData as loadDataImpl, LoadedData, LoadingProgress } from './loading'
 import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './constants'
 import { addAlerts } from '../alert/alertSlice'
-import { PatientId, PatientIdNone } from './patients'
+import { Patient, PatientId, PatientIdNone } from './patients'
 import { LoadedSimilarities, parseSpecificRowFromSimilarityFile } from './similarities'
-import { EmbeddingsData, retryOpenaiAPI } from './embeddings'
+import {
+  createPatientJourneysChunks,
+  EmbeddingsData,
+  preparePatientJourneys,
+  retryOpenaiAPI,
+  TOKENS_PER_CHUNK,
+} from './embeddings'
+import { openaiAPI } from '../utils/openai'
 
-type DataStateLoadingPending = Readonly<{
-  type: 'loading-pending'
-}>
+import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
 
-type DataStateLoadingInProgress = Readonly<{
-  type: 'loading-in-progress'
-}> &
-  LoadingProgress
+type DataStateLoadingPending = DataLoadingPending
 
-export type DataStateLoadingFailed = Readonly<{
-  type: 'loading-failed'
-  errorMessage: string
-}>
+type DataStateLoadingInProgress = DataLoadingInProgress & LoadingProgress
 
-export type DataStateLoadingComplete = Readonly<{
-  type: 'loading-complete'
-}> &
+export type DataStateLoadingFailed = DataLoadingFailed
+
+export type DataStateLoadingComplete = DataLoadingComplete<
   LoadedData &
-  ActiveDataView &
-  Filters &
-  Hovering &
-  Selection &
-  IndexPatient &
-  SplitPane &
-  SimilarityPrompt
+    ActiveDataView &
+    Filters &
+    Hovering &
+    Selection &
+    IndexPatient &
+    SplitPane &
+    SimilarityPrompt &
+    CohortExplanation
+>
 
 export const ACTIVE_DATA_VIEWS = ['patients', 'events'] as const
 export type ActiveDataViewType = typeof ACTIVE_DATA_VIEWS[number]
@@ -77,6 +80,17 @@ interface SimilarityPrompt {
   readonly similarityPrompt: string
 }
 
+type CohortExplanationData =
+  | DataLoadingPending
+  | DataLoadingInProgress
+  | DataLoadingFailed
+  | DataLoadingComplete<{ result: string }>
+
+interface CohortExplanation {
+  readonly cohortExplanationPrompt: string
+  readonly cohortExplanationResult: CohortExplanationData
+}
+
 export type DataState =
   | DataStateLoadingPending
   | DataStateLoadingInProgress
@@ -105,6 +119,10 @@ const dataSlice = createSlice({
       similarityProvider: 'matrix',
       isResizing: false,
       similarityPrompt: '',
+      cohortExplanationPrompt: '',
+      cohortExplanationResult: {
+        type: 'loading-pending',
+      },
       ...freeze(action.payload, true),
     }),
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
@@ -220,6 +238,11 @@ const dataSlice = createSlice({
         s.embeddingsData.promptEmbeddings = action.payload
       })
     },
+    setCohortExplanationPrompt: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationPrompt = action.payload
+      })
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchPromptEmbeddings.pending, (state) => {
@@ -242,6 +265,29 @@ const dataSlice = createSlice({
         s.embeddingsData.promptEmbeddings = {
           type: 'loading-failed',
           errorMessage: action.error.message ?? 'Error while loading prompt embeddings',
+        }
+      })
+    })
+    builder.addCase(fetchCohortExplanation.pending, (state) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-in-progress',
+        }
+      })
+    })
+    builder.addCase(fetchCohortExplanation.fulfilled, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-complete',
+          result: action.payload ?? '',
+        }
+      })
+    })
+    builder.addCase(fetchCohortExplanation.rejected, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-failed',
+          errorMessage: action.error.message ?? 'Error while loading cohort explanation',
         }
       })
     })
@@ -286,6 +332,7 @@ export const {
   setSimilarityProvider,
   setSimilarityPrompt,
   setPromptEmbeddings,
+  setCohortExplanationPrompt,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
@@ -334,6 +381,60 @@ export const fetchPromptEmbeddings = createAsyncThunk(
       return promptEmbeddings.data.data[0].embedding
     } else {
       throw new Error('Could not fetch prompt embeddings')
+    }
+  }
+)
+
+export const fetchCohortExplanation = createAsyncThunk(
+  'data/fetchCohortExplanation',
+  async (cohortExplanationData: { prompt: string; cohort: ReadonlyArray<Patient> }, thunkAPI) => {
+    // A prompt is set, fetch prompt embeddings and add random journeys for context
+    const data = (thunkAPI.getState() as any).data as DataState
+
+    if (data.type === 'loading-complete') {
+      const patientJourneys = preparePatientJourneys(
+        { ...data.patientData, allEntities: cohortExplanationData.cohort },
+        data.eventData
+      )
+
+      // TODO: Tokens per Chunk should be small enough, so that there is space for the prompt
+      // TODO: When creating the cohort, it should already validated towards the limit
+      const { patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, TOKENS_PER_CHUNK)
+
+      console.log('Fetching ChatGPT response for cohort prompt: ', cohortExplanationData.prompt)
+
+      const system_instruction = `You are aware of the OpenAI Embeddings API and all the factors it considers when computing embeddings for a patient journey. You will help the user to understand, why individual patient journeys are similar based on their embeddings and you will point out relevant key factors and characteristics of the patient journeys to the user, so that they can understand the underlying reasoning. You are concise and don't mention general information about the API. `
+
+      const context = `The following patient journeys have been processed by the OpenAI Embeddings API.
+      The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
+      I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
+
+      const completion = await openaiAPI.createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: system_instruction },
+          { role: 'user', content: context },
+          ...patientJourneyChunks[0].map((patientJourney, idx) => ({
+            role: 'user' as ChatCompletionRequestMessageRoleEnum,
+            content: `
+            Patient Journey ${idx + 1}:
+            ------
+
+            ${patientJourney}
+          `,
+          })),
+          {
+            role: 'user',
+            content: `${cohortExplanationData.prompt}}`,
+          },
+        ],
+      })
+
+      if (completion.data.choices.length > 0) {
+        return completion.data.choices[0].message?.content.toString()
+      } else {
+        throw new Error('Could not fetch cohort explanation')
+      }
     }
   }
 )

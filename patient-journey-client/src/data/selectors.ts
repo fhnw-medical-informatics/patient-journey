@@ -469,3 +469,14 @@ export const selectPromptEmbeddingState = createSelector(
   selectData,
   (data) => data.embeddingsData.promptEmbeddings.type
 )
+
+export const selectCohortExplanationPrompt = createSelector(selectData, (data) => data.cohortExplanationPrompt)
+
+export const selectCohortExplanationResultState = createSelector(
+  selectData,
+  (data) => data.cohortExplanationResult.type
+)
+
+export const selectCohortExplanationResult = createSelector(selectData, (data) =>
+  data.cohortExplanationResult.type === 'loading-complete' ? data.cohortExplanationResult.result : null
+)

@@ -7,6 +7,7 @@ import { PatientData } from './patients'
 import { openaiAPI } from '../utils/openai'
 import { sha256 } from '../utils'
 import { EMBEDDINGS_DATA_FILE_URL } from './constants'
+import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
 
 export const EMBEDDINGS_API_COSTS_PER_1KTOKENS = 0.0004
 export const TOKENS_PER_CHUNK = 6000
@@ -15,18 +16,11 @@ export type Embeddings = Record<string, ReadonlyArray<number>>
 
 export type EmbeddingsFile = { patientDataHash: string; embeddings: Embeddings }
 
-export type EmbeddingsStateLoadingPending = Readonly<{
-  type: 'loading-pending'
-}>
+export type EmbeddingsStateLoadingPending = DataLoadingPending
 
-export type EmbeddingsStateLoadingInProgress = Readonly<{
-  type: 'loading-in-progress'
-}>
+export type EmbeddingsStateLoadingInProgress = DataLoadingInProgress
 
-export type EmbeddingsStateLoadingFailed = Readonly<{
-  type: 'loading-failed'
-  errorMessage: string
-}>
+export type EmbeddingsStateLoadingFailed = DataLoadingFailed
 
 export interface LoadedEmbeddings {
   embeddings: Embeddings
@@ -44,17 +38,9 @@ export interface LoadedPromptEmbeddings {
   embedding: number[]
 }
 
-export type EmbeddingsStateLoadingComplete = Readonly<{
-  type: 'loading-complete'
-}> &
-  LoadedEmbeddings &
-  ReducedEmbeddings &
-  Clusters
+export type EmbeddingsStateLoadingComplete = DataLoadingComplete<LoadedEmbeddings & ReducedEmbeddings & Clusters>
 
-export type PromptEmbeddingsStateLoadingComplete = Readonly<{
-  type: 'loading-complete'
-}> &
-  LoadedPromptEmbeddings
+export type PromptEmbeddingsStateLoadingComplete = DataLoadingComplete<LoadedPromptEmbeddings>
 
 export type EmbeddingsData = {
   readonly patientDataEmbeddings:
