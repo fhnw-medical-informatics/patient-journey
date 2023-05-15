@@ -1,4 +1,3 @@
-import { makeStyles } from '../../utils'
 import CohortIcon from '@mui/icons-material/Grain'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -18,7 +17,8 @@ import {
   useTheme,
 } from '@mui/material'
 import React, { useState } from 'react'
-import { PatientId } from '../../data/patients'
+import { makeStyles } from '../../../utils'
+import { PatientId } from '../../patients'
 
 const useStyles = makeStyles()((theme) => ({
   button: {

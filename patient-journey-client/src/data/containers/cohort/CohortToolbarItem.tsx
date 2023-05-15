@@ -1,9 +1,9 @@
-import { CohortToolbarItem as CohortToolbarItemComponent } from '../components/CohortToolbarItem'
-import { usePatientCohort } from '../hooks'
 import { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
-import { clearCohort, removeFromCohort } from '../cohortSlice'
-import { PatientId } from '../../data/patients'
+import { usePatientCohort } from '../../hooks'
+import { PatientId } from '../../patients'
+import { clearCohort, removeFromCohort } from '../../dataSlice'
+import { CohortToolbarItem as CohortToolbarItemComponent } from '../../components/cohort/CohortToolbarItem'
 
 export const CohortToolbarItem = () => {
   const cohort = usePatientCohort()

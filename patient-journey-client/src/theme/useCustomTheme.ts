@@ -1,6 +1,6 @@
 import { createTheme, darken, lighten, Theme } from '@mui/material'
 import { useAppSelector } from '../store'
-import { yellow, grey, pink, red, amber, green } from '@mui/material/colors'
+import { amber, green, grey, pink, red, yellow } from '@mui/material/colors'
 import { AppTheme } from './themeSlice'
 
 declare module '@mui/material/styles' {

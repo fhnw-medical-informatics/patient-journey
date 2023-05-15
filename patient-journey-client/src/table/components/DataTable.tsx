@@ -26,7 +26,7 @@ import { ColoredCircle } from '../../color/components/ColoredCircle'
 import { PatientId, PatientIdNone } from '../../data/patients'
 import { IndexPatientButton } from '../containers/IndexPatientButton'
 import { ScrollToButton } from './ScrollToButton'
-import { CohortControlButton } from '../../cohort/containers/CohortControlButton'
+import { CohortControlButton } from '../../data/containers/cohort/CohortControlButton'
 
 // https://mui.com/x/advanced-components/#license-key-installation
 LicenseInfo.setLicenseKey(import.meta.env.VITE_APP_DATA_GRID_LICENSE_KEY)

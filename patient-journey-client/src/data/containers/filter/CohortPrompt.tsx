@@ -1,14 +1,15 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 
 import CohortPromptComponent from '../../components/filter/CohortPrompt'
 import {
   useCohortExplanationPrompt,
-  useCohortExplanationState,
   useCohortExplanationResult,
+  useCohortExplanationState,
+  usePatientCohort,
   usePatientDataRowAsMap,
 } from '../../hooks'
 import { useAppDispatch } from '../../../store'
-import { PatientId, Patient } from '../../patients'
+import { Patient } from '../../patients'
 import { fetchCohortExplanation, setCohortExplanationPrompt } from '../../dataSlice'
 
 const CohortPrompt = () => {
@@ -20,7 +21,7 @@ const CohortPrompt = () => {
 
   const dispatch = useAppDispatch()
 
-  const cohortPIDs: PatientId[] = useMemo(() => ['3415100' as PatientId, '3468120' as PatientId], [])
+  const cohortPIDs = usePatientCohort()
 
   const handlePromptChange = useCallback(
     (text: string) => {
@@ -31,7 +32,7 @@ const CohortPrompt = () => {
 
   const handleFetchCohortExplanation = useCallback(() => {
     // Get the patient data for the cohort, remove patients, with no data
-    const cohort = cohortPIDs.reduce((acc, pid) => {
+    const cohort = [...cohortPIDs].reduce((acc, pid) => {
       const patient = patientMap.get(pid) as Patient
       if (patient) {
         acc.push(patient)

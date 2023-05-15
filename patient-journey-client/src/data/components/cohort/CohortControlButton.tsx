@@ -3,7 +3,7 @@ import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import CohortIcon from '@mui/icons-material/Grain'
 import React, { useCallback } from 'react'
-import { PatientId } from '../../data/patients'
+import { PatientId } from '../../patients'
 
 interface Props {
   readonly patientId: PatientId

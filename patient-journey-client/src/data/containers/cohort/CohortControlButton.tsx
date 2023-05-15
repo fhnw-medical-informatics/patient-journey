@@ -1,10 +1,9 @@
-import { CohortControlButton as CohortControlButtonComponent } from '../components/CohortControlButton'
-import { useSelectedEntity } from '../../data/hooks'
-import { usePatientCohort } from '../hooks'
-import { addToCohort, removeFromCohort } from '../cohortSlice'
-import { useAppDispatch } from '../../store'
+import { CohortControlButton as CohortControlButtonComponent } from '../../components/cohort/CohortControlButton'
+import { usePatientCohort, useSelectedEntity } from '../../hooks'
+import { useAppDispatch } from '../../../store'
 import { useCallback } from 'react'
-import { PatientId } from '../../data/patients'
+import { PatientId } from '../../patients'
+import { addToCohort, removeFromCohort } from '../../dataSlice'
 
 export const CohortControlButton = () => {
   const selectedEntity = useSelectedEntity()

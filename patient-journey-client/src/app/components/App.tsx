@@ -13,7 +13,7 @@ import { Data } from '../../data/containers/Data'
 import { Alerts } from '../../alert/containers/Alerts'
 import { DataViewSelector } from '../../data/containers/DataViewSelector'
 import SimilarityProviderSelector from '../../data/containers/SimilarityProviderSelector'
-import { CohortToolbarItem } from '../../cohort/containers/CohortToolbarItem'
+import { CohortToolbarItem } from '../../data/containers/cohort/CohortToolbarItem'
 
 const useStyles = makeStyles()((theme) => ({
   app: {
