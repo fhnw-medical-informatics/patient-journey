@@ -69,6 +69,8 @@ Update: We are currently just searching for similar patient journeys by finding 
 - https://platform.openai.com/docs/guides/embeddings/limitations-risks
 - https://platform.openai.com/docs/tutorials/web-qa-embeddings
 
+Update 2: Also we are fetching the embeddings to compare with the patient journey embeddings based on the prompt. However, another strategy would be to use the prompt to ask ChatGPT to create a new patient journey that matches the prompt. We could then use the Embeddings API to generate an embedding for this new patient journey and compare it to the embeddings of the patient journeys in the dataset.
+
 Questions to explore:
 
 - How should the prompt be written, so that the Embeddings API can generate accurate embeddings for it, that are comparable to the embeddings of the dataset?
