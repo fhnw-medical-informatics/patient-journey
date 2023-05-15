@@ -52,8 +52,9 @@ const CohortPrompt: React.FC<CohortPromptProps> = ({ value, onChange, onSubmit, 
       {/* Use the material ui Chip component to list the templates, a click should set the template prompt */}
       <Stack direction="row" spacing={1} sx={{ marginTop: 1 }}>
         <Typography variant="caption">Templates</Typography>
-        {PromptTemplates.map((template) => (
+        {PromptTemplates.map((template, index) => (
           <Chip
+            key={index}
             variant="filled"
             onClick={() => onChange(template.prompt)}
             disabled={isLoading}
@@ -90,8 +91,8 @@ const CohortPrompt: React.FC<CohortPromptProps> = ({ value, onChange, onSubmit, 
           marginTop: 4,
         }}
       >
-        {paragraphs.map((p) => (
-          <Typography variant="body1" sx={{ marginTop: 2 }}>
+        {paragraphs.map((p, i) => (
+          <Typography key={i} variant="body1" sx={{ marginTop: 2 }}>
             {p}
           </Typography>
         ))}

@@ -2,7 +2,7 @@ import React from 'react'
 import FilterAltIcon from '@mui/icons-material/FilterAltOutlined'
 import { makeStyles } from '../../../utils'
 import { Filter, FilterColumn, GenericFilter } from '../../filtering'
-import { Button, Grid, Typography } from '@mui/material'
+import { Button, Grid, Typography, useTheme } from '@mui/material'
 import { DataDiagrams } from '../diagram/DataDiagrams'
 import { Entity } from '../../entities'
 import { DataFilter } from './DataFilter'
@@ -11,7 +11,7 @@ import { ActiveDataViewType } from '../../dataSlice'
 import { ColorByColumn } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
 import SimilarityPrompt from '../../containers/filter/SimilarityPrompt'
-import { blue, deepPurple } from '@mui/material/colors'
+import { deepPurple } from '@mui/material/colors'
 import CohortPrompt from '../../containers/filter/CohortPrompt'
 
 const useStyles = makeStyles()((theme) => ({
@@ -55,6 +55,7 @@ export const DataFilters = ({
   similarityPrompt,
   onSimilarityPromptChange,
 }: DataFiltersProps) => {
+  const theme = useTheme()
   const { classes } = useStyles()
 
   const findActiveFilter = <T extends FilterColumn['type']>(
@@ -134,7 +135,7 @@ export const DataFilters = ({
               isActive={false}
               onRemove={() => {}}
               sx={{
-                backgroundColor: blue['900'],
+                backgroundColor: theme.entityColors.cohort,
               }}
             >
               <CohortPrompt />

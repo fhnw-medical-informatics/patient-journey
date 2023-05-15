@@ -42,6 +42,7 @@ import {
   selectCohortExplanationPrompt,
   selectCohortExplanationResultState,
   selectCohortExplanationResult,
+  selectPatientCohort,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -139,6 +140,7 @@ export const useSimilarityPrompt = () => useAppSelector(selectSimilarityPrompt)
 
 export const usePromptEmbeddingsState = () => useAppSelector(selectPromptEmbeddingState)
 
+export const usePatientCohort = () => useAppSelector(selectPatientCohort)
 export const useCohortExplanationPrompt = () => useAppSelector(selectCohortExplanationPrompt)
 export const useCohortExplanationState = () => useAppSelector(selectCohortExplanationResultState)
 export const useCohortExplanationResult = () => useAppSelector(selectCohortExplanationResult)

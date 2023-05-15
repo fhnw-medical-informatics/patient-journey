@@ -470,6 +470,8 @@ export const selectPromptEmbeddingState = createSelector(
   (data) => data.embeddingsData.promptEmbeddings.type
 )
 
+export const selectPatientCohort = createSelector(selectData, (data) => new Set(data.cohortPatientIds))
+
 export const selectCohortExplanationPrompt = createSelector(selectData, (data) => data.cohortExplanationPrompt)
 
 export const selectCohortExplanationResultState = createSelector(

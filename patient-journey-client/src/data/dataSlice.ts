@@ -35,6 +35,7 @@ export type DataStateLoadingComplete = DataLoadingComplete<
     IndexPatient &
     SplitPane &
     SimilarityPrompt &
+    Cohort &
     CohortExplanation
 >
 
@@ -62,6 +63,10 @@ interface Hovering {
 
 interface Selection {
   readonly selected: FocusEntity
+}
+
+interface Cohort {
+  readonly cohortPatientIds: ReadonlyArray<PatientId>
 }
 
 export const SIMILARITY_PROVIDER = ['matrix', 'embeddings'] as const
@@ -119,6 +124,7 @@ const dataSlice = createSlice({
       similarityProvider: 'matrix',
       isResizing: false,
       similarityPrompt: '',
+      cohortPatientIds: [],
       cohortExplanationPrompt: '',
       cohortExplanationResult: {
         type: 'loading-pending',
@@ -238,6 +244,21 @@ const dataSlice = createSlice({
         s.embeddingsData.promptEmbeddings = action.payload
       })
     },
+    addToCohort: (state: Draft<DataState>, action: PayloadAction<{ id: PatientId }>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortPatientIds = [...new Set([...s.cohortPatientIds, action.payload.id])]
+      })
+    },
+    removeFromCohort: (state: Draft<DataState>, action: PayloadAction<{ id: PatientId }>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortPatientIds = s.cohortPatientIds.filter((id) => id !== action.payload.id)
+      })
+    },
+    clearCohort: (state: Draft<DataState>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortPatientIds = []
+      })
+    },
     setCohortExplanationPrompt: (state: Draft<DataState>, action: PayloadAction<string>) => {
       mutateLoadedDataState(state, (s) => {
         s.cohortExplanationPrompt = action.payload
@@ -332,6 +353,9 @@ export const {
   setSimilarityProvider,
   setSimilarityPrompt,
   setPromptEmbeddings,
+  addToCohort,
+  removeFromCohort,
+  clearCohort,
   setCohortExplanationPrompt,
 } = dataSlice.actions
 
