@@ -395,16 +395,29 @@ export const fetchPromptEmbeddings = createAsyncThunk(
   async (promptAndJourneys: { prompt: string; randomPatientJourneys: string[] }, thunkAPI) => {
     console.log('Fetching prompt embeddings for prompt and journeys', promptAndJourneys)
 
-    const promptEmbeddings = await retryOpenaiAPI(3, [
-      promptAndJourneys.prompt,
-      ...promptAndJourneys.randomPatientJourneys,
-    ])
+    try {
+      const promptEmbeddings = await retryOpenaiAPI(3, [
+        promptAndJourneys.prompt,
+        ...promptAndJourneys.randomPatientJourneys,
+      ])
 
-    if (promptEmbeddings && promptEmbeddings.data.data.length > 0) {
-      // The first entry is the prompt embedding
-      return promptEmbeddings.data.data[0].embedding
-    } else {
-      throw new Error('Could not fetch prompt embeddings')
+      if (promptEmbeddings && promptEmbeddings.data.data.length > 0) {
+        // The first entry is the prompt embedding
+        return promptEmbeddings.data.data[0].embedding
+      } else {
+        throw new Error('Could not fetch prompt embeddings')
+      }
+    } catch (error) {
+      thunkAPI.dispatch(
+        addAlerts([
+          {
+            type: 'error',
+            topic: 'Prompt based Similarity',
+            message: `Could not fetch prompt embeddings. ${error}`,
+          },
+        ])
+      )
+      throw error
     }
   }
 )
@@ -433,31 +446,44 @@ export const fetchCohortExplanation = createAsyncThunk(
       The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
       I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
 
-      const completion = await openaiAPI.createChatCompletion({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: system_instruction },
-          { role: 'user', content: context },
-          ...patientJourneyChunks[0].map((patientJourney, idx) => ({
-            role: 'user' as ChatCompletionRequestMessageRoleEnum,
-            content: `
-            Patient Journey ${idx + 1}:
-            ------
+      try {
+        const completion = await openaiAPI.createChatCompletion({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: system_instruction },
+            { role: 'user', content: context },
+            ...patientJourneyChunks[0].map((patientJourney, idx) => ({
+              role: 'user' as ChatCompletionRequestMessageRoleEnum,
+              content: `
+              Patient Journey ${idx + 1}:
+              ------
+  
+              ${patientJourney}
+            `,
+            })),
+            {
+              role: 'user',
+              content: `${cohortExplanationData.prompt}}`,
+            },
+          ],
+        })
 
-            ${patientJourney}
-          `,
-          })),
-          {
-            role: 'user',
-            content: `${cohortExplanationData.prompt}}`,
-          },
-        ],
-      })
-
-      if (completion.data.choices.length > 0) {
-        return completion.data.choices[0].message?.content.toString()
-      } else {
-        throw new Error('Could not fetch cohort explanation')
+        if (completion.data.choices.length > 0) {
+          return completion.data.choices[0].message?.content.toString()
+        } else {
+          throw new Error('Could not fetch cohort explanation')
+        }
+      } catch (error) {
+        thunkAPI.dispatch(
+          addAlerts([
+            {
+              type: 'error',
+              topic: 'Cohort Explanation',
+              message: `Could not fetch cohort explanation. ${error}`,
+            },
+          ])
+        )
+        throw error
       }
     }
   }

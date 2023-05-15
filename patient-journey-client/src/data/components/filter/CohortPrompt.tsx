@@ -2,7 +2,7 @@ import React, { ChangeEvent } from 'react'
 import { Box, Button, Chip, Stack, TextareaAutosize, Typography } from '@mui/material'
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import { EMBEDDINGS_API_COSTS_PER_1KTOKENS, TOKENS_PER_CHUNK } from '../../embeddings'
-import { deepPurple } from '@mui/material/colors'
+import { green } from '@mui/material/colors'
 
 const PromptTemplates = [
   {
@@ -78,7 +78,7 @@ const CohortPrompt: React.FC<CohortPromptProps> = ({ value, onChange, onSubmit, 
         {/* End icon is magic stick */}
         <Button
           variant="contained"
-          sx={{ marginTop: 2, backgroundColor: deepPurple[100] }}
+          sx={{ marginTop: 2, backgroundColor: green[100] }}
           onClick={onSubmit}
           endIcon={<AutoFixHighIcon />}
           disabled={isLoading}
