@@ -82,7 +82,7 @@ function delay(ms: number): Promise<void> {
 /**
  * Tries to call the OpenAI API to create embeddings a specified number of times in case of failure.
  * Uses an exponential backoff strategy for the wait times between retries - with a specific wait time
- * for the last retry.
+ * for the last retry, and adds a jitter component to the delay.
  *
  * @param {number} maxRetries - The maximum number of times the function should retry the API call.
  * @param {Array<string>} inputChunk - The input data to create the embedding.
@@ -105,14 +105,25 @@ export async function retryOpenaiAPI(maxRetries: number, inputChunk: Array<strin
       })
 
       return response
-    } catch (error) {
-      console.error(`Error in retry ${i + 1}:`, error)
+    } catch (error: any) {
+      console.error(`Error calling embeddings api (retry ${i + 1}/${maxRetries}):`, error)
+
+      // Handle specific error codes that should not be retried
+      // -> https://platform.openai.com/docs/guides/error-codes/api-errors
+      if ([400, 401, 403, 404].includes(error?.response?.status)) {
+        throw error
+      }
 
       if (i === maxRetries - 1) {
         throw error
       }
 
-      const waitTime = 2 ** i * baseWaitTime
+      let waitTime = 2 ** i * baseWaitTime
+
+      // Add jitter (random variation) to the wait time
+      const jitter = waitTime * 0.15 * (Math.random() - 0.5) * 2
+      waitTime += jitter
+
       await delay(waitTime)
     }
   }
