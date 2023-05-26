@@ -198,11 +198,17 @@ export const createPatientJourneysChunks = (
 export const loadEmbeddings = async (patientData: PatientData, eventData: EventData): Promise<EmbeddingsData> => {
   const patientDataHash = await sha256(JSON.stringify(patientData.allEntities))
 
-  // Check if embeddings are already cached in local storage
+  // Check if embeddings are already cached in a file
   const cachedEmbeddingsFile = await loadEmbeddingsFileFromUrl(EMBEDDINGS_DATA_FILE_URL)
 
-  if (cachedEmbeddingsFile && cachedEmbeddingsFile.patientDataHash === patientDataHash) {
-    console.log('Embeddings loaded from cache in local storage')
+  if (
+    cachedEmbeddingsFile &&
+    cachedEmbeddingsFile.patientDataHash === patientDataHash &&
+    cachedEmbeddingsFile.embeddings &&
+    cachedEmbeddingsFile.reducedEmbeddings &&
+    cachedEmbeddingsFile.clusters
+  ) {
+    console.log('Embeddings loaded from cache file')
 
     console.log('Embeddings', cachedEmbeddingsFile.embeddings)
 
@@ -219,7 +225,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
     })
   } else {
     if (cachedEmbeddingsFile && cachedEmbeddingsFile.patientDataHash !== patientDataHash) {
-      console.log('Cached embeddings are for a different patient data set, loading new embeddings from API')
+      console.log('Cached embeddings are for a different patient data set, loading new embeddings from API…')
     }
 
     const patientJourneys = preparePatientJourneys(patientData, eventData)
