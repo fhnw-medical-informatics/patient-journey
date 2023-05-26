@@ -14,7 +14,12 @@ export const TOKENS_PER_CHUNK = 6000
 
 export type Embeddings = Record<string, ReadonlyArray<number>>
 
-export type EmbeddingsFile = { patientDataHash: string; embeddings: Embeddings }
+export type EmbeddingsFile = {
+  patientDataHash: string
+  embeddings: Embeddings
+  reducedEmbeddings: Embeddings
+  clusters: Clusters['clusters']
+}
 
 export type EmbeddingsStateLoadingPending = DataLoadingPending
 
@@ -199,19 +204,14 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
   if (cachedEmbeddingsFile && cachedEmbeddingsFile.patientDataHash === patientDataHash) {
     console.log('Embeddings loaded from cache in local storage')
 
-    const embeddings = cachedEmbeddingsFile.embeddings
-
-    console.log('Embeddings', embeddings)
-
-    const reducedEmbeddings = reduceEmbeddings(embeddings)
-    const clusters = clusterEmbeddings(reducedEmbeddings, 3)
+    console.log('Embeddings', cachedEmbeddingsFile.embeddings)
 
     return Promise.resolve({
       patientDataEmbeddings: {
         type: 'loading-complete',
-        embeddings,
-        reducedEmbeddings,
-        clusters,
+        embeddings: cachedEmbeddingsFile.embeddings,
+        reducedEmbeddings: cachedEmbeddingsFile.reducedEmbeddings,
+        clusters: cachedEmbeddingsFile.clusters,
       },
       promptEmbeddings: {
         type: 'loading-pending',
@@ -296,20 +296,25 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
       patientDataEmbeddings[patient.pid] = patientJourneyEmbeddings[idx]
     })
 
+    const reducedEmbeddings = reduceEmbeddings(patientDataEmbeddings)
+    const clusters = clusterEmbeddings(reducedEmbeddings, 3)
+
     // Download embeddings as json file and prompt user to save it
-    const blob = new Blob([JSON.stringify({ patientDataHash, embeddings: patientDataEmbeddings })], {
-      type: 'application/json',
-    })
+    const blob = new Blob(
+      [JSON.stringify({ patientDataHash, embeddings: patientDataEmbeddings, reducedEmbeddings, clusters })],
+      {
+        type: 'application/json',
+      }
+    )
     const url = URL.createObjectURL(blob)
-    console.log('Download embeddings as json file:', url)
+    console.log('Embeddings Cache-File URL:', url)
     // <a href="blob:http://127.0.0.1:3000/77094bbb-5b03-4391-92dc-42796fd8ba3d" download="embeddings.json">Download</a>
+    // TODO: This should be a button in the UI
+    console.log('Download embeddings as json file:', `<a href="${url}" download="embeddings.json">Download</a>`)
 
     console.log('Embeddings cached successfully')
 
     console.log('Embeddings', patientDataEmbeddings)
-
-    const reducedEmbeddings = reduceEmbeddings(patientDataEmbeddings)
-    const clusters = clusterEmbeddings(reducedEmbeddings, 3)
 
     return Promise.resolve({
       patientDataEmbeddings: {
@@ -391,7 +396,7 @@ const reduceEmbeddings = (embeddings: Embeddings): Embeddings => {
  * @param k Number of clusters
  * @returns Clustered embeddings
  */
-const clusterEmbeddings = (reducedEmbeddings: Embeddings, k: number): Record<string, number> => {
+const clusterEmbeddings = (reducedEmbeddings: Embeddings, k: number): Clusters['clusters'] => {
   const data = Object.values(reducedEmbeddings)
 
   const km = new kMeans({
@@ -412,7 +417,7 @@ const clusterEmbeddings = (reducedEmbeddings: Embeddings, k: number): Record<str
   // An array of arrays containing the indices of the data points that belong to each cluster
   console.log('Cluster assignments', km.clusters)
 
-  const clusteredEmbeddings: Record<string, number> = {}
+  const clusteredEmbeddings: Clusters['clusters'] = {}
 
   const patientIds = Object.keys(reducedEmbeddings)
 
