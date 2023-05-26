@@ -79,8 +79,23 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/**
+ * Tries to call the OpenAI API to create embeddings a specified number of times in case of failure.
+ * Uses an exponential backoff strategy for the wait times between retries - with a specific wait time
+ * for the last retry.
+ *
+ * @param {number} maxRetries - The maximum number of times the function should retry the API call.
+ * @param {Array<string>} inputChunk - The input data to create the embedding.
+ *
+ * @return {Promise<object>} The response from the API if the call is successful.
+ * @throws {Error} The error thrown by the API if all retries fail.
+ */
 export async function retryOpenaiAPI(maxRetries: number, inputChunk: Array<string>) {
-  const baseWaitTime = 30000 / 2 ** (maxRetries - 1)
+  // The wait time for the last retry in milliseconds
+  // waiting times for the other retries are calculated based on this
+  const waitTimeForLastRetry = 5 * 60000 // 5 minutes to circumvent api outages
+
+  const baseWaitTime = waitTimeForLastRetry / 2 ** (maxRetries - 1)
 
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -97,7 +112,7 @@ export async function retryOpenaiAPI(maxRetries: number, inputChunk: Array<strin
         throw error
       }
 
-      const waitTime = Math.random() * 2 ** i * baseWaitTime
+      const waitTime = 2 ** i * baseWaitTime
       await delay(waitTime)
     }
   }
@@ -212,7 +227,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
       console.log(`Sending chunk ${chunkIdx + 1} of ${patientJourneyChunks.length} to openai embeddings api`)
 
       try {
-        const chunkEmbeddings = await retryOpenaiAPI(3, chunk)
+        const chunkEmbeddings = await retryOpenaiAPI(5, chunk)
 
         if (chunkEmbeddings && chunkEmbeddings.data.data.length > 0) {
           chunkEmbeddings.data.data.forEach((embedding) => {
