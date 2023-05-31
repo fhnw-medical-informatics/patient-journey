@@ -9,6 +9,8 @@ import { sha256 } from '../utils'
 import { EMBEDDINGS_DATA_FILE_URL } from './constants'
 import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
 
+import Handlebars from 'handlebars'
+
 export const EMBEDDINGS_API_COSTS_PER_1KTOKENS = 0.0004
 export const TOKENS_PER_CHUNK = 6000
 
@@ -60,25 +62,42 @@ export type EmbeddingsData = {
     | PromptEmbeddingsStateLoadingComplete
 }
 
-export const preparePatientJourneys = (patientData: PatientData, eventData: EventData): Array<string> =>
-  patientData.allEntities.map((patient) => {
+export const preparePatientJourneys = (patientData: PatientData, eventData: EventData): Array<string> => {
+  // create the Handlebars template
+  const templateSource = `
+  Patient information:
+    {{#each patientData.columns}}
+    {{this.name}}: {{lookup ../patient.values this.index}}
+    {{/each}}
+
+  The patients' journey through the hospital:
+    {{#each events}}
+    Event {{@index}}: 
+      {{#each ../eventData.columns}}
+      {{this.name}}: {{lookup ../values this.index}}
+      {{/each}}
+    {{/each}}
+  `
+
+  // compile the template
+  const template = Handlebars.compile(templateSource)
+
+  // map over patientData and generate output using template
+  return patientData.allEntities.map((patient) => {
     const events = eventData.allEntities.filter((event) => event.pid === patient.pid)
 
-    return `
-    Patient information:
-      ${patientData.columns.map((column) => `${column.name}: ${patient.values[column.index]}`).join('\n')}
+    // create the context for the template
+    const context = {
+      patientData,
+      patient,
+      events,
+      eventData,
+    }
 
-    The patients' journey through the hospital:
-      ${events
-        .map(
-          (event, idx) =>
-            `Event ${idx + 1}: ${eventData.columns
-              .map((column) => `${column.name}: ${event.values[column.index]}`)
-              .join(', ')}`
-        )
-        .join('\n')}
-   `
+    // generate the output
+    return template(context)
   })
+}
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
