@@ -76,6 +76,7 @@
     "d3-scale": "^4.0.2",
     "d3-scale-chromatic": "^3.0.0",
     "date-fns": "^2.28.0",
+    "handlebars": "^4.7.7",
     "kmeans-js": "^0.1.2",
     "lodash": "^4.17.21",
     "openai": "^3.2.1",

@@ -3,21 +3,27 @@
 exports[`preparePatientJourneys > should return a patient journey as a string 1`] = `
 [
   "
-    Patient information:
-      Patient: Patient 1
-Gender: Male
+  Patient information:
+    Patient: Patient 1
+    Gender: Male
 
-    The patients' journey through the hospital:
-      Event 1: Event: Event 1, Date: 2019-01-01
-Event 2: Event: Event 2, Date: 2019-01-02
-   ",
+  The patients' journey through the hospital:
+    Event 0: 
+      Event: Event 1
+      Date: 2019-01-01
+    Event 1: 
+      Event: Event 2
+      Date: 2019-01-02
+  ",
   "
-    Patient information:
-      Patient: Patient 2
-Gender: Female
+  Patient information:
+    Patient: Patient 2
+    Gender: Female
 
-    The patients' journey through the hospital:
-      Event 1: Event: Event 3, Date: 2019-01-03
-   ",
+  The patients' journey through the hospital:
+    Event 0: 
+      Event: Event 3
+      Date: 2019-01-03
+  ",
 ]
 `;
