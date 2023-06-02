@@ -14,7 +14,7 @@ import {
   EmbeddingsData,
   preparePatientJourneys,
   retryOpenaiAPI,
-  TOKENS_PER_CHUNK,
+  //TOKENS_PER_CHUNK,
 } from './embeddings'
 import { openaiAPI } from '../utils/openai'
 
@@ -436,15 +436,15 @@ export const fetchCohortExplanation = createAsyncThunk(
 
       // TODO: Tokens per Chunk should be small enough, so that there is space for the prompt
       // TODO: When creating the cohort, it should already validated towards the limit
-      const { patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, TOKENS_PER_CHUNK)
+      const { patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, 3500)
 
       console.log('Fetching ChatGPT response for cohort prompt: ', cohortExplanationData.prompt)
 
-      const system_instruction = `You are aware of the OpenAI Embeddings API and all the factors it considers when computing embeddings for a patient journey. You will help the user to understand, why individual patient journeys are similar based on their embeddings and you will point out relevant key factors and characteristics of the patient journeys to the user, so that they can understand the underlying reasoning. You are concise and don't mention general information about the API. `
+      const system_instruction = `You are an endocrinologist focused on helping patients with diabetes to help manage their disease. You will help the user based their CGM, Exercise, Meal, Sleep and Insulin data to understand why they experienced episodes hyperglycemia or hypoglycemia and you provide suggestions on how these could be avoided in the future. You are concise and only use expert language if necessary. `
 
-      const context = `The following patient journeys have been processed by the OpenAI Embeddings API.
+      const context = `The following diabetes management data for the patient have been processed by the OpenAI Embeddings API.
       The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
-      I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
+      I have then explored the resulting clusters and extracted the following specific days of data for further analysis:`
 
       try {
         const completion = await openaiAPI.createChatCompletion({
@@ -455,7 +455,7 @@ export const fetchCohortExplanation = createAsyncThunk(
             ...patientJourneyChunks[0].map((patientJourney, idx) => ({
               role: 'user' as ChatCompletionRequestMessageRoleEnum,
               content: `
-              Patient Journey ${idx + 1}:
+              Day of diabetes data ${idx + 1}:
               ------
   
               ${patientJourney}

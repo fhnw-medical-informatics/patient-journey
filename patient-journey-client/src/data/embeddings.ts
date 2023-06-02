@@ -65,14 +65,20 @@ export type EmbeddingsData = {
 export const preparePatientJourneys = (patientData: PatientData, eventData: EventData): Array<string> => {
   // create the Handlebars template
   const templateSource = `
+  A diabetes patients data for a day.
+  
   Patient information:
+    Gender: Male
+    Age: 35
+    Weight: 80kg
+    Height: 180cm
     {{#each patientData.columns}}
     {{this.name}}: {{lookup ../patient.values this.index}}
     {{/each}}
 
-  The patients' journey through the hospital:
+  The patients' CGM, Exercise, Meal, Sleep and Insulin data for a day:
     {{#each events}}
-    Event {{@index}}: 
+    Data point {{@index}}: 
       {{#each ../eventData.columns}}
       {{this.name}}: {{lookup ../values this.index}}
       {{/each}}
