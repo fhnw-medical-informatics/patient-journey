@@ -18,7 +18,11 @@ const PromptTemplates = [
     label: 'Cluster',
     prompt: `These days of diabetes data are in the same cluster with close proximitiy to each other (t-SNE reduced 2 dimensional plotting).
 
-    Based on their data points, please write a text that would describe their cluster (don't describe the data points, just use them to create a cluster title and description).`,
+Based on this data, please list the key patterns identifying the cluster and write a cluster title to summarize it. (Don't describe the days or data points individually, just use them to characterize the cluster).`,
+  },
+  {
+    label: 'Patterns',
+    prompt: 'What patterns can you identify and how could I improve my diabetes management?',
   },
 ]
 

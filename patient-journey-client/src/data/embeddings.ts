@@ -65,24 +65,14 @@ export type EmbeddingsData = {
 export const preparePatientJourneys = (patientData: PatientData, eventData: EventData): Array<string> => {
   // create the Handlebars template
   const templateSource = `
-  A diabetes patients data for a day.
-  
-  Patient information:
-    Gender: Male
-    Age: 35
-    Weight: 80kg
-    Height: 180cm
-    {{#each patientData.columns}}
-    {{this.name}}: {{lookup ../patient.values this.index}}
-    {{/each}}
+Actual Exercise, Meal, Sleep and Insulin data of date {{patient.values.[1]}} for a diabetes patient (35y, m, 80kg, 180cm).
 
-  The patients' CGM, Exercise, Meal, Sleep and Insulin data for a day:
-    {{#each events}}
-    Data point {{@index}}: 
-      {{#each ../eventData.columns}}
-      {{this.name}}: {{lookup ../values this.index}}
-      {{/each}}
-    {{/each}}
+{{#each events}}
+{{lookup this.values ../eventData.columns.[2].index}}
+{{lookup this.values ../eventData.columns.[5].index}}
+{{lookup this.values ../eventData.columns.[6].index}}
+
+{{/each}}
   `
 
   // compile the template
@@ -254,6 +244,8 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
     }
 
     const patientJourneys = preparePatientJourneys(patientData, eventData)
+
+    console.log('Patient Journey Strings', patientJourneys)
 
     const { totalNrOfTokens, patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, TOKENS_PER_CHUNK) // 8191 is the max number of tokens per request (but encode library does not seem to be exact)
 
