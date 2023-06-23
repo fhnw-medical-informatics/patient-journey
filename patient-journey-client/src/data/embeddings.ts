@@ -13,6 +13,7 @@ import Handlebars from 'handlebars'
 
 export const EMBEDDINGS_API_COSTS_PER_1KTOKENS = 0.0004
 export const TOKENS_PER_CHUNK = 6000
+export const TOKENS_PER_CHUNK_PROMPT = 15000
 
 export type Embeddings = Record<string, ReadonlyArray<number>>
 
