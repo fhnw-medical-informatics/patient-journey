@@ -7,18 +7,18 @@ import { green } from '@mui/material/colors'
 const PromptTemplates = [
   {
     label: 'Similarity',
-    prompt: 'Why are these patients similar? List and interpret the key-factors.',
+    prompt: 'Why are these patients similar? List and interpret the 3 key-factors (max 1 sentence each).',
   },
   {
     label: 'Difference',
     prompt:
-      'These patient journeys belong to different clusters. Why are these patients different? List and interpret the key-factors.',
+      'These patient journeys belong to different clusters. Why are these patients different? List the 3 key differentiating factors (max 1 sentence each).',
   },
   {
     label: 'Cluster',
     prompt: `These patients are in the same cluster with close proximitiy to each other (t-SNE reduced 2 dimensional plotting).
 
-Based on their patient journeys, please write a text that would describe their cluster (don't describe the patient journeys, just use them to create a cluster title and description).`,
+Based on their patient journeys, please write a text that would describe their cluster (don't describe the patient journeys, just use them to create a cluster title and description with max 3 sentences).`,
   },
 ]
 

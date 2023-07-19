@@ -468,7 +468,7 @@ export const fetchCohortExplanation = createAsyncThunk(
 
       try {
         const completion = await openaiAPI.createChatCompletion({
-          model: 'gpt-3.5-turbo-16k',
+          model: 'gpt-3.5-turbo-16k', //gpt-4-32k
           messages,
         })
 
