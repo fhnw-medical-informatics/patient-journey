@@ -9,6 +9,9 @@ import { OpenAI } from 'https://deno.land/x/openai/mod.ts';
 // @ts-ignore
 import { load } from 'https://deno.land/std/dotenv/mod.ts';
 
+// @ts-ignore
+import { capabilities } from './capabilities.ts';
+
 const { OPENAI_API_KEY, OPENAI_ORG } = await load();
 
 // const configuration = new Configuration({
@@ -17,6 +20,7 @@ const { OPENAI_API_KEY, OPENAI_ORG } = await load();
 // });
 
 const openai = new OpenAI(OPENAI_API_KEY);
+const model = 'gpt-4-0613';
 
 const systemInstruction =
   'You can answer questions about the wheather in a given location.';
@@ -32,23 +36,7 @@ const messages: ChatCompletionRequestMessage[] = [
   },
 ];
 
-const functions = [
-  {
-    name: 'get_current_weather',
-    description: 'Get the current weather in a given location',
-    parameters: {
-      type: 'object',
-      properties: {
-        location: {
-          type: 'string',
-          description: 'The city and state, e.g. San Francisco, CA',
-        },
-        unit: { type: 'string', enum: ['celsius', 'fahrenheit'] },
-      },
-      required: ['location'],
-    },
-  },
-];
+const { functions, implementations } = capabilities;
 
 const startChatCompletion = async () => {
   console.log('Starting chat completion');
@@ -56,9 +44,9 @@ const startChatCompletion = async () => {
   try {
     // Step 1: send the conversation and available functions to GPT
     const initialResponse = await openai.createChatCompletion({
-      model: 'gpt-4-0613',
+      model,
       messages,
-      functions: functions,
+      functions,
       function_call: 'auto',
     });
 
@@ -69,12 +57,10 @@ const startChatCompletion = async () => {
     // Step 2: check if GPT wanted to call a function
     if (responseMessage && responseMessage.function_call) {
       // Step 3: call the function
-      const functionArgs = JSON.parse(
-        responseMessage.function_call.arguments ?? ''
-      );
-      const functionResponse = get_current_weather(
-        functionArgs.location,
-        functionArgs.unit
+      const functionName = responseMessage.function_call.name;
+      const functionArgs = JSON.parse(responseMessage.function_call.arguments);
+      const functionResponse = await implementations[functionName](
+        ...Object.values(functionArgs)
       );
 
       // Step 4: send the info on the function call and function response to GPT
@@ -82,14 +68,14 @@ const startChatCompletion = async () => {
       messages.push({
         role: 'function',
         // @ts-ignore
-        name: responseMessage.function_call.name,
+        name: functionName,
         content: functionResponse,
       });
 
       const secondResponse = await openai.createChatCompletion({
-        model: 'gpt-4-0613',
-        messages: messages,
-        functions: functions,
+        model,
+        messages,
+        functions,
         function_call: 'auto',
       });
 
@@ -104,18 +90,6 @@ const startChatCompletion = async () => {
   } catch (error) {
     console.error(error);
   }
-};
-
-const get_current_weather = (location: string, unit = 'fahrenheit') => {
-  // Hard coded to return the same weather
-  const weatherInfo = {
-    location,
-    temperature: '72',
-    unit,
-    forecast: ['sunny', 'windy'],
-  };
-
-  return JSON.stringify(weatherInfo);
 };
 
 // Go!
