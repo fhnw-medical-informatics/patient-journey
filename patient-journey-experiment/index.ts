@@ -1,16 +1,17 @@
-// deno run --unstable --allow-net --allow-read --allow-write --allow-env index.ts
+// deno run --unstable --allow-net --allow-read --allow-write --allow-env index.ts <experiment-name>
 
-// openai library is only used for typing
-// @ts-ignore
-import { ChatCompletionRequestMessage } from 'openai';
 // @ts-ignore
 import { OpenAI } from 'https://deno.land/x/openai/mod.ts';
-
 // @ts-ignore
 import { load } from 'https://deno.land/std/dotenv/mod.ts';
 
 // @ts-ignore
 import { capabilities } from './capabilities.ts';
+// @ts-ignore
+import { messages as initialMessages } from './context.ts';
+
+// @ts-ignore
+const experimentName = Deno.args[0] ?? 'default';
 
 const { OPENAI_API_KEY, OPENAI_ORG } = await load();
 
@@ -22,25 +23,11 @@ const { OPENAI_API_KEY, OPENAI_ORG } = await load();
 const openai = new OpenAI(OPENAI_API_KEY);
 const model = 'gpt-4-0613';
 
-const systemInstruction =
-  'You can answer questions about the wheather in a given location.';
-
-const messages: ChatCompletionRequestMessage[] = [
-  {
-    role: 'system',
-    content: systemInstruction,
-  },
-  {
-    role: 'user',
-    content: 'What is the weather in San Francisco?',
-  },
-];
-
 const { functions, implementations } = capabilities;
 
-const startChatCompletion = async () => {
-  console.log('Starting chat completion');
+const messages = [...initialMessages];
 
+const startChatCompletion = async () => {
   try {
     // Step 1: send the conversation and available functions to GPT
     const initialResponse = await openai.createChatCompletion({
@@ -79,6 +66,8 @@ const startChatCompletion = async () => {
         function_call: 'auto',
       });
 
+      messages.push(secondResponse.choices[0].message);
+
       console.log(
         'Second response',
         secondResponse.choices[0].message?.content
@@ -92,5 +81,20 @@ const startChatCompletion = async () => {
   }
 };
 
+const saveAsJson = async (filename: string, content: any) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(JSON.stringify(content));
+  // @ts-ignore
+  await Deno.writeFile(`${filename}.json`, data);
+};
+
 // Go!
-startChatCompletion();
+console.log(`Starting experiment ${experimentName}`);
+await startChatCompletion();
+
+// Save the context to a file
+await saveAsJson(`./experiments/${experimentName}-context`, initialMessages);
+// Save the messages to a file
+await saveAsJson(`./experiments/${experimentName}-messages`, messages);
+// Save the functions to a file
+await saveAsJson(`./experiments/${experimentName}-functions`, functions);
