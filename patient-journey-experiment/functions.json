@@ -1,17 +1,39 @@
 [
   {
-    "name": "get_current_weather",
-    "description": "Get the current weather in a given location",
+    "name": "sort",
+    "description": "Sort the data by a given field",
     "parameters": {
       "type": "object",
       "properties": {
-        "location": {
+        "field": {
           "type": "string",
-          "description": "The city and state, e.g. San Francisco, CA"
+          "description": "The field to sort by"
         },
-        "unit": { "type": "string", "enum": ["celsius", "fahrenheit"] }
+        "order": {
+          "type": "string",
+          "description": "The order to sort by",
+          "enum": ["asc", "desc"]
+        }
       },
-      "required": ["location"]
+      "required": ["field"]
+    }
+  },
+  {
+    "name": "filter",
+    "description": "Filter the data by a given field and value",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to filter by"
+        },
+        "value": {
+          "type": "string",
+          "description": "The value to filter by"
+        }
+      },
+      "required": ["field", "value"]
     }
   }
 ]

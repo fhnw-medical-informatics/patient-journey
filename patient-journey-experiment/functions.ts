@@ -3,16 +3,12 @@ import functions from './functions.json' assert { type: 'json' };
 // Implementations of functions defined in functions.json
 // ******************************************************
 
-const get_current_weather = (location: string, unit = 'fahrenheit') => {
-  // Hard coded to return the same weather
-  const weatherInfo = {
-    location,
-    temperature: '72',
-    unit,
-    forecast: ['sunny', 'windy'],
-  };
+const sort = (field: string, type: 'asc' | 'desc') => {
+  return `Data in the table is now sorted by ${field} in ${type}ending order.`;
+};
 
-  return JSON.stringify(weatherInfo);
+const filter = (field: string, value: string) => {
+  return `Data in the table is now filtered by ${field} with value ${value}.`;
 };
 
 // ******************************************************
@@ -20,6 +16,7 @@ const get_current_weather = (location: string, unit = 'fahrenheit') => {
 export const capabilities = {
   functions,
   implementations: {
-    get_current_weather,
+    sort,
+    filter,
   },
 };
