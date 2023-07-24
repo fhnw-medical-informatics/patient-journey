@@ -29,3 +29,5 @@ storybook-static
 public/data-*
 
 experiments
+
+.env
