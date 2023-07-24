@@ -1,0 +1,7 @@
+[
+  {
+    "role": "system",
+    "content": "You can answer questions about the wheather in a given location."
+  },
+  { "role": "user", "content": "What is the weather in San Francisco?" }
+]

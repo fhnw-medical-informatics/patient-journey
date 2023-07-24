@@ -6,7 +6,7 @@ import { OpenAI } from 'https://deno.land/x/openai/mod.ts';
 import { load } from 'https://deno.land/std/dotenv/mod.ts';
 
 // @ts-ignore
-import { capabilities } from './capabilities.ts';
+import { capabilities } from './functions.ts';
 // @ts-ignore
 import { messages as initialMessages } from './context.ts';
 
