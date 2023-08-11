@@ -7,18 +7,18 @@ import { green } from '@mui/material/colors'
 const PromptTemplates = [
   {
     label: 'Similarity',
-    prompt: 'Why are these patients similar? List and interpret the 3 key-factors (max 1 sentence each).',
+    prompt: 'Why are these days of diabetes data similar? List and interpret the 3 key-factors (max 1 sentence each).',
   },
   {
     label: 'Difference',
     prompt:
-      'These patient journeys belong to different clusters. Why are these patients different? List the 3 key differentiating factors (max 1 sentence each).',
+      'These days of diabetes data belong to different clusters. Why are these patients different? List the 3 key differentiating factors (max 1 sentence each).',
   },
   {
     label: 'Cluster',
-    prompt: `These patients are in the same cluster with close proximitiy to each other (t-SNE reduced 2 dimensional plotting).
+    prompt: `These days of diabetes data are in the same cluster with close proximitiy to each other (t-SNE reduced 2 dimensional plotting).
 
-Based on their patient journeys, please write a text that would describe their cluster (don't describe the patient journeys, just use them to create a cluster title and description with max 3 sentences).`,
+Based on this data, please write a text that would describe the diabetes management pattern that defines their cluster (don't describe the data points, just use them to create a cluster title and description with max 3 sentences).`,
   },
 ]
 
