@@ -1,0 +1,13 @@
+{
+  "name": "patient-journey-experiment",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "protyze",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "openai": "^3.3.0"
+  }
+}
