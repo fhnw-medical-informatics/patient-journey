@@ -468,12 +468,12 @@ export const fetchCohortExplanation = createAsyncThunk(
 
       try {
         const completion = await openaiAPI.createChatCompletion({
-          model: 'gpt-3.5-turbo-16k', //gpt-4-32k
+          model: 'gpt-4', // gpt-3.5-turbo-16k, gpt-4-32k
           messages,
         })
 
         if (completion.data.choices.length > 0) {
-          return completion.data.choices[0].message?.content.toString()
+          return completion.data.choices[0].message?.content?.toString()
         } else {
           throw new Error('Could not fetch cohort explanation')
         }
