@@ -66,18 +66,10 @@ export type EmbeddingsData = {
 export const preparePatientJourneys = (patientData: PatientData, eventData: EventData): Array<string> => {
   // create the Handlebars template
   const templateSource = `
-Continuous Glucose Monitoring (CGM) data of date {{patient.values.[1]}} for a diabetes patient (35y, m, 80kg, 180cm):
+Continuous Glucose Monitoring (CGM) data (<Time>: <value in mmol/L>) for 24 hours at {{patient.values.[1]}} for a diabetes patient (35y, m, 80kg, 180cm)
   
 {{#each events}}
-Measurement {{@index}}:
-
-Timestamp Start: {{lookup this.values ../eventData.columns.[3].index}}
-Timestamp End: {{lookup this.values ../eventData.columns.[4].index}}
-
-{{lookup this.values ../eventData.columns.[2].index}}
-
-Values:
-{{lookup this.values ../eventData.columns.[5].index}}
+{{lookup this.values ../eventData.columns.[5].index}}: {{lookup this.values ../eventData.columns.[7].index}}
   
 {{/each}}
 `
