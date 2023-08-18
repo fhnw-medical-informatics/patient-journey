@@ -134,7 +134,7 @@ export const ScatterPlot = ({
           return { type: 'linear', min: 'auto', max: 'auto' }
         case 'date':
         case 'timestamp':
-          return { type: 'time' }
+          return { type: 'time', format: 'native', min: 'auto', max: 'auto', precision: 'millisecond' }
         default:
           return { type: 'linear', min: 'auto', max: 'auto' }
       }
