@@ -66,6 +66,36 @@ export type EmbeddingsData = {
 export const preparePatientJourneys = (patientData: PatientData, eventData: EventData): Array<string> => {
   // create the Handlebars template
   const templateSource = `
+  Car information:
+    {{#each patientData.columns}}
+    {{this.name}}: {{lookup ../patient.values this.index}}
+    {{/each}}
+  `
+
+  // compile the template
+  const template = Handlebars.compile(templateSource)
+
+  // map over patientData and generate output using template
+  return patientData.allEntities.map((patient) => {
+    const events = eventData.allEntities.filter((event) => event.pid === patient.pid)
+
+    // create the context for the template
+    const context = {
+      patientData,
+      patient,
+      events,
+      eventData,
+    }
+
+    // generate the output
+    return template(context)
+  })
+}
+
+/*
+export const preparePatientJourneys = (patientData: PatientData, eventData: EventData): Array<string> => {
+  // create the Handlebars template
+  const templateSource = `
   Patient information:
     {{#each patientData.columns}}
     {{this.name}}: {{lookup ../patient.values this.index}}
@@ -73,7 +103,7 @@ export const preparePatientJourneys = (patientData: PatientData, eventData: Even
 
   The patients' journey through the hospital:
     {{#each events}}
-    Event {{@index}}: 
+    Event {{@index}}:
       {{#each ../eventData.columns}}
       {{this.name}}: {{lookup ../values this.index}}
       {{/each}}
@@ -99,6 +129,7 @@ export const preparePatientJourneys = (patientData: PatientData, eventData: Even
     return template(context)
   })
 }
+*/
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -231,6 +262,11 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
     console.log('Embeddings loaded from cache file')
 
     console.log('Embeddings', cachedEmbeddingsFile.embeddings)
+
+    // ---------
+    const patientJourneys = preparePatientJourneys(patientData, eventData)
+    console.log(patientJourneys)
+    // ---------
 
     return Promise.resolve({
       patientDataEmbeddings: {
