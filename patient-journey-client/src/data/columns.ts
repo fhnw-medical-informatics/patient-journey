@@ -82,6 +82,29 @@ export const extractCategoryValueSafe =
     }
   }
 
+export const extractColumnValueSafe = (column: DataColumn<any>) => {
+  switch (column.type) {
+    case 'number':
+      return extractNumberValueSafe(column)
+    case 'timestamp':
+    case 'date':
+      return extractDateValueSafe(column)
+    case 'category':
+      return extractCategoryValueSafe(column)
+    case 'string':
+    case 'boolean':
+    default:
+      return (entity: Entity): [string] | [] => {
+        const value = entity.values[column.index] ?? ''
+        if (value === undefined || value.trim().length === 0) {
+          return []
+        } else {
+          return [value]
+        }
+      }
+  }
+}
+
 export const formatColumnValue = (columnType: string) => (value: string) => {
   if (value === undefined || value === null || value.trim().length === 0) {
     return ''
