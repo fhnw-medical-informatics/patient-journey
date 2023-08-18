@@ -1,18 +1,20 @@
+import React, { useCallback, useMemo } from 'react'
 import { alpha, Grid, Paper } from '@mui/material'
 import { ScatterPlotData, ScatterPlotDatum } from '../model'
 import { ScatterPlotCanvas, ScatterPlotCustomCanvasLayer } from '@nivo/scatterplot'
 import AutoSizer, { Size } from 'react-virtualized-auto-sizer'
-import React, { useCallback } from 'react'
 import { createFocusColor, useCustomTheme } from '../../theme/useCustomTheme'
 import { AxisColumnSelector } from '../containers/AxisColumnSelector'
 import { ColorByColumnSelector } from '../../color/containers/ColorByColumnSelector'
 import { ScatterPlotLayerProps, ScatterPlotNodeData } from '@nivo/scatterplot/dist/types/types'
+import { ScaleSpec } from '@nivo/scales/dist/types/types'
 import { useColor } from '../../color/hooks'
 import { useDataByEntityIdMap } from '../../data/hooks'
 import { EntityId, EntityIdNone } from '../../data/entities'
 import { PatientId } from '../../data/patients'
 import { changeCanvasFillStyle } from '../../utils'
 import { EntityTypeSelector } from '../containers/EntityTypeSelector'
+import { ScatterPlotAxisColumn, PlotColumnNone } from '../plotSlice'
 
 const ACTIVE_NODE_SCALE_FACTOR = 1.2
 
@@ -30,6 +32,8 @@ const sxToolbar = {
 }
 
 interface Props extends ScatterPlotData {
+  readonly xAxisColumn: ScatterPlotAxisColumn
+  readonly yAxisColumn: ScatterPlotAxisColumn
   readonly hoveredEntity: EntityId
   readonly selectedEntity: EntityId
   readonly indexPatientId: PatientId
@@ -41,6 +45,8 @@ export const ScatterPlot = ({
   xAxisLabel,
   yAxisLabel,
   data,
+  xAxisColumn,
+  yAxisColumn,
   hoveredEntity,
   selectedEntity,
   indexPatientId,
@@ -111,6 +117,31 @@ export const ScatterPlot = ({
     [hoveredEntity, selectedEntity, renderActiveNode, hoveredColor, selectedColor, indexPatientId, indexPatientColor]
   )
 
+  const getScaleConfig = useCallback((column: ScatterPlotAxisColumn): ScaleSpec => {
+    if (column === PlotColumnNone) {
+      return { type: 'linear', min: 'auto', max: 'auto' }
+    } else {
+      switch (column.type) {
+        case 'pid':
+        case 'eid':
+        case 'boolean':
+        case 'category':
+        case 'string':
+          return { type: 'point' }
+        case 'number':
+          return { type: 'linear', min: 'auto', max: 'auto' }
+        case 'date':
+        case 'timestamp':
+          return { type: 'time' }
+        default:
+          return { type: 'linear', min: 'auto', max: 'auto' }
+      }
+    }
+  }, [])
+
+  const xScaleConfig = useMemo(() => getScaleConfig(xAxisColumn), [getScaleConfig, xAxisColumn])
+  const yScaleConfig = useMemo(() => getScaleConfig(yAxisColumn), [getScaleConfig, yAxisColumn])
+
   return (
     <Paper sx={sxRoot} variant="outlined">
       <Grid sx={sxToolbar} container alignItems={'flex-end'} spacing={1}>
@@ -128,10 +159,10 @@ export const ScatterPlot = ({
                 height={height}
                 data={data}
                 renderNode={renderNode}
-                xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+                xScale={xScaleConfig}
                 axisLeft={{ legend: yAxisLabel, legendPosition: 'middle', legendOffset: -50 }}
                 axisBottom={{ legend: xAxisLabel, legendPosition: 'middle', legendOffset: 40 }}
-                yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
+                yScale={yScaleConfig}
                 margin={{ top: 10, right: 20, bottom: 50, left: 70 }}
                 theme={{
                   textColor: theme.palette.text.primary,

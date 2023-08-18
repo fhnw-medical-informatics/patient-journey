@@ -1,8 +1,9 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
-import { DataColumn } from '../data/columns'
 import { EntityType } from '../data/entities'
+import { EventDataColumn } from '../data/events'
+import { PatientDataColumn } from '../data/patients'
 
-export type ScatterPlotAxisColumn = DataColumn<'number'> | NoPlotColumn
+export type ScatterPlotAxisColumn = PatientDataColumn | EventDataColumn | NoPlotColumn
 
 export const PlotColumnNone = 'n/a'
 export type NoPlotColumn = typeof PlotColumnNone

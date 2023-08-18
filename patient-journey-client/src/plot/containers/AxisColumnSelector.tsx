@@ -1,12 +1,16 @@
+import { useCallback } from 'react'
+
 import { ColumnSelector as ColumnSelectorComponent } from '../components/ColumnSelector'
 import {
   useActiveScatterPlotEntityType,
   useActiveScatterPlotXAxisColumn,
   useActiveScatterPlotYAxisColumn,
+  useScatterPlotPatientDataColumns,
+  useScatterPlotEventDataColumns,
 } from '../hooks'
-import { useAllNumericEventDataColumns, useAllNumericPatientDataColumns } from '../../data/hooks'
+
 import { useAppDispatch } from '../../store'
-import { useCallback } from 'react'
+
 import {
   PlotColumnNone,
   ScatterPlotAxisColumn,
@@ -22,8 +26,8 @@ export const AxisColumnSelector = ({ axis }: Props) => {
   const activeEntityType = useActiveScatterPlotEntityType()
   const activeXAxisColumn = useActiveScatterPlotXAxisColumn()
   const activeYAxisColumn = useActiveScatterPlotYAxisColumn()
-  const allSelectablePatientColumns = useAllNumericPatientDataColumns()
-  const allSelectableEventColumns = useAllNumericEventDataColumns()
+  const allSelectablePatientColumns = useScatterPlotPatientDataColumns()
+  const allSelectableEventColumns = useScatterPlotEventDataColumns()
 
   const dispatch = useAppDispatch()
 

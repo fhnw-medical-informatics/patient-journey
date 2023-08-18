@@ -37,13 +37,11 @@ import {
   selectSimilarityProvider,
   selectSimilarityPrompt,
   selectPromptEmbeddingState,
-  selectAllNumericPatientDataColumns,
   selectAllCategoricalPatientDataColumns,
   selectCohortExplanationPrompt,
   selectCohortExplanationResultState,
   selectCohortExplanationResult,
   selectPatientCohort,
-  selectAllNumericEventDataColumns,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -64,8 +62,6 @@ export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns
 
 export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
 export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
-export const useAllNumericPatientDataColumns = () => useAppSelector(selectAllNumericPatientDataColumns)
-export const useAllNumericEventDataColumns = () => useAppSelector(selectAllNumericEventDataColumns)
 export const useAllCategoricalPatientDataColumns = () => useAppSelector(selectAllCategoricalPatientDataColumns)
 
 export const useAllFilters = () => useAppSelector(selectAllFilters)

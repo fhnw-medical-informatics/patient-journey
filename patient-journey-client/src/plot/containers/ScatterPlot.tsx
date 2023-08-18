@@ -1,10 +1,12 @@
 import { ScatterPlot as ScatterPlotComponent } from '../components/ScatterPlot'
-import { useScatterPlotData } from '../hooks'
+import { useActiveScatterPlotXAxisColumn, useActiveScatterPlotYAxisColumn, useScatterPlotData } from '../hooks'
 import { useCallback } from 'react'
 import { useEntityInteraction, useHoveredEntity, useIndexPatientId, useSelectedEntity } from '../../data/hooks'
 
 export const ScatterPlot = () => {
   const data = useScatterPlotData()
+  const xAxisColumn = useActiveScatterPlotXAxisColumn()
+  const yAxisColumn = useActiveScatterPlotYAxisColumn()
   const hoveredEntity = useHoveredEntity()
   const selectedEntity = useSelectedEntity()
   const indexPatientId = useIndexPatientId()
@@ -16,6 +18,8 @@ export const ScatterPlot = () => {
   return (
     <ScatterPlotComponent
       {...data}
+      xAxisColumn={xAxisColumn}
+      yAxisColumn={yAxisColumn}
       hoveredEntity={hoveredEntity.uid}
       selectedEntity={selectedEntity.uid}
       indexPatientId={indexPatientId}

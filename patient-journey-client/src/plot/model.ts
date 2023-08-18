@@ -13,8 +13,8 @@ export interface ScatterPlotDataSeries {
 
 export interface ScatterPlotDatum {
   readonly entityId: EntityId
-  readonly x: number
-  readonly y: number
+  readonly x: number | string | Date
+  readonly y: number | string | Date
 }
 
 export type ScatterPlotInfo =
