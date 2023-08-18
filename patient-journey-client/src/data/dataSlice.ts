@@ -440,15 +440,16 @@ export const fetchCohortExplanation = createAsyncThunk(
 
       console.log('Fetching ChatGPT response for cohort prompt: ', cohortExplanationData.prompt)
 
-      const system_instruction = `You are an endocrinologist focused on helping patients with diabetes to help manage their disease. You will help the user based their CGM (Continuous Glucose Monitoring) data to understand why they experienced episodes hyperglycemia or hypoglycemia and you provide suggestions on how these could be avoided in the future. You are concise and only use expert language if necessary. `
+      const system_instruction =
+        "Analyze the provided time series CGM data, which is structured as 'Timestamp (YYYY-MM-DDThh:mm:ss),Glucose Value (mmol/L)'. Look for common patterns and anomalies, both from the specified list—such as Hyperglycemia, Hypoglycemia, Nocturnal Hypoglycemia, Dawn Phenomenon, and others—as well as any other unusual patterns that emerge from the data. Use typical meal times (e.g., 7-9 AM for breakfast, 12-2 PM for lunch, and 6-8 PM for dinner) as context to identify potential postprandial spikes or other meal-related patterns. Present your findings in an organized and actionable manner, indicating the time periods where each pattern or anomaly is detected."
 
-      const context = `The following diabetes management data for these patients have been processed by the OpenAI Embeddings API.
-      The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
-      I have then explored the resulting clusters and extracted the following specific days of data for further analysis:`
+      // const context = `The following diabetes management data for these patients have been processed by the OpenAI Embeddings API.
+      // The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
+      // I have then explored the resulting clusters and extracted the following specific days of data for further analysis:`
 
       const messages: ChatCompletionRequestMessage[] = [
         { role: 'system', content: system_instruction },
-        { role: 'user', content: context },
+        // { role: 'user', content: context },
         ...patientJourneyChunks[0].map((patientJourney, idx) => ({
           role: 'user' as ChatCompletionRequestMessageRoleEnum,
           content: `
