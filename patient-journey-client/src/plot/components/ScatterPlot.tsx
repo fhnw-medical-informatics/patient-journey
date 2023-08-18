@@ -10,7 +10,7 @@ import { ScatterPlotLayerProps, ScatterPlotNodeData } from '@nivo/scatterplot/di
 import { ScaleSpec } from '@nivo/scales/dist/types/types'
 import { useColor } from '../../color/hooks'
 import { useDataByEntityIdMap } from '../../data/hooks'
-import { EntityId, EntityIdNone } from '../../data/entities'
+import { EntityId, EntityIdNone, EntityType } from '../../data/entities'
 import { PatientId } from '../../data/patients'
 import { changeCanvasFillStyle } from '../../utils'
 import { EntityTypeSelector } from '../containers/EntityTypeSelector'
@@ -32,6 +32,7 @@ const sxToolbar = {
 }
 
 interface Props extends ScatterPlotData {
+  readonly entityType: EntityType
   readonly xAxisColumn: ScatterPlotAxisColumn
   readonly yAxisColumn: ScatterPlotAxisColumn
   readonly hoveredEntity: EntityId
@@ -42,6 +43,7 @@ interface Props extends ScatterPlotData {
 }
 
 export const ScatterPlot = ({
+  entityType,
   xAxisLabel,
   yAxisLabel,
   data,
@@ -54,8 +56,8 @@ export const ScatterPlot = ({
   onPlotClick,
 }: Props) => {
   const theme = useCustomTheme()
-  const entityById = useDataByEntityIdMap('patients')
-  const { colorByColumnFn } = useColor('patients')
+  const entityById = useDataByEntityIdMap(entityType)
+  const { colorByColumnFn } = useColor(entityType)
   const selectedColor = createFocusColor(theme, theme.entityColors.selected)
   const hoveredColor = createFocusColor(theme, theme.entityColors.default)
   const indexPatientColor = theme.entityColors.indexPatient
