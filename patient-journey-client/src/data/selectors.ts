@@ -282,6 +282,12 @@ export const selectAllNumericPatientDataColumns = createSelector(
     columns.filter((c) => c.type === 'number') as ReadonlyArray<DataColumn<'number'>>
 )
 
+export const selectAllNumericEventDataColumns = createSelector(
+  selectEventDataColumns,
+  (columns): ReadonlyArray<DataColumn<'number'>> =>
+    columns.filter((c) => c.type === 'number') as ReadonlyArray<DataColumn<'number'>>
+)
+
 export const selectAllCategoricalPatientDataColumns = createSelector(
   selectPatientDataColumns,
   (columns): ReadonlyArray<DataColumn<'category'>> =>

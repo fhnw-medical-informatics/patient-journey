@@ -1,5 +1,6 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import { DataColumn } from '../data/columns'
+import { EntityType } from '../data/entities'
 
 export type ScatterPlotAxisColumn = DataColumn<'number'> | NoPlotColumn
 
@@ -7,6 +8,7 @@ export const PlotColumnNone = 'n/a'
 export type NoPlotColumn = typeof PlotColumnNone
 
 export interface ScatterPlotState {
+  readonly entityType: EntityType
   readonly xAxisColumn: ScatterPlotAxisColumn
   readonly yAxisColumn: ScatterPlotAxisColumn
 }
@@ -16,13 +18,23 @@ export interface PlotState {
 }
 
 const initialState: PlotState = {
-  scatterPlot: { xAxisColumn: PlotColumnNone, yAxisColumn: PlotColumnNone },
+  scatterPlot: { entityType: 'patients', xAxisColumn: PlotColumnNone, yAxisColumn: PlotColumnNone },
 }
 
 export const plotSlice = createSlice({
   name: 'plot',
   initialState,
   reducers: {
+    setScatterPlotEntityType: (state: Draft<PlotState>, action: PayloadAction<EntityType>) => {
+      if (state.scatterPlot.entityType !== action.payload) {
+        state.scatterPlot = {
+          ...state.scatterPlot,
+          entityType: action.payload,
+          xAxisColumn: PlotColumnNone,
+          yAxisColumn: PlotColumnNone,
+        }
+      }
+    },
     setScatterPlotXAxisColumn: (state: Draft<PlotState>, action: PayloadAction<ScatterPlotAxisColumn>) => {
       state.scatterPlot.xAxisColumn = action.payload
     },
@@ -34,4 +46,4 @@ export const plotSlice = createSlice({
 
 export const plotReducer = plotSlice.reducer
 
-export const { setScatterPlotXAxisColumn, setScatterPlotYAxisColumn } = plotSlice.actions
+export const { setScatterPlotEntityType, setScatterPlotXAxisColumn, setScatterPlotYAxisColumn } = plotSlice.actions

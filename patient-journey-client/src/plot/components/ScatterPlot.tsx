@@ -12,6 +12,7 @@ import { useDataByEntityIdMap } from '../../data/hooks'
 import { EntityId, EntityIdNone } from '../../data/entities'
 import { PatientId } from '../../data/patients'
 import { changeCanvasFillStyle } from '../../utils'
+import { EntityTypeSelector } from '../containers/EntityTypeSelector'
 
 const ACTIVE_NODE_SCALE_FACTOR = 1.2
 
@@ -113,6 +114,7 @@ export const ScatterPlot = ({
   return (
     <Paper sx={sxRoot} variant="outlined">
       <Grid sx={sxToolbar} container alignItems={'flex-end'} spacing={1}>
+        <EntityTypeSelector />
         <AxisColumnSelector axis={'x'} />
         <AxisColumnSelector axis={'y'} />
         <ColorByColumnSelector />
