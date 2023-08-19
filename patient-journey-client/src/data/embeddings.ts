@@ -69,7 +69,7 @@ export const preparePatientJourneys = (patientData: PatientData, eventData: Even
 Continuous Glucose Monitoring (CGM) data (<Time>: <value in mmol/L>) for 24 hours at {{patient.values.[1]}} for a diabetes patient (35y, m, 80kg, 180cm)
   
 {{#each events}}
-{{lookup this.values ../eventData.columns.[5].index}}: {{lookup this.values ../eventData.columns.[7].index}}
+{{lookup this.values ../eventData.columns.[5].index}}: {{lookup this.values ../eventData.columns.[9].index}}
   
 {{/each}}
 `
