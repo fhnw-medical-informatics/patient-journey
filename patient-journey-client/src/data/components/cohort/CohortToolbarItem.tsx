@@ -9,6 +9,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   ListSubheader,
   Popover,
@@ -19,6 +20,8 @@ import {
 import React, { useState } from 'react'
 import { makeStyles } from '../../../utils'
 import { PatientId } from '../../patients'
+import { FocusEntity } from '../../dataSlice'
+import { EntityId } from '../../entities'
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -38,17 +41,31 @@ const useStyles = makeStyles()((theme) => ({
   },
   listToolbar: {
     backgroundColor: theme.palette.background.default,
+    marginBottom: theme.spacing(2),
   },
 }))
 
 interface Props {
   readonly cohort: ReadonlySet<PatientId>
+  readonly hoveredEntity: FocusEntity
+  readonly selectedEntityId: EntityId
+  readonly onPatientHover: (id: PatientId) => void
+  readonly onPatientClick: (id: PatientId) => void
   readonly onRemoveFromCohort: (id: PatientId) => void
   readonly onClearCohort: () => void
   readonly onCopyToClipboard: () => void
 }
 
-export const CohortToolbarItem = ({ cohort, onRemoveFromCohort, onCopyToClipboard, onClearCohort }: Props) => {
+export const CohortToolbarItem = ({
+  cohort,
+  hoveredEntity,
+  selectedEntityId,
+  onRemoveFromCohort,
+  onCopyToClipboard,
+  onClearCohort,
+  onPatientHover,
+  onPatientClick,
+}: Props) => {
   const theme = useTheme()
   const { classes } = useStyles()
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
@@ -108,13 +125,35 @@ export const CohortToolbarItem = ({ cohort, onRemoveFromCohort, onCopyToClipboar
                 {[...cohort].map((patientId) => (
                   <div key={patientId}>
                     <ListItem
+                      disablePadding
+                      onClick={(e) => {
+                        onPatientClick(patientId)
+                        e.stopPropagation()
+                      }}
+                      onMouseEnter={(e) => {
+                        onPatientHover(patientId)
+                        e.stopPropagation()
+                      }}
                       secondaryAction={
-                        <IconButton edge="end" aria-label="delete" onClick={() => onRemoveFromCohort(patientId)}>
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={(e) => {
+                            onRemoveFromCohort(patientId)
+                            e.stopPropagation()
+                          }}
+                        >
                           <DeleteIcon fontSize={'small'} />
                         </IconButton>
                       }
+                      sx={{
+                        color: patientId === selectedEntityId ? theme.entityColors.selected : undefined,
+                        backgroundColor: patientId === hoveredEntity.uid ? theme.entityColors.default : undefined,
+                      }}
                     >
-                      <ListItemText primary={patientId} />
+                      <ListItemButton>
+                        <ListItemText primary={patientId} />
+                      </ListItemButton>
                     </ListItem>
                   </div>
                 ))}
