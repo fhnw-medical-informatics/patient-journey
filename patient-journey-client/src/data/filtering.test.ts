@@ -94,7 +94,7 @@ describe('Filter Reducer', () => {
     const pidFilter: Filter<'pid'> = {
       column: mockColumns[6],
       type: 'pid',
-      value: { text: '100' },
+      value: { uids: ['100' as EntityId] },
     }
 
     const filteredData = filterReducer(mockData, pidFilter)

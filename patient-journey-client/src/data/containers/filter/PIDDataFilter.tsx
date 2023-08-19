@@ -4,8 +4,10 @@ import { PIDDataFilter as PIDDataFilterComponent } from '../../components/filter
 
 import { Filter } from '../../filtering'
 import { useSelectedEntityPID } from '../../hooks'
+import { Entity } from '../../entities'
 
 export interface PIDDataFilterProps extends Filter<'pid'> {
+  allActiveData: ReadonlyArray<Entity>
   onChange: (filter: Filter<'pid'>) => void
   onRemove: (filter: Filter<'pid'>) => void
 }

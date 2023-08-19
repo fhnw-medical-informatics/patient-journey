@@ -82,6 +82,17 @@ export const extractCategoryValueSafe =
     }
   }
 
+export const extractStringValuesSafe =
+  (column: DataColumn<any>) =>
+  (entity: Entity): [string] | [] => {
+    const value = entity.values[column.index] ?? ''
+    if (value === undefined || value.trim().length === 0) {
+      return []
+    } else {
+      return [value]
+    }
+  }
+
 export const extractColumnValueSafe = (column: DataColumn<any>) => {
   switch (column.type) {
     case 'number':
@@ -91,17 +102,8 @@ export const extractColumnValueSafe = (column: DataColumn<any>) => {
       return extractDateValueSafe(column)
     case 'category':
       return extractCategoryValueSafe(column)
-    case 'string':
-    case 'boolean':
     default:
-      return (entity: Entity): [string] | [] => {
-        const value = entity.values[column.index] ?? ''
-        if (value === undefined || value.trim().length === 0) {
-          return []
-        } else {
-          return [value]
-        }
-      }
+      return extractStringValuesSafe(column)
   }
 }
 
