@@ -1,5 +1,5 @@
 import { parseMillis, parseDate, stringToBoolean } from './columns'
-import { Entity } from './entities'
+import { Entity, EntityId } from './entities'
 import { EventDataColumn } from './events'
 import { PatientDataColumn } from './patients'
 
@@ -20,8 +20,8 @@ type FilterValue = {
   string: TextFilterValue
   number: NumberFilterValue
   boolean: BooleanFilterValue
-  eid: TextFilterValue
-  pid: TextFilterValue
+  eid: UIDFilterValue
+  pid: UIDFilterValue
   date: TimestampFilterValue
   timestamp: TimestampFilterValue
   category: CategoryFilterValue
@@ -61,6 +61,12 @@ interface CategoryFilterValue {
   categories: string[]
 }
 
+export const UIDFilterNone = ''
+
+interface UIDFilterValue {
+  uids: EntityId[]
+}
+
 export const createFilter = <T extends FilterColumn['type']>(
   column: FilterColumn,
   type: T,
@@ -75,14 +81,6 @@ export const createFilter = <T extends FilterColumn['type']>(
 
 export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter): ReadonlyArray<Entity> => {
   switch (filter.type) {
-    case 'pid':
-      return data.filter((row) => {
-        const fieldValue = getFieldValue(row, filter)
-
-        return (
-          fieldValue.isValid && fieldValue.value.toLowerCase() === (filter as Filter<'pid'>).value.text.toLowerCase()
-        )
-      })
     case 'string':
       return data.filter((row) => {
         const fieldValue = getFieldValue(row, filter)
@@ -175,12 +173,16 @@ export const filterReducer = (data: ReadonlyArray<Entity>, filter: GenericFilter
         })
       }
     }
+    case 'pid':
     case 'category':
       return data.filter((row) => {
         const fieldValue = getFieldValue(row, filter)
-        const categories = new Set((filter as Filter<'category'>).value.categories)
+        const values =
+          filter.type === 'pid'
+            ? new Set((filter as Filter<'pid'>).value.uids)
+            : new Set((filter as Filter<'category'>).value.categories)
 
-        return fieldValue.isValid && categories.has(fieldValue.value)
+        return fieldValue.isValid && values.has(fieldValue.value)
       })
     default:
       throw new Error(`Filter for type '${filter.type}' is not yet implemented`)

@@ -2,9 +2,32 @@ import { useMemo } from 'react'
 
 import { extent } from 'd3-array'
 
-import { DataColumn, extractCategoryValueSafe, extractDateValueSafe, extractNumberValueSafe } from '../../columns'
+import {
+  DataColumn,
+  extractCategoryValueSafe,
+  extractDateValueSafe,
+  extractNumberValueSafe,
+  extractStringValuesSafe,
+} from '../../columns'
 import { Entity } from '../../entities'
 import { scaleLinear, ScaleTime, scaleTime } from 'd3-scale'
+
+export const usePIDs = (
+  allData: ReadonlyArray<Entity>,
+  column: DataColumn<'pid'>
+): {
+  allPIDs: ReadonlyArray<string>
+  uniquePIDs: ReadonlyArray<string>
+  extractValueSafe: (entity: Entity) => [string] | []
+} => {
+  const extractValueSafe = useMemo(() => extractStringValuesSafe(column), [column])
+
+  const allPIDs = useMemo(() => allData.flatMap(extractValueSafe), [allData, extractValueSafe])
+
+  const uniquePIDs = useMemo(() => Array.from(new Set(allPIDs)), [allPIDs])
+
+  return { allPIDs, uniquePIDs, extractValueSafe }
+}
 
 export const useCategories = (
   allData: ReadonlyArray<Entity>,

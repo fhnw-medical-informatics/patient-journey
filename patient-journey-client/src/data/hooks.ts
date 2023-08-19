@@ -37,7 +37,6 @@ import {
   selectSimilarityProvider,
   selectSimilarityPrompt,
   selectPromptEmbeddingState,
-  selectAllNumericPatientDataColumns,
   selectAllCategoricalPatientDataColumns,
   selectCohortExplanationPrompt,
   selectCohortExplanationResultState,
@@ -63,7 +62,6 @@ export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns
 
 export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
 export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
-export const useAllNumericPatientDataColumns = () => useAppSelector(selectAllNumericPatientDataColumns)
 export const useAllCategoricalPatientDataColumns = () => useAppSelector(selectAllCategoricalPatientDataColumns)
 
 export const useAllFilters = () => useAppSelector(selectAllFilters)

@@ -1,30 +1,47 @@
 import { RootState } from '../store'
 import { createSelector } from '@reduxjs/toolkit'
 import { ScatterPlotData, ScatterPlotDatum, ScatterPlotInfo } from './model'
-import { selectCrossFilteredPatientData, selectFocusEntity, selectPatientDataRowMap } from '../data/selectors'
+import {
+  selectCrossFilteredEventData,
+  selectCrossFilteredPatientData,
+  selectEventDataColumns,
+  selectFocusEntity,
+  selectPatientDataColumns,
+  selectPatientDataRowMap,
+} from '../data/selectors'
 import { PlotColumnNone } from './plotSlice'
-import { DataColumn, extractNumberValueSafe, formatColumnValue } from '../data/columns'
+import { extractColumnValueSafe, formatColumnValue } from '../data/columns'
+import { EventDataColumn } from '../data/events'
+import { PatientDataColumn } from '../data/patients'
+
+export const selectScatterPlotPatientDataColumns = createSelector(selectPatientDataColumns, (columns) => columns)
+
+export const selectScatterPlotEventDataColumns = createSelector(selectEventDataColumns, (columns) => columns)
 
 export const selectScatterPlotState = (s: RootState) => s.plot.scatterPlot
 
+export const selectActiveScatterPlotEntityType = createSelector(selectScatterPlotState, (s) => s.entityType)
+
 export const selectScatterPlotData = createSelector(
+  selectCrossFilteredEventData,
   selectCrossFilteredPatientData,
+  selectActiveScatterPlotEntityType,
   selectScatterPlotState,
-  (patientData, plotState): ScatterPlotData => {
+  (eventData, patientData, activeEntityType, plotState): ScatterPlotData => {
     if (plotState.xAxisColumn === PlotColumnNone || plotState.yAxisColumn === PlotColumnNone) {
       return { xAxisLabel: '', yAxisLabel: '', data: [] }
     } else {
-      const xCol: DataColumn<'number'> = plotState.xAxisColumn
-      const yCol: DataColumn<'number'> = plotState.yAxisColumn
-      const data = patientData.flatMap<ScatterPlotDatum>((patient) => {
-        const xSafe = extractNumberValueSafe(xCol)(patient)
-        const ySafe = extractNumberValueSafe(yCol)(patient)
+      const xCol: PatientDataColumn | EventDataColumn = plotState.xAxisColumn
+      const yCol: PatientDataColumn | EventDataColumn = plotState.yAxisColumn
+      const data = (activeEntityType === 'patients' ? patientData : eventData).flatMap<ScatterPlotDatum>((entity) => {
+        const xSafe = extractColumnValueSafe(xCol)(entity)
+        const ySafe = extractColumnValueSafe(yCol)(entity)
 
         if (xSafe.length === 0 || ySafe.length === 0) {
           return []
         } else {
           return {
-            entityId: patient.uid,
+            entityId: entity.uid,
             x: xSafe[0],
             y: ySafe[0],
           }
