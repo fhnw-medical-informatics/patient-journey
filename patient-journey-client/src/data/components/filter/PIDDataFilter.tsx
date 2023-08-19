@@ -10,6 +10,7 @@ import { DataColumn } from '../../columns'
 
 export interface PIDDataFilterProps extends Filter<'pid'> {
   selectedPatientPID: EntityId
+  patientCohort: ReadonlySet<EntityId>
   allActiveData: ReadonlyArray<Entity>
   onChange: (filter: Filter<'pid'>) => void
   onRemove: (filter: Filter<'pid'>) => void
@@ -17,6 +18,7 @@ export interface PIDDataFilterProps extends Filter<'pid'> {
 
 export const PIDDataFilter = ({
   selectedPatientPID,
+  patientCohort,
   allActiveData,
   column,
   type,
@@ -34,7 +36,7 @@ export const PIDDataFilter = ({
 
   const children = useCallback(
     (handleChange: (values: string[]) => void) => (
-      <Stack component={'div'} sx={{ marginTop: 2 }}>
+      <Stack component={'div'} direction="column" gap={1} sx={{ marginTop: 2 }}>
         {selectedPatientPID !== EntityIdNone && (
           <Button
             variant="text"
@@ -45,9 +47,22 @@ export const PIDDataFilter = ({
             Isolate selected patient {selectedPatientPID}
           </Button>
         )}
+        {patientCohort.size > 0 && (
+          <Button
+            variant="text"
+            onClick={() => handleChange([...patientCohort.values()])}
+            disabled={
+              patientCohort.size === value.uids.length &&
+              [...patientCohort.values()].every((id) => value.uids.includes(id))
+            }
+            size="small"
+          >
+            Isolate cohort ({patientCohort.size})
+          </Button>
+        )}
       </Stack>
     ),
-    [selectedPatientPID, value]
+    [selectedPatientPID, patientCohort, value]
   )
 
   return (
