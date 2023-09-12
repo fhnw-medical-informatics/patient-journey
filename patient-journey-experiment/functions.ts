@@ -125,6 +125,10 @@ const showCorrelationMatrix = (
 
 // ******************************************************
 
+type FunctionImplementations = {
+  [key: string]: (...args: any[]) => any;
+};
+
 export const capabilities = {
   functions,
   implementations: {
@@ -150,5 +154,5 @@ export const capabilities = {
     detectAnomalies,
     reduceDimensions,
     showCorrelationMatrix,
-  },
+  } as FunctionImplementations,
 };
