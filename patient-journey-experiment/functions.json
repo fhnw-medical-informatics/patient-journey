@@ -1,7 +1,29 @@
 [
   {
+    "name": "showTable",
+    "description": "Display the data in a tabular format",
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "showRecord",
+    "description": "View a detailed record of a particular car",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "recordID": {
+          "type": "integer",
+          "description": "ID of the record to be displayed"
+        }
+      },
+      "required": ["recordID"]
+    }
+  },
+  {
     "name": "sort",
-    "description": "Sort the data by a given field",
+    "description": "Sort the data by a given field and order",
     "parameters": {
       "type": "object",
       "properties": {
@@ -20,7 +42,7 @@
   },
   {
     "name": "filter",
-    "description": "Filter the data by a given field and value",
+    "description": "Filter the data by a given field and condition",
     "parameters": {
       "type": "object",
       "properties": {
@@ -28,12 +50,367 @@
           "type": "string",
           "description": "The field to filter by"
         },
+        "condition": {
+          "type": "string",
+          "description": "The condition to apply (e.g., >, <, ==, !=)",
+          "enum": [">", "<", "==", "!=", ">=", "<="]
+        },
         "value": {
           "type": "string",
           "description": "The value to filter by"
         }
       },
+      "required": ["field", "condition", "value"]
+    }
+  },
+  {
+    "name": "group",
+    "description": "Group the data by a given field",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to group by"
+        }
+      },
+      "required": ["field"]
+    }
+  },
+  {
+    "name": "aggregate",
+    "description": "Aggregate data by a field using a specified operation",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to aggregate by"
+        },
+        "operation": {
+          "type": "string",
+          "description": "The aggregation operation to apply (e.g., avg, sum, count, max, min)",
+          "enum": ["avg", "sum", "count", "max", "min"]
+        }
+      },
+      "required": ["field", "operation"]
+    }
+  },
+  {
+    "name": "plot",
+    "description": "Visualize the data by plotting on a graph",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of the plot (e.g., scatter, bar, line)",
+          "enum": ["scatter", "bar", "line"]
+        },
+        "x_axis": {
+          "type": "string",
+          "description": "The field for the x-axis"
+        },
+        "y_axis": {
+          "type": "string",
+          "description": "The field for the y-axis"
+        }
+      },
+      "required": ["type", "x_axis", "y_axis"]
+    }
+  },
+  {
+    "name": "histogram",
+    "description": "Create a histogram based on a specific field and bin count",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to create the histogram from"
+        },
+        "bin_count": {
+          "type": "integer",
+          "description": "The number of bins to use in the histogram"
+        }
+      },
+      "required": ["field", "bin_count"]
+    }
+  },
+  {
+    "name": "describe",
+    "description": "Show basic statistics for a given field (e.g., mean, median, mode, standard deviation, etc.)",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to get statistics for"
+        }
+      },
+      "required": ["field"]
+    }
+  },
+  {
+    "name": "correlate",
+    "description": "Determine the correlation between two fields",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field1": {
+          "type": "string",
+          "description": "The first field to correlate"
+        },
+        "field2": {
+          "type": "string",
+          "description": "The second field to correlate"
+        }
+      },
+      "required": ["field1", "field2"]
+    }
+  },
+  {
+    "name": "search",
+    "description": "Search for specific value in a given field",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to search in"
+        },
+        "value": {
+          "type": "string",
+          "description": "The value to search for"
+        }
+      },
       "required": ["field", "value"]
+    }
+  },
+  {
+    "name": "replace",
+    "description": "Replace a specific value in a given field with a new value",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to replace value in"
+        },
+        "old_value": {
+          "type": "string",
+          "description": "The value to be replaced"
+        },
+        "new_value": {
+          "type": "string",
+          "description": "The new value to replace the old value with"
+        }
+      },
+      "required": ["field", "old_value", "new_value"]
+    }
+  },
+  {
+    "name": "highlight",
+    "description": "Visually emphasize data based on a field and condition",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to apply the highlighting on"
+        },
+        "condition": {
+          "type": "string",
+          "description": "The condition to apply for highlighting (e.g., >, <, ==, !=)",
+          "enum": [">", "<", "==", "!=", ">=", "<="]
+        },
+        "value": {
+          "type": "string",
+          "description": "The value for the condition"
+        }
+      },
+      "required": ["field", "condition", "value"]
+    }
+  },
+  {
+    "name": "timeSeriesPlot",
+    "description": "Visualize a field over a time unit",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to visualize over time"
+        },
+        "time_unit": {
+          "type": "string",
+          "description": "The time unit for the x-axis (e.g., model year, month, day)"
+        }
+      },
+      "required": ["field", "time_unit"]
+    }
+  },
+  {
+    "name": "zoom",
+    "description": "Zoom in or out on a visualization",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "The zoom action to be performed",
+          "enum": ["in", "out"]
+        },
+        "factor": {
+          "type": "number",
+          "description": "The zoom factor (e.g., 1.5 to zoom in 150%, 0.5 to zoom out to 50%)"
+        }
+      },
+      "required": ["action", "factor"]
+    }
+  },
+  {
+    "name": "tooltip",
+    "description": "Display more information when hovering over a data point in a visualization",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "description": "Enable or disable tooltips"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to display in the tooltip"
+        }
+      },
+      "required": ["enable"]
+    }
+  },
+  {
+    "name": "drillDown",
+    "description": "Click on a data point or segment in a visualization to see more detailed data",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "description": "Enable or disable drill down functionality"
+        },
+        "level": {
+          "type": "integer",
+          "description": "Depth of drill down (e.g., 1 for immediate child, 2 for grandchild, etc.)"
+        }
+      },
+      "required": ["enable"]
+    }
+  },
+  {
+    "name": "cluster",
+    "description": "Find clusters in data based on selected fields and number of clusters",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to consider for clustering"
+        },
+        "number_of_clusters": {
+          "type": "integer",
+          "description": "Desired number of clusters"
+        }
+      },
+      "required": ["fields", "number_of_clusters"]
+    }
+  },
+  {
+    "name": "trendLine",
+    "description": "Analyze the trend of a field over a specified time unit",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field for which the trend needs to be analyzed"
+        },
+        "time_unit": {
+          "type": "string",
+          "description": "The time unit for the x-axis (e.g., model year, month, day)"
+        }
+      },
+      "required": ["field", "time_unit"]
+    }
+  },
+  {
+    "name": "detectAnomalies",
+    "description": "Identify any unusual values in a field that might be outliers",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "The field to inspect for anomalies"
+        },
+        "sensitivity": {
+          "type": "number",
+          "description": "Sensitivity of anomaly detection (e.g., 0.05 for 5% significance level)"
+        }
+      },
+      "required": ["field"]
+    }
+  },
+  {
+    "name": "reduceDimensions",
+    "description": "Reduce the dimensionality of data for visualization or simplification purposes",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to consider for dimensionality reduction"
+        },
+        "number_of_dimensions": {
+          "type": "integer",
+          "description": "Desired reduced number of dimensions (e.g., 2 for 2D visualization)"
+        },
+        "method": {
+          "type": "string",
+          "description": "Method for dimensionality reduction (e.g., PCA, t-SNE)",
+          "enum": ["PCA", "t-SNE", "UMAP", "LLE"]
+        }
+      },
+      "required": ["fields", "number_of_dimensions", "method"]
+    }
+  },
+  {
+    "name": "showCorrelationMatrix",
+    "description": "Display correlations among all variables to identify potential relationships",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Fields to include in the correlation matrix"
+        },
+        "method": {
+          "type": "string",
+          "description": "Method to calculate correlation (e.g., Pearson, Spearman, Kendall)",
+          "enum": ["Pearson", "Spearman", "Kendall"]
+        }
+      },
+      "required": ["fields", "method"]
     }
   }
 ]

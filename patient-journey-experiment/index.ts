@@ -29,52 +29,47 @@ const messages = [...initialMessages];
 
 const startChatCompletion = async () => {
   try {
-    // Step 1: send the conversation and available functions to GPT
-    const initialResponse = await openai.createChatCompletion({
-      model,
-      messages,
-      functions,
-      function_call: 'auto',
-    });
-
-    const responseMessage = initialResponse.choices[0].message;
-
-    console.log('First response', responseMessage);
-
-    // Step 2: check if GPT wanted to call a function
-    if (responseMessage && responseMessage.function_call) {
-      // Step 3: call the function
-      const functionName = responseMessage.function_call.name;
-      const functionArgs = JSON.parse(responseMessage.function_call.arguments);
-      const functionResponse = await implementations[functionName](
-        ...Object.values(functionArgs)
-      );
-
-      // Step 4: send the info on the function call and function response to GPT
-      messages.push(responseMessage);
-      messages.push({
-        role: 'function',
-        // @ts-ignore
-        name: functionName,
-        content: functionResponse,
-      });
-
-      const secondResponse = await openai.createChatCompletion({
+    let continueChat = true;
+    while (continueChat) {
+      // Step 1: send the conversation and available functions to GPT
+      const chatResponse = await openai.createChatCompletion({
         model,
         messages,
         functions,
         function_call: 'auto',
       });
 
-      messages.push(secondResponse.choices[0].message);
+      const responseMessage = chatResponse.choices[0].message;
 
-      console.log(
-        'Second response',
-        secondResponse.choices[0].message?.content
-      );
-    } else {
-      console.log('No function call');
-      console.log(responseMessage?.content);
+      console.log('Response', responseMessage);
+
+      // Step 2: check if GPT wanted to call a function
+      if (responseMessage && responseMessage.function_call) {
+        // Step 3: call the function
+        const functionName = responseMessage.function_call.name;
+        const functionArgs = JSON.parse(
+          responseMessage.function_call.arguments
+        );
+        const functionResponse = await implementations[functionName](
+          ...Object.values(functionArgs)
+        );
+
+        // Step 4: send the info on the function call and function response to GPT (via while loop)
+        messages.push(responseMessage);
+        messages.push({
+          role: 'function',
+          // @ts-ignore
+          name: functionName,
+          content: functionResponse,
+        });
+      } else {
+        // Step 5: if no function call, end the conversation
+        console.log('No function call, ending conversation.');
+
+        messages.push(responseMessage);
+
+        continueChat = false;
+      }
     }
   } catch (error) {
     console.error(error);

@@ -7,5 +7,8 @@
     "role": "user",
     "content": "The application has data about cars. With the following columns: car name, mpg, cylinders, displacement, horsepower, weight, acceleration, model year, origin, and car type."
   },
-  { "role": "user", "content": "Which cars are the newest?" }
+  {
+    "role": "user",
+    "content": "I'd like to understand the relationship between weight and horsepower. Can you plot them and then cluster the data to see if there are any distinct groups?"
+  }
 ]
