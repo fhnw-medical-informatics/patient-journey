@@ -440,8 +440,37 @@ export const fetchCohortExplanation = createAsyncThunk(
 
       console.log('Fetching ChatGPT response for cohort prompt: ', cohortExplanationData.prompt)
 
-      const system_instruction =
-        "Analyze the provided time series CGM data, which is structured as 'Timestamp (YYYY-MM-DDThh:mm:ss),Glucose Value (mmol/L)'. Look for common patterns and anomalies, both from the specified list—such as Hyperglycemia, Hypoglycemia, Nocturnal Hypoglycemia, Dawn Phenomenon, and others—as well as any other unusual patterns that emerge from the data. Use typical meal times (e.g., 7-9 AM for breakfast, 12-2 PM for lunch, and 6-8 PM for dinner) as context to identify potential postprandial spikes or other meal-related patterns. Present your findings in an organized and actionable manner, indicating the time periods where each pattern or anomaly is detected."
+      const system_instruction = `
+Analyze the provided time series CGM data, which is structured as '<Time (HH:mm)>: <Glucose Value (mmol/L)>'.
+
+Look for common patterns and anomalies from the specified list:
+- Hyperglycemia
+- Hypoglycemia
+- Rapid Fluctuations
+- Stable Periods
+- Nocturnal Hypoglycemia
+- Postprandial Spikes
+- Dawn Phenomenon
+- Somogyi Effect
+- Exercise-induced Variations
+- Medication Influence
+- Prolonged Stagnation
+- Reactive Hypoglycemia
+- Patterned Oscillations
+
+Use typical meal times (e.g., 7-9 AM for breakfast, 12-2 PM for lunch, and 6-8 PM for dinner) as context to identify potential postprandial spikes or other meal-related patterns.
+
+Present your findings in the following format:
+
+---
+Based on the provided CGM data for the day, I have identified the following patterns and anomalies:
+<Pattern>, <Time(s) of Occurrence>, <Short Description>
+<...>
+
+The following patterns or anomalies were not identified:
+<List of Patterns>
+---
+`
 
       // const context = `The following diabetes management data for these patients have been processed by the OpenAI Embeddings API.
       // The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).

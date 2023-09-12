@@ -15,6 +15,7 @@ import { PatientId } from '../../data/patients'
 import { changeCanvasFillStyle } from '../../utils'
 import { EntityTypeSelector } from '../containers/EntityTypeSelector'
 import { ScatterPlotAxisColumn, PlotColumnNone } from '../plotSlice'
+import { format } from 'date-fns'
 
 const ACTIVE_NODE_SCALE_FACTOR = 1.2
 
@@ -162,13 +163,22 @@ export const ScatterPlot = ({
                 data={data}
                 renderNode={renderNode}
                 xScale={xScaleConfig}
+                xFormat="time:%H:%M"
                 axisLeft={{ legend: yAxisLabel, legendPosition: 'middle', legendOffset: -50 }}
-                axisBottom={{ legend: xAxisLabel, legendPosition: 'middle', legendOffset: 40 }}
+                axisBottom={{
+                  legend: xAxisLabel,
+                  legendPosition: 'middle',
+                  legendOffset: 40,
+                  format: xScaleConfig.type === 'time' ? (value: Date) => format(value, 'HH:mm') : undefined,
+                }}
                 yScale={yScaleConfig}
                 margin={{ top: 10, right: 20, bottom: 50, left: 70 }}
                 theme={{
                   textColor: theme.palette.text.primary,
-                  axis: { legend: { text: { fontWeight: 'bold' } } },
+                  axis: {
+                    legend: { text: { fontWeight: 'bold' } },
+                    ticks: { text: { fontSize: '120%' } },
+                  },
                   grid: { line: { stroke: alpha(theme.palette.text.disabled, 0.2) } },
                 }}
                 layers={['grid', 'axes', 'nodes', 'mesh', 'legends', 'annotations', activeMarksLayer]}
