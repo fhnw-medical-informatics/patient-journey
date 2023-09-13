@@ -1,4 +1,4 @@
-// deno run --unstable --allow-net --allow-read --allow-write --allow-env index.ts <experiment-name>
+// deno run --unstable --allow-net --allow-read --allow-write --allow-env index.ts <experiment-name> [<capabilities-module>] [<messages-module>]
 
 // @ts-ignore
 import { OpenAI } from 'https://deno.land/x/openai/mod.ts';
@@ -6,14 +6,17 @@ import { OpenAI } from 'https://deno.land/x/openai/mod.ts';
 import { load } from 'https://deno.land/std/dotenv/mod.ts';
 
 // @ts-ignore
-import { capabilities } from './functions.ts';
-// @ts-ignore
-import { messages as initialMessages } from './context.ts';
-
-// @ts-ignore
 const experimentName = Deno.args[0] ?? 'default';
+// @ts-ignore
+const capabilitiesModule = Deno.args[1] ?? './intent-agent/functions.ts';
+// @ts-ignore
+const messagesModule = Deno.args[2] ?? './intent-agent/context.ts';
 
 const { OPENAI_API_KEY, OPENAI_ORG } = await load();
+
+// Dynamically load the capabilities and initial messages
+let { capabilities } = await import(capabilitiesModule);
+let { messages: initialMessages } = await import(messagesModule);
 
 // const configuration = new Configuration({
 //   organization: OPENAI_ORG,
