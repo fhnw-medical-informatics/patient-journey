@@ -1,12 +1,7 @@
-import { Configuration, OpenAIApi } from 'openai'
+import OpenAI from 'openai'
 
-const configuration = new Configuration({
+export const openaiAPI = new OpenAI({
   organization: import.meta.env.VITE_OPENAI_ORG,
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true,
 })
-
-export const openaiAPI = new OpenAIApi(configuration)
-
-// await openaiAPI.listEngines().then((response) => {
-//   console.log(response)
-// })

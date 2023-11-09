@@ -1,6 +1,5 @@
 import { AnyAction, createAsyncThunk, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
 import { Dispatch } from 'redux'
-import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum } from 'openai'
 
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
@@ -19,6 +18,7 @@ import {
 import { openaiAPI } from '../utils/openai'
 
 import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
+import { ChatCompletionMessageParam } from 'openai/resources'
 
 type DataStateLoadingPending = DataLoadingPending
 
@@ -401,9 +401,9 @@ export const fetchPromptEmbeddings = createAsyncThunk(
         ...promptAndJourneys.randomPatientJourneys,
       ])
 
-      if (promptEmbeddings && promptEmbeddings.data.data.length > 0) {
+      if (promptEmbeddings && promptEmbeddings.data.length > 0) {
         // The first entry is the prompt embedding
-        return promptEmbeddings.data.data[0].embedding
+        return promptEmbeddings.data[0].embedding
       } else {
         throw new Error('Could not fetch prompt embeddings')
       }
@@ -446,18 +446,21 @@ export const fetchCohortExplanation = createAsyncThunk(
       The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
       I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
 
-      const messages: ChatCompletionRequestMessage[] = [
+      const messages: ChatCompletionMessageParam[] = [
         { role: 'system', content: system_instruction },
         { role: 'user', content: context },
-        ...patientJourneyChunks[0].map((patientJourney, idx) => ({
-          role: 'user' as ChatCompletionRequestMessageRoleEnum,
-          content: `
+        ...patientJourneyChunks[0].map(
+          (patientJourney, idx) =>
+            ({
+              role: 'user',
+              content: `
           Patient Journey ${idx + 1}:
           ------
 
           ${patientJourney}
         `,
-        })),
+            } as ChatCompletionMessageParam)
+        ),
         {
           role: 'user',
           content: `${cohortExplanationData.prompt}}`,
@@ -467,13 +470,13 @@ export const fetchCohortExplanation = createAsyncThunk(
       console.log('GPT request messages: ', messages)
 
       try {
-        const completion = await openaiAPI.createChatCompletion({
+        const completion = await openaiAPI.chat.completions.create({
           model: 'gpt-4-1106-preview', // gpt-3.5-turbo-16k, gpt-4-32k
           messages,
         })
 
-        if (completion.data.choices.length > 0) {
-          return completion.data.choices[0].message?.content?.toString()
+        if (completion.choices.length > 0) {
+          return completion.choices[0].message?.content
         } else {
           throw new Error('Could not fetch cohort explanation')
         }

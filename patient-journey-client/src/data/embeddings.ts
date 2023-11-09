@@ -124,7 +124,7 @@ export async function retryOpenaiAPI(maxRetries: number, inputChunk: Array<strin
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const response = await openaiAPI.createEmbedding({
+      const response = await openaiAPI.embeddings.create({
         model: 'text-embedding-ada-002',
         input: inputChunk,
       })
@@ -266,8 +266,8 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
       try {
         const chunkEmbeddings = await retryOpenaiAPI(5, chunk)
 
-        if (chunkEmbeddings && chunkEmbeddings.data.data.length > 0) {
-          chunkEmbeddings.data.data.forEach((embedding) => {
+        if (chunkEmbeddings && chunkEmbeddings.data.length > 0) {
+          chunkEmbeddings.data.forEach((embedding) => {
             patientJourneyEmbeddings.push(embedding.embedding)
           })
         } else {
