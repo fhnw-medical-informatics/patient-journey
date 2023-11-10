@@ -7,6 +7,7 @@ import { colorReducer } from '../color/colorSlice'
 import { alertReducer } from '../alert/alertSlice'
 import { tableReducer } from '../table/tableSlice'
 import { plotReducer } from '../plot/plotSlice'
+import { assistantReducer } from '../assistant/assistantSlice'
 
 import { listenerMiddleware } from '../data/similarityPromptMiddleware'
 
@@ -18,6 +19,7 @@ export const reducer = combineReducers({
   plot: plotReducer,
   color: colorReducer,
   alert: alertReducer,
+  assistant: assistantReducer,
 })
 
 export type RootState = ReturnType<typeof reducer>
