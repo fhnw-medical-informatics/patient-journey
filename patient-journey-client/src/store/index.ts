@@ -10,6 +10,7 @@ import { plotReducer } from '../plot/plotSlice'
 import { assistantReducer } from '../assistant/assistantSlice'
 
 import { listenerMiddleware } from '../data/similarityPromptMiddleware'
+import { assistantListenerMiddleware } from '../assistant/assistantMiddleware'
 
 export const reducer = combineReducers({
   theme: themeReducer,
@@ -32,7 +33,7 @@ export const createStore = () =>
         // https://redux-toolkit.js.org/api/getDefaultMiddleware
         serializableCheck: import.meta.env.VITE_APP_REDUX_TOOLKIT_DEVCHECKS === 'true',
         immutableCheck: import.meta.env.VITE_APP_REDUX_TOOLKIT_DEVCHECKS === 'true',
-      }).prepend(listenerMiddleware.middleware),
+      }).prepend(listenerMiddleware.middleware, assistantListenerMiddleware.middleware),
   })
 
 export const store = createStore()
