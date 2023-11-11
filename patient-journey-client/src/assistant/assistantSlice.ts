@@ -23,7 +23,7 @@ interface AssistantState {
       }>
   messages:
     | DataLoadingPending
-    | DataLoadingInProgress
+    | (DataLoadingInProgress & { messages: OpenAI.Beta.Threads.Messages.ThreadMessage[] })
     | DataLoadingFailed
     | DataLoadingComplete<{
         messages: OpenAI.Beta.Threads.Messages.ThreadMessage[]
@@ -46,6 +46,7 @@ const assistantSlice = createSlice({
       state,
       action: PayloadAction<DataLoadingInProgress | DataLoadingFailed | DataLoadingComplete<{ status: 'completed' }>>
     ) => {
+      console.log('Updating run status: ', action.payload)
       if (state.run.type === 'loading-complete') {
         state.run.status = action.payload
       }
@@ -63,6 +64,7 @@ const assistantSlice = createSlice({
       state.thread = { type: 'loading-failed', errorMessage: action.error.message ?? 'Unknown error' }
     })
     builder.addCase(addMessageAndRun.pending, (state) => {
+      console.log('Adding message and running thread PENDING!...')
       state.run = { type: 'loading-in-progress' }
     })
     builder.addCase(addMessageAndRun.fulfilled, (state, action) => {
@@ -70,7 +72,6 @@ const assistantSlice = createSlice({
       state.messages = {
         type: 'loading-complete',
         messages: [
-          ...(state.messages.type === 'loading-complete' ? state.messages.messages : []),
           ...action.payload.newMessages.map((m) => {
             const message: OpenAI.Beta.Threads.Messages.ThreadMessage = {
               id: '',
@@ -95,6 +96,7 @@ const assistantSlice = createSlice({
 
             return message
           }),
+          ...(state.messages.type === 'loading-complete' ? state.messages.messages : []),
         ],
       }
     })
@@ -102,7 +104,10 @@ const assistantSlice = createSlice({
       state.run = { type: 'loading-failed', errorMessage: action.error.message ?? 'Unknown error' }
     })
     builder.addCase(fetchMessages.pending, (state) => {
-      state.messages = { type: 'loading-in-progress' }
+      state.messages =
+        state.messages.type === 'loading-complete'
+          ? { type: 'loading-in-progress', messages: state.messages.messages }
+          : { type: 'loading-in-progress', messages: [] }
     })
     builder.addCase(fetchMessages.fulfilled, (state, action) => {
       state.messages = { type: 'loading-complete', messages: action.payload.data }
@@ -126,20 +131,29 @@ export const createNewThread = createAsyncThunk('assistant/createNewThread', asy
 export const addMessageAndRun = createAsyncThunk(
   'assistant/addMessageAndRun',
   async (args: { prompt: string; cohort?: ReadonlyArray<Patient>; selectedPatient?: Patient }, thunkAPI) => {
+    console.log('Adding message and running thread...', args)
+
     // A prompt is set, fetch prompt embeddings and add random journeys for context
     const data = (thunkAPI.getState() as any).data as DataState
     const assistant = (thunkAPI.getState() as any).assistant as AssistantState
 
+    console.log(data)
+    console.log(assistant)
+
     if (
       data.type === 'loading-complete' &&
-      assistant.thread.type === 'loading-complete' &&
-      (assistant.run.type === 'loading-pending' || assistant.run.type === 'loading-complete')
+      assistant.thread.type === 'loading-complete'
+      // (assistant.run.type === 'loading-pending' || assistant.run.type === 'loading-complete')
     ) {
+      console.log('here2')
       let pjChunks: string[][] = []
 
       if (args.cohort || args.selectedPatient) {
         const patientJourneys = preparePatientJourneys(
-          { ...data.patientData, allEntities: [...(args.cohort ?? []), args.selectedPatient] as Patient[] },
+          {
+            ...data.patientData,
+            allEntities: [...(args.cohort ?? []), ...(args.selectedPatient ? [args.selectedPatient] : [])] as Patient[],
+          },
           data.eventData
         )
 
@@ -150,29 +164,34 @@ export const addMessageAndRun = createAsyncThunk(
         pjChunks = patientJourneyChunks
       }
 
-      const context = `The following patient journeys have been processed by the OpenAI Embeddings API.
-      The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
-      I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
+      console.log('here3')
 
-      const messages: MessageCreateParams[] = [
-        { role: 'user', content: context },
-        ...pjChunks[0].map(
-          (patientJourney, idx) =>
-            ({
-              role: 'user',
-              content: `
-          Patient Journey ${idx + 1}:
-          ------
+      const messages: MessageCreateParams[] = []
 
-          ${patientJourney}
-        `,
-            } as MessageCreateParams)
-        ),
-        {
-          role: 'user',
-          content: `${args.prompt}}`,
-        },
-      ]
+      if (pjChunks.length > 0) {
+        const context = `The following patient journeys have been processed by the OpenAI Embeddings API.
+The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
+I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
+
+        messages.push({ role: 'user', content: context })
+
+        pjChunks[0].forEach((patientJourney, idx) =>
+          messages.push({
+            role: 'user',
+            content: `
+Patient Journey ${idx + 1}:
+------
+
+${patientJourney}
+`,
+          } as MessageCreateParams)
+        )
+      }
+
+      messages.push({
+        role: 'user',
+        content: `${args.prompt}`,
+      })
 
       console.log('Adding the following messsages to the thread: ', messages)
 
@@ -208,6 +227,7 @@ export const addMessageAndRun = createAsyncThunk(
         throw error
       }
     } else {
+      console.log('here')
       throw new Error('Could not create run, data or thread not initialized!')
     }
   }
@@ -215,6 +235,8 @@ export const addMessageAndRun = createAsyncThunk(
 
 export const fetchMessages = createAsyncThunk('assistant/fetchMessages', async (_, thunkAPI) => {
   const assistant = (thunkAPI.getState() as any).assistant as AssistantState
+
+  console.log('Fetching messages...')
 
   if (assistant.thread.type === 'loading-complete') {
     const messages = await openaiAPI.beta.threads.messages.list(assistant.thread.threadId)

@@ -15,6 +15,7 @@ assistantListenerMiddleware.startListening({
 
     // Poll the run status until it's complete
     const intervalId = setInterval(async () => {
+      console.log('Polling run status...')
       const run = await openaiAPI.beta.threads.runs.retrieve(threadId, runId)
 
       switch (run.status) {
@@ -30,6 +31,8 @@ assistantListenerMiddleware.startListening({
           )
           // Fetch the messages
           listenerApi.dispatch(fetchMessages())
+
+          console.log('Run completed!')
           break
         case 'failed':
         case 'cancelled':

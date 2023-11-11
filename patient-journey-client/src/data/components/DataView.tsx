@@ -9,6 +9,7 @@ import { ScatterPlot } from '../../plot/containers/ScatterPlot'
 import { Timeline } from '../../timeline/containers/Timeline'
 import { Fab } from '@mui/material'
 import InsertChartIcon from '@mui/icons-material/InsertChart'
+import { Assistant } from '../../assistant/containers/Assistant'
 
 const DIVIDER_SIZE = 12
 
@@ -115,7 +116,8 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
           <DataFilters />
         </div>
         <div className={classes.panel}>
-          <InfoPanel />
+          {/* <InfoPanel /> */}
+          <Assistant />
         </div>
       </SplitPane>
       {/* @ts-ignore */}
