@@ -176,7 +176,7 @@ I have then explored the resulting clusters and extracted the following specific
         messages.push({
           role: 'user',
           content: context,
-          metadata: { isContext: true, showContext: false, contextTitle: '' },
+          metadata: { isContext: 'true', showContext: 'false', contextTitle: '' },
         })
 
         pjChunks[0].forEach((patientJourney, idx) =>
@@ -188,7 +188,7 @@ Patient Journey ${idx + 1}:
 
 ${patientJourney}
 `,
-            metadata: { isContext: true, showContext: true, contextTitle: `Patient Journey ${idx + 1}` },
+            metadata: { isContext: 'true', showContext: 'true', contextTitle: `Patient Journey ${idx + 1}` },
           } as MessageCreateParams)
         )
       }
@@ -196,7 +196,7 @@ ${patientJourney}
       messages.push({
         role: 'user',
         content: `${args.prompt}`,
-        metadata: { isContext: false },
+        metadata: { isContext: 'false' },
       })
 
       console.log('Adding the following messsages to the thread: ', messages)

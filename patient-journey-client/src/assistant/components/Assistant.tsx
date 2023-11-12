@@ -1,5 +1,27 @@
 import React, { useCallback, useState } from 'react'
 import OpenAI from 'openai'
+import { makeStyles } from '../../utils'
+import { Card } from '@mui/material'
+
+const useStyles = makeStyles()((theme) => ({
+  root: {
+    display: 'grid',
+    width: '100%',
+    height: '100%',
+    padding: theme.spacing(2),
+    gridTemplateColumns: '1fr',
+    gap: theme.spacing(2),
+    alignContent: 'start',
+  },
+  chatContainer: {
+    overflowY: 'auto',
+  },
+  inputContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+  },
+}))
 
 interface AssistantProps {
   messages: OpenAI.Beta.Threads.Messages.ThreadMessage[]
@@ -10,6 +32,8 @@ interface AssistantProps {
 }
 
 export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPatient, isLoading }: AssistantProps) => {
+  const { classes } = useStyles()
+
   const [inputValue, setInputValue] = useState('')
   const [useCohort, setUseCohort] = useState(false)
   const [useSelectedPatient, setUseSelectedPatient] = useState(false)
@@ -24,12 +48,15 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
   }, [onSubmitMessage, inputValue, useCohort, useSelectedPatient])
 
   return (
-    <div style={{ height: '500px', backgroundColor: 'red' }}>
-      <div style={{ height: 'calc(500px - 100px)', overflowY: 'auto' }}>
-        {messages.map((message, index) => (
+    <Card variant="outlined" className={classes.root}>
+      {/* Chat Container */}
+      <div className={classes.chatContainer}>
+        {[...messages].reverse().map((message, index) => (
           <div key={index} style={{ textAlign: message.role === 'user' ? 'right' : 'left' }}>
-            {(message.metadata as any)?.isContext === true && (message.metadata as any)?.showContext === true ? (
-              <p>Context: {(message.metadata as any)?.contextTitle}</p>
+            {(message.metadata as any)?.isContext?.toLowerCase() === 'true' ? (
+              (message.metadata as any)?.showContext?.toLowerCase() === 'true' && (
+                <p>Context: {(message.metadata as any)?.contextTitle}</p>
+              )
             ) : (
               <>
                 {message.content.map((content, index) => {
@@ -46,7 +73,8 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
           </div>
         ))}
       </div>
-      <div style={{ height: '100px' }}>
+      {/* Input Container */}
+      <div className={classes.inputContainer}>
         <div>
           <input
             type="checkbox"
@@ -69,6 +97,6 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
         <button onClick={handleSubmit}>Submit</button>
         {isLoading && <p>Loading...</p>}
       </div>
-    </div>
+    </Card>
   )
 }

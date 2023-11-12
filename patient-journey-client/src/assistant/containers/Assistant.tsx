@@ -52,12 +52,18 @@ export const Assistant = () => {
 
   return assistantState.thread.type === 'loading-complete' ? (
     <AssistantComponent
-      messages={assistantState.messages.type === 'loading-complete' ? assistantState.messages.messages : []}
+      messages={
+        assistantState.messages.type === 'loading-complete' || assistantState.messages.type === 'loading-in-progress'
+          ? assistantState.messages.messages
+          : []
+      }
       onSubmitMessage={handleSubmitMessage}
       cohortSize={cohortPIDs.size}
       hasSelectedPatient={selectedEntity && selectedEntity.type === 'patients'}
       isLoading={
-        assistantState.messages.type === 'loading-in-progress' || assistantState.run.type === 'loading-in-progress'
+        assistantState.messages.type === 'loading-in-progress' ||
+        assistantState.run.type === 'loading-in-progress' ||
+        (assistantState.run.type === 'loading-complete' && assistantState.run.status.type === 'loading-in-progress')
       }
     />
   ) : (
