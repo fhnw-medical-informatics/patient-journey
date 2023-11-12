@@ -28,15 +28,21 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
       <div style={{ height: 'calc(500px - 100px)', overflowY: 'auto' }}>
         {messages.map((message, index) => (
           <div key={index} style={{ textAlign: message.role === 'user' ? 'right' : 'left' }}>
-            {message.content.map((content, index) => {
-              switch (content.type) {
-                case 'text':
-                  return <p key={index}>{content.text.value}</p>
-                case 'image_file':
-                default:
-                  return <img key={index} src={content.image_file.file_id} alt="" />
-              }
-            })}
+            {(message.metadata as any)?.isContext === true && (message.metadata as any)?.showContext === true ? (
+              <p>Context: {(message.metadata as any)?.contextTitle}</p>
+            ) : (
+              <>
+                {message.content.map((content, index) => {
+                  switch (content.type) {
+                    case 'text':
+                      return <p key={index}>{content.text.value}</p>
+                    case 'image_file':
+                    default:
+                      return <img key={index} src={content.image_file.file_id} alt="" />
+                  }
+                })}
+              </>
+            )}
           </div>
         ))}
       </div>
