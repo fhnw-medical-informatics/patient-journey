@@ -1,5 +1,6 @@
 import React from 'react'
 import OpenAI from 'openai'
+import { MuiMarkdown } from 'mui-markdown'
 
 import { makeStyles } from '../../utils'
 import { Theme } from '@mui/material'
@@ -56,7 +57,10 @@ export const AssistantMessage = ({ message }: AssistantMessageProps) => {
               case 'text':
                 return (
                   <div key={index} className={classes.chatMessageText}>
-                    {content.text.value}
+                    {/* <Markdown remarkPlugins={[remarkGfm]} disallowedElements={[]}>
+                      {content.text.value}
+                    </Markdown> */}
+                    <MuiMarkdown>{content.text.value}</MuiMarkdown>
                   </div>
                 )
               case 'image_file':

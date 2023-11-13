@@ -4242,6 +4242,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/prismjs@npm:^1.26.0":
+  version: 1.26.3
+  resolution: "@types/prismjs@npm:1.26.3"
+  checksum: c627fa9d9f4277ce413bb8347944152cddfc892702e34ff4b099dc1cf3f00c09514d36349c23529b903b0e57f3b2e0dc91ee66e98af07fbbe1e3fe8346b23370
+  languageName: node
+  linkType: hard
+
 "@types/prop-types@npm:*, @types/prop-types@npm:^15.7.5":
   version: 15.7.5
   resolution: "@types/prop-types@npm:15.7.5"
@@ -11950,6 +11957,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"markdown-to-jsx@npm:^7.3.2":
+  version: 7.3.2
+  resolution: "markdown-to-jsx@npm:7.3.2"
+  peerDependencies:
+    react: ">= 0.14.0"
+  checksum: 8885c6343b71570b0a7ec16cd85a49b853a830234790ee7430e2517ea5d8d361ff138bd52147f650790f3e7b3a28a15c755fc16f8856dd01ddf09a6161782e06
+  languageName: node
+  linkType: hard
+
 "md5.js@npm:^1.3.4":
   version: 1.3.5
   resolution: "md5.js@npm:1.3.5"
@@ -12430,6 +12446,25 @@ __metadata:
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
   checksum: aa92de608021b242401676e35cfa5aa42dd70cbdc082b916da7fb925c542173e36bce97ea3e804923fe92c0ad991434e4a38327e15a1b5b5f945d66df615ae6d
+  languageName: node
+  linkType: hard
+
+"mui-markdown@npm:^1.1.11":
+  version: 1.1.11
+  resolution: "mui-markdown@npm:1.1.11"
+  dependencies:
+    prism-react-renderer: ^2.0.3
+  peerDependencies:
+    "@emotion/react": ^11.10.8
+    "@emotion/styled": ^11.10.8
+    "@mui/material": ^5.12.2
+    markdown-to-jsx: ^7.3.0
+    react: ">= 17.0.2"
+    react-dom: ">= 17.0.2"
+  dependenciesMeta:
+    prism-react-renderer:
+      optional: true
+  checksum: 270d1ed0dcbab7188aa8cb0d852bdb8c43aaddbf50ebc20422218d523ab7e4b365d60e4c6d5c5fabf6a686265e4a02f17bc4163fbfe6904dc1d8db1d2f947526
   languageName: node
   linkType: hard
 
@@ -13422,6 +13457,8 @@ __metadata:
     kmeans-js: ^0.1.2
     lint-staged: 12.4.1
     lodash: ^4.17.21
+    markdown-to-jsx: ^7.3.2
+    mui-markdown: ^1.1.11
     openai: ^4.17.0
     papaparse: ^5.3.2
     prettier: 2.6.2
@@ -13768,6 +13805,18 @@ __metadata:
   version: 1.0.3
   resolution: "pretty-hrtime@npm:1.0.3"
   checksum: bae0e6832fe13c3de43d1a3d43df52bf6090499d74dc65a17f5552cb1a94f1f8019a23284ddf988c3c408a09678d743901e1d8f5b7a71bec31eeeac445bef371
+  languageName: node
+  linkType: hard
+
+"prism-react-renderer@npm:^2.0.3":
+  version: 2.2.0
+  resolution: "prism-react-renderer@npm:2.2.0"
+  dependencies:
+    "@types/prismjs": ^1.26.0
+    clsx: ^1.2.1
+  peerDependencies:
+    react: ">=16.0.0"
+  checksum: 6169791b721a320c3205a5e187511d4087fe6fca340a2c218f2a32d0c2d839a68029a00259d40865abff5a93d828caebffad3f017b23c83954b05f675a55bce9
   languageName: node
   linkType: hard
 

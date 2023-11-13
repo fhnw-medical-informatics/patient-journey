@@ -79,6 +79,8 @@
     "handlebars": "^4.7.7",
     "kmeans-js": "^0.1.2",
     "lodash": "^4.17.21",
+    "markdown-to-jsx": "^7.3.2",
+    "mui-markdown": "^1.1.11",
     "openai": "^4.17.0",
     "papaparse": "^5.3.2",
     "react": "18.1.0",
