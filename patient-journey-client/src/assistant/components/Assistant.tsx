@@ -18,6 +18,7 @@ import SendIcon from '@mui/icons-material/Send'
 import { makeStyles } from '../../utils'
 
 import { AssistantMessage } from './AssistantMessage'
+import { AssistantTemplates } from './AssistantTemplates'
 
 const messageStyles = (theme: Theme) => ({
   width: '90%',
@@ -139,8 +140,8 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
         <Stack direction="column" gap={2}>
           <TextField
             id="filled-textarea"
-            label="Message"
-            placeholder="Enter message…"
+            label="Prompt"
+            placeholder="Enter a prompt…"
             multiline
             variant="filled"
             value={inputValue}
@@ -148,7 +149,7 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
             disabled={isLoading}
           />
           <Stack direction="row" justifyContent={'space-between'} alignItems={'center'}>
-            <div />
+            <AssistantTemplates onTemplateClick={setInputValue} disabled={isLoading} />
             <Stack direction="row" alignItems={'center'} gap={2}>
               {isLoading && <CircularProgress size={'1.5em'} />}
               <Button onClick={handleSubmit} variant="contained" endIcon={<SendIcon />} disabled={isLoading}>
