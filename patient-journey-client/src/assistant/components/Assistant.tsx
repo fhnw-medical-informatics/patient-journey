@@ -139,6 +139,16 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
     [onSubmitMessage]
   )
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        handleSubmit(inputValue, useCohort, useSelectedPatient)
+      }
+    },
+    [inputValue, useCohort, useSelectedPatient, handleSubmit]
+  )
+
   useEffect(scrollToBottom, [messages])
 
   useEffect(() => {
@@ -208,6 +218,7 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
             variant="filled"
             value={inputValue}
             onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
             disabled={isLoading}
           />
           <Stack direction="row" justifyContent={'space-between'} alignItems={'center'}>
