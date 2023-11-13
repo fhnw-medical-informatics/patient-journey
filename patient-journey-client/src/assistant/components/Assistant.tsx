@@ -94,18 +94,39 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const handleUseCohortChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setUseCohort(event.target.checked)
+  }, [])
+
+  const handleUseSelectedPatientChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setUseSelectedPatient(event.target.checked)
+  }, [])
+
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value)
   }, [])
 
-  const handleSubmit = useCallback(() => {
-    onSubmitMessage(inputValue, useCohort, useSelectedPatient)
-    setInputValue('')
-    setUseCohort(false)
-    setUseSelectedPatient(false)
-  }, [onSubmitMessage, inputValue, useCohort, useSelectedPatient])
+  const handleSubmit = useCallback(
+    (text: string, cohort: boolean, selectedPatient: boolean) => {
+      onSubmitMessage(text, cohort, selectedPatient)
+      setUseCohort(false)
+      setUseSelectedPatient(false)
+      setInputValue('')
+    },
+    [onSubmitMessage]
+  )
 
   useEffect(scrollToBottom, [messages])
+
+  useEffect(() => {
+    if (!hasSelectedPatient) setUseSelectedPatient(false)
+  }, [hasSelectedPatient])
+
+  useEffect(() => {
+    if (cohortSize === 0) setUseCohort(false)
+  }, [cohortSize])
+
+  console.log(useSelectedPatient)
 
   return (
     <Card variant="outlined" className={classes.root}>
@@ -125,24 +146,26 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
             <FormControlLabel
               control={
                 <Switch
-                  value={useCohort}
-                  onChange={() => setUseCohort(!useCohort)}
-                  disabled={cohortSize === 0}
+                  checked={useCohort}
+                  onChange={handleUseCohortChange}
+                  inputProps={{ 'aria-label': 'controlled' }}
                   size="small"
                 />
               }
               label={`Cohort ${cohortSize > 0 ? `(${cohortSize})` : ''}`}
+              disabled={cohortSize === 0}
             />
             <FormControlLabel
               control={
                 <Switch
-                  value={useSelectedPatient}
-                  onChange={() => setUseSelectedPatient(!useSelectedPatient)}
-                  disabled={!hasSelectedPatient}
+                  checked={useSelectedPatient}
+                  onChange={handleUseSelectedPatientChange}
+                  inputProps={{ 'aria-label': 'controlled' }}
                   size="small"
                 />
               }
               label={`Selected Patient`}
+              disabled={!hasSelectedPatient}
             />
           </Stack>
         </Stack>
@@ -161,7 +184,12 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
             <AssistantTemplates onTemplateClick={setInputValue} disabled={isLoading} />
             <Stack direction="row" alignItems={'center'} gap={2}>
               {isLoading && <CircularProgress size={'1.5em'} />}
-              <Button onClick={handleSubmit} variant="contained" endIcon={<SendIcon />} disabled={isLoading}>
+              <Button
+                onClick={() => handleSubmit(inputValue, useCohort, useSelectedPatient)}
+                variant="contained"
+                endIcon={<SendIcon />}
+                disabled={isLoading}
+              >
                 Submit
               </Button>
             </Stack>

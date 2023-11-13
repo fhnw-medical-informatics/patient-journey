@@ -3,15 +3,16 @@ import React, { useCallback, useEffect } from 'react'
 import { useAssistant } from '../hooks'
 
 import { Assistant as AssistantComponent } from '../components/Assistant'
-import { usePatientCohort, usePatientDataRowAsMap, useSelectedEntity } from '../../data/hooks'
+import { usePatientCohort, usePatientDataRowAsMap, useSelectedEntityPID } from '../../data/hooks'
 import { useAppDispatch } from '../../store'
 import { addMessageAndRun, createNewThread } from '../assistantSlice'
 import { Patient } from '../../data/patients'
+import { EntityIdNone } from '../../data/entities'
 
 export const Assistant = () => {
   const assistantState = useAssistant()
   const cohortPIDs = usePatientCohort()
-  const selectedEntity = useSelectedEntity()
+  const selectedPatientId = useSelectedEntityPID()
   const patientMap = usePatientDataRowAsMap()
 
   const dispatch = useAppDispatch()
@@ -35,9 +36,7 @@ export const Assistant = () => {
       }, [] as Patient[])
 
       const selectedPatient =
-        selectedEntity && selectedEntity.type === 'patients'
-          ? (patientMap.get(selectedEntity.uid) as Patient)
-          : undefined
+        selectedPatientId !== EntityIdNone ? (patientMap.get(selectedPatientId) as Patient) : undefined
 
       dispatch(
         addMessageAndRun({
@@ -47,7 +46,7 @@ export const Assistant = () => {
         })
       )
     },
-    [dispatch, cohortPIDs, selectedEntity, patientMap]
+    [dispatch, cohortPIDs, selectedPatientId, patientMap]
   )
 
   return assistantState.thread.type === 'loading-complete' ? (
@@ -59,7 +58,7 @@ export const Assistant = () => {
       }
       onSubmitMessage={handleSubmitMessage}
       cohortSize={cohortPIDs.size}
-      hasSelectedPatient={selectedEntity && selectedEntity.type === 'patients'}
+      hasSelectedPatient={selectedPatientId !== EntityIdNone}
       isLoading={
         assistantState.messages.type === 'loading-in-progress' ||
         assistantState.run.type === 'loading-in-progress' ||

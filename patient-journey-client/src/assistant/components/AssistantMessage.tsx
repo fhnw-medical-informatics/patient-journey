@@ -32,6 +32,9 @@ const useStyles = makeStyles()((theme) => ({
   chatMessageText: {
     margin: 0,
     padding: 0,
+    '& > div': {
+      display: 'grid',
+    },
   },
 }))
 

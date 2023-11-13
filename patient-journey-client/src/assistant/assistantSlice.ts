@@ -72,9 +72,9 @@ const assistantSlice = createSlice({
       state.messages = {
         type: 'loading-complete',
         messages: [
-          ...action.payload.newMessages.map((m) => {
+          ...action.payload.newMessages.map((m, i) => {
             const message: OpenAI.Beta.Threads.Messages.ThreadMessage = {
-              id: '',
+              id: i.toString(),
               object: 'thread.message',
               created_at: new Date().getTime(),
               thread_id: '',
@@ -179,18 +179,24 @@ I have then explored the resulting clusters and extracted the following specific
           metadata: { isContext: 'true', showContext: 'false', contextTitle: '' },
         })
 
-        pjChunks[0].forEach((patientJourney, idx) =>
-          messages.push({
-            role: 'user',
-            content: `
-Patient Journey ${idx + 1}:
+        messages.push({
+          role: 'user',
+          content: pjChunks[0]
+            .map(
+              (patientJourney, idx) =>
+                `Patient Journey ${idx + 1}:
 ------
 
 ${patientJourney}
-`,
-            metadata: { isContext: 'true', showContext: 'true', contextTitle: `Patient Journey ${idx + 1}` },
-          } as MessageCreateParams)
-        )
+`
+            )
+            .join('\n\n'),
+          metadata: {
+            isContext: 'true',
+            showContext: 'true',
+            contextTitle: `${pjChunks[0].length} Patient Journey(s)`,
+          },
+        } as MessageCreateParams)
       }
 
       messages.push({

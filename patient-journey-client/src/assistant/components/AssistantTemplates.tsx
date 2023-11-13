@@ -16,7 +16,11 @@ const PromptTemplates = [
     label: 'Cluster',
     prompt: `These patients are in the same cluster with close proximitiy to each other (t-SNE reduced 2 dimensional plotting).
   
-  Based on their patient journeys, please write a text that would describe their cluster (don't describe the patient journeys, just use them to create a cluster title and description with max 3 sentences).`,
+Based on their patient journeys, please write a text that would describe their cluster (don't describe the patient journeys, just use them to create a cluster title and description with max 3 sentences).`,
+  },
+  {
+    label: 'Analyze',
+    prompt: `Please analyze this patient journey and tell me in simple words, what this patient has gone through. Try to interpret the data you have and make assumptions. Be short and concise.`,
   },
 ]
 
