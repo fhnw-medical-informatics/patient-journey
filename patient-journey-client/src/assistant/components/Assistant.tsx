@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import OpenAI from 'openai'
 
 import {
@@ -88,6 +88,12 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
   const [useCohort, setUseCohort] = useState(false)
   const [useSelectedPatient, setUseSelectedPatient] = useState(false)
 
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value)
   }, [])
@@ -99,6 +105,8 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
     setUseSelectedPatient(false)
   }, [onSubmitMessage, inputValue, useCohort, useSelectedPatient])
 
+  useEffect(scrollToBottom, [messages])
+
   return (
     <Card variant="outlined" className={classes.root}>
       {/* Chat Container */}
@@ -106,6 +114,7 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
         {[...messages].reverse().map((message, index) => (
           <AssistantMessage key={message.id} message={message} />
         ))}
+        <div ref={messagesEndRef} />
       </div>
       {/* Input Container */}
       <div className={classes.inputContainer}>
