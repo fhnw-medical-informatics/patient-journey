@@ -87,6 +87,8 @@ const assistantSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(createNewThread.pending, (state) => {
       state.thread = { type: 'loading-in-progress' }
+      state.messages = { type: 'loading-pending' }
+      state.run = { type: 'loading-pending' }
     })
     builder.addCase(createNewThread.fulfilled, (state, action) => {
       state.thread = { type: 'loading-complete', threadId: action.payload }
@@ -210,7 +212,7 @@ ${patientJourney}
       console.log('Adding the following messsages to the thread: ', messages)
 
       // Add messages to the thread (before loading as a optimistic update)
-      thunkAPI.dispatch(addMessages(messages.reverse()))
+      thunkAPI.dispatch(addMessages([...messages].reverse()))
 
       try {
         for (const message of messages) {
@@ -219,7 +221,12 @@ ${patientJourney}
 
         console.log('Added all messages to the thread, now running it...')
 
-        const system_instruction = `You are aware of the OpenAI Embeddings API and all the factors it considers when computing embeddings for a patient journey. You will help the user to understand, why individual patient journeys are similar based on their embeddings and you will point out relevant key factors and characteristics of the patient journeys to the user, so that they can understand the underlying reasoning. You are concise and don't mention general information about the API. `
+        const system_instruction = `Your are a medical data analyst assistant.
+
+You are aware of the OpenAI Embeddings API and all the factors it considers when computing embeddings for a patient journey.
+You will help the user to analyze patient journey, for examply you help to understand why individual patient journeys are similar based on their embeddings and you will point out relevant key factors and characteristics of the patient journeys to the user, so that they can understand the underlying reasoning.
+
+You are concise and answer every question very short (unless explicitly asked to provide more details). When you answer, you use a simple but "visual" language (like bullet points, highlighting important words, etc…) by using markdown styles. Don't mention general information about the API.`
 
         const run = await openaiAPI.beta.threads.runs.create(assistant.thread.threadId, {
           assistant_id: assistantGPT.id,

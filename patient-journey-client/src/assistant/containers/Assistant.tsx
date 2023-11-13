@@ -24,6 +24,10 @@ export const Assistant = () => {
     }
   }, [assistantState.thread, dispatch])
 
+  const handleCreateNewThread = useCallback(() => {
+    dispatch(createNewThread())
+  }, [dispatch])
+
   const handleSubmitMessage = useCallback(
     (message: string, useCohort: boolean, useSelectedPatient: boolean) => {
       // Get the patient data for the cohort, remove patients, with no data
@@ -64,8 +68,11 @@ export const Assistant = () => {
         assistantState.run.type === 'loading-in-progress' ||
         (assistantState.run.type === 'loading-complete' && assistantState.run.status.type === 'loading-in-progress')
       }
+      onResetThread={handleCreateNewThread}
     />
   ) : (
-    <p>Loading…</p>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <p>Loading…</p>
+    </div>
   )
 }

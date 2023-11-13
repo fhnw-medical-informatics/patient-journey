@@ -1,8 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import OpenAI from 'openai'
 
-import { Button, Card, Divider, FormControlLabel, Stack, Switch, TextField, Theme, Typography } from '@mui/material'
+import {
+  Button,
+  Card,
+  Divider,
+  FormControlLabel,
+  IconButton,
+  Stack,
+  Switch,
+  TextField,
+  Theme,
+  Typography,
+} from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
+import RestartAltIcon from '@mui/icons-material/RestartAlt'
 
 import { makeStyles } from '../../utils'
 
@@ -102,9 +114,17 @@ interface AssistantProps {
   cohortSize: number
   hasSelectedPatient: boolean
   isLoading: boolean
+  onResetThread: () => void
 }
 
-export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPatient, isLoading }: AssistantProps) => {
+export const Assistant = ({
+  messages,
+  onSubmitMessage,
+  cohortSize,
+  hasSelectedPatient,
+  isLoading,
+  onResetThread,
+}: AssistantProps) => {
   const { classes } = useStyles()
 
   const [inputValue, setInputValue] = useState('')
@@ -180,34 +200,39 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
       {/* Input Container */}
       <div className={classes.inputContainer}>
         <Divider />
-        <Stack direction="row" gap={4}>
-          <Typography variant="overline">Add context</Typography>
-          <Stack direction="row" gap={1}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={useCohort}
-                  onChange={handleUseCohortChange}
-                  inputProps={{ 'aria-label': 'controlled' }}
-                  size="small"
-                />
-              }
-              label={`Cohort ${cohortSize > 0 ? `(${cohortSize})` : ''}`}
-              disabled={cohortSize === 0}
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={useSelectedPatient}
-                  onChange={handleUseSelectedPatientChange}
-                  inputProps={{ 'aria-label': 'controlled' }}
-                  size="small"
-                />
-              }
-              label={`Selected Patient`}
-              disabled={!hasSelectedPatient}
-            />
+        <Stack direction="row" justifyContent="space-between">
+          <Stack direction="row" gap={4} alignItems="center">
+            <Typography variant="overline">Add context</Typography>
+            <Stack direction="row" gap={1}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={useCohort}
+                    onChange={handleUseCohortChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                    size="small"
+                  />
+                }
+                label={`Cohort ${cohortSize > 0 ? `(${cohortSize})` : ''}`}
+                disabled={cohortSize === 0}
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={useSelectedPatient}
+                    onChange={handleUseSelectedPatientChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                    size="small"
+                  />
+                }
+                label={`Selected Patient`}
+                disabled={!hasSelectedPatient}
+              />
+            </Stack>
           </Stack>
+          <IconButton onClick={onResetThread} disabled={isLoading}>
+            <RestartAltIcon />
+          </IconButton>
         </Stack>
         <Stack direction="column" gap={2}>
           <TextField

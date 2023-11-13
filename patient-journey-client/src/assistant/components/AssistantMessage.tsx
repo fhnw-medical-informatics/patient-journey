@@ -6,7 +6,7 @@ import { makeStyles } from '../../utils'
 import { Theme } from '@mui/material'
 
 const messageStyles = (theme: Theme) => ({
-  width: '90%',
+  maxWidth: '90%',
   padding: theme.spacing(2),
   borderRadius: theme.spacing(2),
   margin: 0,
@@ -63,7 +63,7 @@ export const AssistantMessage = ({ message }: AssistantMessageProps) => {
                     {/* <Markdown remarkPlugins={[remarkGfm]} disallowedElements={[]}>
                       {content.text.value}
                     </Markdown> */}
-                    <MuiMarkdown>{content.text.value}</MuiMarkdown>
+                    <MuiMarkdown>{content.text.value.replace(/\n/g, '\n\n')}</MuiMarkdown>
                   </div>
                 )
               case 'image_file':
