@@ -1,25 +1,62 @@
 import React, { useCallback, useState } from 'react'
 import OpenAI from 'openai'
+
+import { Button, Card, CircularProgress, Stack, TextField, Theme } from '@mui/material'
+import SendIcon from '@mui/icons-material/Send'
+
 import { makeStyles } from '../../utils'
-import { Card } from '@mui/material'
+
+import { AssistantMessage } from './AssistantMessage'
+
+const messageStyles = (theme: Theme) => ({
+  width: '90%',
+  padding: theme.spacing(2),
+  borderRadius: theme.spacing(2),
+  margin: 0,
+})
 
 const useStyles = makeStyles()((theme) => ({
   root: {
-    display: 'grid',
+    display: 'flex',
+    flexDirection: 'column',
     width: '100%',
     height: '100%',
-    padding: theme.spacing(2),
     gridTemplateColumns: '1fr',
     gap: theme.spacing(2),
-    alignContent: 'start',
   },
   chatContainer: {
+    height: '100%',
     overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+    padding: theme.spacing(2),
+  },
+  chatMessageLeft: {
+    ...messageStyles(theme),
+    alignSelf: 'flex-start',
+    backgroundColor: theme.palette.background.default,
+  },
+  chatMessageCenter: {
+    ...messageStyles(theme),
+    width: 'auto',
+    alignSelf: 'center',
+    backgroundColor: theme.palette.background.paper,
+  },
+  chatMessageRight: {
+    ...messageStyles(theme),
+    alignSelf: 'flex-end',
+    backgroundColor: theme.palette.info.main,
+  },
+  chatMessageText: {
+    margin: 0,
+    padding: 0,
   },
   inputContainer: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
+    padding: theme.spacing(2),
   },
 }))
 
@@ -52,25 +89,7 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
       {/* Chat Container */}
       <div className={classes.chatContainer}>
         {[...messages].reverse().map((message, index) => (
-          <div key={index} style={{ textAlign: message.role === 'user' ? 'right' : 'left' }}>
-            {(message.metadata as any)?.isContext?.toLowerCase() === 'true' ? (
-              (message.metadata as any)?.showContext?.toLowerCase() === 'true' && (
-                <p>Context: {(message.metadata as any)?.contextTitle}</p>
-              )
-            ) : (
-              <>
-                {message.content.map((content, index) => {
-                  switch (content.type) {
-                    case 'text':
-                      return <p key={index}>{content.text.value}</p>
-                    case 'image_file':
-                    default:
-                      return <img key={index} src={content.image_file.file_id} alt="" />
-                  }
-                })}
-              </>
-            )}
-          </div>
+          <AssistantMessage key={message.id} message={message} />
         ))}
       </div>
       {/* Input Container */}
@@ -93,9 +112,29 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
           />
           <label>Use Selected Patient</label>
         </div>
-        <textarea value={inputValue} onChange={handleInputChange} />
-        <button onClick={handleSubmit}>Submit</button>
-        {isLoading && <p>Loading...</p>}
+        <Stack direction="column" gap={2}>
+          <TextField
+            id="filled-textarea"
+            label="Message"
+            placeholder="Enter message…"
+            multiline
+            variant="filled"
+            value={inputValue}
+            onChange={handleInputChange}
+            disabled={isLoading}
+          />
+          <div>
+            <Stack direction="row" justifyContent={'space-between'} alignItems={'center'}>
+              <div />
+              <Stack direction="row" alignItems={'center'} gap={2}>
+                {isLoading && <CircularProgress size={'1.5em'} />}
+                <Button onClick={handleSubmit} variant="contained" endIcon={<SendIcon />} disabled={isLoading}>
+                  Submit
+                </Button>
+              </Stack>
+            </Stack>
+          </div>
+        </Stack>
       </div>
     </Card>
   )

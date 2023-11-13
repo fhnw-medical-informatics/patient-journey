@@ -14,6 +14,7 @@ import { Assistant } from '../../assistant/containers/Assistant'
 const DIVIDER_SIZE = 12
 
 const DEFAULT_SPLIT_PANE_VERTICAL_SIZE = '20%'
+const DEFAULT_SPLIT_PANE_RIGHT_VERTICAL_SIZE = '80%'
 const DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE = '60%'
 const DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE = '65%'
 const DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE = '25%'
@@ -55,13 +56,16 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
   const { classes, cx } = useStyles()
 
   const [splitPaneVerticalSize, setSplitPaneVerticalSize] = useState<'default' | number>('default')
+  const [splitPaneRightVerticalSize, setSplitPaneRightVerticalSize] = useState<'default' | number>('default')
   const [splitPaneRightHorizontalSize, setSplitPaneRightHorizontalSize] = useState<'default' | number>('default')
   const [splitPaneLeftHorizontalSize, setSplitPaneLeftHorizontalSize] = useState<'default' | number>('default')
   const [splitPanePlotsVerticalSize, setSplitPanePlotsVerticalSize] = useState<'collapsed' | 'default' | number>(
     'collapsed'
   )
 
-  const isPlotCollapsed = splitPanePlotsVerticalSize === 'collapsed' || splitPanePlotsVerticalSize < DIVIDER_SIZE
+  const isPlotCollapsed =
+    splitPanePlotsVerticalSize === 'collapsed' ||
+    (splitPanePlotsVerticalSize !== 'default' && splitPanePlotsVerticalSize < DIVIDER_SIZE)
 
   const timeline = (
     <div className={classes.panel}>
@@ -84,8 +88,10 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
     <SplitPane
       split={'vertical'}
       resizerClassName={classes.resizer}
-      size={splitPaneVerticalSize === 'default' ? DEFAULT_SPLIT_PANE_VERTICAL_SIZE : splitPaneVerticalSize}
-      onChange={setSplitPaneVerticalSize}
+      size={
+        splitPaneRightVerticalSize === 'default' ? DEFAULT_SPLIT_PANE_RIGHT_VERTICAL_SIZE : splitPaneRightVerticalSize
+      }
+      onChange={setSplitPaneRightVerticalSize}
       resizerStyle={{
         cursor: 'ew-resize',
       }}
@@ -94,86 +100,105 @@ export const DataView = ({ onResizeStart, onResizeEnd }: DataViewProps) => {
       onDragStarted={onResizeStart}
       onDragFinished={onResizeEnd}
     >
+      {/* Left */}
       {/* @ts-ignore */}
       <SplitPane
-        split={'horizontal'}
+        split={'vertical'}
         resizerClassName={classes.resizer}
-        size={
-          splitPaneLeftHorizontalSize === 'default'
-            ? DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE
-            : splitPaneLeftHorizontalSize
-        }
-        onChange={setSplitPaneLeftHorizontalSize}
+        size={splitPaneVerticalSize === 'default' ? DEFAULT_SPLIT_PANE_VERTICAL_SIZE : splitPaneVerticalSize}
+        onChange={setSplitPaneVerticalSize}
         resizerStyle={{
-          cursor: 'ns-resize',
+          cursor: 'ew-resize',
         }}
+        maxSize={-DIVIDER_SIZE}
         minSize={DIVIDER_SIZE}
-        maxSize={-DIVIDER_SIZE}
         onDragStarted={onResizeStart}
         onDragFinished={onResizeEnd}
       >
-        <div className={cx(classes.panel, classes.filters)}>
-          <DataFilters />
-        </div>
-        <div className={classes.panel}>
-          {/* <InfoPanel /> */}
-          <Assistant />
-        </div>
+        {/* @ts-ignore */}
+        <SplitPane
+          split={'horizontal'}
+          resizerClassName={classes.resizer}
+          size={
+            splitPaneLeftHorizontalSize === 'default'
+              ? DEFAULT_SPLIT_PANE_LEFT_HORIZONTAL_SIZE
+              : splitPaneLeftHorizontalSize
+          }
+          onChange={setSplitPaneLeftHorizontalSize}
+          resizerStyle={{
+            cursor: 'ns-resize',
+          }}
+          minSize={DIVIDER_SIZE}
+          maxSize={-DIVIDER_SIZE}
+          onDragStarted={onResizeStart}
+          onDragFinished={onResizeEnd}
+        >
+          <div className={cx(classes.panel, classes.filters)}>
+            <DataFilters />
+          </div>
+          <div className={classes.panel}>
+            <InfoPanel />
+          </div>
+        </SplitPane>
+        {/* @ts-ignore */}
+        <SplitPane
+          split={'horizontal'}
+          resizerClassName={classes.resizer}
+          size={
+            splitPaneRightHorizontalSize === 'default'
+              ? DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE
+              : splitPaneRightHorizontalSize
+          }
+          onChange={setSplitPaneRightHorizontalSize}
+          resizerStyle={{
+            cursor: 'ns-resize',
+          }}
+          pane2Style={{
+            display: 'grid',
+            width: '100%',
+            height: '100%',
+          }}
+          minSize={144}
+          maxSize={-DIVIDER_SIZE}
+          onDragStarted={onResizeStart}
+          onDragFinished={onResizeEnd}
+        >
+          <div className={classes.panel}>
+            <DataTable />
+          </div>
+          {isPlotCollapsed ? (
+            timeline
+          ) : (
+            // @ts-ignore
+            <SplitPane
+              primary={'second'} // control scatter plot portion of split pane
+              split={'vertical'}
+              resizerClassName={classes.resizer}
+              size={
+                splitPanePlotsVerticalSize === 'default'
+                  ? DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE
+                  : splitPanePlotsVerticalSize
+              }
+              onChange={setSplitPanePlotsVerticalSize}
+              resizerStyle={{
+                cursor: 'ew-resize',
+              }}
+              minSize={-DIVIDER_SIZE}
+              onDragStarted={onResizeStart}
+              onDragFinished={onResizeEnd}
+            >
+              {timeline}
+              <div className={classes.panel}>
+                <ScatterPlot />
+              </div>
+            </SplitPane>
+          )}
+        </SplitPane>
       </SplitPane>
-      {/* @ts-ignore */}
-      <SplitPane
-        split={'horizontal'}
-        resizerClassName={classes.resizer}
-        size={
-          splitPaneRightHorizontalSize === 'default'
-            ? DEFAULT_SPLIT_PANE_RIGHT_HORIZONTAL_SIZE
-            : splitPaneRightHorizontalSize
-        }
-        onChange={setSplitPaneRightHorizontalSize}
-        resizerStyle={{
-          cursor: 'ns-resize',
-        }}
-        pane2Style={{
-          display: 'grid',
-          width: '100%',
-          height: '100%',
-        }}
-        minSize={144}
-        maxSize={-DIVIDER_SIZE}
-        onDragStarted={onResizeStart}
-        onDragFinished={onResizeEnd}
-      >
-        <div className={classes.panel}>
-          <DataTable />
-        </div>
-        {isPlotCollapsed ? (
-          timeline
-        ) : (
-          // @ts-ignore
-          <SplitPane
-            primary={'second'} // control scatter plot portion of split pane
-            split={'vertical'}
-            resizerClassName={classes.resizer}
-            size={
-              splitPanePlotsVerticalSize === 'default'
-                ? DEFAULT_SPLIT_PANE_PLOTS_VERTICAL_SIZE
-                : splitPanePlotsVerticalSize
-            }
-            onChange={setSplitPanePlotsVerticalSize}
-            resizerStyle={{
-              cursor: 'ew-resize',
-            }}
-            minSize={-DIVIDER_SIZE}
-            onDragStarted={onResizeStart}
-            onDragFinished={onResizeEnd}
-          >
-            {timeline}
-            <div className={classes.panel}>
-              <ScatterPlot />
-            </div>
-          </SplitPane>
-        )}
-      </SplitPane>
+      {/* Right */}
+      <div className={classes.panel}>
+        <Assistant />
+      </div>
     </SplitPane>
   )
 }
