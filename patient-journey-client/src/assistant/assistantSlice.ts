@@ -218,7 +218,7 @@ ${patientJourney}
         return {
           runId: run.id,
           threadId: assistant.thread.threadId,
-          newMessages: messages,
+          newMessages: messages.reverse(),
         }
       } catch (error) {
         thunkAPI.dispatch(
