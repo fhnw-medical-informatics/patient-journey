@@ -51,28 +51,11 @@ const assistantSlice = createSlice({
         state.run.status = action.payload
       }
     },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(createNewThread.pending, (state) => {
-      state.thread = { type: 'loading-in-progress' }
-    })
-    builder.addCase(createNewThread.fulfilled, (state, action) => {
-      state.thread = { type: 'loading-complete', threadId: action.payload }
-      state.messages = { type: 'loading-pending' }
-    })
-    builder.addCase(createNewThread.rejected, (state, action) => {
-      state.thread = { type: 'loading-failed', errorMessage: action.error.message ?? 'Unknown error' }
-    })
-    builder.addCase(addMessageAndRun.pending, (state) => {
-      console.log('Adding message and running thread PENDING!...')
-      state.run = { type: 'loading-in-progress' }
-    })
-    builder.addCase(addMessageAndRun.fulfilled, (state, action) => {
-      state.run = { type: 'loading-complete', runId: action.payload.runId, status: { type: 'loading-in-progress' } }
+    addMessages: (state, action: PayloadAction<OpenAI.Beta.Threads.Messages.MessageCreateParams[]>) => {
       state.messages = {
         type: 'loading-complete',
         messages: [
-          ...action.payload.newMessages.map((m, i) => {
+          ...action.payload.map((m, i) => {
             const message: OpenAI.Beta.Threads.Messages.ThreadMessage = {
               id: i.toString(),
               object: 'thread.message',
@@ -99,6 +82,25 @@ const assistantSlice = createSlice({
           ...(state.messages.type === 'loading-complete' ? state.messages.messages : []),
         ],
       }
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(createNewThread.pending, (state) => {
+      state.thread = { type: 'loading-in-progress' }
+    })
+    builder.addCase(createNewThread.fulfilled, (state, action) => {
+      state.thread = { type: 'loading-complete', threadId: action.payload }
+      state.messages = { type: 'loading-pending' }
+    })
+    builder.addCase(createNewThread.rejected, (state, action) => {
+      state.thread = { type: 'loading-failed', errorMessage: action.error.message ?? 'Unknown error' }
+    })
+    builder.addCase(addMessageAndRun.pending, (state) => {
+      console.log('Adding message and running thread PENDING!...')
+      state.run = { type: 'loading-in-progress' }
+    })
+    builder.addCase(addMessageAndRun.fulfilled, (state, action) => {
+      state.run = { type: 'loading-complete', runId: action.payload.runId, status: { type: 'loading-in-progress' } }
     })
     builder.addCase(addMessageAndRun.rejected, (state, action) => {
       state.run = { type: 'loading-failed', errorMessage: action.error.message ?? 'Unknown error' }
@@ -120,7 +122,7 @@ const assistantSlice = createSlice({
 
 export const assistantReducer = assistantSlice.reducer
 
-export const { updateRunStatus } = assistantSlice.actions
+export const { updateRunStatus, addMessages } = assistantSlice.actions
 
 export const createNewThread = createAsyncThunk('assistant/createNewThread', async (_, thunkAPI) => {
   thread = await openaiAPI.beta.threads.create()
@@ -207,6 +209,9 @@ ${patientJourney}
 
       console.log('Adding the following messsages to the thread: ', messages)
 
+      // Add messages to the thread (before loading as a optimistic update)
+      thunkAPI.dispatch(addMessages(messages.reverse()))
+
       try {
         for (const message of messages) {
           await openaiAPI.beta.threads.messages.create(assistant.thread.threadId, message)
@@ -224,7 +229,6 @@ ${patientJourney}
         return {
           runId: run.id,
           threadId: assistant.thread.threadId,
-          newMessages: messages.reverse(),
         }
       } catch (error) {
         thunkAPI.dispatch(
