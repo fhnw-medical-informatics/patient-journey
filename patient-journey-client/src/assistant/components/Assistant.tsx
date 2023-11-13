@@ -1,18 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import OpenAI from 'openai'
 
-import {
-  Button,
-  Card,
-  CircularProgress,
-  Divider,
-  FormControlLabel,
-  Stack,
-  Switch,
-  TextField,
-  Theme,
-  Typography,
-} from '@mui/material'
+import { Button, Card, Divider, FormControlLabel, Stack, Switch, TextField, Theme, Typography } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 
 import { makeStyles } from '../../utils'
@@ -70,6 +59,40 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'center',
     padding: `0 ${theme.spacing(2)} ${theme.spacing(2)} ${theme.spacing(2)}`,
     gap: theme.spacing(1),
+  },
+  loadingBubble: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    gap: theme.spacing(1),
+    '& > span:nth-of-type(1)': {
+      animation: 'loading 1s infinite',
+      animationDelay: '0s',
+    },
+    '& > span:nth-of-type(2)': {
+      animation: 'loading 1s infinite',
+      animationDelay: '0.33s',
+    },
+    '& > span:nth-of-type(3)': {
+      animation: 'loading 1s infinite',
+      animationDelay: '0.66s',
+    },
+    '@keyframes loading': {
+      '0%': {
+        opacity: 0.2,
+      },
+      '50%': {
+        opacity: 1,
+      },
+      '100%': {
+        opacity: 0.2,
+      },
+    },
+  },
+  loadingCircle: {
+    width: '1em',
+    height: '1em',
+    borderRadius: '50%',
+    backgroundColor: theme.palette.background.default,
   },
 }))
 
@@ -135,6 +158,13 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
         {[...messages].reverse().map((message, index) => (
           <AssistantMessage key={message.id} message={message} />
         ))}
+        {isLoading && (
+          <div className={classes.loadingBubble}>
+            <span className={classes.loadingCircle} />
+            <span className={classes.loadingCircle} />
+            <span className={classes.loadingCircle} />
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       {/* Input Container */}
@@ -183,7 +213,6 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
           <Stack direction="row" justifyContent={'space-between'} alignItems={'center'}>
             <AssistantTemplates onTemplateClick={setInputValue} disabled={isLoading} />
             <Stack direction="row" alignItems={'center'} gap={2}>
-              {isLoading && <CircularProgress size={'1.5em'} />}
               <Button
                 onClick={() => handleSubmit(inputValue, useCohort, useSelectedPatient)}
                 variant="contained"
