@@ -1,7 +1,18 @@
 import React, { useCallback, useState } from 'react'
 import OpenAI from 'openai'
 
-import { Button, Card, CircularProgress, Stack, TextField, Theme } from '@mui/material'
+import {
+  Button,
+  Card,
+  CircularProgress,
+  Divider,
+  FormControlLabel,
+  Stack,
+  Switch,
+  TextField,
+  Theme,
+  Typography,
+} from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
 
 import { makeStyles } from '../../utils'
@@ -56,7 +67,8 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    padding: theme.spacing(2),
+    padding: `0 ${theme.spacing(2)} ${theme.spacing(2)} ${theme.spacing(2)}`,
+    gap: theme.spacing(1),
   },
 }))
 
@@ -82,6 +94,8 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
   const handleSubmit = useCallback(() => {
     onSubmitMessage(inputValue, useCohort, useSelectedPatient)
     setInputValue('')
+    setUseCohort(false)
+    setUseSelectedPatient(false)
   }, [onSubmitMessage, inputValue, useCohort, useSelectedPatient])
 
   return (
@@ -94,24 +108,34 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
       </div>
       {/* Input Container */}
       <div className={classes.inputContainer}>
-        <div>
-          <input
-            type="checkbox"
-            checked={useCohort}
-            onChange={() => setUseCohort(!useCohort)}
-            disabled={cohortSize === 0}
-          />
-          <label>Use Cohort</label>
-        </div>
-        <div>
-          <input
-            type="checkbox"
-            checked={useSelectedPatient}
-            onChange={() => setUseSelectedPatient(!useSelectedPatient)}
-            disabled={!hasSelectedPatient}
-          />
-          <label>Use Selected Patient</label>
-        </div>
+        <Divider />
+        <Stack direction="row" gap={4}>
+          <Typography variant="overline">Add context</Typography>
+          <Stack direction="row" gap={1}>
+            <FormControlLabel
+              control={
+                <Switch
+                  value={useCohort}
+                  onChange={() => setUseCohort(!useCohort)}
+                  disabled={cohortSize === 0}
+                  size="small"
+                />
+              }
+              label={`Cohort ${cohortSize > 0 ? `(${cohortSize})` : ''}`}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  value={useSelectedPatient}
+                  onChange={() => setUseSelectedPatient(!useSelectedPatient)}
+                  disabled={!hasSelectedPatient}
+                  size="small"
+                />
+              }
+              label={`Selected Patient`}
+            />
+          </Stack>
+        </Stack>
         <Stack direction="column" gap={2}>
           <TextField
             id="filled-textarea"
@@ -123,17 +147,15 @@ export const Assistant = ({ messages, onSubmitMessage, cohortSize, hasSelectedPa
             onChange={handleInputChange}
             disabled={isLoading}
           />
-          <div>
-            <Stack direction="row" justifyContent={'space-between'} alignItems={'center'}>
-              <div />
-              <Stack direction="row" alignItems={'center'} gap={2}>
-                {isLoading && <CircularProgress size={'1.5em'} />}
-                <Button onClick={handleSubmit} variant="contained" endIcon={<SendIcon />} disabled={isLoading}>
-                  Submit
-                </Button>
-              </Stack>
+          <Stack direction="row" justifyContent={'space-between'} alignItems={'center'}>
+            <div />
+            <Stack direction="row" alignItems={'center'} gap={2}>
+              {isLoading && <CircularProgress size={'1.5em'} />}
+              <Button onClick={handleSubmit} variant="contained" endIcon={<SendIcon />} disabled={isLoading}>
+                Submit
+              </Button>
             </Stack>
-          </div>
+          </Stack>
         </Stack>
       </div>
     </Card>
