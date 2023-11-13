@@ -2,7 +2,7 @@ import React from 'react'
 import FilterAltIcon from '@mui/icons-material/FilterAltOutlined'
 import { makeStyles } from '../../../utils'
 import { Filter, FilterColumn, GenericFilter } from '../../filtering'
-import { Button, Grid, Typography, useTheme } from '@mui/material'
+import { Button, Grid, Typography } from '@mui/material'
 import { DataDiagrams } from '../diagram/DataDiagrams'
 import { Entity } from '../../entities'
 import { DataFilter } from './DataFilter'
@@ -12,7 +12,7 @@ import { ColorByColumn } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
 import SimilarityPrompt from '../../containers/filter/SimilarityPrompt'
 import { deepPurple } from '@mui/material/colors'
-import CohortPrompt from '../../containers/filter/CohortPrompt'
+// import CohortPrompt from '../../containers/filter/CohortPrompt'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -55,7 +55,7 @@ export const DataFilters = ({
   similarityPrompt,
   onSimilarityPromptChange,
 }: DataFiltersProps) => {
-  const theme = useTheme()
+  // const theme = useTheme()
   const { classes } = useStyles()
 
   const findActiveFilter = <T extends FilterColumn['type']>(
@@ -129,7 +129,7 @@ export const DataFilters = ({
               <SimilarityPrompt value={similarityPrompt} onSubmit={onSimilarityPromptChange} />
             </FilterCard>
           </Grid>
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <FilterCard
               label="Cohort explanation"
               isActive={false}
@@ -140,7 +140,7 @@ export const DataFilters = ({
             >
               <CohortPrompt />
             </FilterCard>
-          </Grid>
+          </Grid> */}
         </>
       )}
       {availableColumns
