@@ -10,6 +10,21 @@ const messageStyles = (theme: Theme) => ({
   padding: theme.spacing(2),
   borderRadius: theme.spacing(2),
   margin: 0,
+  '& h1': {
+    fontSize: '2rem',
+    fontWeight: 600,
+    marginBottom: theme.spacing(2),
+  },
+  '& h2': {
+    fontSize: '1.5rem',
+    fontWeight: 600,
+    marginBottom: theme.spacing(2),
+  },
+  '& h3': {
+    fontSize: '1.25rem',
+    fontWeight: 600,
+    marginBottom: theme.spacing(2),
+  },
 })
 
 const useStyles = makeStyles()((theme) => ({
