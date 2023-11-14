@@ -12,8 +12,8 @@ import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoad
 import Handlebars from 'handlebars'
 
 export const EMBEDDINGS_API_COSTS_PER_1KTOKENS = 0.0004
-export const TOKENS_PER_CHUNK = 6000
-export const TOKENS_PER_CHUNK_PROMPT = 15000
+export const TOKENS_PER_CHUNK = 6000 // text-embedding-ada-002 has a limit of 8191 tokens per request
+export const TOKENS_PER_CHUNK_PROMPT = 120000 // gpt-4-turbo has a limit of 128000 tokens per request
 
 export type Embeddings = Record<string, ReadonlyArray<number>>
 

@@ -25,6 +25,15 @@ const messageStyles = (theme: Theme) => ({
     fontWeight: 600,
     marginBottom: theme.spacing(2),
   },
+  '& p': {
+    marginBottom: theme.spacing(1),
+  },
+  // Strong should be highlighted with a marker color
+  '& strong': {
+    fontWeight: 600,
+    backgroundColor: theme.palette.warning.main,
+    color: theme.palette.warning.contrastText,
+  },
 })
 
 const useStyles = makeStyles()((theme) => ({

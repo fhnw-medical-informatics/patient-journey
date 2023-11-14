@@ -1,6 +1,7 @@
 import { createListenerMiddleware } from '@reduxjs/toolkit'
 import { fetchPromptEmbeddings, setPromptEmbeddings, setSimilarityPrompt } from './dataSlice'
 import { TOKENS_PER_CHUNK, createPatientJourneysChunks, preparePatientJourneys } from './embeddings'
+import { Patient, PatientId } from './patients'
 
 // Create the middleware instance and methods
 export const listenerMiddleware = createListenerMiddleware()
@@ -15,20 +16,23 @@ listenerMiddleware.startListening({
       const data = (listenerApi.getState() as any).data
 
       if (data.type === 'loading-complete') {
-        // Select 10 random patients from data.patientData.allEntities
-        const randomPatients = [...data.patientData.allEntities].sort(() => Math.random() - Math.random()).slice(0, 10)
+        const samplePIDs = ['189', '633', '229', '465', '174', '570', '998'] as PatientId[]
+        // Select sample patients from data.patientData.allEntities
+        const samplePatients = [...data.patientData.allEntities].filter((p: Patient) => samplePIDs.includes(p.pid))
 
         const patientJourneys = preparePatientJourneys(
-          { ...data.patientData, allEntities: randomPatients },
+          { ...data.patientData, allEntities: samplePatients },
           data.eventData
         )
 
         const { patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, TOKENS_PER_CHUNK)
 
+        console.log('Randomly selected patient journey chunks', patientJourneyChunks)
+
         console.log('Resulting number of chunks for getting Prompt embeddings:', patientJourneyChunks.length)
 
         listenerApi.dispatch(
-          fetchPromptEmbeddings({ prompt: action.payload, randomPatientJourneys: patientJourneyChunks[0] })
+          fetchPromptEmbeddings({ prompt: action.payload, samplePatientJourneys: patientJourneyChunks[0] })
         )
       }
     } else {

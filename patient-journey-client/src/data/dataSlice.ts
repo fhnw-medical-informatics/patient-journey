@@ -392,13 +392,20 @@ export const loadSimilarityData =
 
 export const fetchPromptEmbeddings = createAsyncThunk(
   'data/fetchPromptEmbeddings',
-  async (promptAndJourneys: { prompt: string; randomPatientJourneys: string[] }, thunkAPI) => {
+  async (promptAndJourneys: { prompt: string; samplePatientJourneys: string[] }, thunkAPI) => {
     console.log('Fetching prompt embeddings for prompt and journeys', promptAndJourneys)
 
     try {
-      const promptEmbeddings = await retryOpenaiAPI(3, [
+      const syntheticPatientJourney = await fetchSyntheticPatientJourney(
         promptAndJourneys.prompt,
-        ...promptAndJourneys.randomPatientJourneys,
+        promptAndJourneys.samplePatientJourneys
+      )
+
+      console.log('Synthetic patient journey generated: ', syntheticPatientJourney)
+
+      const promptEmbeddings = await retryOpenaiAPI(3, [
+        syntheticPatientJourney ?? promptAndJourneys.prompt, // Use synthetic patient journey as prompt if available
+        ...promptAndJourneys.samplePatientJourneys,
       ])
 
       if (promptEmbeddings && promptEmbeddings.data.length > 0) {
@@ -421,6 +428,53 @@ export const fetchPromptEmbeddings = createAsyncThunk(
     }
   }
 )
+
+const fetchSyntheticPatientJourney = async (journeyPrompt: string, samplePatientJourneys: string[]) => {
+  const system_instruction = `You are a synthetic patient journey generator.
+
+You will generate a synthetic patient journey based on a simple description of that journey.
+You will use the provided examples as context to generate a synthetic patient journey in the same format and structure.
+
+You only answer with the generated journey, no other information or annotations.`
+
+  const context = `Here are a few examples of patient journeys that you can use as context to generate a synthetic patient journey:`
+
+  const messages: ChatCompletionMessageParam[] = [
+    { role: 'system', content: system_instruction },
+    { role: 'user', content: context },
+    ...samplePatientJourneys.map(
+      (patientJourney, idx) =>
+        ({
+          role: 'user',
+          content: `
+      Example ${idx + 1}:
+      ------
+
+      ${patientJourney}
+    `,
+        } as ChatCompletionMessageParam)
+    ),
+    {
+      role: 'user',
+      content: `Please create a synthetic patient journey that matches the following description:
+
+${journeyPrompt}`,
+    },
+  ]
+
+  console.log('API request messages to generate a synthetic journey: ', messages)
+
+  const completion = await openaiAPI.chat.completions.create({
+    model: 'gpt-4-1106-preview', // gpt-3.5-turbo-16k, gpt-4-32k
+    messages,
+  })
+
+  if (completion.choices.length > 0) {
+    return completion.choices[0].message?.content
+  } else {
+    throw new Error('Could not fetch cohort explanation')
+  }
+}
 
 export const fetchCohortExplanation = createAsyncThunk(
   'data/fetchCohortExplanation',
@@ -463,7 +517,7 @@ export const fetchCohortExplanation = createAsyncThunk(
         ),
         {
           role: 'user',
-          content: `${cohortExplanationData.prompt}}`,
+          content: `${cohortExplanationData.prompt}`,
         },
       ]
 
