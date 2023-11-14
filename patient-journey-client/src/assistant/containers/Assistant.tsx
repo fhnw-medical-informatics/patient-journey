@@ -68,8 +68,17 @@ export const Assistant = () => {
         assistantState.run.type === 'loading-in-progress' ||
         (assistantState.run.type === 'loading-complete' && assistantState.run.status.type === 'loading-in-progress')
       }
+      hasError={
+        assistantState.messages.type === 'loading-failed' ||
+        assistantState.run.type === 'loading-failed' ||
+        (assistantState.run.type === 'loading-complete' && assistantState.run.status.type === 'loading-failed')
+      }
       onResetThread={handleCreateNewThread}
     />
+  ) : assistantState.thread.type === 'loading-failed' ? (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <p>Failed to load thread… try again later.</p>
+    </div>
   ) : (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
       <p>Loading…</p>

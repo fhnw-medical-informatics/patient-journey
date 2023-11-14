@@ -114,6 +114,7 @@ interface AssistantProps {
   cohortSize: number
   hasSelectedPatient: boolean
   isLoading: boolean
+  hasError: boolean
   onResetThread: () => void
 }
 
@@ -123,6 +124,7 @@ export const Assistant = ({
   cohortSize,
   hasSelectedPatient,
   isLoading,
+  hasError,
   onResetThread,
 }: AssistantProps) => {
   const { classes } = useStyles()
@@ -179,8 +181,6 @@ export const Assistant = ({
     if (cohortSize === 0) setUseCohort(false)
   }, [cohortSize])
 
-  console.log(useSelectedPatient)
-
   return (
     <Card variant="outlined" className={classes.root}>
       {/* Chat Container */}
@@ -194,6 +194,11 @@ export const Assistant = ({
             <span className={classes.loadingCircle} />
             <span className={classes.loadingCircle} />
           </div>
+        )}
+        {hasError && (
+          <Typography variant="body1" color="error">
+            An error occurred while processing your request. Try again later.
+          </Typography>
         )}
         <div ref={messagesEndRef} />
       </div>

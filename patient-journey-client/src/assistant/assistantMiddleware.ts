@@ -1,6 +1,7 @@
 import { createListenerMiddleware } from '@reduxjs/toolkit'
 import { addMessageAndRun, fetchMessages, updateRunStatus } from './assistantSlice'
 import { openaiAPI } from '../utils/openai'
+import { addAlerts } from '../alert/alertSlice'
 
 // Create the middleware instance and methods
 export const assistantListenerMiddleware = createListenerMiddleware()
@@ -37,6 +38,15 @@ assistantListenerMiddleware.startListening({
         case 'failed':
         case 'cancelled':
         case 'cancelling':
+          listenerApi.dispatch(
+            addAlerts([
+              {
+                type: 'error',
+                topic: 'Assistant Run',
+                message: `Could not run thread. ${run.last_error?.message}`,
+              },
+            ])
+          )
           listenerApi.dispatch(
             updateRunStatus({
               type: 'loading-failed',

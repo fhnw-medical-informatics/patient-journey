@@ -127,9 +127,22 @@ export const assistantReducer = assistantSlice.reducer
 export const { updateRunStatus, addMessages } = assistantSlice.actions
 
 export const createNewThread = createAsyncThunk('assistant/createNewThread', async (_, thunkAPI) => {
-  thread = await openaiAPI.beta.threads.create()
+  try {
+    thread = await openaiAPI.beta.threads.create()
 
-  return thread.id
+    return thread.id
+  } catch (error) {
+    thunkAPI.dispatch(
+      addAlerts([
+        {
+          type: 'error',
+          topic: 'Assistant',
+          message: `Could not create new thread. ${error}`,
+        },
+      ])
+    )
+    throw error
+  }
 })
 
 export const addMessageAndRun = createAsyncThunk(
@@ -243,7 +256,7 @@ You are concise and answer every question very short (unless explicitly asked to
             {
               type: 'error',
               topic: 'Assistant',
-              message: `Could add messages and run thread. ${error}`,
+              message: `Could not add messages and run thread. ${error}`,
             },
           ])
         )
@@ -262,9 +275,22 @@ export const fetchMessages = createAsyncThunk('assistant/fetchMessages', async (
   console.log('Fetching messages...')
 
   if (assistant.thread.type === 'loading-complete') {
-    const messages = await openaiAPI.beta.threads.messages.list(assistant.thread.threadId)
+    try {
+      const messages = await openaiAPI.beta.threads.messages.list(assistant.thread.threadId)
 
-    return messages
+      return messages
+    } catch (error) {
+      thunkAPI.dispatch(
+        addAlerts([
+          {
+            type: 'error',
+            topic: 'Assistant',
+            message: `Could not fetch messages after thread run. ${error}`,
+          },
+        ])
+      )
+      throw error
+    }
   } else {
     throw new Error('Could not fetch messages, thread not initialized!')
   }
