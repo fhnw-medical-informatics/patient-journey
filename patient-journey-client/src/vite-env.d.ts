@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_OPENAI_ORG: string
   readonly VITE_OPENAI_API_KEY: string
   readonly VITE_OPENAI_ASSISTANT_ID: string
+  readonly VITE_OPENAI_MODEL: string
 }
 
 interface ImportMeta {

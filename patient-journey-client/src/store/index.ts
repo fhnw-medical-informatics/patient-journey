@@ -11,6 +11,7 @@ import { assistantReducer } from '../assistant/assistantSlice'
 
 import { listenerMiddleware } from '../data/similarityPromptMiddleware'
 import { assistantListenerMiddleware } from '../assistant/assistantMiddleware'
+import { chatReducer } from '../chat/chatSlice'
 
 export const reducer = combineReducers({
   theme: themeReducer,
@@ -21,6 +22,7 @@ export const reducer = combineReducers({
   color: colorReducer,
   alert: alertReducer,
   assistant: assistantReducer,
+  chat: chatReducer,
 })
 
 export type RootState = ReturnType<typeof reducer>
