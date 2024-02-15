@@ -4,6 +4,7 @@ import * as csvParser from 'papaparse'
 import { Alert } from '../alert/alertSlice'
 import { createPatientIdToSimilarityIndexMap, SimilarityData } from './similarities'
 import { HEADER_ROW_COUNT } from './consistency'
+import { EmbeddingsData, loadEmbeddings } from './embeddings'
 
 export type LoadingProgress =
   | { activeStep: Exclude<LoadingStep, LoadingStep.ConsistencyChecks> }
@@ -16,6 +17,7 @@ export enum LoadingStep {
   Patients,
   Events,
   Similarities,
+  Embeddings,
   ConsistencyChecks,
 }
 
@@ -26,6 +28,7 @@ export interface LoadedData {
   readonly patientData: PatientData
   readonly eventData: EventData
   readonly similarityData: SimilarityData
+  readonly embeddingsData: EmbeddingsData
 }
 
 export const loadData = async (
@@ -60,7 +63,11 @@ export const loadData = async (
       },
     }
 
-    const data = { patientData, eventData, similarityData }
+    // loading embeddings
+    onLoadingDataInProgress({ activeStep: LoadingStep.Embeddings })
+    const embeddingsData: EmbeddingsData = await loadEmbeddings(patientData, eventData)
+
+    const data = { patientData, eventData, similarityData, embeddingsData }
 
     onLoadingDataInProgress({
       activeStep: LoadingStep.ConsistencyChecks,

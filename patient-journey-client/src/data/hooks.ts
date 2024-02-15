@@ -34,6 +34,14 @@ import {
   selectPatientDataRowMap,
   selectIndexPatientEvents,
   selectSelectedEventEntityPID,
+  selectSimilarityProvider,
+  selectSimilarityPrompt,
+  selectPromptEmbeddingState,
+  selectAllCategoricalPatientDataColumns,
+  selectCohortExplanationPrompt,
+  selectCohortExplanationResultState,
+  selectCohortExplanationResult,
+  selectPatientCohort,
 } from './selectors'
 import { FocusEntity, setHoveredEntity, setSelectedEntity } from './dataSlice'
 import { EntityId, EntityType } from './entities'
@@ -54,6 +62,7 @@ export const useActiveDataColumns = () => useAppSelector(selectActiveDataColumns
 
 export const useEventDataColumns = () => useAppSelector(selectEventDataColumns)
 export const usePatientDataColumns = () => useAppSelector(selectPatientDataColumns)
+export const useAllCategoricalPatientDataColumns = () => useAppSelector(selectAllCategoricalPatientDataColumns)
 
 export const useAllFilters = () => useAppSelector(selectAllFilters)
 export const useEventFilters = () => useAppSelector(selectEventFilters)
@@ -122,3 +131,14 @@ export const usePatientCount = () => useAppSelector(selectPatientCount)
 export const useSplitPlaneResizing = () => useAppSelector(selectSplitPaneResizing)
 
 export const usePatientDataRowAsMap = () => useAppSelector(selectPatientDataRowMap)
+
+export const useActiveSimilarityProvier = () => useAppSelector(selectSimilarityProvider)
+
+export const useSimilarityPrompt = () => useAppSelector(selectSimilarityPrompt)
+
+export const usePromptEmbeddingsState = () => useAppSelector(selectPromptEmbeddingState)
+
+export const usePatientCohort = () => useAppSelector(selectPatientCohort)
+export const useCohortExplanationPrompt = () => useAppSelector(selectCohortExplanationPrompt)
+export const useCohortExplanationState = () => useAppSelector(selectCohortExplanationResultState)
+export const useCohortExplanationResult = () => useAppSelector(selectCohortExplanationResult)

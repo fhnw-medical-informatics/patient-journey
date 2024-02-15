@@ -1,9 +1,11 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { max, min } from 'd3-array'
+import similarity from 'compute-cosine-similarity'
+
 import { ColorByColumnOptionNone } from '../color/colorSlice'
 import { selectColorByColumn } from '../color/selectors'
 import { RootState } from '../store'
-import { formatColumnValue, stringToMillis } from './columns'
+import { DataColumn, formatColumnValue, stringToMillis } from './columns'
 import { ActiveDataViewType, DataStateLoadingComplete, FocusEntity } from './dataSlice'
 import { EventDataColumnType, EventId, PatientJourneyEvent } from './events'
 import { FilterColumn, filterReducer } from './filtering'
@@ -45,6 +47,10 @@ export const selectPatientCount = createSelector(selectPatientData, (data) => da
 
 export const selectIndexPatientId = createSelector(selectData, (data) => data.indexPatientId)
 
+export const selectSimilarityProvider = createSelector(selectData, (data) => data.similarityProvider)
+
+export const selectSimilarityPrompt = createSelector(selectData, (data) => data.similarityPrompt)
+
 export const selectIndexPatientIdIndex = createSelector(
   selectData,
   selectIndexPatientId,
@@ -70,13 +76,104 @@ const selectSimilarityData = createSelector(selectData, selectIndexPatientId, (d
     : null
 )
 
-const selectPatientDataRows = createSelector(selectPatientData, selectSimilarityData, (patientData, similarityData) =>
-  similarityData === null
-    ? patientData.allEntities
-    : patientData.allEntities.map((entity, idx) => ({
-        ...entity,
-        values: [...entity.values, `${similarityData[idx]}`],
-      }))
+const selectEmbeddingsData = createSelector(
+  selectData,
+  selectIndexPatientId,
+  selectSimilarityPrompt,
+  (data, indexPatientId, similarityPrompt) =>
+    (indexPatientId !== PatientIdNone || similarityPrompt) &&
+    data.embeddingsData.patientDataEmbeddings.type === 'loading-complete'
+      ? data.embeddingsData.patientDataEmbeddings.embeddings
+      : null
+)
+
+const selectPromptEmbeddingData = createSelector(selectData, (data) =>
+  data.embeddingsData.promptEmbeddings.type === 'loading-complete'
+    ? data.embeddingsData.promptEmbeddings.embedding
+    : null
+)
+
+const selectComputedSimilarities = createSelector(
+  selectSimilarityData,
+  selectEmbeddingsData,
+  selectIndexPatientId,
+  selectSimilarityProvider,
+  selectPatientData,
+  selectSimilarityPrompt,
+  selectPromptEmbeddingData,
+  (
+    similarityData,
+    embeddingsData,
+    indexPatientId,
+    similarityProvider,
+    patientData,
+    similarityPrompt,
+    promptEmbeddingData
+  ) => {
+    if (indexPatientId !== PatientIdNone && similarityProvider === 'matrix' && similarityData) {
+      return similarityData
+    } else if (similarityPrompt && promptEmbeddingData && similarityProvider === 'embeddings' && embeddingsData) {
+      return patientData.allEntities.map((patient) => similarity(promptEmbeddingData, embeddingsData[patient.pid]))
+    } else if (indexPatientId !== PatientIdNone && similarityProvider === 'embeddings' && embeddingsData) {
+      const indexPatientEmbeddings = embeddingsData[indexPatientId]
+
+      return patientData.allEntities.map((patient) => similarity(indexPatientEmbeddings, embeddingsData[patient.pid]))
+    }
+
+    return null
+  }
+)
+
+const selectReducedEmbeddingsData = createSelector(selectData, (data) =>
+  data.embeddingsData.patientDataEmbeddings.type === 'loading-complete'
+    ? data.embeddingsData.patientDataEmbeddings.reducedEmbeddings
+    : null
+)
+
+const selectClusterData = createSelector(selectData, (data) =>
+  data.embeddingsData.patientDataEmbeddings.type === 'loading-complete'
+    ? data.embeddingsData.patientDataEmbeddings.clusters
+    : null
+)
+
+// Add kMeans-Cluster, tSNE-X and tSNE-Y columns to patient data
+const selectPatientDataWithReducedEmbeddingsAndClusters = createSelector(
+  selectPatientData,
+  selectReducedEmbeddingsData,
+  selectClusterData,
+  (patientData, reducedEmbeddingsData, clusterData) =>
+    reducedEmbeddingsData === null || clusterData === null
+      ? patientData
+      : {
+          ...patientData,
+          allEntities: patientData.allEntities.map((entity, idx) => ({
+            ...entity,
+            values: [
+              ...entity.values,
+              `${reducedEmbeddingsData[entity.pid][0]}`,
+              `${reducedEmbeddingsData[entity.pid][1]}`,
+              `${clusterData[entity.pid]}`,
+            ],
+          })),
+          columns: [
+            ...patientData.columns,
+            { name: 't-SNE X', type: 'number', index: patientData.columns.length },
+            { name: 't-SNE Y', type: 'number', index: patientData.columns.length + 1 },
+            { name: 'Cluster', type: 'category', index: patientData.columns.length + 2 },
+          ] as PatientDataColumn[],
+        }
+)
+
+const selectPatientDataRows = createSelector(
+  selectPatientDataWithReducedEmbeddingsAndClusters,
+  selectComputedSimilarities,
+  (patientData, computedSimilarityData) =>
+    computedSimilarityData === null
+      ? patientData.allEntities
+      : patientData.allEntities.map((entity, idx) => ({
+          ...entity,
+          values: [...entity.values, `${computedSimilarityData[idx]}`],
+        }))
 )
 
 const selectEventData = createSelector(selectData, (data) => data.eventData)
@@ -112,10 +209,11 @@ export const selectDataByEntityIdMap = createSelector(
 )
 
 export const selectPatientDataColumns = createSelector(
-  selectPatientData,
+  selectPatientDataWithReducedEmbeddingsAndClusters,
   selectIndexPatientId,
-  (patientData, indexPatientId) =>
-    indexPatientId === PatientIdNone
+  selectSimilarityPrompt,
+  (patientData, indexPatientId, similarityPrompt) =>
+    indexPatientId === PatientIdNone && !similarityPrompt
       ? patientData.columns
       : ([
           ...patientData.columns,
@@ -176,6 +274,12 @@ export const selectPatientDataColumn = createSelector(
   selectPatientDataColumns,
   selectPatientDataColumnType,
   (columns, columnType) => columns.find((c) => c.type === columnType)!
+)
+
+export const selectAllCategoricalPatientDataColumns = createSelector(
+  selectPatientDataColumns,
+  (columns): ReadonlyArray<DataColumn<'category'>> =>
+    columns.filter((c) => c.type === 'category') as ReadonlyArray<DataColumn<'category'>>
 )
 
 export const selectPatientDataPidColumn = (s: RootState) => selectPatientDataColumn(s, 'pid')
@@ -354,3 +458,21 @@ export const selectCurrentColorColumnNumberRange = createSelector(
 )
 
 export const selectSplitPaneResizing = createSelector(selectData, (data) => data.isResizing)
+
+export const selectPromptEmbeddingState = createSelector(
+  selectData,
+  (data) => data.embeddingsData.promptEmbeddings.type
+)
+
+export const selectPatientCohort = createSelector(selectData, (data) => new Set(data.cohortPatientIds))
+
+export const selectCohortExplanationPrompt = createSelector(selectData, (data) => data.cohortExplanationPrompt)
+
+export const selectCohortExplanationResultState = createSelector(
+  selectData,
+  (data) => data.cohortExplanationResult.type
+)
+
+export const selectCohortExplanationResult = createSelector(selectData, (data) =>
+  data.cohortExplanationResult.type === 'loading-complete' ? data.cohortExplanationResult.result : null
+)

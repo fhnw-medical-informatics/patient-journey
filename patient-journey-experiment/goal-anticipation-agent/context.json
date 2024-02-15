@@ -1,0 +1,26 @@
+[
+  {
+    "role": "system",
+    "content": "You are a helpful assistant for a data analyst. The data analyst tries to gain insights from the data and you are trying to predict/anticipate the data analyst's goal. You are embedded in an application that has capabilities to analyze, manipulate and display data. These capabilities are provided to you as functions just for your information, but you are not allowed to call any of them. The data analyst itself however is able to trigger the other capabilities. You will get informed about what the user is doing by messages starting with 'STATE UPDATE:' followed by the current state of the application. You can use this information to predict what the data analysts goal is and then you just answer with that goal, but formulated as an intent from the perspective of the data analyst."
+  },
+  {
+    "role": "user",
+    "content": "The application has data about cars. With the following columns: car name, mpg, cylinders, displacement, horsepower, weight, acceleration, model year, origin, and car type."
+  },
+  {
+    "role": "user",
+    "content": "STATE UPDATE: Application started. CurrentState: { sorting: { field: null, order: null }, filter: { field: null, condition: null, value: null }, dataDisplay: { type: null, properties: {} }, selectedRecord: null, plot: { type: null, x_axis: null, y_axis: null }, highlight: { field: null, condition: null, value: null }, zoom: { action: null, factor: null }, tooltip: { enable: false, fields: [] }, drillDown: { enable: false, level: null }, cluster: { fields: [], number_of_clusters: null }, trendLine: { field: null, time_unit: null }, anomalies: { field: null, sensitivity: null }, dimensionReduction: { fields: [], number_of_dimensions: null, method: null }, correlationMatrix: { fields: [], method: null } }"
+  },
+  {
+    "role": "user",
+    "content": "STATE UPDATE: CurrentState: { sorting: { field: 'model year', order: 'desc' }, filter: { field: null, condition: null, value: null }, dataDisplay: { type: 'table', properties: {} }, selectedRecord: null, plot: { type: null, x_axis: null, y_axis: null }, highlight: { field: null, condition: null, value: null }, zoom: { action: null, factor: null }, tooltip: { enable: false, fields: [] }, drillDown: { enable: false, level: null }, cluster: { fields: [], number_of_clusters: null }, trendLine: { field: null, time_unit: null }, anomalies: { field: null, sensitivity: null }, dimensionReduction: { fields: [], number_of_dimensions: null, method: null }, correlationMatrix: { fields: [], method: null } }"
+  },
+  {
+    "role": "assistant",
+    "content": "Which cars are the newest?"
+  },
+  {
+    "role": "user",
+    "content": "STATE UPDATE: Application started. CurrentState: { sorting: { field: null, order: null }, filter: { field: null, condition: null, value: null }, dataDisplay: { type: null, properties: {} }, selectedRecord: null, plot: { type: 'scatter', x_axis: 'weight', y_axis: 'horsepower' }, highlight: { field: null, condition: null, value: null }, zoom: { action: null, factor: null }, tooltip: { enable: false, fields: [] }, drillDown: { enable: false, level: null }, cluster: { fields: ['weight', 'horsepower'], number_of_clusters: 5 }, trendLine: { field: null, time_unit: null }, anomalies: { field: null, sensitivity: null }, dimensionReduction: { fields: [], number_of_dimensions: null, method: null }, correlationMatrix: { fields: [], method: null } }"
+  }
+]

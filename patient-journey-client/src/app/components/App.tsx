@@ -12,6 +12,8 @@ import { ThemeSwitch } from '../../theme/containers/ThemeSwitch'
 import { Data } from '../../data/containers/Data'
 import { Alerts } from '../../alert/containers/Alerts'
 import { DataViewSelector } from '../../data/containers/DataViewSelector'
+import SimilarityProviderSelector from '../../data/containers/SimilarityProviderSelector'
+import { CohortToolbarItem } from '../../data/containers/cohort/CohortToolbarItem'
 
 const useStyles = makeStyles()((theme) => ({
   app: {
@@ -25,7 +27,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   toolbar: {
     display: 'grid',
-    gridTemplateColumns: 'auto 1fr auto auto',
+    gridTemplateColumns: 'auto auto auto 1fr auto auto',
     justifyItems: 'start',
     gridGap: theme.spacing(2),
   },
@@ -61,6 +63,8 @@ export const App = ({ isLoadingComplete }: Props) => {
         <Toolbar className={classes.toolbar}>
           <img className={classes.logo} src={logo} alt={'Fachhochschule Nordwestschweiz'} />
           {isLoadingComplete ? <DataViewSelector /> : <div />}
+          {isLoadingComplete ? <CohortToolbarItem /> : <div />}
+          {isLoadingComplete ? <SimilarityProviderSelector /> : <div />}
           <Typography className={classes.title}>{`Patient Journey – v${import.meta.env.VITE_APP_VERSION}`}</Typography>
           <Alerts />
           <ThemeSwitch />

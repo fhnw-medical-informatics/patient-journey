@@ -82,6 +82,31 @@ export const extractCategoryValueSafe =
     }
   }
 
+export const extractStringValuesSafe =
+  (column: DataColumn<any>) =>
+  (entity: Entity): [string] | [] => {
+    const value = entity.values[column.index] ?? ''
+    if (value === undefined || value.trim().length === 0) {
+      return []
+    } else {
+      return [value]
+    }
+  }
+
+export const extractColumnValueSafe = (column: DataColumn<any>) => {
+  switch (column.type) {
+    case 'number':
+      return extractNumberValueSafe(column)
+    case 'timestamp':
+    case 'date':
+      return extractDateValueSafe(column)
+    case 'category':
+      return extractCategoryValueSafe(column)
+    default:
+      return extractStringValuesSafe(column)
+  }
+}
+
 export const formatColumnValue = (columnType: string) => (value: string) => {
   if (value === undefined || value === null || value.trim().length === 0) {
     return ''

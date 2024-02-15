@@ -8,11 +8,12 @@ import {
   useActiveDataView,
   useAllFilters,
   useFilteredActiveData,
+  useSimilarityPrompt,
 } from '../../hooks'
 
 import { DataFilters as DataFiltersComponent } from '../../components/filter/DataFilters'
 import { GenericFilter } from '../../filtering'
-import { addDataFilter, removeDataFilter, resetDataFilter } from '../../dataSlice'
+import { addDataFilter, removeDataFilter, resetDataFilter, setSimilarityPrompt } from '../../dataSlice'
 import { useColor } from '../../../color/hooks'
 
 export const DataFilters = React.memo(() => {
@@ -24,6 +25,8 @@ export const DataFilters = React.memo(() => {
   const activeColums = useActiveDataColumns()
 
   const { colorByCategoryFn, colorByNumberFn, colorByColumn } = useColor()
+
+  const similarityPrompt = useSimilarityPrompt()
 
   const dispatch = useAppDispatch()
 
@@ -43,7 +46,15 @@ export const DataFilters = React.memo(() => {
 
   const handleResetFilters = useCallback(() => {
     dispatch(resetDataFilter())
+    dispatch(setSimilarityPrompt(''))
   }, [dispatch])
+
+  const handleSimilarityPromptChange = useCallback(
+    (similarityPrompt: string) => {
+      dispatch(setSimilarityPrompt(similarityPrompt))
+    },
+    [dispatch]
+  )
 
   return (
     <DataFiltersComponent
@@ -58,6 +69,8 @@ export const DataFilters = React.memo(() => {
       colorByColumn={colorByColumn}
       colorByNumberFn={colorByNumberFn}
       colorByCategoryFn={colorByCategoryFn}
+      similarityPrompt={similarityPrompt}
+      onSimilarityPromptChange={handleSimilarityPromptChange}
     />
   )
 })

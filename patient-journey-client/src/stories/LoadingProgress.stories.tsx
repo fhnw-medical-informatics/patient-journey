@@ -25,6 +25,14 @@ StepConsistencyChecks.args = {
           type: 'loading-pending',
         },
       },
+      embeddingsData: {
+        patientDataEmbeddings: {
+          type: 'loading-pending',
+        },
+        promptEmbeddings: {
+          type: 'loading-pending',
+        },
+      },
     },
   },
 }

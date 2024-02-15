@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import {
   ActiveDataViewType,
   addDataFilter,
@@ -15,6 +16,8 @@ import {
   setIndexPatient,
   setSelectedEntity,
   setSplitPaneResizing,
+  setSimilarityProvider,
+  setSimilarityPrompt,
 } from './dataSlice'
 
 import { createStore, RootState } from '../store'
@@ -30,9 +33,24 @@ import {
   selectDataLoadingProgress,
   selectDataView,
   selectIndexPatientId,
+  selectSimilarityPrompt,
+  selectSimilarityProvider,
   selectSplitPaneResizing,
 } from './selectors'
 import { EntityIdNone } from './entities'
+
+import { EmbeddingsData, loadEmbeddings } from './embeddings'
+
+vi.mock('./embeddings', () => ({
+  loadEmbeddings: vi.fn<any, Promise<EmbeddingsData>>().mockResolvedValue({
+    patientDataEmbeddings: {
+      type: 'loading-pending',
+    },
+    promptEmbeddings: {
+      type: 'loading-pending',
+    },
+  }),
+}))
 
 const PID_1 = 'PID_1' as PatientId
 const PID_2 = 'PID_2' as PatientId
@@ -177,6 +195,9 @@ describe('dataSlice', () => {
         type: 'loading-pending',
       },
     })
+
+    // embeddings
+    expect(loadEmbeddings).toHaveBeenCalledWith(patientData, eventData)
   })
 
   it('loadData loading-complete patient data table missing pid', async () => {
@@ -628,5 +649,30 @@ describe('dataSlice', () => {
     expect(getIndexPatientSimilarities()).toEqual({
       type: 'loading-pending',
     })
+  })
+
+  it(`handles the ${setSimilarityProvider.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getSimilarityProvider = () => selectSimilarityProvider(store.getState())
+
+    expect(getSimilarityProvider()).toEqual('matrix')
+
+    store.dispatch(setSimilarityProvider('embeddings'))
+
+    expect(getSimilarityProvider()).toEqual('embeddings')
+  })
+
+  it(`handles the ${setSimilarityPrompt.type} action`, async () => {
+    const { store } = await createStoreWithMockData()
+    const getSimilarityPrompt = () => selectSimilarityPrompt(store.getState())
+    const getSimilarityProvider = () => selectSimilarityProvider(store.getState())
+
+    expect(getSimilarityPrompt()).toEqual('')
+    expect(getSimilarityProvider()).toEqual('matrix')
+
+    store.dispatch(setSimilarityPrompt('test'))
+
+    expect(getSimilarityPrompt()).toEqual('test')
+    expect(getSimilarityProvider()).toEqual('embeddings')
   })
 })

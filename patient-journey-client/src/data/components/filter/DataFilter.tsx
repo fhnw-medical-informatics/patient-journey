@@ -32,9 +32,10 @@ export const DataFilter = <T extends FilterColumn['type']>({
     case 'pid':
       return (
         <PIDDataFilter
+          allActiveData={allActiveData}
           column={column}
           type={type}
-          value={(filter as Filter<'pid'> | undefined)?.value ?? { text: '' }}
+          value={(filter as Filter<'pid'> | undefined)?.value ?? { uids: [] }}
           onChange={onAddFilter}
           onRemove={onRemoveFilter}
         />

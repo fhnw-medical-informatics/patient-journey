@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material'
 import { extent } from 'd3-array'
 import { scaleSqrt } from 'd3-scale'
 
-import { makeStyles } from '../../utils'
+import { changeCanvasFillStyle, makeStyles } from '../../utils'
 
 import { CustomLayerProps, TimelineEvent } from 'react-svg-timeline'
 import { calcMarkSize, TIMELINE_MARK_MIN_SIZE_FANCY, TIMELINE_MARK_STROKE_WIDTH } from './SvgMark'
@@ -183,12 +183,5 @@ export function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingCont
     canvas.height = displayHeight
 
     ctx.scale(dpr, dpr)
-  }
-}
-
-// Canvas state changes are expensive, only change if needed
-export function changeCanvasFillStyle(ctx: CanvasRenderingContext2D, color: string): void {
-  if (ctx.fillStyle !== color) {
-    ctx.fillStyle = color
   }
 }

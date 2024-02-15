@@ -1,37 +1,43 @@
-import { AnyAction, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
+import { AnyAction, createAsyncThunk, createSlice, Draft, freeze, PayloadAction } from '@reduxjs/toolkit'
 import { Dispatch } from 'redux'
+
 import { GenericFilter } from './filtering'
 import { EntityId, EntityIdNone, EntityType } from './entities'
 import { loadData as loadDataImpl, LoadedData, LoadingProgress } from './loading'
 import { EVENT_DATA_FILE_URL, PATIENT_DATA_FILE_URL } from './constants'
 import { addAlerts } from '../alert/alertSlice'
-import { PatientId, PatientIdNone } from './patients'
+import { Patient, PatientId, PatientIdNone } from './patients'
 import { LoadedSimilarities, parseSpecificRowFromSimilarityFile } from './similarities'
+import {
+  createPatientJourneysChunks,
+  EmbeddingsData,
+  preparePatientJourneys,
+  retryOpenaiAPI,
+  TOKENS_PER_CHUNK_PROMPT,
+} from './embeddings'
+import { openaiAPI } from '../utils/openai'
 
-type DataStateLoadingPending = Readonly<{
-  type: 'loading-pending'
-}>
+import { DataLoadingComplete, DataLoadingFailed, DataLoadingInProgress, DataLoadingPending } from './types'
+import { ChatCompletionMessageParam } from 'openai/resources'
 
-type DataStateLoadingInProgress = Readonly<{
-  type: 'loading-in-progress'
-}> &
-  LoadingProgress
+type DataStateLoadingPending = DataLoadingPending
 
-export type DataStateLoadingFailed = Readonly<{
-  type: 'loading-failed'
-  errorMessage: string
-}>
+type DataStateLoadingInProgress = DataLoadingInProgress & LoadingProgress
 
-export type DataStateLoadingComplete = Readonly<{
-  type: 'loading-complete'
-}> &
+export type DataStateLoadingFailed = DataLoadingFailed
+
+export type DataStateLoadingComplete = DataLoadingComplete<
   LoadedData &
-  ActiveDataView &
-  Filters &
-  Hovering &
-  Selection &
-  IndexPatient &
-  SplitPane
+    ActiveDataView &
+    Filters &
+    Hovering &
+    Selection &
+    IndexPatient &
+    SplitPane &
+    SimilarityPrompt &
+    Cohort &
+    CohortExplanation
+>
 
 export const ACTIVE_DATA_VIEWS = ['patients', 'events'] as const
 export type ActiveDataViewType = typeof ACTIVE_DATA_VIEWS[number]
@@ -59,12 +65,35 @@ interface Selection {
   readonly selected: FocusEntity
 }
 
+interface Cohort {
+  readonly cohortPatientIds: ReadonlyArray<PatientId>
+}
+
+export const SIMILARITY_PROVIDER = ['matrix', 'embeddings'] as const
+export type SimilarityProvider = typeof SIMILARITY_PROVIDER[number]
+
 interface IndexPatient {
   readonly indexPatientId: PatientId
+  readonly similarityProvider: SimilarityProvider
 }
 
 interface SplitPane {
   isResizing: boolean
+}
+
+interface SimilarityPrompt {
+  readonly similarityPrompt: string
+}
+
+type CohortExplanationData =
+  | DataLoadingPending
+  | DataLoadingInProgress
+  | DataLoadingFailed
+  | DataLoadingComplete<{ result: string }>
+
+interface CohortExplanation {
+  readonly cohortExplanationPrompt: string
+  readonly cohortExplanationResult: CohortExplanationData
 }
 
 export type DataState =
@@ -92,7 +121,14 @@ const dataSlice = createSlice({
       hovered: FOCUS_ENTITY_NONE,
       selected: FOCUS_ENTITY_NONE,
       indexPatientId: PatientIdNone,
+      similarityProvider: 'matrix',
       isResizing: false,
+      similarityPrompt: '',
+      cohortPatientIds: [],
+      cohortExplanationPrompt: '',
+      cohortExplanationResult: {
+        type: 'loading-pending',
+      },
       ...freeze(action.payload, true),
     }),
     setHoveredEntity: (state: Draft<DataState>, action: PayloadAction<FocusEntity>) => {
@@ -191,6 +227,91 @@ const dataSlice = createSlice({
 
       return state
     },
+    setSimilarityProvider: (state: Draft<DataState>, action: PayloadAction<SimilarityProvider>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityProvider = action.payload
+      })
+    },
+    setSimilarityPrompt: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.similarityPrompt = action.payload
+        // Set similarity provider to embeddings when prompt is set
+        s.similarityProvider = action.payload ? 'embeddings' : s.similarityProvider
+      })
+    },
+    setPromptEmbeddings: (state: Draft<DataState>, action: PayloadAction<EmbeddingsData['promptEmbeddings']>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.embeddingsData.promptEmbeddings = action.payload
+      })
+    },
+    addToCohort: (state: Draft<DataState>, action: PayloadAction<{ id: PatientId }>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortPatientIds = [...new Set([...s.cohortPatientIds, action.payload.id])]
+      })
+    },
+    removeFromCohort: (state: Draft<DataState>, action: PayloadAction<{ id: PatientId }>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortPatientIds = s.cohortPatientIds.filter((id) => id !== action.payload.id)
+      })
+    },
+    clearCohort: (state: Draft<DataState>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortPatientIds = []
+      })
+    },
+    setCohortExplanationPrompt: (state: Draft<DataState>, action: PayloadAction<string>) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationPrompt = action.payload
+      })
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchPromptEmbeddings.pending, (state) => {
+      mutateLoadedDataState(state, (s) => {
+        s.embeddingsData.promptEmbeddings = {
+          type: 'loading-in-progress',
+        }
+      })
+    })
+    builder.addCase(fetchPromptEmbeddings.fulfilled, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.embeddingsData.promptEmbeddings = {
+          type: 'loading-complete',
+          embedding: action.payload,
+        }
+      })
+    })
+    builder.addCase(fetchPromptEmbeddings.rejected, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.embeddingsData.promptEmbeddings = {
+          type: 'loading-failed',
+          errorMessage: action.error.message ?? 'Error while loading prompt embeddings',
+        }
+      })
+    })
+    builder.addCase(fetchCohortExplanation.pending, (state) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-in-progress',
+        }
+      })
+    })
+    builder.addCase(fetchCohortExplanation.fulfilled, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-complete',
+          result: action.payload ?? '',
+        }
+      })
+    })
+    builder.addCase(fetchCohortExplanation.rejected, (state, action) => {
+      mutateLoadedDataState(state, (s) => {
+        s.cohortExplanationResult = {
+          type: 'loading-failed',
+          errorMessage: action.error.message ?? 'Error while loading cohort explanation',
+        }
+      })
+    })
   },
 })
 
@@ -229,6 +350,13 @@ export const {
   loadingSimilaritiesInProgress,
   loadingSimilaritiesDataFailed,
   loadingSimilaritiesComplete,
+  setSimilarityProvider,
+  setSimilarityPrompt,
+  setPromptEmbeddings,
+  addToCohort,
+  removeFromCohort,
+  clearCohort,
+  setCohortExplanationPrompt,
 } = dataSlice.actions
 
 /** Decouples redux action dispatch from loading implementation to avoid circular dependencies */
@@ -261,3 +389,163 @@ export const loadSimilarityData =
       }
     )
   }
+
+export const fetchPromptEmbeddings = createAsyncThunk(
+  'data/fetchPromptEmbeddings',
+  async (promptAndJourneys: { prompt: string; samplePatientJourneys: string[] }, thunkAPI) => {
+    console.log('Fetching prompt embeddings for prompt and journeys', promptAndJourneys)
+
+    try {
+      const syntheticPatientJourney = await fetchSyntheticPatientJourney(
+        promptAndJourneys.prompt,
+        promptAndJourneys.samplePatientJourneys
+      )
+
+      console.log('Synthetic patient journey generated: ', syntheticPatientJourney)
+
+      const promptEmbeddings = await retryOpenaiAPI(3, [
+        syntheticPatientJourney ?? promptAndJourneys.prompt, // Use synthetic patient journey as prompt if available
+        ...promptAndJourneys.samplePatientJourneys,
+      ])
+
+      if (promptEmbeddings && promptEmbeddings.data.length > 0) {
+        // The first entry is the prompt embedding
+        return promptEmbeddings.data[0].embedding
+      } else {
+        throw new Error('Could not fetch prompt embeddings')
+      }
+    } catch (error) {
+      thunkAPI.dispatch(
+        addAlerts([
+          {
+            type: 'error',
+            topic: 'Prompt based Similarity',
+            message: `Could not fetch prompt embeddings. ${error}`,
+          },
+        ])
+      )
+      throw error
+    }
+  }
+)
+
+const fetchSyntheticPatientJourney = async (journeyPrompt: string, samplePatientJourneys: string[]) => {
+  const system_instruction = `You are a synthetic patient journey generator.
+
+You will generate a synthetic patient journey based on a simple description of that journey.
+You will use the provided examples as context to generate a synthetic patient journey in the same format and structure.
+
+You only answer with the generated journey, no other information or annotations.`
+
+  const context = `Here are a few examples of patient journeys that you can use as context to generate a synthetic patient journey:`
+
+  const messages: ChatCompletionMessageParam[] = [
+    { role: 'system', content: system_instruction },
+    { role: 'user', content: context },
+    ...samplePatientJourneys.map(
+      (patientJourney, idx) =>
+        ({
+          role: 'user',
+          content: `
+      Example ${idx + 1}:
+      ------
+
+      ${patientJourney}
+    `,
+        } as ChatCompletionMessageParam)
+    ),
+    {
+      role: 'user',
+      content: `Please create a synthetic patient journey that matches the following description:
+
+${journeyPrompt}`,
+    },
+  ]
+
+  console.log('API request messages to generate a synthetic journey: ', messages)
+
+  const completion = await openaiAPI.chat.completions.create({
+    model: 'gpt-4-1106-preview', // gpt-3.5-turbo-16k, gpt-4-32k
+    messages,
+  })
+
+  if (completion.choices.length > 0) {
+    return completion.choices[0].message?.content
+  } else {
+    throw new Error('Could not fetch cohort explanation')
+  }
+}
+
+export const fetchCohortExplanation = createAsyncThunk(
+  'data/fetchCohortExplanation',
+  async (cohortExplanationData: { prompt: string; cohort: ReadonlyArray<Patient> }, thunkAPI) => {
+    // A prompt is set, fetch prompt embeddings and add random journeys for context
+    const data = (thunkAPI.getState() as any).data as DataState
+
+    if (data.type === 'loading-complete') {
+      const patientJourneys = preparePatientJourneys(
+        { ...data.patientData, allEntities: cohortExplanationData.cohort },
+        data.eventData
+      )
+
+      // TODO: Tokens per Chunk should be small enough, so that there is space for the prompt
+      // TODO: When creating the cohort, it should already validated towards the limit
+      const { patientJourneyChunks } = createPatientJourneysChunks(patientJourneys, TOKENS_PER_CHUNK_PROMPT)
+
+      console.log('Fetching ChatGPT response for cohort prompt: ', cohortExplanationData.prompt)
+
+      const system_instruction = `You are aware of the OpenAI Embeddings API and all the factors it considers when computing embeddings for a patient journey. You will help the user to understand, why individual patient journeys are similar based on their embeddings and you will point out relevant key factors and characteristics of the patient journeys to the user, so that they can understand the underlying reasoning. You are concise and don't mention general information about the API. `
+
+      const context = `The following patient journeys have been processed by the OpenAI Embeddings API.
+      The retrieved embeddings were then reduced to 2 dimensions using the t-SNE algorithm and clustered using k-means clustering (k=3).
+      I have then explored the resulting clusters and extracted the following specific patient journeys for further analysis:`
+
+      const messages: ChatCompletionMessageParam[] = [
+        { role: 'system', content: system_instruction },
+        { role: 'user', content: context },
+        ...patientJourneyChunks[0].map(
+          (patientJourney, idx) =>
+            ({
+              role: 'user',
+              content: `
+          Patient Journey ${idx + 1}:
+          ------
+
+          ${patientJourney}
+        `,
+            } as ChatCompletionMessageParam)
+        ),
+        {
+          role: 'user',
+          content: `${cohortExplanationData.prompt}`,
+        },
+      ]
+
+      console.log('GPT request messages: ', messages)
+
+      try {
+        const completion = await openaiAPI.chat.completions.create({
+          model: 'gpt-4-1106-preview', // gpt-3.5-turbo-16k, gpt-4-32k
+          messages,
+        })
+
+        if (completion.choices.length > 0) {
+          return completion.choices[0].message?.content
+        } else {
+          throw new Error('Could not fetch cohort explanation')
+        }
+      } catch (error) {
+        thunkAPI.dispatch(
+          addAlerts([
+            {
+              type: 'error',
+              topic: 'Cohort Explanation',
+              message: `Could not fetch cohort explanation. ${error}`,
+            },
+          ])
+        )
+        throw error
+      }
+    }
+  }
+)

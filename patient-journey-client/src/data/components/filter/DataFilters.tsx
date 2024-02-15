@@ -10,6 +10,9 @@ import { FilterCard } from './FilterCard'
 import { ActiveDataViewType } from '../../dataSlice'
 import { ColorByColumn } from '../../../color/colorSlice'
 import { ColorByCategoryFn, ColorByNumberFn } from '../../../color/hooks'
+import SimilarityPrompt from '../../containers/filter/SimilarityPrompt'
+import { deepPurple } from '@mui/material/colors'
+// import CohortPrompt from '../../containers/filter/CohortPrompt'
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -33,6 +36,8 @@ interface DataFiltersProps {
   colorByColumn: ColorByColumn
   colorByNumberFn: ColorByNumberFn
   colorByCategoryFn: ColorByCategoryFn
+  similarityPrompt: string
+  onSimilarityPromptChange: (similarityPrompt: string) => void
 }
 
 export const DataFilters = ({
@@ -47,7 +52,10 @@ export const DataFilters = ({
   colorByColumn,
   colorByNumberFn,
   colorByCategoryFn,
+  similarityPrompt,
+  onSimilarityPromptChange,
 }: DataFiltersProps) => {
+  // const theme = useTheme()
   const { classes } = useStyles()
 
   const findActiveFilter = <T extends FilterColumn['type']>(
@@ -64,6 +72,8 @@ export const DataFilters = ({
     (filter) => availableColumns.findIndex((column) => column.name === filter.column.name) === -1
   )
 
+  const nrOfActiveFilters = (similarityPrompt ? 1 : 0) + activeFilters.length
+
   return (
     <Grid container spacing={2} alignContent="flex-start">
       <Grid item xs={12}>
@@ -75,8 +85,8 @@ export const DataFilters = ({
             <h3 className={classes.title}>Filters</h3>
           </Grid>
           <Grid className={classes.gridItem} item>
-            <Button onClick={onResetFilters} disabled={activeFilters.length === 0}>
-              Reset {activeFilters.length > 0 && `(${activeFilters.length})`}
+            <Button onClick={onResetFilters} disabled={nrOfActiveFilters === 0}>
+              Reset {nrOfActiveFilters > 0 && `(${nrOfActiveFilters})`}
             </Button>
           </Grid>
         </Grid>
@@ -102,6 +112,36 @@ export const DataFilters = ({
             </Typography>
           </FilterCard>
         </Grid>
+      )}
+      {activeView === 'patients' && (
+        <>
+          <Grid item xs={12}>
+            <FilterCard
+              label="Prompt based similarity"
+              isActive={similarityPrompt !== ''}
+              onRemove={() => {
+                onSimilarityPromptChange('')
+              }}
+              sx={{
+                backgroundColor: deepPurple['900'],
+              }}
+            >
+              <SimilarityPrompt value={similarityPrompt} onSubmit={onSimilarityPromptChange} />
+            </FilterCard>
+          </Grid>
+          {/* <Grid item xs={12}>
+            <FilterCard
+              label="Cohort explanation"
+              isActive={false}
+              onRemove={() => {}}
+              sx={{
+                backgroundColor: theme.entityColors.cohort,
+              }}
+            >
+              <CohortPrompt />
+            </FilterCard>
+          </Grid> */}
+        </>
       )}
       {availableColumns
         .filter((col) => ['pid', 'string', 'number', 'boolean', 'date', 'timestamp', 'category'].includes(col.type))
