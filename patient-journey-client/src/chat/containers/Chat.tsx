@@ -7,7 +7,7 @@ import { usePatientCohort, usePatientDataRowAsMap, useSelectedEntityPID } from '
 import { useAppDispatch } from '../../store'
 import { Patient } from '../../data/patients'
 import { EntityIdNone } from '../../data/entities'
-import { addPrompt } from '../chatSlice'
+import { addPrompt, reset } from '../chatSlice'
 
 export const Chat = () => {
   const chatState = useChat()
@@ -42,6 +42,10 @@ export const Chat = () => {
     [dispatch, cohortPIDs, selectedPatientId, patientMap]
   )
 
+  const handleReset = useCallback(() => {
+    dispatch(reset())
+  }, [dispatch])
+
   return (
     <ChatComponent
       messages={[...chatState.messages].reverse()}
@@ -50,7 +54,7 @@ export const Chat = () => {
       hasSelectedPatient={selectedPatientId !== EntityIdNone}
       isLoading={chatState.loadingState === 'loading-in-progress'}
       hasError={chatState.loadingState === 'loading-failed'}
-      onResetThread={() => {}} // TODO: Reset chat
+      onReset={handleReset}
     />
   )
 }

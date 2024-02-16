@@ -38,6 +38,7 @@ const chatSlice = createSlice({
     setMessages: (state, action) => {
       state.messages = action.payload
     },
+    reset: () => initialState,
   },
   extraReducers: (builder) => {
     builder.addCase(addPrompt.pending, (state) => {
@@ -65,6 +66,7 @@ const chatSlice = createSlice({
 
 export const chatReducer = chatSlice.reducer
 
+export const { reset } = chatSlice.actions
 const { setMessages } = chatSlice.actions
 
 export const addPrompt = createAsyncThunk('chat/addPrompt', async (prompt: ChatPrompt, thunkAPI) => {

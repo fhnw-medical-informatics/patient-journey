@@ -115,7 +115,7 @@ interface Props {
   hasSelectedPatient: boolean
   isLoading: boolean
   hasError: boolean
-  onResetThread: () => void
+  onReset: () => void
 }
 
 export const Chat = ({
@@ -125,7 +125,7 @@ export const Chat = ({
   hasSelectedPatient,
   isLoading,
   hasError,
-  onResetThread,
+  onReset,
 }: Props) => {
   const { classes } = useStyles()
 
@@ -235,7 +235,7 @@ export const Chat = ({
               />
             </Stack>
           </Stack>
-          <IconButton onClick={onResetThread} disabled={isLoading}>
+          <IconButton onClick={onReset} disabled={isLoading}>
             <RestartAltIcon />
           </IconButton>
         </Stack>
