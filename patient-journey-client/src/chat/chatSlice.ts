@@ -1,11 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Patient } from '../data/patients'
-import { DataState } from '../data/dataSlice'
+import { DataState, setIndexPatient } from '../data/dataSlice'
 import { createPatientJourneysChunks, preparePatientJourneys, TOKENS_PER_CHUNK_PROMPT } from '../data/embeddings'
 import { openaiAPI } from '../utils/openai'
 import { addAlerts } from '../alert/alertSlice'
 import OpenAI from 'openai'
 import ChatCompletionSystemMessageParam = OpenAI.ChatCompletionSystemMessageParam
+import ChatCompletionTool = OpenAI.ChatCompletionTool
+import ChatCompletionToolMessageParam = OpenAI.ChatCompletionToolMessageParam
 
 interface ChatPrompt {
   readonly prompt: string
@@ -48,7 +50,6 @@ const chatSlice = createSlice({
       state.loadingState = 'idle'
       state.messages = [
         ...state.messages,
-        // TODO: Handle function calls
         {
           role: 'assistant',
           content: action.payload.choices[0].message.content ?? '',
@@ -68,6 +69,37 @@ export const chatReducer = chatSlice.reducer
 
 export const { reset } = chatSlice.actions
 const { setMessages } = chatSlice.actions
+
+const systemMessage: ChatCompletionSystemMessageParam = {
+  role: 'system',
+  content: `Your are a medical data analyst assistant.
+
+You are aware of the OpenAI Embeddings API and all the factors it considers when computing embeddings for a patient journey.
+You will help the user to analyze patient journey, for examply you help to understand why individual patient journeys are similar based on their embeddings and you will point out relevant key factors and characteristics of the patient journeys to the user, so that they can understand the underlying reasoning.
+
+You are concise and answer every question very short (unless explicitly asked to provide more details). When you answer, you use a simple but "visual" language (like bullet points, highlighting important words, etc…) by using markdown styles. Don't mention general information about the API.`,
+}
+
+const tools: Array<ChatCompletionTool> = [
+  {
+    type: 'function',
+    function: {
+      name: 'setIndexPatient',
+      description:
+        'Sets a specific patient journey as the index patient, allowing the user to view similar patient journeys in the app.',
+      parameters: {
+        type: 'object',
+        properties: {
+          caseId: {
+            type: 'string',
+            description: 'The patient journey id (case_id).',
+          },
+        },
+        required: ['caseId'],
+      },
+    },
+  },
+]
 
 export const addPrompt = createAsyncThunk('chat/addPrompt', async (prompt: ChatPrompt, thunkAPI) => {
   // A prompt is set, fetch prompt embeddings and add random journeys for context
@@ -140,37 +172,50 @@ ${patientJourney}
     thunkAPI.dispatch(setMessages(messages))
 
     try {
-      const SYSTEM_MESSAGE: ChatCompletionSystemMessageParam = {
-        role: 'system',
-        content: `Your are a medical data analyst assistant.
+      // we keep rich messages (e.g. including cohort info) in redux state, but use simple ones to pass to the api
+      const simpleMessages = [systemMessage, ...messages.map((m) => ({ role: m.role, content: m.content }))]
 
-You are aware of the OpenAI Embeddings API and all the factors it considers when computing embeddings for a patient journey.
-You will help the user to analyze patient journey, for examply you help to understand why individual patient journeys are similar based on their embeddings and you will point out relevant key factors and characteristics of the patient journeys to the user, so that they can understand the underlying reasoning.
-
-You are concise and answer every question very short (unless explicitly asked to provide more details). When you answer, you use a simple but "visual" language (like bullet points, highlighting important words, etc…) by using markdown styles. Don't mention general information about the API.`,
-      }
-
-      const simpleMessages = [SYSTEM_MESSAGE, ...messages.map((m) => ({ role: m.role, content: m.content }))]
-
-      console.log(simpleMessages)
-
-      return await openaiAPI.chat.completions.create({
+      const response = await openaiAPI.chat.completions.create({
         messages: simpleMessages,
+        tools,
         model: import.meta.env.VITE_OPENAI_MODEL,
       })
+
+      const responseMessage = response.choices[0].message
+
+      if (responseMessage.tool_calls) {
+        const toolCalls = responseMessage.tool_calls
+        const toolMessages: Array<ChatCompletionToolMessageParam> = []
+        for (const toolCall of toolCalls) {
+          thunkAPI.dispatch(setIndexPatient(JSON.parse(toolCall.function.arguments).caseId))
+          toolMessages.push({
+            role: 'tool',
+            content: 'Index patient set',
+            tool_call_id: toolCall.id,
+          })
+        }
+        // notify the api that we've invoked the function (this will lead to a proper assistant message in our history)
+        return await openaiAPI.chat.completions.create({
+          messages: [...simpleMessages, responseMessage, ...toolMessages],
+          tools,
+          model: import.meta.env.VITE_OPENAI_MODEL,
+        })
+      } else {
+        return response
+      }
     } catch (error) {
       thunkAPI.dispatch(
         addAlerts([
           {
             type: 'error',
             topic: 'Chat',
-            message: `Could not add messages and run thread. ${error}`,
+            message: `Interacting with AI failed. ${error}`,
           },
         ])
       )
       throw error
     }
   } else {
-    throw new Error('Could not create run, data or thread not initialized!')
+    throw new Error('Interacting with AI failed.')
   }
 })
