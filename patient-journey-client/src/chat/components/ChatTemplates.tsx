@@ -24,12 +24,12 @@ Based on their patient journeys, please write a text that would describe their c
   },
 ]
 
-interface AssistantTemplatesProps {
+interface Props {
   onTemplateClick: (template: string) => void
   disabled?: boolean
 }
 
-export const AssistantTemplates = ({ onTemplateClick, disabled = false }: AssistantTemplatesProps) => {
+export const ChatTemplates = ({ onTemplateClick, disabled = false }: Props) => {
   return (
     <>
       {/* Use the material ui Chip component to list the templates, a click should set the template prompt */}

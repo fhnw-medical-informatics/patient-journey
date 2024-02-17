@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import OpenAI from 'openai'
 
 import {
   Button,
@@ -18,8 +17,9 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt'
 
 import { makeStyles } from '../../utils'
 
-import { AssistantMessage } from './AssistantMessage'
-import { AssistantTemplates } from './AssistantTemplates'
+import { ChatMessageData } from '../chatSlice'
+import { ChatMessage } from './ChatMessage'
+import { ChatTemplates } from './ChatTemplates'
 
 const messageStyles = (theme: Theme) => ({
   width: '90%',
@@ -108,25 +108,25 @@ const useStyles = makeStyles()((theme) => ({
   },
 }))
 
-interface AssistantProps {
-  messages: OpenAI.Beta.Threads.Messages.ThreadMessage[]
+interface Props {
+  messages: ReadonlyArray<ChatMessageData>
   onSubmitMessage: (message: string, useCohort: boolean, useSelectedPatient: boolean) => void
   cohortSize: number
   hasSelectedPatient: boolean
   isLoading: boolean
   hasError: boolean
-  onResetThread: () => void
+  onReset: () => void
 }
 
-export const Assistant = ({
+export const Chat = ({
   messages,
   onSubmitMessage,
   cohortSize,
   hasSelectedPatient,
   isLoading,
   hasError,
-  onResetThread,
-}: AssistantProps) => {
+  onReset,
+}: Props) => {
   const { classes } = useStyles()
 
   const [inputValue, setInputValue] = useState('')
@@ -186,7 +186,7 @@ export const Assistant = ({
       {/* Chat Container */}
       <div className={classes.chatContainer}>
         {[...messages].reverse().map((message, index) => (
-          <AssistantMessage key={message.id} message={message} />
+          <ChatMessage key={index} message={message} />
         ))}
         {isLoading && (
           <div className={classes.loadingBubble}>
@@ -235,7 +235,7 @@ export const Assistant = ({
               />
             </Stack>
           </Stack>
-          <IconButton onClick={onResetThread} disabled={isLoading}>
+          <IconButton onClick={onReset} disabled={isLoading}>
             <RestartAltIcon />
           </IconButton>
         </Stack>
@@ -252,7 +252,7 @@ export const Assistant = ({
             disabled={isLoading}
           />
           <Stack direction="row" justifyContent={'space-between'} alignItems={'center'}>
-            <AssistantTemplates onTemplateClick={setInputValue} disabled={isLoading} />
+            <ChatTemplates onTemplateClick={setInputValue} disabled={isLoading} />
             <Stack direction="row" alignItems={'center'} gap={2}>
               <Button
                 onClick={() => handleSubmit(inputValue, useCohort, useSelectedPatient)}

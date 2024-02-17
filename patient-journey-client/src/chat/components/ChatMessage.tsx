@@ -1,9 +1,8 @@
-import React from 'react'
-import OpenAI from 'openai'
 import { MuiMarkdown } from 'mui-markdown'
-
 import { makeStyles } from '../../utils'
-import { Theme } from '@mui/material'
+import { Theme, Tooltip } from '@mui/material'
+import { ChatMessageData } from '../chatSlice'
+import ErrorIcon from '@mui/icons-material/Error'
 
 const messageStyles = (theme: Theme) => ({
   maxWidth: '90%',
@@ -38,6 +37,7 @@ const messageStyles = (theme: Theme) => ({
 
 const useStyles = makeStyles()((theme) => ({
   chatMessageLeft: {
+    position: 'relative',
     ...messageStyles(theme),
     alignSelf: 'flex-start',
     backgroundColor: theme.palette.background.default,
@@ -60,41 +60,40 @@ const useStyles = makeStyles()((theme) => ({
       display: 'grid',
     },
   },
+  errorIcon: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    marginTop: -10,
+    marginRight: -10,
+  },
 }))
 
-interface AssistantMessageProps {
-  message: OpenAI.Beta.Threads.Messages.ThreadMessage
+interface Props {
+  message: ChatMessageData
 }
 
-export const AssistantMessage = ({ message }: AssistantMessageProps) => {
+export const ChatMessage = ({ message }: Props) => {
   const { classes } = useStyles()
 
   return (
     <>
-      {(message.metadata as any)?.isContext?.toLowerCase() === 'true' ? (
-        (message.metadata as any)?.showContext?.toLowerCase() === 'true' && (
-          <div key={message.id} className={classes.chatMessageCenter}>
-            <p className={classes.chatMessageText}>Context: {(message.metadata as any)?.contextTitle}</p>
+      {message.isContext ? (
+        message.showContext && (
+          <div className={classes.chatMessageCenter}>
+            <p className={classes.chatMessageText}>Context: {message.contextTitle}</p>
           </div>
         )
       ) : (
-        <div key={message.id} className={message.role === 'user' ? classes.chatMessageRight : classes.chatMessageLeft}>
-          {message.content.map((content, index) => {
-            switch (content.type) {
-              case 'text':
-                return (
-                  <div key={index} className={classes.chatMessageText}>
-                    {/* <Markdown remarkPlugins={[remarkGfm]} disallowedElements={[]}>
-                      {content.text.value}
-                    </Markdown> */}
-                    <MuiMarkdown>{content.text.value.replace(/\n/g, '\n\n')}</MuiMarkdown>
-                  </div>
-                )
-              case 'image_file':
-              default:
-                return <img key={index} src={content.image_file.file_id} alt="" />
-            }
-          })}
+        <div className={message.role === 'user' ? classes.chatMessageRight : classes.chatMessageLeft}>
+          {message.showTruncationError && (
+            <Tooltip title={'Truncated (max number of tokens reached)'}>
+              <ErrorIcon className={classes.errorIcon} color="warning" />
+            </Tooltip>
+          )}
+          <div className={classes.chatMessageText}>
+            <MuiMarkdown>{message.content.replace(/\n/g, '\n\n')}</MuiMarkdown>
+          </div>
         </div>
       )}
     </>
