@@ -7,10 +7,8 @@ import { colorReducer } from '../color/colorSlice'
 import { alertReducer } from '../alert/alertSlice'
 import { tableReducer } from '../table/tableSlice'
 import { plotReducer } from '../plot/plotSlice'
-import { assistantReducer } from '../assistant/assistantSlice'
 
 import { listenerMiddleware } from '../data/similarityPromptMiddleware'
-import { assistantListenerMiddleware } from '../assistant/assistantMiddleware'
 import { chatReducer } from '../chat/chatSlice'
 
 export const reducer = combineReducers({
@@ -21,7 +19,6 @@ export const reducer = combineReducers({
   plot: plotReducer,
   color: colorReducer,
   alert: alertReducer,
-  assistant: assistantReducer,
   chat: chatReducer,
 })
 
@@ -35,7 +32,7 @@ export const createStore = () =>
         // https://redux-toolkit.js.org/api/getDefaultMiddleware
         serializableCheck: import.meta.env.VITE_APP_REDUX_TOOLKIT_DEVCHECKS === 'true',
         immutableCheck: import.meta.env.VITE_APP_REDUX_TOOLKIT_DEVCHECKS === 'true',
-      }).prepend(listenerMiddleware.middleware, assistantListenerMiddleware.middleware),
+      }).prepend(listenerMiddleware.middleware),
   })
 
 export const store = createStore()
