@@ -21,6 +21,7 @@ export interface ChatMessageData {
   readonly contextTitle: string
   readonly showContext: boolean
   readonly content: string
+  readonly showTruncationError?: boolean
 }
 
 interface ChatState {
@@ -56,6 +57,7 @@ const chatSlice = createSlice({
           isContext: false,
           contextTitle: '',
           showContext: false,
+          showTruncationError: action.payload.choices[0].finish_reason === 'length',
         },
       ]
     })
@@ -180,6 +182,18 @@ ${patientJourney}
         tools,
         model: import.meta.env.VITE_OPENAI_MODEL,
       })
+
+      if (response.choices[0].finish_reason === 'length') {
+        thunkAPI.dispatch(
+          addAlerts([
+            {
+              type: 'warning',
+              topic: 'Chat',
+              message: 'AI response truncated (max number of tokens reached)',
+            },
+          ])
+        )
+      }
 
       const responseMessage = response.choices[0].message
 
