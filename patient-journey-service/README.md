@@ -23,7 +23,17 @@ Select the `sandbox` virtual environment as the Python interpreter in your IDE.
 
 Interpreter Path: `./patient-journey-service/sandbox/bin/python3`
 
+## Testing
+
+With the virtual environment activated, run the tests:
+
+```bash
+pytest
+```
+
 ## Usage
+
+With the virtual environment activated, run the service:
 
 ```bash
 python3 main.py
