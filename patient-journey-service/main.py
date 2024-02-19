@@ -1,5 +1,5 @@
+# import json
 from flask import Flask, request, jsonify
-
 from embeddings import create_embeddings
 from process import process_embeddings
 
@@ -24,6 +24,10 @@ def process_data():
 
     embeddings = create_embeddings(patient_journeys)
     
+    # Save embeddings to a temporary JSON file
+    # with open('embeddings.json', 'w') as f:
+    #     f.write(json.dumps(embeddings))
+
     print("Step 2/2: TSNE and Clustering")
     
     result = process_embeddings(embeddings)
