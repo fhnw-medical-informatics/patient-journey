@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
-import numpy as np
-from sklearn.manifold import TSNE
-from sklearn.cluster import KMeans
+
+from embeddings import create_embeddings
+from process import process_embeddings
 
 app = Flask(__name__)
 
@@ -10,29 +10,23 @@ def process_data():
     # Extract data from request
     data = request.get_json()
     
-    embeddings = np.array(data['embeddings'])
+    patient_journeys = data['patient_journeys']
 
-    n_samples = embeddings.shape[0]  # Number of samples
+    # Check if patient_journeys is a list of strings
+    if not isinstance(patient_journeys, list):
+        raise ValueError("patient_journeys should be a list of strings.")
+    if not all(isinstance(journey, str) for journey in patient_journeys):
+        raise ValueError("All items in patient_journeys should be strings.")
 
-    if (n_samples < 2):
-        return jsonify({
-            'status': 'error',
-            'message': 'Number of samples must be greater than 1'
-        })
+    embeddings = create_embeddings(patient_journeys)
 
-    # TSNE Dimensionality Reduction
-    perplexity_value = min(30, max(n_samples - 1, 1)) # Perplexity value must be smaller than number of samples
-    reduced_embeddings = TSNE(n_components=2, perplexity=perplexity_value).fit_transform(embeddings)
-    
-    # K-Means Clustering
-    n_clusters = min(5, max(n_samples, 1))  # Define the number of clusters
-    kmeans = KMeans(n_clusters=n_clusters)
-    clusters = kmeans.fit_predict(reduced_embeddings)
+    result = process_embeddings(embeddings)
 
     return jsonify({
         'status': 'success',
-        'reducedEmbeddings': reduced_embeddings.tolist(),
-        'clusters': clusters.tolist()
+        'patientDataEmbeddings': embeddings,
+        'reducedEmbeddings': result['reduced_embeddings'],
+        'clusters': result['clusters']
     })
 
 if __name__ == '__main__':
