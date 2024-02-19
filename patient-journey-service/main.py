@@ -18,9 +18,19 @@ def process_data():
     if not all(isinstance(journey, str) for journey in patient_journeys):
         raise ValueError("All items in patient_journeys should be strings.")
 
-    embeddings = create_embeddings(patient_journeys)
+    print()
+    print("⚙️ Processing Patient Journeys")
+    print("Step 1/2: Generating Embeddings")
 
+    embeddings = create_embeddings(patient_journeys)
+    
+    print("Step 2/2: TSNE and Clustering")
+    
     result = process_embeddings(embeddings)
+
+    print()
+    print("🎉 Done!")
+    print()
 
     return jsonify({
         'status': 'success',

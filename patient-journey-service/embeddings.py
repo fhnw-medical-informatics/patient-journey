@@ -40,30 +40,35 @@ def create_embeddings(patient_journeys: list[str]):
     
     patient_journey_chunks: list[list[str]] = chunks['patient_journey_chunks']
     total_nr_of_tokens: int = chunks['total_nr_of_tokens']
+    total_nr_of_chunks: int = len(patient_journey_chunks)
 
-    print(f"Generating embeddings using the {MODEL} model.")
-    print(f"Total number of tokens: {total_nr_of_tokens}")
-    print(f"Number of patient Journeys: {len(patient_journeys)}")
-    print(f"Number of chunks: {len(patient_journey_chunks)}")
+    print(f"🧩 Generating embeddings using the `{MODEL}` model.")
+    print(f"Patient Journeys: {len(patient_journeys)}")
+    print(f"Chunks: {total_nr_of_chunks}")
+    print(f"Tokens: {total_nr_of_tokens}")
     estimated_cost = (total_nr_of_tokens / 1000) * EMBEDDINGS_API_COSTS_PER_1KTOKENS
-    print(f"====================\nEstimated costs: ${estimated_cost:.4f}\n====================")
+    print(f"====================\n💸 Estimated costs: ${estimated_cost:.4f}\n====================")
+    print()
 
     patient_journey_embeddings: list[list[float]] = []
 
     for index, chunk in enumerate(patient_journey_chunks):
-        print(f"Sending chunk {index + 1} of {len(patient_journey_chunks)} to openai embeddings api.")
+        progress = (index + 1) / total_nr_of_chunks
+        progress_bar = ('#' * int(progress * 20)).ljust(20)
+        print(f"\r[{progress_bar}] Chunk {index + 1}/{total_nr_of_chunks} being sent to openai embeddings api.", end='')
 
         try:
             chunk_embeddings = create_embeddings_for_chunk(chunk, MODEL)
-
-            # Add the chunk embeddings to the list of patient journey embeddings
             patient_journey_embeddings.extend(chunk_embeddings)
 
         except Exception as e:
-            print(f"An error occurred while generating embeddings for chunk {index + 1} of {len(patient_journey_chunks)}: {e}")
+            print(f"\nAn error occurred while generating embeddings for chunk {index + 1} of {total_nr_of_chunks}: {e}")
             raise e
-
-    print(f"Finished generating {len(patient_journey_embeddings)} embeddings for {len(patient_journey_chunks)} chunks.")
+    
+    print()
+    print()
+    print(f"✅ Finished generating {len(patient_journey_embeddings)} embeddings for {total_nr_of_chunks} chunks.")
+    print()
 
     if len(patient_journey_embeddings) != len(patient_journeys):
         print(f"Number of embeddings generated ({len(patient_journey_embeddings)}) does not match the number of patient journeys ({len(patient_journeys)}).")
