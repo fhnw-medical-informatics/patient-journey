@@ -124,12 +124,10 @@ export async function retryOpenaiAPI(maxRetries: number, inputChunk: Array<strin
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const response = await openaiAPI.embeddings.create({
+      return await openaiAPI.embeddings.create({
         model: 'text-embedding-ada-002',
         input: inputChunk,
       })
-
-      return response
     } catch (error: any) {
       console.error(`Error calling embeddings api (retry ${i + 1}/${maxRetries}):`, error)
 
@@ -218,34 +216,34 @@ export const createPatientJourneysChunks = (
 export const loadEmbeddings = async (patientData: PatientData, eventData: EventData): Promise<EmbeddingsData> => {
   const patientDataHash = await sha256(JSON.stringify(patientData.allEntities))
 
-  // Check if embeddings are already cached in a file
-  const cachedEmbeddingsFile = await loadEmbeddingsFileFromUrl(EMBEDDINGS_DATA_FILE_URL)
+  // Check if embeddings are already in a local file
+  const localEmbeddingsFile = await loadEmbeddingsFileFromUrl(EMBEDDINGS_DATA_FILE_URL)
 
   if (
-    cachedEmbeddingsFile &&
-    cachedEmbeddingsFile.patientDataHash === patientDataHash &&
-    cachedEmbeddingsFile.embeddings &&
-    cachedEmbeddingsFile.reducedEmbeddings &&
-    cachedEmbeddingsFile.clusters
+    localEmbeddingsFile &&
+    localEmbeddingsFile.patientDataHash === patientDataHash &&
+    localEmbeddingsFile.embeddings &&
+    localEmbeddingsFile.reducedEmbeddings &&
+    localEmbeddingsFile.clusters
   ) {
-    console.log('Embeddings loaded from cache file')
+    console.log('Embeddings loaded from local file')
 
-    console.log('Embeddings', cachedEmbeddingsFile.embeddings)
+    console.log('Embeddings', localEmbeddingsFile.embeddings)
 
     return Promise.resolve({
       patientDataEmbeddings: {
         type: 'loading-complete',
-        embeddings: cachedEmbeddingsFile.embeddings,
-        reducedEmbeddings: cachedEmbeddingsFile.reducedEmbeddings,
-        clusters: cachedEmbeddingsFile.clusters,
+        embeddings: localEmbeddingsFile.embeddings,
+        reducedEmbeddings: localEmbeddingsFile.reducedEmbeddings,
+        clusters: localEmbeddingsFile.clusters,
       },
       promptEmbeddings: {
         type: 'loading-pending',
       },
     })
   } else {
-    if (cachedEmbeddingsFile && cachedEmbeddingsFile.patientDataHash !== patientDataHash) {
-      console.log('Cached embeddings are for a different patient data set, loading new embeddings from API…')
+    if (localEmbeddingsFile && localEmbeddingsFile.patientDataHash !== patientDataHash) {
+      console.log('Local embeddings.json file is for a different patient data set, loading new embeddings from API…')
     }
 
     const patientJourneys = preparePatientJourneys(patientData, eventData)
@@ -333,14 +331,7 @@ export const loadEmbeddings = async (patientData: PatientData, eventData: EventD
       }
     )
     const url = URL.createObjectURL(blob)
-    console.log('Embeddings Cache-File URL:', url)
-    // <a href="blob:http://127.0.0.1:3000/77094bbb-5b03-4391-92dc-42796fd8ba3d" download="embeddings.json">Download</a>
-    // TODO: This should be a button in the UI
-    console.log('Download embeddings as json file:', `<a href="${url}" download="embeddings.json">Download</a>`)
-
-    console.log('Embeddings cached successfully')
-
-    console.log('Embeddings', patientDataEmbeddings)
+    console.log(`Download embeddings as json file: ${url}`)
 
     return Promise.resolve({
       patientDataEmbeddings: {
@@ -360,9 +351,7 @@ const loadEmbeddingsFileFromUrl = async (url: string): Promise<EmbeddingsFile | 
   const response = await fetch(url)
 
   if (response.ok) {
-    const json = await response.json()
-
-    return json
+    return await response.json()
   } else {
     return undefined
   }
