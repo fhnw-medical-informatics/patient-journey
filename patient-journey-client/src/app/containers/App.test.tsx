@@ -15,5 +15,5 @@ it('renders without crashing', () => {
     </Provider>
   )
   render(<Root />)
-  expect(screen.getByText(/You must use Chrome/)).toBeInTheDocument()
+  expect(screen.getByText(/Patient Journey/)).toBeInTheDocument()
 })
