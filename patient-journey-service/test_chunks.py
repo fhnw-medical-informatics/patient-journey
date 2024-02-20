@@ -17,10 +17,9 @@ def test_empty_list():
 
 def test_list_with_empty_string():
     journeys = ["", "b", "c"]
-    result = create_patient_journeys_chunks(journeys, "text-embedding-ada-002", 3)
-    assert result['total_nr_of_tokens'] == 3
-    assert len(result['patient_journey_chunks']) == 1
-    assert result['patient_journey_chunks'][0][0] == "EMPTY"
+    with pytest.raises(ValueError) as excinfo:
+        create_patient_journeys_chunks(journeys, "text-embedding-ada-002", 3)
+    assert "empty" in str(excinfo.value)
 
 def test_journey_exceeds_max_tokens():
     long_journey = "journey" # 2 Tokens (jour|ney) -> https://platform.openai.com/tokenizer
