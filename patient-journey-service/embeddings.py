@@ -70,11 +70,9 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
     # Try to load partial results if they exist
     partial_embeddings = []
     
-    try:
+    if os.path.exists(partial_results_file):
         with open(partial_results_file, 'r') as file:
             partial_embeddings = json.load(file)
-    except FileNotFoundError:
-        pass  # It's okay if the file doesn't exist, we'll create it later
 
     # Calculate the starting index based on the number of embeddings already generated
     start_index = len(partial_embeddings)
@@ -87,6 +85,9 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
         new_embeddings = create_embeddings(remaining_patient_journeys)
         partial_embeddings.extend(new_embeddings)
 
+        if len(partial_embeddings) != len(patient_journeys):
+            raise Exception("Everything was successful, but not all embeddings were generated.", "Attaching Partial Embeddings", partial_embeddings)
+        
     except Exception as e:
         # Merge the created embeddings from the exception with the existing partial_embeddings
         if hasattr(e, 'args') and len(e.args) > 2 and e.args[1] == "Attaching Partial Embeddings" and isinstance(e.args[2], list):
@@ -96,12 +97,14 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
             with open(partial_results_file, 'w') as file:
                 json.dump(partial_embeddings, file)
 
+            print(f"⚠️ An exception occurred during embeddings generation: {e}, the attempt is resumable with the same hash ({journeys_hash}).")
             raise Exception(f"An exception occurred during embeddings generation: {e}", "Partial Embeddings Saved")
         else:
+            print(f"🚨 An exception occurred during embeddings generation: {e}, the attempt is NOT resumable.")
             raise Exception(f"An exception occurred during embeddings generation: {e}")
 
-    # If we've generated all embeddings, delete the partial results file
-    if len(partial_embeddings) == len(patient_journeys):
+    # If we've generated all embeddings, delete the partial results file    
+    if os.path.exists(partial_results_file):
         os.remove(partial_results_file)
 
     return partial_embeddings
