@@ -24,7 +24,7 @@ def create_embeddings_for_chunk(chunk: list[str], model: str = "text-embedding-a
         input=chunk
     )
 
-    if embeddings_response and len(embeddings_response.data) > 0:
+    if embeddings_response and len(embeddings_response.data) > 0 and len(embeddings_response.data) == len(chunk):
         embeddings: list[list[float]] = []
 
         for embedding in embeddings_response.data:
