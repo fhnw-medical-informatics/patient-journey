@@ -73,6 +73,7 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
     if os.path.exists(partial_results_file):
         with open(partial_results_file, 'r') as file:
             partial_embeddings = json.load(file)
+            print(f"📂 Resuming from partial embeddings from file: {partial_results_file} with {len(partial_embeddings)} entries of {len(patient_journeys)}")
 
     # Calculate the starting index based on the number of embeddings already generated
     start_index = len(partial_embeddings)
@@ -97,8 +98,8 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
             with open(partial_results_file, 'w') as file:
                 json.dump(partial_embeddings, file)
 
-            print(f"⚠️ An exception occurred during embeddings generation: {e}, the attempt is resumable with the same hash ({journeys_hash}).")
-            raise Exception(f"An exception occurred during embeddings generation: {e}", "Partial Embeddings Saved")
+            print(f"⚠️ An exception occurred during embeddings generation: {e.args[0]}, the attempt is resumable with the same hash ({journeys_hash}).")
+            raise Exception(f"An exception occurred during embeddings generation: {e.args[0]}", "Partial Embeddings Saved")
         else:
             print(f"🚨 An exception occurred during embeddings generation: {e}, the attempt is NOT resumable.")
             raise Exception(f"An exception occurred during embeddings generation: {e}")
@@ -106,6 +107,7 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
     # If we've generated all embeddings, delete the partial results file    
     if os.path.exists(partial_results_file):
         os.remove(partial_results_file)
+        print(f"🗑️ Deleted partial embeddings file: {partial_results_file}")
 
     return partial_embeddings
 
