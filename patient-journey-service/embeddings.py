@@ -18,22 +18,27 @@ openaiAPI = OpenAI(
     max_retries=5
 )
 
-def create_embeddings_for_chunk(chunk: list[str], model: str = "text-embedding-ada-002"):
-    embeddings_response = openaiAPI.embeddings.create(
-        model=model,
-        input=chunk
-    )
+def create_embeddings_for_chunk(chunk: list[str], model: str = "text-embedding-ada-002") -> list[list[float]]:
+    """
+    Generate embeddings for a given chunk of text using the specified model.
 
-    if embeddings_response and len(embeddings_response.data) > 0 and len(embeddings_response.data) == len(chunk):
-        embeddings: list[list[float]] = []
+    :param chunk: A list of strings for which to generate embeddings.
+    :param model: The model to use for generating embeddings. Defaults to "text-embedding-ada-002".
+    :return: A list of embeddings, where each embedding corresponds to an item in the input chunk.
+    :raises Exception: If the embeddings cannot be generated or the response is invalid.
+    """
+    if not chunk:
+        return []
 
-        for embedding in embeddings_response.data:
-            embeddings.append(embedding.embedding)
+    try:
+        embeddings_response = openaiAPI.embeddings.create(model=model, input=chunk)
+    except Exception as e:
+        raise Exception(f"Failed to generate embeddings: {e}")
 
-        return embeddings
-    
-    raise Exception("An error occurred while generating embeddings.")
+    if not embeddings_response or len(embeddings_response.data) != len(chunk):
+        raise Exception("Invalid response from embeddings API.")
 
+    return [embedding.embedding for embedding in embeddings_response.data]
 
 def create_embeddings(patient_journeys: list[str]):
     chunks = create_patient_journeys_chunks(patient_journeys, MODEL, TOKENS_PER_CHUNK)

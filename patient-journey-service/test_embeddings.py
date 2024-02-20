@@ -56,10 +56,24 @@ def test_create_embeddings_for_chunk_empty_input(mock_openaiAPI):
     # Arrange
     mock_openaiAPI.embeddings.create.return_value = create_openai_mock_response(chunk)
     
+    # Act
+    embeddings = create_embeddings_for_chunk(chunk)
+
+    # Assert
+    assert embeddings == []
+
+# Test the case where the OpenAI API raises an exception
+@patch('embeddings.openaiAPI')
+def test_create_embeddings_for_chunk_api_failure(mock_openaiAPI):
+    chunk = ["test1", "test2"]
+
+    # Arrange
+    mock_openaiAPI.embeddings.create.side_effect = Exception("OpenAI API error")
+    
     # Act & Assert
     with pytest.raises(Exception) as excinfo:
-        create_embeddings_for_chunk([])
-    assert "An error occurred while generating embeddings." in str(excinfo.value)
+        create_embeddings_for_chunk(chunk)
+    assert "OpenAI API error" in str(excinfo.value)
 
 # Test the case where the API response is missing data
 @patch('embeddings.openaiAPI')
@@ -72,7 +86,7 @@ def test_create_embeddings_for_chunk_missing_data(mock_openaiAPI):
     # Act & Assert
     with pytest.raises(Exception) as excinfo:
         create_embeddings_for_chunk(chunk)
-    assert "An error occurred while generating embeddings." in str(excinfo.value)
+    assert "Invalid response from embeddings API." in str(excinfo.value)
 
 # Test the case where the API response has a different number of embeddings than inputs
 @patch('embeddings.openaiAPI')
@@ -90,7 +104,7 @@ def test_create_embeddings_for_chunk_mismatched_response(mock_openaiAPI):
     # Act & Assert
     with pytest.raises(Exception) as excinfo:
         create_embeddings_for_chunk(chunk)
-    assert "An error occurred while generating embeddings." in str(excinfo.value)
+    assert "Invalid response from embeddings API." in str(excinfo.value)
 
 
 # Test the normal case where embeddings are successfully created
