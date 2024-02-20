@@ -208,6 +208,29 @@ def test_create_embeddings_api_failure(mock_create_patient_journeys_chunks, mock
         create_embeddings(patient_journeys)
     assert "OpenAI API error" in str(excinfo.value)
 
+# Test the case where the OpenAI API fails to return embeddings for the second chunk
+# …but we still get the partially generated embeddings in the exception
+@patch('embeddings.create_embeddings_for_chunk')
+@patch('embeddings.create_patient_journeys_chunks')
+def test_create_embeddings_partial_failure(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk):
+    patient_journeys = ["test1", "test2", "test3", "test4"]
+    chunk1 = ["test1", "test2"]
+    chunk2 = ["test3", "test4"]
+    embeddings1 = create_embeddings_mock_response(chunk1)
+
+    # Arrange
+    mock_create_patient_journeys_chunks.return_value = {
+        'total_nr_of_tokens': 4,
+        'patient_journey_chunks': [chunk1, chunk2]
+    }
+    mock_create_embeddings_for_chunk.side_effect = [embeddings1, Exception("OpenAI API error")]
+    
+    # Act & Assert
+    with pytest.raises(Exception) as excinfo:
+        create_embeddings(patient_journeys)
+    assert "OpenAI API error" in str(excinfo.value)
+    assert excinfo.value.args[2] == embeddings1
+
 # Test the case where the number of embeddings does not match the number of patient journeys
 @patch('embeddings.create_embeddings_for_chunk')
 @patch('embeddings.create_patient_journeys_chunks')
