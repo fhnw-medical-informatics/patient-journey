@@ -67,19 +67,10 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
     # Calculate a hash of the patient_journeys list to use as a filename
     partial_results_file = f"partial_embeddings_{journeys_hash}.json"
 
-    # Try to load partial results if they exist
-    partial_embeddings = []
-    
-    if os.path.exists(partial_results_file):
-        with open(partial_results_file, 'r') as file:
-            partial_embeddings = json.load(file)
-            print(f"📂 Resuming from partial embeddings from file: {partial_results_file} with {len(partial_embeddings)} entries of {len(patient_journeys)}")
+    resumable_data = get_remaining_journeys_and_cached_embeddings_from_file(patient_journeys, partial_results_file)
 
-    # Calculate the starting index based on the number of embeddings already generated
-    start_index = len(partial_embeddings)
-
-    # Only process the remaining patient journeys
-    remaining_patient_journeys = patient_journeys[start_index:]
+    partial_embeddings = resumable_data['partial_embeddings']
+    remaining_patient_journeys = resumable_data['remaining_patient_journeys']
 
     try:
         # Generate embeddings for the remaining patient journeys
@@ -95,8 +86,7 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
             partial_embeddings.extend(e.args[2])
 
             # Save the merged embeddings to the file
-            with open(partial_results_file, 'w') as file:
-                json.dump(partial_embeddings, file)
+            save_partial_embeddings_to_file(partial_embeddings, partial_results_file)
 
             print(f"⚠️ An exception occurred during embeddings generation: {e.args[0]}, the attempt is resumable with the same hash ({journeys_hash}).")
             raise Exception(f"An exception occurred during embeddings generation: {e.args[0]}", "Partial Embeddings Saved")
@@ -105,9 +95,7 @@ def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str)
             raise Exception(f"An exception occurred during embeddings generation: {e}")
 
     # If we've generated all embeddings, delete the partial results file    
-    if os.path.exists(partial_results_file):
-        os.remove(partial_results_file)
-        print(f"🗑️ Deleted partial embeddings file: {partial_results_file}")
+    cleanup_partial_embeddings_file(partial_results_file)
 
     return partial_embeddings
 
@@ -136,6 +124,35 @@ def create_embeddings(patient_journeys: list[str]) -> list[list[float]]:
         raise Exception(f"An exception occurred during embeddings generation: {e}", "Attaching Partial Embeddings", partial_embeddings)
     
     return partial_embeddings
+
+# Recover potentially cached embeddings form a previous run
+def get_remaining_journeys_and_cached_embeddings_from_file(patient_journeys: list[str], partial_results_file: str) -> dict:
+    # Try to load partial results if they exist
+    partial_embeddings = []
+    
+    if os.path.exists(partial_results_file):
+        with open(partial_results_file, 'r') as file:
+            partial_embeddings = json.load(file)
+            print(f"📂 Resuming from previously created embeddings ({len(partial_embeddings)}/{len(patient_journeys)}) in file: {partial_results_file}")
+
+    # Calculate the starting index based on the number of embeddings already generated
+    start_index = len(partial_embeddings)
+
+    # Only process the remaining patient journeys
+    return {
+        "partial_embeddings": partial_embeddings,
+        "remaining_patient_journeys": patient_journeys[start_index:]
+    }
+
+def save_partial_embeddings_to_file(partial_embeddings: list[list[float]], partial_results_file: str):
+    # Save the merged embeddings to the file
+    with open(partial_results_file, 'w') as file:
+        json.dump(partial_embeddings, file)
+
+def cleanup_partial_embeddings_file(partial_results_file: str): 
+    if os.path.exists(partial_results_file):
+        os.remove(partial_results_file)
+        print(f"🧹 Cleaned up partial embeddings file: {partial_results_file}")
 
 def print_embedding_generation_info(num_journeys: int, num_chunks: int, total_tokens: int):
     """Prints information about the embedding generation process."""
