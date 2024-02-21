@@ -1,10 +1,9 @@
 import os
 
-import json
-
 from dotenv import load_dotenv
 from openai import OpenAI
 from chunks import create_patient_journeys_chunks
+from cache import load_partial_embeddings_from_file, save_partial_embeddings_to_file, cleanup_partial_embeddings_file
 
 # Load the environment variables from the .env file
 load_dotenv(".env.local")
@@ -86,12 +85,10 @@ def create_embeddings(patient_journeys: list[str], journeys_hash: str) -> list[l
 # Recover potentially cached embeddings form a previous run
 def get_remaining_journeys_and_cached_embeddings_from_file(patient_journeys: list[str], partial_results_file: str) -> dict:
     # Try to load partial results if they exist
-    partial_embeddings = []
+    partial_embeddings = load_partial_embeddings_from_file(partial_results_file)
     
-    if os.path.exists(partial_results_file):
-        with open(partial_results_file, 'r') as file:
-            partial_embeddings = json.load(file)
-            print(f"📂 Resuming from previously created embeddings ({len(partial_embeddings)}/{len(patient_journeys)}) in file: {partial_results_file}")
+    if partial_embeddings:
+        print(f"📂 Resuming from previously created embeddings ({len(partial_embeddings)}/{len(patient_journeys)}) in file: {partial_results_file}")
 
     # Calculate the starting index based on the number of embeddings already generated
     start_index = len(partial_embeddings)
@@ -101,16 +98,6 @@ def get_remaining_journeys_and_cached_embeddings_from_file(patient_journeys: lis
         "partial_embeddings": partial_embeddings,
         "remaining_patient_journeys": patient_journeys[start_index:]
     }
-
-def save_partial_embeddings_to_file(partial_embeddings: list[list[float]], partial_results_file: str):
-    # Save the merged embeddings to the file
-    with open(partial_results_file, 'w') as file:
-        json.dump(partial_embeddings, file)
-
-def cleanup_partial_embeddings_file(partial_results_file: str): 
-    if os.path.exists(partial_results_file):
-        os.remove(partial_results_file)
-        print(f"🧹 Cleaned up partial embeddings file: {partial_results_file}")
 
 def print_embedding_generation_info(num_journeys: int, num_chunks: int, total_tokens: int):
     """Prints information about the embedding generation process."""
@@ -142,6 +129,6 @@ def validate_embeddings_count(embeddings: list[list[float]], patient_journeys: l
         error_message = f"Number of embeddings generated ({len(embeddings)}) does not match the number of patient journeys ({len(patient_journeys)})."
         print(error_message)
         raise Exception(error_message)
-    print(f"✅ Finished generating {len(embeddings)} embeddings for {len(patient_journeys)} patient journeys.\n")
+    print(f"\n✅ Finished generating {len(embeddings)} embeddings for {len(patient_journeys)} patient journeys.\n")
 
 
