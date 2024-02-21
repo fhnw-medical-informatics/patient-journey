@@ -13,7 +13,9 @@ def process_embeddings(embeddings: list[list[float]]):
     # TSNE Dimensionality Reduction
     print("♻️ Reducing dimensionality using TSNE...")
     perplexity_value = min(30, max(n_samples - 1, 1)) # Perplexity value must be smaller than number of samples
-    reduced_embeddings = TSNE(n_components=2, perplexity=perplexity_value).fit_transform(embeddings)
+    # Values from https://platform.openai.com/docs/guides/embeddings/use-cases
+    tsne = TSNE(n_components=2, perplexity=perplexity_value, random_state=42, init='random', learning_rate=200)
+    reduced_embeddings = tsne.fit_transform(embeddings)
     
     # K-Means Clustering
     print("🫧 Clustering using K-Means...")

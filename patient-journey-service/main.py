@@ -52,12 +52,13 @@ def process_data():
         
         result = process_embeddings(embeddings)
 
+        # If we've generated everything successfully, delete the partial results file
+        print()
+        cleanup_partial_embeddings_file(embeddings_file)
+
         print()
         print("🎉 Done!")
         print()
-
-        # If we've generated everything successfully, delete the partial results file
-        cleanup_partial_embeddings_file(embeddings_file)
 
         return jsonify({
             'status': 'success',
