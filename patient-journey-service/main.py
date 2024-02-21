@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from datetime import datetime
 from embeddings import create_embeddings
 from process import process_embeddings
 from cache import load_partial_embeddings_from_file, save_partial_embeddings_to_file, cleanup_partial_embeddings_file
@@ -24,10 +25,18 @@ def process_data():
         if not journeys_hash or not isinstance(journeys_hash, str):
             raise ValueError("journeys_hash should be a valid string.")
 
+        start_time = datetime.now()
+        start_title = f"Processing {len(patient_journeys)} Patient Journeys"
+
         print()
-        print("⚙️ Processing Patient Journeys")
+        print("⬇️" * len(start_title))
+        print(start_title)
+        print()
+        print(f"Start time: {start_time}")
         print()
         print("Step 1/2: Generating Embeddings")
+        print("*******************************")
+        print()
 
         # Load embeddings from file if they exist
         embeddings_file = f"embeddings_{journeys_hash}.json"
@@ -45,10 +54,14 @@ def process_data():
                     })
             
             # Save successfully generated embeddings to file
+            print()
+            print(f"💾 Saving {len(embeddings)} embeddings to file ({embeddings_file})…")
             save_partial_embeddings_to_file(embeddings, embeddings_file)
 
         print()
         print("Step 2/2: TSNE and Clustering")
+        print("*****************************")
+        print()
         
         result = process_embeddings(embeddings)
 
@@ -56,8 +69,13 @@ def process_data():
         print()
         cleanup_partial_embeddings_file(embeddings_file)
 
+        end_time = datetime.now()
+        time_elapsed = end_time - start_time
+
         print()
-        print("🎉 Done!")
+        print(f"End time: {end_time}")
+        print()
+        print(f"🎉 Done in {time_elapsed}")
         print()
 
         return jsonify({

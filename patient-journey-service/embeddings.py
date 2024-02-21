@@ -66,8 +66,9 @@ def create_embeddings(patient_journeys: list[str], journeys_hash: str) -> list[l
 
     try:
         for i, chunk in enumerate(patient_journey_chunks):
-            display_progress(i, num_chunks, len(partial_embeddings))
+            display_progress(i, num_chunks, len(partial_embeddings), False)
             partial_embeddings.extend(generate_chunk_embeddings(chunk, i, num_chunks))
+            display_progress(i, num_chunks, len(partial_embeddings), True)
             # Save current embeddings after each chunk, so that we can resume in case of an exception
             save_partial_embeddings_to_file(partial_embeddings, partial_results_file)
         
@@ -88,7 +89,8 @@ def get_remaining_journeys_and_cached_embeddings_from_file(patient_journeys: lis
     partial_embeddings = load_partial_embeddings_from_file(partial_results_file)
     
     if partial_embeddings:
-        print(f"📂 Resuming from previously created embeddings ({len(partial_embeddings)}/{len(patient_journeys)}) in file: {partial_results_file}")
+        print(f"📂 Resuming from previously created embeddings ({len(partial_embeddings)}/{len(patient_journeys)})")
+        print()
 
     # Calculate the starting index based on the number of embeddings already generated
     start_index = len(partial_embeddings)
@@ -105,30 +107,41 @@ def print_embedding_generation_info(num_journeys: int, num_chunks: int, total_to
     print(f"Patient Journeys: {num_journeys}")
     print(f"Chunks: {num_chunks}")
     print(f"Tokens: {total_tokens}")
+    
     estimated_cost = (total_tokens / 1000) * EMBEDDINGS_API_COSTS_PER_1KTOKENS
-    print(f"====================\n💸 Estimated costs: ${estimated_cost:.4f}\n====================\n")
+    cost_string = f"💸 Estimated costs: ${estimated_cost:.4f}"
 
-def display_progress(current_chunk: int, total_chunks: int, total_embeddings: int):
+    print("=" * (len(cost_string) + 1))
+    print(cost_string)
+    print("=" * (len(cost_string) + 1))
+    print()
+
+def display_progress(current_chunk: int, total_chunks: int, total_embeddings: int, is_saving: bool = False):
     """Displays the progress of the embedding generation."""
     progress = (current_chunk + 1) / total_chunks
     progress_bar = ('#' * int(progress * 20)).ljust(20)
-    print(f"\r[{progress_bar}] Chunk {current_chunk + 1}/{total_chunks} being sent to openai embeddings api. Total generated embeddings: {total_embeddings}", end='')
+    print(f"\r[{progress_bar}] Chunk {current_chunk + 1}/{total_chunks} – Total embeddings: {total_embeddings}{' (💾)' if is_saving else ' (📡)'}", end='')
 
 def generate_chunk_embeddings(chunk: list[str], chunk_index: int, total_chunks: int) -> list[list[float]]:
     """Generates embeddings for a single chunk and handles exceptions."""
     try:
         return create_embeddings_for_chunk(chunk, MODEL)
     except Exception as e:
-        error_message = f"\nAn error occurred while generating embeddings for chunk {chunk_index + 1} of {total_chunks}: {e}"
+        error_message = f"An error occurred while generating embeddings for chunk {chunk_index + 1} of {total_chunks}: {e}"
+        print()
+        print()
         print(error_message)
         raise Exception(error_message)
 
 def validate_embeddings_count(embeddings: list[list[float]], patient_journeys: list[str]):
     """Validates that the number of generated embeddings matches the number of patient journeys."""
+    print()
+    print()
     if len(embeddings) != len(patient_journeys):
         error_message = f"Number of embeddings generated ({len(embeddings)}) does not match the number of patient journeys ({len(patient_journeys)})."
         print(error_message)
         raise Exception(error_message)
-    print(f"\n✅ Finished generating {len(embeddings)} embeddings for {len(patient_journeys)} patient journeys.\n")
+
+    print(f"✅ Finished generating {len(embeddings)} embeddings for {len(patient_journeys)} patient journeys.\n")
 
 
