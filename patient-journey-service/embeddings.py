@@ -43,85 +43,42 @@ def create_embeddings_for_chunk(chunk: list[str], model: str = "text-embedding-a
 
     return [embedding.embedding for embedding in embeddings_response.data]
 
-def resumable_create_embeddings(patient_journeys: list[str], journeys_hash: str) -> list[list[float]]:
-    """
-    Generate embeddings for a list of patient journeys.
-    But if an exception occurs, the function will store the partial results in a file and raise an exception.
-    When the function is run again with the same input, it will load the partial results from the file and continue where it left off.
-
-    Since the embeddings are created in the same order as the partient_journeys list, when a partial result is loaded from the file,
-    the function will skip the patient journeys for which embeddings were already generated and append the new embeddings to the partial results.
-
-    If another error happens, the function will do the same again, storing the new partial results in the file. Until all embeddings are generated.
-
-    In order to identify the partial results file, the function will use the hash of the input list of patient journeys.
-
-    Once all embeddings are generated, the function will delete the partial results file.
-
-    This function uses the create_embeddings function to generate the embeddings.
-
-    :param patient_journeys: A list of patient journey strings.
-    :return: A list of embeddings for each patient journey.
-    :raises Exception: If not all embeddings are generated.
-    """
-    # Calculate a hash of the patient_journeys list to use as a filename
-    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
-
-    resumable_data = get_remaining_journeys_and_cached_embeddings_from_file(patient_journeys, partial_results_file)
-
-    partial_embeddings = resumable_data['partial_embeddings']
-    remaining_patient_journeys = resumable_data['remaining_patient_journeys']
-
-    try:
-        # Generate embeddings for the remaining patient journeys
-        new_embeddings = create_embeddings(remaining_patient_journeys)
-        partial_embeddings.extend(new_embeddings)
-
-        if len(partial_embeddings) != len(patient_journeys):
-            raise Exception("Everything was successful, but not all embeddings were generated.", "Attaching Partial Embeddings", partial_embeddings)
-        
-    except Exception as e:
-        # Merge the created embeddings from the exception with the existing partial_embeddings
-        if hasattr(e, 'args') and len(e.args) > 2 and e.args[1] == "Attaching Partial Embeddings" and isinstance(e.args[2], list):
-            partial_embeddings.extend(e.args[2])
-
-            # Save the merged embeddings to the file
-            save_partial_embeddings_to_file(partial_embeddings, partial_results_file)
-
-            print(f"⚠️ An exception occurred during embeddings generation: {e.args[0]}, the attempt is resumable with the same hash ({journeys_hash}).")
-            raise Exception(f"An exception occurred during embeddings generation: {e.args[0]}", "Partial Embeddings Saved")
-        else:
-            print(f"🚨 An exception occurred during embeddings generation: {e}, the attempt is NOT resumable.")
-            raise Exception(f"An exception occurred during embeddings generation: {e}")
-
-    # If we've generated all embeddings, delete the partial results file    
-    cleanup_partial_embeddings_file(partial_results_file)
-
-    return partial_embeddings
-
-def create_embeddings(patient_journeys: list[str]) -> list[list[float]]:
+def create_embeddings(patient_journeys: list[str], journeys_hash: str) -> list[list[float]]:
     """Generate embeddings for a list of patient journeys.
 
     :param patient_journeys: A list of patient journey strings.
     :return: A list of embeddings for each patient journey.
     :raises Exception: If not all embeddings are generated.
     """
-    chunks_info = create_patient_journeys_chunks(patient_journeys, MODEL, TOKENS_PER_CHUNK)
+    # File to store partial results to resume from in case of an exception
+    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+
+    resumable_data = get_remaining_journeys_and_cached_embeddings_from_file(patient_journeys, partial_results_file)
+
+    partial_embeddings = resumable_data['partial_embeddings']
+    remaining_patient_journeys = resumable_data['remaining_patient_journeys']
+
+    chunks_info = create_patient_journeys_chunks(remaining_patient_journeys, MODEL, TOKENS_PER_CHUNK)
     patient_journey_chunks = chunks_info['patient_journey_chunks']
     total_tokens = chunks_info['total_nr_of_tokens']
     num_chunks = len(patient_journey_chunks)
 
-    print_embedding_generation_info(len(patient_journeys), num_chunks, total_tokens)
+    print_embedding_generation_info(len(remaining_patient_journeys), num_chunks, total_tokens)
 
-    partial_embeddings = []
     try:
         for i, chunk in enumerate(patient_journey_chunks):
             display_progress(i, num_chunks)
             partial_embeddings.extend(generate_chunk_embeddings(chunk, i, num_chunks))
+            # Save current embeddings after each chunk, so that we can resume in case of an exception
+            save_partial_embeddings_to_file(partial_embeddings, partial_results_file)
         
         validate_embeddings_count(partial_embeddings, patient_journeys)
     except Exception as e:
-        raise Exception(f"An exception occurred during embeddings generation: {e}", "Attaching Partial Embeddings", partial_embeddings)
+        print(f"⚠️ An error occurred during embeddings generation, the attempt is resumable with the same hash ({journeys_hash}).")
+        raise Exception(f"An error occurred during embeddings generation: {e}")
+    
+    # If we've generated all embeddings successfully, delete the partial results file    
+    cleanup_partial_embeddings_file(partial_results_file)
     
     return partial_embeddings
 
