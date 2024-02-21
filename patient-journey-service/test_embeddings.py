@@ -234,81 +234,234 @@ def test_create_embeddings_no_patient_journeys(mock_create_patient_journeys_chun
     mock_os_remove.assert_not_called()
     assert result == []
 
-# # Test the case where an empty chunk is provided
-# @patch('embeddings.create_embeddings_for_chunk')
-# @patch('embeddings.create_patient_journeys_chunks')
-# def test_create_embeddings_empty_chunk(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk):
-#     patient_journeys = ["test1", "test2"]
-#     empty_chunk = []
-    
-#     # Arrange
-#     mock_create_patient_journeys_chunks.return_value = {
-#         'total_nr_of_tokens': 2,
-#         'patient_journey_chunks': [empty_chunk]
-#     }
-    
-#     # Act & Assert
-#     with pytest.raises(Exception) as excinfo:
-#         create_embeddings(patient_journeys)
-#     assert "Not all embeddings were generated." in str(excinfo.value)
+# Test the case where an empty chunk is provided
+@patch('builtins.open')
+@patch('os.remove')
+@patch('json.dump')
+@patch('json.load')
+@patch('os.path.exists')
+@patch('embeddings.create_embeddings_for_chunk')
+@patch('embeddings.create_patient_journeys_chunks')
+def test_create_embeddings_empty_chunk(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk, mock_path_exists, mock_json_load, mock_json_dump, mock_os_remove, mock_open):
+    patient_journeys = ["test1", "test2"]
+    empty_chunk = []
 
-# # Test the case where the OpenAI API fails to return embeddings
-# @patch('embeddings.create_embeddings_for_chunk', side_effect=Exception("OpenAI API error"))
-# @patch('embeddings.create_patient_journeys_chunks')
-# def test_create_embeddings_api_failure(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk):
-#     patient_journeys = ["test1", "test2"]
-#     chunk = ["test1", "test2"]
+    journeys_hash = "testhash"
+    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
     
-#     # Arrange
-#     mock_create_patient_journeys_chunks.return_value = {
-#         'total_nr_of_tokens': 2,
-#         'patient_journey_chunks': [chunk]
-#     }
-    
-#     # Act & Assert
-#     with pytest.raises(Exception) as excinfo:
-#         create_embeddings(patient_journeys)
-#     assert "OpenAI API error" in str(excinfo.value)
+    # Arrange
+    mock_path_exists.return_value = False
+    mock_os_remove.return_value = None
 
-# # Test the case where the OpenAI API fails to return embeddings for the second chunk
-# # …but we still get the partially generated embeddings in the exception
-# @patch('embeddings.create_embeddings_for_chunk')
-# @patch('embeddings.create_patient_journeys_chunks')
-# def test_create_embeddings_partial_failure(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk):
-#     patient_journeys = ["test1", "test2", "test3", "test4"]
-#     chunk1 = ["test1", "test2"]
-#     chunk2 = ["test3", "test4"]
-#     embeddings1 = create_embeddings_mock_response(chunk1)
+    mock_create_patient_journeys_chunks.return_value = {
+        'total_nr_of_tokens': 2,
+        'patient_journey_chunks': [empty_chunk]
+    }
+    
+    # Act & Assert
+    with pytest.raises(Exception) as excinfo:
+        create_embeddings(patient_journeys, journeys_hash)
+    assert "Not all embeddings were generated." in str(excinfo.value)
+    assert mock_path_exists.call_count == 1
+    mock_json_load.assert_not_called()
+    mock_open.assert_called_once_with(partial_results_file, 'w')
+    mock_json_dump.assert_called_once_with([], mock_open().__enter__())
+    mock_os_remove.assert_not_called()
 
-#     # Arrange
-#     mock_create_patient_journeys_chunks.return_value = {
-#         'total_nr_of_tokens': 4,
-#         'patient_journey_chunks': [chunk1, chunk2]
-#     }
-#     mock_create_embeddings_for_chunk.side_effect = [embeddings1, Exception("OpenAI API error")]
+# Test the case where the OpenAI API fails to return embeddings
+@patch('builtins.open')
+@patch('os.remove')
+@patch('json.dump')
+@patch('json.load')
+@patch('os.path.exists')
+@patch('embeddings.create_embeddings_for_chunk', side_effect=Exception("OpenAI API error"))
+@patch('embeddings.create_patient_journeys_chunks')
+def test_create_embeddings_api_failure(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk, mock_path_exists, mock_json_load, mock_json_dump, mock_os_remove, mock_open):
+    patient_journeys = ["test1", "test2"]
+    chunk = ["test1", "test2"]
     
-#     # Act & Assert
-#     with pytest.raises(Exception) as excinfo:
-#         create_embeddings(patient_journeys)
-#     assert "OpenAI API error" in str(excinfo.value)
-#     assert excinfo.value.args[2] == embeddings1
+    journeys_hash = "testhash"
+    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    
+    # Arrange
+    mock_path_exists.return_value = False
+    mock_os_remove.return_value = None
 
-# # Test the case where the number of embeddings does not match the number of patient journeys
-# @patch('embeddings.create_embeddings_for_chunk')
-# @patch('embeddings.create_patient_journeys_chunks')
-# def test_create_embeddings_mismatched_lengths(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk):
-#     patient_journeys = ["test1", "test2", "test3"]
-#     chunk = ["test1", "test2"]
-#     embeddings = create_embeddings_mock_response(chunk)
+    mock_create_patient_journeys_chunks.return_value = {
+        'total_nr_of_tokens': 2,
+        'patient_journey_chunks': [chunk]
+    }
     
-#     # Arrange
-#     mock_create_patient_journeys_chunks.return_value = {
-#         'total_nr_of_tokens': 3,
-#         'patient_journey_chunks': [chunk]
-#     }
-#     mock_create_embeddings_for_chunk.return_value = embeddings
+    # Act & Assert
+    with pytest.raises(Exception) as excinfo:
+        create_embeddings(patient_journeys, journeys_hash)
+    assert "OpenAI API error" in str(excinfo.value)
+    assert mock_path_exists.call_count == 1
+    mock_json_load.assert_not_called()
+    mock_open.assert_not_called()
+    mock_json_dump.assert_not_called()
+    mock_os_remove.assert_not_called()
+
+# Test the case where the OpenAI API fails to return embeddings for the second chunk
+# …but we still get the partially generated embeddings in the file
+@patch('builtins.open')
+@patch('os.remove')
+@patch('json.dump')
+@patch('json.load')
+@patch('os.path.exists')
+@patch('embeddings.create_embeddings_for_chunk')
+@patch('embeddings.create_patient_journeys_chunks')
+def test_create_embeddings_partial_failure(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk, mock_path_exists, mock_json_load, mock_json_dump, mock_os_remove, mock_open):
+    patient_journeys = ["test1", "test2", "test3", "test4"]
+    chunk1 = ["test1", "test2"]
+    chunk2 = ["test3", "test4"]
+    embeddings1 = create_embeddings_mock_response(chunk1)
+
+    journeys_hash = "testhash"
+    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
     
-#     # Act & Assert
-#     with pytest.raises(Exception) as excinfo:
-#         create_embeddings(patient_journeys)
-#     assert "Not all embeddings were generated." in str(excinfo.value)
+    # Arrange
+    mock_path_exists.return_value = False
+    mock_os_remove.return_value = None
+
+    mock_create_patient_journeys_chunks.return_value = {
+        'total_nr_of_tokens': 4,
+        'patient_journey_chunks': [chunk1, chunk2]
+    }
+    mock_create_embeddings_for_chunk.side_effect = [embeddings1, Exception("OpenAI API error")]
+    
+    # Act & Assert
+    with pytest.raises(Exception) as excinfo:
+        create_embeddings(patient_journeys, journeys_hash)
+    assert "OpenAI API error" in str(excinfo.value)
+    assert mock_path_exists.call_count == 1
+    mock_json_load.assert_not_called()
+    mock_open.assert_called_once_with(partial_results_file, 'w')
+    mock_json_dump.assert_called_once_with(embeddings1, mock_open().__enter__())
+    mock_os_remove.assert_not_called()
+
+# Test the case where it resumes from partial results in the file and then completes
+@patch('builtins.open')
+@patch('os.remove')
+@patch('json.dump')
+@patch('json.load')
+@patch('os.path.exists')
+@patch('embeddings.create_embeddings_for_chunk')
+@patch('embeddings.create_patient_journeys_chunks')
+def test_create_embeddings_resume(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk, mock_path_exists, mock_json_load, mock_json_dump, mock_os_remove, mock_open):
+    patient_journeys = ["test1", "test2", "test3", "test4"]
+    chunk1 = ["test1", "test2"]
+    chunk2 = ["test3", "test4"]
+    resume_embeddings = create_embeddings_mock_response(chunk1)
+    remaining_embeddings = create_embeddings_mock_response(chunk2)
+
+    journeys_hash = "testhash"
+    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    
+    # Arrange
+    mock_path_exists.return_value = True
+    mock_open().__enter__().read.return_value = json.dumps(resume_embeddings.copy())
+    mock_json_load.return_value = resume_embeddings.copy()
+    mock_os_remove.return_value = None
+
+    mock_create_patient_journeys_chunks.return_value = {
+        'total_nr_of_tokens': 2,
+        'patient_journey_chunks': [chunk2]
+    }
+    mock_create_embeddings_for_chunk.return_value = remaining_embeddings.copy()
+
+    # Act
+    result = create_embeddings(patient_journeys, journeys_hash)
+    
+    # Act & Assert
+    assert mock_path_exists.call_count == 2
+    mock_open.assert_any_call(partial_results_file, 'r')
+    mock_json_load.assert_called_once()
+    mock_open.assert_any_call(partial_results_file, 'w')
+    mock_json_dump.assert_called_once_with(resume_embeddings + remaining_embeddings, mock_open().__enter__())
+    mock_os_remove.assert_called_once_with(partial_results_file)
+    mock_create_patient_journeys_chunks.assert_called_once_with(chunk2, "text-embedding-ada-002", 6000)
+    mock_create_embeddings_for_chunk.assert_called_once_with(chunk2, "text-embedding-ada-002")
+    assert result == resume_embeddings + remaining_embeddings
+
+# Test the case where it resumes from partial results in file and then fails on the third chunk to generate the remaining embeddings, but saves the partial embeddings to file
+@patch('builtins.open')
+@patch('os.remove')
+@patch('json.dump')
+@patch('json.load')
+@patch('os.path.exists')
+@patch('embeddings.create_embeddings_for_chunk')
+@patch('embeddings.create_patient_journeys_chunks')
+def test_create_embeddings_resume(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk, mock_path_exists, mock_json_load, mock_json_dump, mock_os_remove, mock_open):
+    patient_journeys = ["test1", "test2", "test3", "test4", "test5", "test6"]
+    chunk1 = ["test1", "test2"]
+    chunk2 = ["test3", "test4"]
+    chunk3 = ["test5", "test6"]
+    resume_embeddings = create_embeddings_mock_response(chunk1)
+    remaining_embeddings_1 = create_embeddings_mock_response(chunk2)
+
+    journeys_hash = "testhash"
+    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    
+    # Arrange
+    mock_path_exists.return_value = True
+    mock_open().__enter__().read.return_value = json.dumps(resume_embeddings.copy())
+    mock_json_load.return_value = resume_embeddings.copy()
+    mock_os_remove.return_value = None
+
+    mock_create_patient_journeys_chunks.return_value = {
+        'total_nr_of_tokens': 4,
+        'patient_journey_chunks': [chunk2, chunk3]
+    }
+    mock_create_embeddings_for_chunk.side_effect = [remaining_embeddings_1.copy(), Exception("OpenAI API error")]
+
+    # Act & Assert
+    with pytest.raises(Exception) as excinfo:
+        create_embeddings(patient_journeys, journeys_hash)
+    assert "OpenAI API error" in str(excinfo.value)
+    assert mock_path_exists.call_count == 1
+    mock_open.assert_any_call(partial_results_file, 'r')
+    mock_json_load.assert_called_once()
+    mock_open.assert_any_call(partial_results_file, 'w')
+    mock_json_dump.assert_called_once_with(resume_embeddings + remaining_embeddings_1, mock_open().__enter__())
+    mock_os_remove.assert_not_called()
+    mock_create_patient_journeys_chunks.assert_called_once_with(chunk2 + chunk3, "text-embedding-ada-002", 6000)
+    mock_create_embeddings_for_chunk.call_count == 2
+    assert mock_create_embeddings_for_chunk.call_args_list[0] == call(chunk2, "text-embedding-ada-002")
+    assert mock_create_embeddings_for_chunk.call_args_list[1] == call(chunk3, "text-embedding-ada-002")
+    
+# Test the case where the number of embeddings does not match the number of patient journeys
+@patch('builtins.open')
+@patch('os.remove')
+@patch('json.dump')
+@patch('json.load')
+@patch('os.path.exists')
+@patch('embeddings.create_embeddings_for_chunk')
+@patch('embeddings.create_patient_journeys_chunks')
+def test_create_embeddings_mismatched_lengths(mock_create_patient_journeys_chunks, mock_create_embeddings_for_chunk, mock_path_exists, mock_json_load, mock_json_dump, mock_os_remove, mock_open):
+    patient_journeys = ["test1", "test2", "test3"]
+    chunk = ["test1", "test2"]
+    embeddings = create_embeddings_mock_response(chunk)
+    
+    journeys_hash = "testhash"
+    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    
+    # Arrange
+    mock_path_exists.return_value = False
+    mock_os_remove.return_value = None
+
+    mock_create_patient_journeys_chunks.return_value = {
+        'total_nr_of_tokens': 3,
+        'patient_journey_chunks': [chunk]
+    }
+    mock_create_embeddings_for_chunk.return_value = embeddings
+    
+    # Act & Assert
+    with pytest.raises(Exception) as excinfo:
+        create_embeddings(patient_journeys, journeys_hash)
+    assert "Not all embeddings were generated." in str(excinfo.value)
+    assert mock_path_exists.call_count == 1
+    mock_json_load.assert_not_called()
+    mock_open.assert_called_once_with(partial_results_file, 'w')
+    mock_json_dump.assert_called_once_with(embeddings, mock_open().__enter__())
+    mock_os_remove.assert_not_called()
