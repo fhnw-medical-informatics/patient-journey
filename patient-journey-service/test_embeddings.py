@@ -133,7 +133,7 @@ def test_create_embeddings_normal_case(mock_create_patient_journeys_chunks, mock
     embeddings = create_embeddings_mock_response(chunk)
     
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
 
     # Arrange
     mock_path_exists.side_effect = [False, True]  # First call returns False, second call returns True
@@ -173,7 +173,7 @@ def test_create_embeddings_multiple_chunks(mock_create_patient_journeys_chunks, 
     embeddings2 = create_embeddings_mock_response(chunk2)
 
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
 
     # Arrange
     mock_path_exists.side_effect = [False, True]  # First call returns False, second call returns True
@@ -212,7 +212,7 @@ def test_create_embeddings_no_patient_journeys(mock_create_patient_journeys_chun
     patient_journeys = []
 
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
     
     # Arrange
     mock_path_exists.return_value = False
@@ -247,7 +247,7 @@ def test_create_embeddings_empty_chunk(mock_create_patient_journeys_chunks, mock
     empty_chunk = []
 
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
     
     # Arrange
     mock_path_exists.return_value = False
@@ -261,7 +261,7 @@ def test_create_embeddings_empty_chunk(mock_create_patient_journeys_chunks, mock
     # Act & Assert
     with pytest.raises(Exception) as excinfo:
         create_embeddings(patient_journeys, journeys_hash)
-    assert "Not all embeddings were generated." in str(excinfo.value)
+    assert "does not match the number of patient journeys" in str(excinfo.value)
     assert mock_path_exists.call_count == 1
     mock_json_load.assert_not_called()
     mock_open.assert_called_once_with(partial_results_file, 'w')
@@ -281,7 +281,7 @@ def test_create_embeddings_api_failure(mock_create_patient_journeys_chunks, mock
     chunk = ["test1", "test2"]
     
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
     
     # Arrange
     mock_path_exists.return_value = False
@@ -318,7 +318,7 @@ def test_create_embeddings_partial_failure(mock_create_patient_journeys_chunks, 
     embeddings1 = create_embeddings_mock_response(chunk1)
 
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
     
     # Arrange
     mock_path_exists.return_value = False
@@ -356,7 +356,7 @@ def test_create_embeddings_resume(mock_create_patient_journeys_chunks, mock_crea
     remaining_embeddings = create_embeddings_mock_response(chunk2)
 
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
     
     # Arrange
     mock_path_exists.return_value = True
@@ -401,7 +401,7 @@ def test_create_embeddings_resume(mock_create_patient_journeys_chunks, mock_crea
     remaining_embeddings_1 = create_embeddings_mock_response(chunk2)
 
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
     
     # Arrange
     mock_path_exists.return_value = True
@@ -444,7 +444,7 @@ def test_create_embeddings_mismatched_lengths(mock_create_patient_journeys_chunk
     embeddings = create_embeddings_mock_response(chunk)
     
     journeys_hash = "testhash"
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
     
     # Arrange
     mock_path_exists.return_value = False
@@ -459,7 +459,7 @@ def test_create_embeddings_mismatched_lengths(mock_create_patient_journeys_chunk
     # Act & Assert
     with pytest.raises(Exception) as excinfo:
         create_embeddings(patient_journeys, journeys_hash)
-    assert "Not all embeddings were generated." in str(excinfo.value)
+    assert "does not match the number of patient journeys" in str(excinfo.value)
     assert mock_path_exists.call_count == 1
     mock_json_load.assert_not_called()
     mock_open.assert_called_once_with(partial_results_file, 'w')

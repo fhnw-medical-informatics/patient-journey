@@ -18,7 +18,7 @@ TOKENS_PER_CHUNK = 6000 # text-embedding-ada-002 has a limit of 8191 tokens per 
 
 openaiAPI = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
-    max_retries=5
+    max_retries=5,
 )
 
 def create_embeddings_for_chunk(chunk: list[str], model: str = "text-embedding-ada-002") -> list[list[float]]:
@@ -51,7 +51,7 @@ def create_embeddings(patient_journeys: list[str], journeys_hash: str) -> list[l
     :raises Exception: If not all embeddings are generated.
     """
     # File to store partial results to resume from in case of an exception
-    partial_results_file = f"./tmp/partial_embeddings_{journeys_hash}.json"
+    partial_results_file = f"partial_embeddings_{journeys_hash}.json"
 
     resumable_data = get_remaining_journeys_and_cached_embeddings_from_file(patient_journeys, partial_results_file)
 
@@ -67,15 +67,16 @@ def create_embeddings(patient_journeys: list[str], journeys_hash: str) -> list[l
 
     try:
         for i, chunk in enumerate(patient_journey_chunks):
-            display_progress(i, num_chunks)
+            display_progress(i, num_chunks, len(partial_embeddings))
             partial_embeddings.extend(generate_chunk_embeddings(chunk, i, num_chunks))
             # Save current embeddings after each chunk, so that we can resume in case of an exception
             save_partial_embeddings_to_file(partial_embeddings, partial_results_file)
         
         validate_embeddings_count(partial_embeddings, patient_journeys)
     except Exception as e:
-        print(f"⚠️ An error occurred during embeddings generation, the attempt is resumable with the same hash ({journeys_hash}).")
-        raise Exception(f"An error occurred during embeddings generation: {e}")
+        error_message = f"⚠️ An error occurred during embeddings generation: {e}, the partially generated embeddings have been saved and the attempt is resumable with the same input data and hash ({journeys_hash})."
+        print(error_message)
+        raise Exception(error_message)
     
     # If we've generated all embeddings successfully, delete the partial results file    
     cleanup_partial_embeddings_file(partial_results_file)
@@ -120,11 +121,11 @@ def print_embedding_generation_info(num_journeys: int, num_chunks: int, total_to
     estimated_cost = (total_tokens / 1000) * EMBEDDINGS_API_COSTS_PER_1KTOKENS
     print(f"====================\n💸 Estimated costs: ${estimated_cost:.4f}\n====================\n")
 
-def display_progress(current_chunk: int, total_chunks: int):
+def display_progress(current_chunk: int, total_chunks: int, total_embeddings: int):
     """Displays the progress of the embedding generation."""
     progress = (current_chunk + 1) / total_chunks
     progress_bar = ('#' * int(progress * 20)).ljust(20)
-    print(f"\r[{progress_bar}] Chunk {current_chunk + 1}/{total_chunks} being sent to openai embeddings api.", end='')
+    print(f"\r[{progress_bar}] Chunk {current_chunk + 1}/{total_chunks} being sent to openai embeddings api. Total generated embeddings: {total_embeddings}", end='')
 
 def generate_chunk_embeddings(chunk: list[str], chunk_index: int, total_chunks: int) -> list[list[float]]:
     """Generates embeddings for a single chunk and handles exceptions."""
@@ -140,7 +141,7 @@ def validate_embeddings_count(embeddings: list[list[float]], patient_journeys: l
     if len(embeddings) != len(patient_journeys):
         error_message = f"Number of embeddings generated ({len(embeddings)}) does not match the number of patient journeys ({len(patient_journeys)})."
         print(error_message)
-        raise Exception("Not all embeddings were generated.")
+        raise Exception(error_message)
     print(f"✅ Finished generating {len(embeddings)} embeddings for {len(patient_journeys)} patient journeys.\n")
 
 
