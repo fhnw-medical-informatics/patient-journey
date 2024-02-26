@@ -1,5 +1,11 @@
+# RAG
 
-# rag-chroma-private
+Bootstrapped via [rag-chroma-private](https://python.langchain.com/docs/templates/rag-chroma-private)
+
+Modifications
+* uses `mistral` Model
+
+# Original README (as provided by rag-chroma-private template)
 
 This template performs RAG with no reliance on external APIs. 
 

@@ -1,4 +1,24 @@
-# patient-journey-langserve
+# LangServe RAG Backend
+
+## Development Pre-Requisites
+
+* [LangChain CLI](https://python.langchain.com/docs/get_started/installation)
+* [Poetry](https://python-poetry.org/)
+* [Ollama](https://ollama.com/) with [`mistral`](https://ollama.com/library/mistral)
+
+## Launch Server
+
+NOTE: Ollama must be running
+
+```bash
+langchain serve
+```
+
+## Launch Playground Client
+
+[http://127.0.0.1:8000/rag-chroma-private/playground](http://127.0.0.1:8000/rag-chroma-private/playground)
+
+# Original README (as created via `langchain app new`)
 
 ## Installation
 

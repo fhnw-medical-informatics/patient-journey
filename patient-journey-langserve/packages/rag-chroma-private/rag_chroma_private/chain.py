@@ -9,7 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 
-loader = WebBaseLoader("https://lilianweng.github.io/posts/2023-06-23-agent/")
+loader = WebBaseLoader("https://www.fhnw.ch/en/research-and-services/lifesciences/medical-engineering-and-medical-informatics/medical-decision-support-systems/")
 data = loader.load()
 
 # Split
@@ -39,7 +39,7 @@ prompt = ChatPromptTemplate.from_template(template)
 
 # LLM
 # Select the LLM that you downloaded
-ollama_llm = "llama2:7b-chat"
+ollama_llm = "mistral"
 model = ChatOllama(model=ollama_llm)
 
 # RAG chain
